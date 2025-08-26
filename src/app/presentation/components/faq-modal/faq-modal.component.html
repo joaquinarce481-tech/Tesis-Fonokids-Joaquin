@@ -1,0 +1,83 @@
+<!-- src/app/components/faq-modal/faq-modal.component.html -->
+
+<div class="faq-modal-overlay" 
+     *ngIf="isVisible" 
+     (click)="onClose()">
+  
+  <div class="faq-modal" 
+       (click)="$event.stopPropagation()">
+    
+    <!-- Header del modal -->
+    <div class="faq-header">
+      <div class="faq-header-content">
+        <div class="faq-icon">❓</div>
+        <div>
+          <h2>Preguntas Frecuentes</h2>
+          <p>Selecciona una pregunta para enviarla al chat</p>
+        </div>
+      </div>
+      <button class="faq-close-btn" (click)="onClose()">
+        <span>✕</span>
+      </button>
+    </div>
+
+    <!-- Contenido del modal -->
+    <div class="faq-content">
+      
+      <!-- Categorías de preguntas -->
+      <div class="faq-categories">
+        <button 
+          *ngFor="let category of faqCategories; let i = index"
+          class="category-btn"
+          [class.active]="selectedCategoryIndex === i"
+          (click)="selectCategory(i)">
+          <span class="category-icon">{{ category.icon }}</span>
+          {{ category.name }}
+        </button>
+      </div>
+
+      <!-- Lista de preguntas -->
+      <div class="faq-questions">
+        <div 
+          *ngFor="let question of getSelectedQuestions()" 
+          class="faq-question-item"
+          [class.expanded]="question.isExpanded">
+          
+          <!-- Pregunta clickeable -->
+          <div class="question-header" (click)="selectQuestion(question)">
+            <div class="question-content">
+              <div class="question-text">{{ question.text }}</div>
+              <div class="question-description">{{ question.description }}</div>
+            </div>
+            
+            <div class="question-arrow" [class.rotated]="question.isExpanded">
+              <span>▼</span>
+            </div>
+          </div>
+
+          <!-- Respuesta expandible -->
+          <div class="question-answer" *ngIf="question.isExpanded">
+            <div class="answer-content" [innerHTML]="question.answer"></div>
+            
+            <!-- Botón para enviar al chat -->
+            <button class="send-to-chat-btn" (click)="sendQuestionToChat(question)">
+              <span>💬</span>
+              Enviar esta pregunta al chat
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón para chat libre -->
+      <div class="faq-footer">
+        <button class="chat-libre-btn" (click)="openFreeChat()">
+          <span class="chat-icon">🤖💻</span>
+          <div>
+            <div class="btn-title">¿TENES MAS DUDAS?</div>
+            <div class="btn-subtitle">Chatea libremente con la IA</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

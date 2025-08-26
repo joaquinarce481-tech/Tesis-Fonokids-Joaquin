@@ -1,0 +1,378 @@
+.orofacial-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Tarjeta de ejercicio */
+.exercise-card {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 700px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.exercise-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.exercise-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 28px;
+}
+
+.exercise-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-nav {
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-nav:hover {
+  background: #5a67d8;
+  transform: scale(1.1);
+}
+
+.btn-retry {
+  background: #fbbf24;
+  color: #333;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-retry:hover {
+  background: #f59e0b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+}
+
+.exercise-instruction {
+  color: #555;
+  font-size: 18px;
+  text-align: center;
+  margin: 20px 0;
+  font-weight: 500;
+}
+
+/* BARRA DE PROGRESO PRINCIPAL - ESTABILIZADA */
+.progress-container {
+  position: relative;
+  margin: 20px 0;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 40px;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Transición suave */
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+}
+
+.progress-bar.detecting {
+  background: linear-gradient(90deg, #9ca3af, #6b7280);
+  animation: pulse 1.5s infinite;
+}
+
+.progress-bar.success {
+  background: linear-gradient(90deg, #10b981, #059669);
+  animation: celebrate 0.5s ease-out;
+}
+
+.progress-bar.warning {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+@keyframes celebrate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.progress-fill {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.progress-status {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.status-searching { color: #6b7280; }
+.status-detected { color: #f59e0b; }
+.status-success { color: #10b981; }
+.status-lost { color: #ef4444; }
+
+/* Video Container */
+.video-container {
+  position: relative;
+  width: 640px;
+  height: 480px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  background: #000;
+}
+
+.input-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.output-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.overlay-content {
+  text-align: center;
+  color: white;
+}
+
+.overlay-content p {
+  font-size: 20px;
+  margin: 0;
+}
+
+/* Controles */
+.controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.btn-primary, .btn-secondary {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.btn-primary.active {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.btn-secondary {
+  background: white;
+  color: #333;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Métricas */
+.metrics {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 700px;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.metrics h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 24px;
+  text-align: center;
+}
+
+.metric-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.metric-row.target {
+  background: rgba(102, 126, 234, 0.1);
+  border: 2px solid #667eea;
+  transform: scale(1.02);
+}
+
+.metric-row span:first-child {
+  flex: 0 0 180px;
+  font-weight: 600;
+  color: #555;
+}
+
+.metric-bar {
+  flex: 1;
+  height: 20px;
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.metric-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 10px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.metric-value {
+  flex: 0 0 60px;
+  text-align: right;
+  font-weight: bold;
+  color: #333;
+  font-size: 18px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .video-container {
+    width: 100%;
+    max-width: 480px;
+    height: 360px;
+  }
+  
+  .exercise-card,
+  .metrics {
+    max-width: 100%;
+  }
+  
+  .metric-row span:first-child {
+    flex: 0 0 140px;
+    font-size: 14px;
+  }
+  
+  .controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

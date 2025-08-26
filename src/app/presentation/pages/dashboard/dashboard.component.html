@@ -1,0 +1,142 @@
+<!-- dashboard.component.html -->
+
+<div class="dashboard-container" [class.dark-mode]="isDarkMode">
+  <!-- Header con información del usuario -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="user-info">
+        <div class="user-menu-container">
+          <div class="user-avatar" 
+               [class.active]="showUserMenu"
+               (click)="toggleUserMenu()">
+            <img src="assets/images/user-avatar.jpg"
+                 alt="Joaquín Arce"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <span class="avatar-fallback" style="display: none;">👤</span>
+          </div>
+          
+          <!-- Menú desplegable -->
+          <div class="user-dropdown" [class.show]="showUserMenu">
+            <div class="dropdown-header">
+              <h4>Joaquín Arce</h4>
+              <p>Paciente</p>
+            </div>
+            
+            <div class="dropdown-menu">
+              <button class="dropdown-item" (click)="goToProfile()">
+                <span class="dropdown-icon">👤</span>
+                Mi Perfil
+              </button>
+              
+              <button class="dropdown-item" (click)="goToSettings()">
+                <span class="dropdown-icon">⚙️</span>
+                Configuración
+              </button>
+              
+              <button class="dropdown-item" (click)="goToHelp()">
+                <span class="dropdown-icon">❓</span>
+                Ayuda
+              </button>
+              
+              <button class="dropdown-item logout" (click)="logout()">
+                <span class="dropdown-icon">🚪</span>
+                Cerrar Sesión
+              </button>
+            </div>
+          </div>
+          
+          <div class="dropdown-overlay" 
+               *ngIf="showUserMenu" 
+               (click)="closeUserMenu()">
+          </div>
+        </div>
+        
+        <div class="user-details">
+          <h1>Joaquín Arce</h1>
+          <p>{{ getGreeting() }}</p>
+        </div>
+      </div>
+      
+      <!-- Botón de modo oscuro -->
+      <div class="stat-item">
+        <button class="theme-toggle" (click)="toggleDarkMode()" [title]="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+          <span class="theme-icon">{{ isDarkMode ? '☀️' : '🌙' }}</span>
+        </button>
+        <p>Tema</p>
+      </div>
+    </div>
+  </header>
+  
+  <!-- Contenido principal -->
+  <main class="dashboard-main">
+    <div class="main-title">
+      <h2>¿Qué quieres hacer hoy?</h2>
+      <p>Selecciona una opción del menú para comenzar tu aventura 🚀</p>
+    </div>
+
+    <div class="menu-grid">
+      <div 
+        *ngFor="let item of menuItems"
+        class="menu-item"
+        [class.selected]="selectedItem === item.id"
+        [ngClass]="'bg-gradient-' + item.color"
+        (click)="handleItemClick(item)">
+        
+        <div class="menu-image"></div>
+        
+        <div class="menu-content">
+          <div class="menu-header">
+            <div class="menu-emoji">{{ item.emoji }}</div>
+            <div class="menu-icon">📋</div>
+          </div>
+          
+          <h3>{{ item.title }}</h3>
+          <p class="menu-subtitle">{{ item.subtitle }}</p>
+          <p class="menu-description">{{ item.description }}</p>
+        </div>
+
+        <div *ngIf="selectedItem === item.id" class="selection-indicator"></div>
+      </div>
+    </div>
+
+    <div class="motivational-message">
+      <div class="message-emoji">🌟</div>
+      <h3>¡Cada día eres mejor!</h3>
+      <p>Recuerda: practicar un poquito cada día te ayuda a mejorar muchísimo. ¡Tú puedes!</p>
+    </div>
+  </main>
+</div>
+
+<!-- ✅ BOTÓN FLOTANTE CON MENSAJE AL LADO -->
+<div class="floating-help-container">
+  <!-- Mensaje al lado del botón -->
+  <div class="floating-message">
+    Preguntas frecuentes
+  </div>
+  
+  <!-- Botón flotante -->
+  <button class="floating-mascot" 
+          (click)="goToHelp()"
+          style="position: relative !important; 
+                 width: 60px !important; 
+                 height: 60px !important; 
+                 background: #25d366 !important; 
+                 border: none !important;
+                 border-radius: 50% !important; 
+                 color: white !important; 
+                 font-size: 2rem !important; 
+                 cursor: pointer !important; 
+                 z-index: 999999 !important; 
+                 box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4) !important;
+                 display: flex !important;
+                 align-items: center !important;
+                 justify-content: center !important;">
+    ❓
+  </button>
+</div>
+
+<!-- ✅ AGREGAR EL COMPONENTE FAQ MODAL -->
+<app-faq-modal 
+  [isVisible]="showFaqModal"
+  (closeModal)="closeFaqModal()">
+</app-faq-modal>

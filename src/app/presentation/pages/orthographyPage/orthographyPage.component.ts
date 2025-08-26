@@ -4,8 +4,6 @@ import { ChatMessageComponent, GptMessageOrthographyComponent, MyMessageComponen
 import { Message } from '@interfaces/message.interface';
 import { OpenAiService } from 'app/presentation/services/openai.service';
 
-
-
 @Component( {
   selector: 'app-orthography-page',
   standalone: true,
@@ -29,8 +27,6 @@ export default class OrthographyPageComponent {
   public isLoading = signal(false);
   public openAiService = inject( OpenAiService );
 
-
-
   handleMessage( prompt: string ) {
 
     this.isLoading.set(true);
@@ -42,7 +38,6 @@ export default class OrthographyPageComponent {
         text: prompt
       }
     ]);
-
 
     this.openAiService.checkOrthography( prompt )
       .subscribe( resp => {
@@ -59,10 +54,6 @@ export default class OrthographyPageComponent {
 
       })
 
-
-
   }
-
-
 
 }

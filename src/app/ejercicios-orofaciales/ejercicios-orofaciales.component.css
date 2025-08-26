@@ -1,0 +1,423 @@
+.ejercicios-container {
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+}
+
+.ejercicios-menu h2 {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.ejercicios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ejercicio-card {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ejercicio-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.ejercicio-card:active {
+  transform: translateY(-2px);
+}
+
+.ejercicio-icono {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.ejercicio-card h3 {
+  margin: 10px 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.ejercicio-card p {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.ejercicio-resultado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.puntuacion {
+  font-weight: bold;
+  color: #28a745;
+}
+
+.estado.completado {
+  color: #28a745;
+}
+
+.ejercicio-activo {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.ejercicio-header {
+  background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+  padding: 20px;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ejercicio-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.ejercicio-info {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.tiempo-restante, .puntuacion-actual {
+  background: white;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  font-size: 0.9rem;
+}
+
+.video-section {
+  position: relative;
+}
+
+.video-container {
+  position: relative;
+  width: 640px;
+  height: 480px;
+  margin: 20px auto;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.input-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.output-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.feedback-overlay {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 3;
+}
+
+.feedback-message {
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.feedback-message:not(:empty) {
+  opacity: 1;
+}
+
+.feedback-message.success {
+  background: rgba(40, 167, 69, 0.9);
+  animation: pulseSuccess 0.5s ease-in-out;
+}
+
+.feedback-message.warning {
+  background: rgba(255, 193, 7, 0.9);
+  color: #333;
+}
+
+.feedback-message.error {
+  background: rgba(220, 53, 69, 0.9);
+}
+
+@keyframes pulseSuccess {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.progreso-container {
+  background: rgba(255,255,255,0.3);
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progreso-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+}
+
+.instrucciones {
+  padding: 20px;
+  text-align: center;
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+.instrucciones p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #495057;
+  font-weight: 500;
+}
+
+.controles-ejercicio {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 20px;
+  background: #f8f9fa;
+}
+
+.btn-detener, .btn-reiniciar, .btn-menu, .btn-repetir {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-detener {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-detener:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+}
+
+.btn-reiniciar {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-reiniciar:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+.btn-menu {
+  background: #007bff;
+  color: white;
+}
+
+.btn-menu:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+}
+
+.btn-repetir {
+  background: #28a745;
+  color: white;
+}
+
+.btn-repetir:hover {
+  background: #1e7e34;
+  transform: translateY(-2px);
+}
+
+.resultados-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.resultado-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  max-width: 400px;
+  animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.resultado-card h2 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+.resultado-principal {
+  margin: 30px 0;
+}
+
+.puntuacion-final {
+  font-size: 4rem;
+  font-weight: bold;
+  margin: 20px 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.mensaje-resultado {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  color: #666;
+}
+
+.estadisticas {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.acciones-resultado {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+  .loading-message {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2rem;
+    color: #666;
+    background: #f8f9fa;
+    border-radius: 10px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+@media (max-width: 768px) {
+  .ejercicios-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .video-container {
+    width: 100%;
+    max-width: 640px;
+    height: auto;
+    aspect-ratio: 4/3;
+  }
+  
+  .ejercicio-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .ejercicio-info {
+    justify-content: center;
+  }
+  
+  .resultado-card {
+    margin: 0 10px;
+    padding: 30px 20px;
+  }
+  
+  .puntuacion-final {
+    font-size: 3rem;
+  }
+  
+  .acciones-resultado {
+    flex-direction: column;
+  }
+}

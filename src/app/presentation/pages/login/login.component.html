@@ -1,0 +1,62 @@
+<div class="login-wrapper">
+  <!-- Elementos flotantes decorativos -->
+  <div class="floating-elements">
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="heart"></div>
+    <div class="heart"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+  </div>
+
+  <!-- Título de bienvenida -->
+  <h1 class="titulo-bienvenida">¡BIENVENIDOS CHICOS/AS!</h1>
+
+  <div class="login-box">
+    <!-- Formulario con binding corregido -->
+    <form>
+      <div class="input-group">
+        <input 
+          type="text" 
+          placeholder="Tu nombre de usuario" 
+          [(ngModel)]="username"
+          name="username"
+          required 
+        />
+        <div class="input-icon">👤</div>
+      </div>
+
+      <div class="input-group">
+        <input 
+          type="password" 
+          placeholder="Tu contraseña secreta" 
+          [(ngModel)]="password"
+          name="password"
+          required 
+        />
+        <div class="input-icon">🔒</div>
+      </div>
+
+      <!-- Mostrar mensaje de error si existe -->
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Botón con loading -->
+      <button 
+        type="button" 
+        (click)="ingresar()" 
+        [disabled]="isLoading"
+      >
+        <span *ngIf="!isLoading">¡Vamos a practicar! 🚀</span>
+        <span *ngIf="isLoading">Cargando... ⏳</span>
+      </button>
+    </form>
+
+    <p class="help-text">
+      ¿Olvidaste tu contraseña? <br>
+      ¡Pedí ayuda a tu fonoaudióloga!
+    </p>
+  </div>
+</div>

@@ -1,0 +1,113 @@
+<div class="ejercicios-container">
+  <!-- Selector de Ejercicios -->
+  <div class="ejercicios-menu" *ngIf="!ejercicioActivo && !mostrarResultados">
+    <h2>🎯 Ejercicios de Fonoaudiología</h2>
+    <div class="ejercicios-grid">
+      <div 
+        class="ejercicio-card" 
+        *ngFor="let ejercicio of ejercicios"
+        (click)="iniciarEjercicio(ejercicio)"
+        [style.border-color]="ejercicio.color">
+        <div class="ejercicio-icono" [style.color]="ejercicio.color">{{ejercicio.icono}}</div>
+        <h3>{{ejercicio.nombre}}</h3>
+        <p>{{ejercicio.descripcion}}</p>
+        <div class="ejercicio-resultado" *ngIf="resultados[ejercicio.id]">
+          <span class="puntuacion">{{resultados[ejercicio.id].puntuacion}}%</span>
+          <span class="estado" [class.completado]="resultados[ejercicio.id].completado">
+            {{resultados[ejercicio.id].completado ? '✅' : '⏳'}}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pantalla de Ejercicio Activo -->
+  <div class="ejercicio-activo" *ngIf="ejercicioActivo && !mostrarResultados">
+    <div class="ejercicio-header">
+      <h2 [style.color]="ejercicioActivo.color">
+        {{ejercicioActivo.icono}} {{ejercicioActivo.nombre}}
+      </h2>
+      <div class="ejercicio-info" *ngIf="isRecording">
+        <div class="tiempo-restante">
+          ⏱️ {{tiempoRestante}}s
+        </div>
+        <div class="puntuacion-actual">
+          🎯 {{puntuacionActual}}/100
+        </div>
+      </div>
+    </div>
+
+    <div class="video-section">
+      <div class="video-container">
+        <video #videoElement class="input-video" playsinline autoplay muted></video>
+        <canvas #canvasElement class="output-canvas" width="640" height="480"></canvas>
+        
+        <!-- Feedback Visual -->
+        <div class="feedback-overlay" *ngIf="isRecording">
+          <div class="feedback-message" 
+               [class.success]="feedbackTipo === 'success'"
+               [class.warning]="feedbackTipo === 'warning'"
+               [class.error]="feedbackTipo === 'error'">
+            {{mensajeFeedback}}
+          </div>
+          
+          <!-- Indicador de Progreso -->
+          <div class="progreso-container">
+            <div class="progreso-bar" 
+                 [style.width.%]="progresoEjercicio"
+                 [style.background-color]="ejercicioActivo?.color">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="instrucciones">
+        <p>{{ejercicioActivo.instrucciones}}</p>
+      </div>
+    </div>
+
+    <div class="controles-ejercicio">
+      <button (click)="detenerEjercicio()" class="btn-detener" *ngIf="isRecording">
+        ⏹️ Detener
+      </button>
+      <button (click)="reiniciarEjercicio()" class="btn-reiniciar" *ngIf="isRecording">
+        🔄 Reiniciar
+      </button>
+      <!-- Mensaje de carga -->
+      <div *ngIf="!isRecording" class="loading-message">
+        🎥 Iniciando cámara... Por favor espera
+      </div>
+    </div>
+  </div>
+
+  <!-- Pantalla de Resultados -->
+  <div class="resultados-screen" *ngIf="mostrarResultados">
+    <div class="resultado-card">
+      <h2>🎉 ¡Ejercicio Completado!</h2>
+      <div class="resultado-principal">
+        <div class="puntuacion-final" [style.color]="colorPuntuacion">
+          {{ultimoResultado?.puntuacion}}%
+        </div>
+        <div class="mensaje-resultado">{{mensajeResultado}}</div>
+      </div>
+      <div class="estadisticas">
+        <div class="stat">
+          <span class="stat-label">Tiempo:</span>
+          <span class="stat-value">{{ultimoResultado?.tiempoRealizado}}s</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Errores:</span>
+          <span class="stat-value">{{ultimoResultado?.errores}}</span>
+        </div>
+      </div>
+      <div class="acciones-resultado">
+        <button (click)="volverAlMenu()" class="btn-menu">
+          🏠 Volver al Menú
+        </button>
+        <button (click)="repetirEjercicio()" class="btn-repetir">
+          🔄 Repetir
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
