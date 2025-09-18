@@ -1,0 +1,648 @@
+/* 🎨 DISEÑO ESPECIAL PARA NIÑOS - FONOKIDS */
+
+/* Contenedor principal con fondo divertido */
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Elementos decorativos de fondo */
+.profile-container::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: -50px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.profile-container::after {
+  content: '';
+  position: absolute;
+  bottom: -30px;
+  right: -30px;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 4s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+/* Header del perfil - más divertido */
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #48dbfb 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-header::before {
+  content: '⭐';
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1.5rem;
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+.profile-header::after {
+  content: '🌈';
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 1.2rem;
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.avatar-section {
+  position: relative;
+}
+
+.avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  backdrop-filter: blur(10px);
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.header-info h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.patient-role {
+  margin: 8px 0;
+  opacity: 0.95;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.progress-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #00b894, #00cec9);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0, 184, 148, 0.3);
+}
+
+.save-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00a085, #00b7b8);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0, 184, 148, 0.4);
+}
+
+.save-btn:disabled {
+  background: linear-gradient(135deg, #b2bec3, #636e72);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.save-btn.saving {
+  background: linear-gradient(135deg, #fdcb6e, #e17055);
+  animation: saving-pulse 1s ease-in-out infinite;
+}
+
+@keyframes saving-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Formulario con diseño infantil */
+.profile-form {
+  background: white;
+  border-radius: 25px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.form-section {
+  padding: 35px;
+  border-bottom: 3px dashed #e17055;
+  position: relative;
+}
+
+.form-section:last-child {
+  border-bottom: none;
+}
+
+.form-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+}
+
+.form-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  color: #2d3436;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.form-section h3 i {
+  color: #fd79a8;
+  font-size: 1.8rem;
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  75% { transform: rotate(-5deg); }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+    padding: 25px;
+  }
+  
+  .profile-container {
+    padding: 15px;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.form-group label {
+  font-weight: 700;
+  color: #2d3436;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  position: relative;
+}
+
+.form-group label::after {
+  content: '✨';
+  position: absolute;
+  right: -25px;
+  top: 0;
+  font-size: 0.8rem;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* INPUTS CON TEXTO VISIBLE CORREGIDO */
+.form-control {
+  padding: 15px 20px;
+  border: 3px solid #ddd6fe;
+  border-radius: 15px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: white !important;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  
+  /* TEXTO VISIBLE - COLORES FORZADOS */
+  color: #2d3436 !important;
+  font-weight: 600;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #fd79a8;
+  box-shadow: 0 0 0 4px rgba(253, 121, 168, 0.2);
+  transform: translateY(-2px);
+  
+  /* MANTENER TEXTO VISIBLE AL HACER FOCUS */
+  color: #2d3436 !important;
+  background-color: white !important;
+}
+
+/* Arreglar inputs específicos */
+.form-control[type="date"] {
+  color: #2d3436 !important;
+}
+
+.form-control[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+}
+
+.form-control[type="email"],
+.form-control[type="tel"],
+.form-control[type="text"] {
+  color: #2d3436 !important;
+}
+
+/* Para los selects */
+.form-control option {
+  color: #2d3436 !important;
+  background-color: white !important;
+}
+
+/* Para los placeholders */
+.form-control::placeholder {
+  color: #636e72 !important;
+  opacity: 0.8;
+}
+
+/* Textareas */
+.form-control.textarea {
+  color: #2d3436 !important;
+  background-color: white !important;
+}
+
+/* SOLUCIÓN ADICIONAL - Forzar en todos los inputs */
+input, select, textarea {
+  color: #2d3436 !important;
+  background-color: white !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  color: #2d3436 !important;
+  background-color: white !important;
+}
+
+.form-control:disabled,
+.form-control[readonly] {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  color: #6c757d !important;
+  cursor: not-allowed;
+  border-color: #e9ecef;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-text {
+  font-size: 0.9rem;
+  color: #636e72;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* Objetivos y dificultades - más divertidos */
+.goals-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.goal-tag {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(116, 185, 255, 0.3);
+  transform: rotate(-1deg);
+  transition: all 0.3s ease;
+}
+
+.goal-tag:hover {
+  transform: rotate(0deg) scale(1.05);
+}
+
+.goal-tag:nth-child(even) {
+  transform: rotate(1deg);
+  background: linear-gradient(135deg, #00b894, #00cec9);
+  box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+}
+
+.difficulty-tag {
+  background: linear-gradient(135deg, #fdcb6e, #e17055);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(253, 203, 110, 0.3);
+  transform: rotate(1deg);
+  transition: all 0.3s ease;
+}
+
+.difficulty-tag:hover {
+  transform: rotate(0deg) scale(1.05);
+}
+
+.difficulty-tag:nth-child(even) {
+  transform: rotate(-1deg);
+}
+
+/* Estadísticas súper divertidas */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
+  margin-bottom: 35px;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, white, #f8f9fa);
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: rotate 4s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+.stat-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  position: relative;
+  z-index: 2;
+}
+
+.stat-card:nth-child(1) .stat-icon {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+}
+
+.stat-card:nth-child(2) .stat-icon {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  box-shadow: 0 8px 20px rgba(116, 185, 255, 0.4);
+}
+
+.stat-card:nth-child(3) .stat-icon {
+  background: linear-gradient(135deg, #fd79a8, #e84393);
+  box-shadow: 0 8px 20px rgba(253, 121, 168, 0.4);
+}
+
+.stat-card:nth-child(4) .stat-icon {
+  background: linear-gradient(135deg, #fdcb6e, #e17055);
+  box-shadow: 0 8px 20px rgba(253, 203, 110, 0.4);
+}
+
+.stat-content {
+  position: relative;
+  z-index: 2;
+}
+
+.stat-content h4 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #2d3436;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.stat-content p {
+  margin: 8px 0 0 0;
+  color: #636e72;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Barra de progreso súper divertida */
+.progress-section {
+  margin-top: 35px;
+  text-align: center;
+}
+
+.progress-section h4 {
+  margin-bottom: 20px;
+  color: #2d3436;
+  font-weight: 700;
+  font-size: 1.3rem;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 25px;
+  background: linear-gradient(135deg, #ddd6fe, #e9ecef);
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+  border-radius: 15px;
+  transition: width 1.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 2.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.progress-text {
+  font-weight: 700;
+  color: #2d3436;
+  font-size: 1.1rem;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+/* Mensajes de estado divertidos */
+.status-message {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  padding: 20px 25px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  z-index: 1000;
+  animation: slideInBounce 0.5s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.status-message.success {
+  background: linear-gradient(135deg, #00b894, #00cec9);
+  color: white;
+}
+
+.status-message.error {
+  background: linear-gradient(135deg, #e17055, #d63031);
+  color: white;
+}
+
+@keyframes slideInBounce {
+  0% {
+    transform: translateX(100%) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(-10px) scale(1.05);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Animaciones adicionales para elementos */
+.form-control:focus + label::after {
+  animation: celebration 0.6s ease;
+}
+
+@keyframes celebration {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.3) rotate(10deg); }
+  75% { transform: scale(1.3) rotate(-10deg); }
+}
+
+/* Responsive mejorado */
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 10px;
+  }
+  
+  .form-section {
+    padding: 25px 20px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .header-info h1 {
+    font-size: 1.8rem;
+  }
+}

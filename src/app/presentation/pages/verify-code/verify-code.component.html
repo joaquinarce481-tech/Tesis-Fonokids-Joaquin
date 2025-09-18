@@ -1,0 +1,96 @@
+<div class="login-wrapper">
+  <!-- Elementos flotantes decorativos -->
+  <div class="floating-elements">
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="heart"></div>
+    <div class="heart"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+  </div>
+  
+  <!-- Título de bienvenida -->
+  <h1 class="titulo-bienvenida">CODIGO DE VERIFICACION</h1>
+  
+  <div class="login-box">
+    <!-- Mascota -->
+    <div class="mascot">📮</div>
+    
+    <p class="subtitle">
+      Te enviamos un código de 6 dígitos a: <br>
+      <strong>{{ email }}</strong><br>
+      Ingrésalo aquí para continuar.
+    </p>
+    
+    <!-- Formulario -->
+    <form (ngSubmit)="verificarCodigo()" #codeForm="ngForm">
+      
+      <!-- Campo para código de 6 dígitos -->
+      <div class="code-input-container">
+        <div class="code-inputs">
+          <input 
+            *ngFor="let digit of codeDigits; let i = index"
+            type="text" 
+            maxlength="1"
+            class="code-digit"
+            [value]="codeDigits[i]"
+            [name]="'digit' + i"
+            (input)="onDigitInput($event, i)"
+            (keydown)="onKeyDown($event, i)"
+            [disabled]="isLoading"
+            autocomplete="off"
+            #digitInput
+          />
+        </div>
+        <div class="code-display">{{ getFullCode() }}</div>
+      </div>
+      
+      <!-- Mostrar mensaje de error si existe -->
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+      
+      <!-- Mostrar mensaje de éxito si existe -->
+      <div *ngIf="successMessage" class="success-message">
+        {{ successMessage }}
+      </div>
+      
+      <!-- Botón verificar código -->
+      <button 
+        type="submit"
+        [disabled]="isLoading || !isCodeComplete()"
+        class="login-button"
+      >
+        <span *ngIf="!isLoading">✅ Verificar código</span>
+        <span *ngIf="isLoading">Verificando... ⏳</span>
+      </button>
+      
+      <!-- Botón reenviar código -->
+      <button 
+        type="button"
+        (click)="reenviarCodigo()"
+        class="resend-button"
+        [disabled]="isLoading || resendCooldown > 0"
+      >
+        <span *ngIf="resendCooldown === 0">📤 Reenviar código</span>
+        <span *ngIf="resendCooldown > 0">Reenviar en {{ resendCooldown }}s</span>
+      </button>
+      
+      <!-- Botón volver -->
+      <button 
+        type="button"
+        (click)="volver()"
+        class="back-button"
+        [disabled]="isLoading"
+      >
+        ← Volver
+      </button>
+    </form>
+    
+    <p class="help-text">
+      El código expira en 10 minutos. Si no lo recibes, 
+      revisa tu carpeta de spam.
+    </p>
+  </div>
+</div>

@@ -3,33 +3,60 @@ import { OrofacialAnalysisComponent } from './presentation/components/orofacial-
 import { EjerciciosOrofacialesComponent } from './ejercicios-orofaciales/ejercicios-orofaciales.component';
 import { LoginComponent } from './presentation/pages/login/login.component';
 import { DashboardLayoutComponent } from './presentation/layouts/dashboardLayout/dashboardLayout.component';
+// 🆕 IMPORTS DE AUTENTICACIÓN
+import { ForgotPasswordComponent } from './presentation/pages/forgot-password/forgot-password.component';
+import { VerifyCodeComponent } from './presentation/pages/verify-code/verify-code.component';
+import { ResetPasswordComponent } from './presentation/pages/reset-password/reset-password.component';
+// 🆕 IMPORTS DE GUARDS
+import { AuthGuard, PublicGuard } from './presentation/guards/auth.guard';
 
 export const routes: Routes = [
-  // Ruta principal - mostrar login primero
+  // 🔓 RUTAS PÚBLICAS (solo para usuarios NO logueados)
   {
     path: '',
-    component: LoginComponent
+    component: LoginComponent,
+    canActivate: [PublicGuard]
   },
-  // Ruta específica para login
   {
     path: 'login',
-    component: LoginComponent
+    component: LoginComponent,
+    canActivate: [PublicGuard]
   },
-  // Dashboard directo sin layout
+  {
+    path: 'forgot-password',
+    component: ForgotPasswordComponent,
+    canActivate: [PublicGuard]
+  },
+  {
+    path: 'verify-code',
+    component: VerifyCodeComponent,
+    canActivate: [PublicGuard]
+  },
+  {
+    path: 'reset-password',
+    component: ResetPasswordComponent,
+    canActivate: [PublicGuard]
+  },
+
+  // 🔐 RUTAS PROTEGIDAS (requieren autenticación)
   {
     path: 'dashboard',
     loadComponent: () => 
       import('./presentation/pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [AuthGuard],
     data: {
       icon: 'fa-solid fa-home',
       title: 'Dashboard',
       description: 'Panel principal'
     }
   },
-  // 🔥 RUTAS CON DASHBOARDLAYOUT (CHATBOT FONOKIDS)
+  
+  // 🔥 RUTAS CON DASHBOARDLAYOUT (CHATBOT FONOKIDS) - PROTEGIDAS
   {
-    path: 'chat',  // 🔥 CAMBIÉ DE '' a 'chat'
+    path: 'chat',
     component: DashboardLayoutComponent,
+    canActivate: [AuthGuard],
+    canActivateChild: [AuthGuard],
     children: [
       {
         path: 'orthography',
@@ -111,18 +138,20 @@ export const routes: Routes = [
           description: 'Información del asistente',
         },
       },
-      // 🔥 RUTA POR DEFECTO CUANDO ENTRAS A /chat - CAMBIADO A ORTHOGRAPHY
+      // Ruta por defecto cuando entras a /chat
       {
         path: '',
-        redirectTo: 'orthography',  // 👈 CAMBIADO DE 'assistant' A 'orthography'
+        redirectTo: 'orthography',
         pathMatch: 'full'
       }
     ]
   },
-  // Rutas individuales sin layout
+  
+  // 🔐 RUTAS INDIVIDUALES PROTEGIDAS
   {
     path: 'ejercicios',
     component: EjerciciosOrofacialesComponent,
+    canActivate: [AuthGuard],
     data: {
       icon: 'fa-solid fa-dumbbell',
       title: 'Ejercicios Orofaciales',
@@ -132,12 +161,19 @@ export const routes: Routes = [
   {
     path: 'orofacial',
     component: OrofacialAnalysisComponent,
+    canActivate: [AuthGuard],
     data: {
       icon: 'fa-solid fa-face-smile',
       title: 'Análisis Orofacial',
       description: 'Análisis de movimientos faciales',
     },
   },
+  {
+    path: 'mi-perfil',
+    loadComponent: () => import('./pages/mi-perfil/mi-perfil.component').then(m => m.MiPerfilComponent),
+    canActivate: [AuthGuard]
+  },
+  
   // Wildcard route - redirige a login si la ruta no existe
   {
     path: '**',

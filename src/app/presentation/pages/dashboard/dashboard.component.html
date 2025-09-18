@@ -10,7 +10,7 @@
                [class.active]="showUserMenu"
                (click)="toggleUserMenu()">
             <img src="assets/images/user-avatar.jpg"
-                 alt="Joaquín Arce"
+                 [alt]="userName"
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
             <span class="avatar-fallback" style="display: none;">👤</span>
           </div>
@@ -18,7 +18,7 @@
           <!-- Menú desplegable -->
           <div class="user-dropdown" [class.show]="showUserMenu">
             <div class="dropdown-header">
-              <h4>Joaquín Arce</h4>
+              <h4>{{ userName }}</h4>
               <p>Paciente</p>
             </div>
             
@@ -38,7 +38,8 @@
                 Ayuda
               </button>
               
-              <button class="dropdown-item logout" (click)="logout()">
+              <!-- Botón de cerrar sesión con confirmación -->
+              <button class="dropdown-item logout" (click)="showLogoutConfirmation()">
                 <span class="dropdown-icon">🚪</span>
                 Cerrar Sesión
               </button>
@@ -52,7 +53,7 @@
         </div>
         
         <div class="user-details">
-          <h1>Joaquín Arce</h1>
+          <h1>{{ userName }}</h1>
           <p>{{ getGreeting() }}</p>
         </div>
       </div>
@@ -107,7 +108,7 @@
   </main>
 </div>
 
-<!-- ✅ BOTÓN FLOTANTE CON MENSAJE AL LADO -->
+<!-- BOTÓN FLOTANTE CON MENSAJE AL LADO -->
 <div class="floating-help-container">
   <!-- Mensaje al lado del botón -->
   <div class="floating-message">
@@ -135,8 +136,15 @@
   </button>
 </div>
 
-<!-- ✅ AGREGAR EL COMPONENTE FAQ MODAL -->
+<!-- MODAL FAQ EXISTENTE -->
 <app-faq-modal 
   [isVisible]="showFaqModal"
   (closeModal)="closeFaqModal()">
 </app-faq-modal>
+
+<!-- MODAL DE CONFIRMACIÓN DE LOGOUT -->
+<app-logout-modal 
+  *ngIf="showLogoutModal"
+  (cancel)="onLogoutCancel()"
+  (confirm)="onLogoutConfirm()">
+</app-logout-modal>

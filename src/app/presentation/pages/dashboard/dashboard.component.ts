@@ -1,7 +1,11 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FaqModalComponent } from '../../components/faq-modal/faq-modal.component'; // ✅ AGREGAR
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { FaqModalComponent } from '../../components/faq-modal/faq-modal.component';
+import { LogoutModalComponent } from '../../../presentation/components/logout-modal/logout-modal.component';
+import { AuthService } from '../../services/auth.service'; // 🆕 IMPORT AUTHSERVICE
 
 interface MenuItem {
   id: string;
@@ -16,7 +20,7 @@ interface MenuItem {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FaqModalComponent], // ✅ AGREGAR FaqModalComponent
+  imports: [CommonModule, FaqModalComponent, LogoutModalComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -25,8 +29,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   currentTime = new Date();
   showUserMenu: boolean = false;
   isDarkMode: boolean = false;
-  showFaqModal: boolean = false; // ✅ AGREGAR ESTA PROPIEDAD
+  showFaqModal: boolean = false;
+  showLogoutModal: boolean = false;
   private timeInterval: any;
+  
+  // 🆕 NUEVAS PROPIEDADES PARA DATOS DEL USUARIO
+  userName: string = 'Usuario';
+  userEmail: string = '';
+  private destroy$ = new Subject<void>();
+  
+  // 🆕 INYECCIÓN DEL AUTHSERVICE
+  private authService = inject(AuthService);
 
   menuItems: MenuItem[] = [
     {
@@ -76,12 +89,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadDarkModePreference();
+    this.loadUserData(); // 🆕 CARGAR DATOS DEL USUARIO
+  }
+
+  // 🆕 NUEVO MÉTODO PARA CARGAR DATOS DEL USUARIO
+  private loadUserData(): void {
+    // Suscribirse a los cambios del usuario actual
+    this.authService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        if (user) {
+          // Si hay un usuario, usar su nombre
+          this.userName = user.name || user.username || 'Usuario';
+          this.userEmail = user.email || '';
+          console.log('✅ Usuario cargado:', this.userName);
+        } else {
+          // Si no hay usuario, valores por defecto
+          this.userName = 'Usuario';
+          this.userEmail = '';
+        }
+      });
   }
 
   ngOnDestroy() {
     if (this.timeInterval) {
       clearInterval(this.timeInterval);
     }
+    // 🆕 CLEANUP DE SUSCRIPCIONES
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private updateTime() {
@@ -112,7 +148,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 🔥 MÉTODO ACTUALIZADO CON LA RUTA CORRECTA
   handleItemClick(item: MenuItem) {
     this.selectedItem = item.id;
     console.log(`Navegando a: ${item.title}`);
@@ -127,13 +162,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         break;
       
       case 'juegos':
-        // Navegar a ejercicios orofaciales
         this.router.navigate(['/ejercicios']);
         break;
       
       case 'practicas':
-        // 🔥 NAVEGAR AL CHATBOT FONOKIDS CON EL LAYOUT COMPLETO
-        this.router.navigate(['/chat/assistant']);  // 🔥 CAMBIÉ DE '/assistant' a '/chat/assistant'
+        this.router.navigate(['/chat/assistant']);
         break;
     }
     
@@ -168,7 +201,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   goToProfile() {
     this.closeUserMenu();
     console.log('Navegando a perfil...');
-    // this.router.navigate(['/profile']);
+    this.router.navigate(['/mi-perfil']);
   }
 
   goToSettings() {
@@ -177,21 +210,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // this.router.navigate(['/settings']);
   }
 
-  // ✅ MÉTODO ACTUALIZADO PARA ABRIR EL MODAL
   goToHelp() {
-    this.showFaqModal = true; // ✅ CAMBIAR PARA ABRIR EL MODAL
+    this.showFaqModal = true;
     this.closeUserMenu();
     console.log('Abriendo preguntas frecuentes...');
   }
 
-  // ✅ NUEVO MÉTODO PARA CERRAR EL MODAL
   closeFaqModal() {
     this.showFaqModal = false;
   }
 
+  // MÉTODOS PARA EL MODAL DE LOGOUT
+  showLogoutConfirmation() {
+    this.showLogoutModal = true;
+    this.closeUserMenu();
+    console.log('Mostrando confirmación de logout...');
+  }
+
+  onLogoutCancel() {
+    this.showLogoutModal = false;
+    console.log('Logout cancelado');
+  }
+
+  onLogoutConfirm() {
+    this.showLogoutModal = false;
+    console.log('Logout confirmado - el modal maneja la navegación automáticamente');
+    // El modal ya maneja el logout automáticamente en su componente
+  }
+
+  // MÉTODO LEGACY (mantener por compatibilidad)
   logout() {
     this.closeUserMenu();
-    console.log('Cerrando sesión...');
+    console.log('Cerrando sesión directamente...');
     this.router.navigate(['/login']);
   }
 
@@ -211,9 +261,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.showUserMenu) {
       this.closeUserMenu();
     }
-    // ✅ AGREGAR SOPORTE PARA CERRAR EL MODAL FAQ CON ESC
+    
     if (this.showFaqModal) {
       this.closeFaqModal();
+    }
+    
+    if (this.showLogoutModal) {
+      this.onLogoutCancel();
     }
   }
 

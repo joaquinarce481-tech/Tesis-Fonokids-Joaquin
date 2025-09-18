@@ -7,40 +7,39 @@ import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-forgot-password',
   standalone: true,
   imports: [FormsModule, CommonModule],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  templateUrl: './forgot-password.component.html',
+  styleUrls: ['./forgot-password.component.css']
 })
-export class LoginComponent implements OnDestroy {
+export class ForgotPasswordComponent implements OnDestroy {
   // Estados del componente
   isLoading = false;
   errorMessage = '';
   successMessage = '';
   
-  // Variables para los inputs del template
-  username = '';
-  password = '';
+  // Variable para el email
+  email = '';
   
   // Para cleanup de suscripciones
   private destroy$ = new Subject<void>();
   
-  // Inyección de dependencias usando inject()
+  // Inyección de dependencias
   private router = inject(Router);
   private authService = inject(AuthService);
   
   constructor() {
-    console.log('LoginComponent iniciado');
+    console.log('ForgotPasswordComponent iniciado');
   }
   
-  // Método principal de login
-  ingresar(): void {
-    console.log('Intento de login:', this.username);
+  // Método principal para enviar código
+  enviarCodigo(): void {
+    console.log('Enviando código a:', this.email);
     
-    // Validaciones básicas
-    if (!this.username.trim() || !this.password.trim()) {
-      this.showError('Ingresa tu nombre de usuario y contraseña');
+    // Validación básica
+    if (!this.email.trim()) {
+      this.showError('Ingresa tu email');
       return;
     }
     
@@ -49,46 +48,48 @@ export class LoginComponent implements OnDestroy {
     this.errorMessage = '';
     this.successMessage = '';
     
-    // Realizar login con AuthService
-    this.authService.login(this.username.trim(), this.password)
+    // Solicitar código con AuthService
+    this.authService.forgotPassword(this.email.trim())
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
-          console.log('Login exitoso:', response);
+          console.log('Código enviado exitosamente:', response);
           this.isLoading = false;
-          this.successMessage = 'Bienvenido/a!';
+          this.successMessage = 'Código enviado! Revisa tu email';
           
-          // Pequeña pausa para mostrar mensaje de éxito
+          // Navegar a verificar código después de 2 segundos
           setTimeout(() => {
-            this.router.navigate(['/dashboard']);
-          }, 1500);
+            this.router.navigate(['/verify-code'], {
+              queryParams: { email: this.email.trim() }
+            });
+          }, 2000);
         },
         error: (error: any) => {
-          console.error('Error en login:', error);
+          console.error('Error enviando código:', error);
           this.isLoading = false;
           
           // Manejar diferentes tipos de error
-          if (error.status === 401) {
-            this.showError('Usuario o contraseña incorrectos');
+          if (error.status === 404) {
+            this.showError('No existe una cuenta con ese email');
           } else if (error.status === 0) {
             this.showError('No se puede conectar al servidor');
           } else if (error.error?.error) {
-            this.showError(`${error.error.error}`);
+            this.showError(error.error.error);
           } else {
-            this.showError('Error inesperado. Inténtalo de nuevo');
+            this.showError('Error enviando código. Inténtalo de nuevo');
           }
         }
       });
   }
   
-  // Ir a recuperar contraseña
-  irARecuperarContrasena() {
-    console.log('Navegando a recuperar contraseña');
-    this.router.navigate(['/forgot-password']);
+  // Volver al login
+  volverAlLogin(): void {
+    console.log('Volviendo al login');
+    this.router.navigate(['/login']);
   }
   
   // Mostrar error con auto-hide
-  private showError(message: string) {
+  private showError(message: string): void {
     this.errorMessage = message;
     
     // Auto-hide error después de 5 segundos
@@ -101,6 +102,6 @@ export class LoginComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    console.log('LoginComponent destruido');
+    console.log('ForgotPasswordComponent destruido');
   }
 }

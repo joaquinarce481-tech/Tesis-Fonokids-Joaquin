@@ -153,10 +153,9 @@ body {
 }
 
 /* 🎨 Título de bienvenida mejorado */
-/* 🎨 Título de bienvenida mejorado - REEMPLAZA DESDE LA LÍNEA ~95 */
 .titulo-bienvenida {
   font-family: 'Fredoka', 'Comfortaa', sans-serif;
-  font-size: clamp(2rem, 5vw, 3.5rem); /* 🔥 CAMBIO PRINCIPAL: Tamaño responsive automático */
+  font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 700;
   text-align: center;
   margin-bottom: 30px;
@@ -168,8 +167,6 @@ body {
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
   position: relative;
   z-index: 2;
-  
-  /* 🔥 NUEVOS ESTILOS PARA EVITAR CORTE */
   max-width: 100%;
   padding: 0 1rem;
   line-height: 1.2;
@@ -177,6 +174,7 @@ body {
   overflow-wrap: break-word;
   hyphens: auto;
 }
+
 @keyframes movimientoGradiente {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -338,8 +336,14 @@ form input:hover {
     inset 0 2px 0 rgba(255, 255, 255, 0.5);
 }
 
-/* 🚀 Botón súper mejorado */
-form button {
+/* 🔄 Estado de loading para inputs */
+form input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* 🚀 Botón principal súper mejorado */
+form button, .login-button {
   width: 100%;
   padding: 1.4rem;
   background: linear-gradient(135deg, 
@@ -361,10 +365,11 @@ form button {
   overflow: hidden;
   text-transform: uppercase;
   letter-spacing: 1px;
+  margin-bottom: 0;
 }
 
 /* ✨ Efecto de brillo mejorado */
-form button::before {
+form button::before, .login-button::before {
   content: '';
   position: absolute;
   top: 0;
@@ -378,11 +383,11 @@ form button::before {
   transition: left 0.6s ease;
 }
 
-form button:hover::before {
+form button:hover::before, .login-button:hover::before {
   left: 100%;
 }
 
-form button:hover {
+form button:hover, .login-button:hover {
   background: linear-gradient(135deg, 
     var(--primary-purple) 0%, 
     var(--primary-blue) 50%,
@@ -393,8 +398,88 @@ form button:hover {
     inset 0 2px 0 rgba(255, 255, 255, 0.4);
 }
 
-form button:active {
+form button:active, .login-button:active {
   transform: translateY(-2px) scale(0.98);
+}
+
+/* 🔑 Botón "Olvidé mi contraseña" */
+.forgot-password-button {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.2) 0%, 
+    rgba(255, 255, 255, 0.1) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  color: #4a5568;
+  font-weight: 600;
+  font-size: 1rem;
+  font-family: 'Comfortaa', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  margin-top: 1rem;
+  text-decoration: none;
+}
+
+.forgot-password-button:hover {
+  background: linear-gradient(135deg, 
+    rgba(139, 92, 246, 0.2) 0%, 
+    rgba(59, 130, 246, 0.2) 100%);
+  border-color: var(--primary-purple);
+  color: var(--primary-purple);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+}
+
+.forgot-password-button:active {
+  transform: translateY(0);
+}
+
+.forgot-password-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 🚨 Mensajes de error y éxito */
+.error-message, .success-message {
+  padding: 1rem;
+  border-radius: 15px;
+  font-family: 'Comfortaa', sans-serif;
+  font-weight: 600;
+  text-align: center;
+  margin: 1rem 0;
+  animation: message-slide-in 0.4s ease-out;
+}
+
+.error-message {
+  background: linear-gradient(135deg, 
+    rgba(239, 68, 68, 0.15) 0%, 
+    rgba(220, 38, 127, 0.15) 100%);
+  border: 2px solid rgba(239, 68, 68, 0.3);
+  color: #dc2626;
+  backdrop-filter: blur(10px);
+}
+
+.success-message {
+  background: linear-gradient(135deg, 
+    rgba(16, 185, 129, 0.15) 0%, 
+    rgba(5, 150, 105, 0.15) 100%);
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  color: #059669;
+  backdrop-filter: blur(10px);
+}
+
+@keyframes message-slide-in {
+  0% { 
+    opacity: 0; 
+    transform: translateY(-20px) scale(0.9); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
 }
 
 /* 💡 Texto de ayuda mejorado */
@@ -443,9 +528,19 @@ form button:active {
     font-size: 3rem;
   }
   
-  form input, form button {
+  form input, form button, .login-button {
     padding: 1rem 1.2rem 1rem 3rem;
     font-size: 1rem;
+  }
+  
+  .forgot-password-button {
+    padding: 0.9rem;
+    font-size: 0.95rem;
+  }
+  
+  .error-message, .success-message {
+    padding: 0.8rem;
+    font-size: 0.9rem;
   }
 }
 
@@ -458,7 +553,7 @@ form button:active {
     font-size: 2.5rem;
   }
   
-  form input, form button {
+  form input, form button, .login-button {
     padding: 0.9rem 1rem 0.9rem 2.8rem;
     font-size: 0.95rem;
   }
@@ -473,8 +568,12 @@ form .input-group:nth-child(2) {
   animation: slide-up 0.8s ease-out 0.6s both;
 }
 
-form button {
+form button, .login-button {
   animation: slide-up 0.8s ease-out 0.8s both;
+}
+
+.forgot-password-button {
+  animation: slide-up 0.8s ease-out 1s both;
 }
 
 .help-text {
@@ -531,3 +630,4 @@ form button {
   0% { transform: scale(1); }
   50% { transform: scale(1.02); }
   100% { transform: scale(1); }
+}
