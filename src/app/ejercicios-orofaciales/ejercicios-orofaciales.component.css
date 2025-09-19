@@ -1,3 +1,4 @@
+/* 🎨 ESTILOS BASE (mantener los originales) */
 .ejercicios-container {
   padding: 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -5,38 +6,289 @@
   font-family: 'Arial', sans-serif;
 }
 
-.ejercicios-menu h2 {
+/* 📂 ESTILOS PARA VISTA DE SECCIONES PRINCIPALES */
+
+.secciones-menu {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-secciones {
   text-align: center;
   color: white;
-  margin-bottom: 30px;
-  font-size: 2rem;
+  margin-bottom: 40px;
+}
+
+.header-secciones h2 {
+  font-size: 2.5rem;
+  margin: 0 0 10px 0;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
-.ejercicios-grid {
+.subtitulo {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin: 0;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.secciones-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.seccion-card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.seccion-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+}
+
+.seccion-card:active {
+  transform: translateY(-4px) scale(1.01);
+}
+
+.seccion-icono {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  display: block;
+  animation: bounceIn 0.6s ease-out;
+}
+
+.seccion-card h3 {
+  font-size: 1.8rem;
+  margin: 15px 0;
+  color: #333;
+  font-weight: bold;
+}
+
+.seccion-descripcion {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 25px;
+  min-height: 48px;
+}
+
+.seccion-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+  padding: 15px 0;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-numero {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.stat-texto {
+  font-size: 0.9rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progreso-seccion {
+  margin: 20px 0;
+  position: relative;
+}
+
+.progreso-seccion .progreso-bar {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progreso-seccion .progreso-bar div {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.progreso-seccion .progreso-bar div::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.progreso-texto {
+  position: absolute;
+  right: 0;
+  top: -25px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.btn-entrar {
+  margin-top: 20px;
+  padding: 12px 30px;
+  color: white;
+  border-radius: 25px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.btn-entrar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* 📚 ESTILOS PARA VISTA DE EJERCICIOS DE SECCIÓN */
+
+.ejercicios-seccion-menu {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.header-ejercicios {
+  color: white;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.btn-back {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.btn-back:hover {
+  background: rgba(255,255,255,0.3);
+  transform: translateX(-5px);
+}
+
+.seccion-title {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.seccion-icono-header {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.seccion-title h2 {
+  font-size: 2.2rem;
+  margin: 10px 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.seccion-title p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  margin: 0;
+}
+
+.seccion-progress {
+  background: rgba(255,255,255,0.15);
+  padding: 20px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.8s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+/* 🎯 ESTILOS PARA EJERCICIOS (mejorados) */
+
+.ejercicios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
 }
 
 .ejercicio-card {
   background: white;
   border-radius: 15px;
-  padding: 20px;
+  padding: 25px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
   border: 3px solid transparent;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
   position: relative;
   overflow: hidden;
 }
 
 .ejercicio-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
 }
 
 .ejercicio-card:active {
@@ -45,21 +297,41 @@
 
 .ejercicio-icono {
   font-size: 3rem;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   display: block;
+  animation: bounceIn 0.5s ease-out;
 }
 
 .ejercicio-card h3 {
-  margin: 10px 0;
+  margin: 15px 0;
   color: #333;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
+  font-weight: bold;
 }
 
 .ejercicio-card p {
   color: #666;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   margin-bottom: 15px;
   line-height: 1.4;
+}
+
+.ejercicio-duracion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #f8f9fa;
+  padding: 8px 15px;
+  border-radius: 20px;
+  margin: 15px 0;
+  font-weight: bold;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.duracion-icono {
+  font-size: 1rem;
 }
 
 .ejercicio-resultado {
@@ -67,19 +339,38 @@
   justify-content: space-between;
   align-items: center;
   background: #f8f9fa;
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin-top: 10px;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-top: 15px;
 }
 
 .puntuacion {
   font-weight: bold;
+  font-size: 1.1rem;
   color: #28a745;
 }
 
 .estado.completado {
   color: #28a745;
+  font-size: 1.2rem;
 }
+
+.btn-iniciar {
+  background: linear-gradient(45deg, #28a745, #20c997);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+}
+
+.btn-iniciar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+/* 🎯 ESTILOS PARA EJERCICIO ACTIVO (actualizados) */
 
 .ejercicio-activo {
   max-width: 1000px;
@@ -92,17 +383,42 @@
 
 .ejercicio-header {
   background: linear-gradient(45deg, #f8f9fa, #e9ecef);
-  padding: 20px;
+  padding: 25px;
   border-bottom: 1px solid #dee2e6;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
+}
+
+.header-info {
+  margin-bottom: 15px;
+}
+
+.breadcrumb {
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.breadcrumb-link {
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-link:hover {
+  color: #495057;
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  margin: 0 8px;
+}
+
+.breadcrumb-current {
+  color: #495057;
+  font-weight: bold;
 }
 
 .ejercicio-header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
 }
 
 .ejercicio-info {
@@ -113,13 +429,14 @@
 
 .tiempo-restante, .puntuacion-actual {
   background: white;
-  padding: 8px 15px;
-  border-radius: 20px;
+  padding: 10px 18px;
+  border-radius: 25px;
   font-weight: bold;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  font-size: 0.9rem;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  font-size: 1rem;
 }
 
+/* 🎥 ESTILOS DE VIDEO (mantener originales) */
 .video-section {
   position: relative;
 }
@@ -193,12 +510,6 @@
   background: rgba(220, 53, 69, 0.9);
 }
 
-@keyframes pulseSuccess {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
 .progreso-container {
   background: rgba(255,255,255,0.3);
   height: 8px;
@@ -214,7 +525,7 @@
 }
 
 .instrucciones {
-  padding: 20px;
+  padding: 25px;
   text-align: center;
   background: #f8f9fa;
   border-top: 1px solid #dee2e6;
@@ -222,20 +533,22 @@
 
 .instrucciones p {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #495057;
   font-weight: 500;
 }
 
+/* 🎮 CONTROLES */
 .controles-ejercicio {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   justify-content: center;
-  padding: 20px;
+  padding: 25px;
   background: #f8f9fa;
+  flex-wrap: wrap;
 }
 
-.btn-detener, .btn-reiniciar, .btn-menu, .btn-repetir {
+.btn-detener, .btn-reiniciar, .btn-menu, .btn-repetir, .btn-secciones, .btn-back-ejercicios {
   padding: 12px 24px;
   border: none;
   border-radius: 25px;
@@ -256,12 +569,12 @@
   transform: translateY(-2px);
 }
 
-.btn-reiniciar {
+.btn-reiniciar, .btn-back-ejercicios {
   background: #6c757d;
   color: white;
 }
 
-.btn-reiniciar:hover {
+.btn-reiniciar:hover, .btn-back-ejercicios:hover {
   background: #5a6268;
   transform: translateY(-2px);
 }
@@ -286,6 +599,17 @@
   transform: translateY(-2px);
 }
 
+.btn-secciones {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-secciones:hover {
+  background: #138496;
+  transform: translateY(-2px);
+}
+
+/* 🎉 RESULTADOS (actualizados) */
 .resultados-screen {
   display: flex;
   justify-content: center;
@@ -299,23 +623,26 @@
   padding: 40px;
   text-align: center;
   box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-  max-width: 400px;
+  max-width: 450px;
   animation: slideInUp 0.5s ease-out;
 }
 
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.resultado-header {
+  margin-bottom: 30px;
+}
+
+.seccion-badge {
+  display: inline-block;
+  padding: 8px 20px;
+  color: white;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-bottom: 15px;
 }
 
 .resultado-card h2 {
-  margin-top: 0;
+  margin: 0;
   color: #333;
   font-size: 1.8rem;
 }
@@ -366,26 +693,64 @@
 
 .acciones-resultado {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
-  .loading-message {
-    text-align: center;
-    padding: 20px;
-    font-size: 1.2rem;
-    color: #666;
-    background: #f8f9fa;
-    border-radius: 10px;
-    animation: pulse 2s infinite;
-  }
+.loading-message {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.2rem;
+  color: #666;
+  background: #f8f9fa;
+  border-radius: 10px;
+  animation: pulse 2s infinite;
+}
 
-  @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.6; }
-    100% { opacity: 1; }
+/* 🎨 ANIMACIONES */
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseSuccess {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 📱 RESPONSIVE */
 @media (max-width: 768px) {
+  .secciones-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
   .ejercicios-grid {
     grid-template-columns: 1fr;
     gap: 15px;
@@ -402,6 +767,7 @@
     flex-direction: column;
     gap: 15px;
     text-align: center;
+    padding: 20px;
   }
   
   .ejercicio-info {
@@ -419,5 +785,32 @@
   
   .acciones-resultado {
     flex-direction: column;
+  }
+  
+  .header-secciones h2 {
+    font-size: 2rem;
+  }
+  
+  .subtitulo {
+    font-size: 1rem;
+  }
+  
+  .seccion-card {
+    padding: 25px;
+  }
+  
+  .seccion-icono {
+    font-size: 3rem;
+  }
+  
+  .controles-ejercicio {
+    padding: 20px;
+    gap: 10px;
+  }
+  
+  .progress-info {
+    flex-direction: column;
+    gap: 5px;
+    text-align: center;
   }
 }

@@ -3,6 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FaceMesh } from '@mediapipe/face_mesh';
 import { Camera } from '@mediapipe/camera_utils';
 
+interface Seccion {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  icono: string;
+  color: string;
+  ejercicios: Ejercicio[];
+}
+
 interface Ejercicio {
   id: number;
   nombre: string;
@@ -11,6 +20,7 @@ interface Ejercicio {
   duracion: number; // segundos
   icono: string;
   color: string;
+  seccionId: string; // NUEVO CAMPO
 }
 
 interface ResultadoEjercicio {
@@ -61,7 +71,83 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   // Resultados guardados
   resultados: {[key: number]: ResultadoEjercicio} = {};
 
+  // NUEVAS VARIABLES DE ESTADO PARA NAVEGACIÓN
+  seccionActiva: Seccion | null = null;
+  vistaActual: 'secciones' | 'ejercicios' | 'activo' | 'resultados' = 'secciones';
+
+  // SECCIONES PRINCIPALES ORGANIZADAS
+  secciones: Seccion[] = [
+    {
+      id: 'linguales',
+      nombre: 'Linguales',
+      descripcion: 'Ejercicios para mejorar la fuerza, coordinación y movilidad de la lengua',
+      icono: '👅',
+      color: '#FF1493',
+      ejercicios: []
+    },
+    {
+      id: 'labiales',
+      nombre: ' Labiales',
+      descripcion: 'Ejercicios para fortalecer el cierre, tono y movilidad de los labios',
+      icono: '👄', 
+      color: '#FFD700',
+      ejercicios: []
+    },
+    {
+      id: 'mandibulares',
+      nombre: ' Mandibulares',
+      descripcion: 'Ejercicios para estimular la movilidad y control de la mandíbula',
+      icono: '🦷',
+      color: '#32CD32',
+      ejercicios: []
+    }
+  ];
+
+  // EJERCICIOS REORGANIZADOS POR SECCIÓN
   ejercicios: Ejercicio[] = [
+    // 👅 EJERCICIOS LINGUALES
+    {
+      id: 5,
+      nombre: 'Lengua Arriba',
+      descripcion: 'Saca la lengua hacia arriba',
+      instrucciones: '👅 ¡Saca la lengua! Trata de tocar tu nariz',
+      duracion: 8,
+      icono: '👅',
+      color: '#FF1493',
+      seccionId: 'linguales'
+    },
+    {
+      id: 11,
+      nombre: 'Lengua Circular',
+      descripcion: 'Haz movimientos circulares con la lengua',
+      instrucciones: '🔄 ¡Gira la lengua! Haz círculos alrededor de tus labios',
+      duracion: 10,
+      icono: '🔄',
+      color: '#FF1493',
+      seccionId: 'linguales'
+    },
+    {
+      id: 12,
+      nombre: 'Lengua Lateral',
+      descripcion: 'Mueve la lengua de lado a lado',
+      instrucciones: '↔️ ¡Toca las comisuras! Lengua de izquierda a derecha',
+      duracion: 8,
+      icono: '↔️',
+      color: '#FF1493',
+      seccionId: 'linguales'
+    },
+    {
+      id: 13,
+      nombre: 'Vibración Lingual',
+      descripcion: 'Haz vibrar la lengua como una "RR"',
+      instrucciones: '🎵 ¡Vibra la lengua! Como cuando dices "RRRR"',
+      duracion: 6,
+      icono: '🎵',
+      color: '#FF1493',
+      seccionId: 'linguales'
+    },
+
+    // 👄 EJERCICIOS LABIALES
     {
       id: 1,
       nombre: 'Sonrisa Grande',
@@ -69,7 +155,8 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '😄 ¡Sonríe muy grande! Estira las comisuras hacia arriba',
       duracion: 10,
       icono: '😄',
-      color: '#FFD700'
+      color: '#FFD700',
+      seccionId: 'labiales'
     },
     {
       id: 2,
@@ -78,61 +165,8 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🐠 ¡Haz un beso de pez! Junta y empuja los labios hacia adelante',
       duracion: 8,
       icono: '🐠',
-      color: '#00CED1'
-    },
-    {
-      id: 3,
-      nombre: 'Abrir la Boca',
-      descripcion: 'Abre la boca lo más que puedas',
-      instrucciones: '😮 ¡Abre grande la boca! Como si fueras a gritar "¡AAAA!"',
-      duracion: 6,
-      icono: '😮',
-      color: '#FF6347'
-    },
-    {
-      id: 4,
-      nombre: 'Guiño Alternado',
-      descripcion: 'Guiña un ojo, luego el otro',
-      instrucciones: '😉 ¡Guiña! Primero un ojo, luego el otro. ¡Alterna!',
-      duracion: 12,
-      icono: '😉',
-      color: '#9370DB'
-    },
-    {
-      id: 5,
-      nombre: 'Lengua Arriba',
-      descripcion: 'Saca la lengua hacia arriba',
-      instrucciones: '👅 ¡Saca la lengua! Trata de tocar tu nariz',
-      duracion: 8,
-      icono: '👅',
-      color: '#FF1493'
-    },
-    {
-      id: 6,
-      nombre: 'Mejillas de Globo',
-      descripcion: 'Infla las mejillas como un globo',
-      instrucciones: '🎈 ¡Infla las mejillas! Llena de aire como un globo',
-      duracion: 10,
-      icono: '🎈',
-      color: '#32CD32'
-    },
-    {
-      id: 7,
-      nombre: 'Cara de Sorpresa',
-      descripcion: 'Pon cara de mucha sorpresa',
-      instrucciones: '😲 ¡Sorpréndete! Abre grande los ojos y la boca',
-      duracion: 6,
-      icono: '😲',
-      color: '#FFA500'
-    },
-    {
-      id: 8,
-      nombre: 'Masticar Chicle',
-      descripcion: 'Simula masticar chicle',
-      instrucciones: '🍬 ¡Mastica chicle imaginario! Mueve la mandíbula',
-      duracion: 15,
-      icono: '🍬',
-      color: '#FF69B4'
+      color: '#FFD700',
+      seccionId: 'labiales'
     },
     {
       id: 9,
@@ -141,7 +175,102 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🐴 ¡Como un caballo! Haz vibrar los labios "brrr"',
       duracion: 8,
       icono: '🐴',
-      color: '#8B4513'
+      color: '#FFD700',
+      seccionId: 'labiales'
+    },
+    {
+      id: 14,
+      nombre: 'Sostener Lápiz',
+      descripcion: 'Sostén un lápiz imaginario con los labios',
+      instrucciones: '✏️ ¡Sostén fuerte! Imagina un lápiz entre tus labios',
+      duracion: 12,
+      icono: '✏️',
+      color: '#FFD700',
+      seccionId: 'labiales'
+    },
+    {
+      id: 15,
+      nombre: 'Besitos al Aire',
+      descripcion: 'Haz besitos repetidos al aire',
+      instrucciones: '💋 ¡Manda besitos! Repetidos y exagerados',
+      duracion: 8,
+      icono: '💋',
+      color: '#FFD700',
+      seccionId: 'labiales'
+    },
+
+    // 🦷 EJERCICIOS MANDIBULARES  
+    {
+      id: 3,
+      nombre: 'Abrir la Boca',
+      descripcion: 'Abre la boca lo más que puedas',
+      instrucciones: '😮 ¡Abre grande la boca! Como si fueras a gritar "¡AAAA!"',
+      duracion: 6,
+      icono: '😮',
+      color: '#32CD32',
+      seccionId: 'mandibulares'
+    },
+    {
+      id: 8,
+      nombre: 'Masticar Chicle',
+      descripcion: 'Simula masticar chicle',
+      instrucciones: '🍬 ¡Mastica chicle imaginario! Mueve la mandíbula',
+      duracion: 15,
+      icono: '🍬',
+      color: '#32CD32',
+      seccionId: 'mandibulares'
+    },
+    {
+      id: 16,
+      nombre: 'Mandíbula Lateral',
+      descripcion: 'Mueve la mandíbula hacia los lados',
+      instrucciones: '↔️ ¡Lado a lado! Mueve la mandíbula izquierda-derecha',
+      duracion: 10,
+      icono: '↔️',
+      color: '#32CD32',
+      seccionId: 'mandibulares'
+    },
+    {
+      id: 17,
+      nombre: 'Bostezo Grande',
+      descripcion: 'Simula un bostezo exagerado',
+      instrucciones: '🥱 ¡Gran bostezo! Abre bien la boca y estira',
+      duracion: 8,
+      icono: '🥱',
+      color: '#32CD32',
+      seccionId: 'mandibulares'
+    },
+
+    // EJERCICIOS ADICIONALES (mixtos/especiales)
+    {
+      id: 6,
+      nombre: 'Mejillas de Globo',
+      descripcion: 'Infla las mejillas como un globo',
+      instrucciones: '🎈 ¡Infla las mejillas! Llena de aire como un globo',
+      duracion: 10,
+      icono: '🎈',
+      color: '#FFD700', // Reclasificado como labial
+      seccionId: 'labiales'
+    },
+    {
+      id: 4,
+      nombre: 'Guiño Alternado',
+      descripcion: 'Guiña un ojo, luego el otro',
+      instrucciones: '😉 ¡Guiña! Primero un ojo, luego el otro. ¡Alterna!',
+      duracion: 12,
+      icono: '😉',
+      color: '#32CD32', // Reclasificado como mandibular
+      seccionId: 'mandibulares'
+    },
+    {
+      id: 7,
+      nombre: 'Cara de Sorpresa',
+      descripcion: 'Pon cara de mucha sorpresa',
+      instrucciones: '😲 ¡Sorpréndete! Abre grande los ojos y la boca',
+      duracion: 6,
+      icono: '😲',
+      color: '#32CD32',
+      seccionId: 'mandibulares'
     },
     {
       id: 10,
@@ -150,7 +279,8 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '⚖️ ¡Mantén equilibrio! Cara simétrica y relajada',
       duracion: 12,
       icono: '⚖️',
-      color: '#4682B4'
+      color: '#32CD32',
+      seccionId: 'mandibulares'
     }
   ];
 
@@ -173,10 +303,10 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
 
   ngOnInit() {
     this.cargarResultados();
+    this.organizarEjerciciosPorSeccion();
   }
 
   ngAfterViewInit() {
-    // NO inicializar MediaPipe aquí - solo cuando se inicie un ejercicio
     console.log('✅ ViewChild elementos disponibles');
   }
 
@@ -189,11 +319,48 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     }
   }
 
+  // ORGANIZAR EJERCICIOS EN SECCIONES
+  private organizarEjerciciosPorSeccion() {
+    this.secciones.forEach(seccion => {
+      seccion.ejercicios = this.ejercicios.filter(ej => ej.seccionId === seccion.id);
+    });
+  }
+
+  // MÉTODOS PARA NAVEGACIÓN ENTRE SECCIONES
+  seleccionarSeccion(seccion: Seccion) {
+    console.log('📂 Seleccionando sección:', seccion.nombre);
+    this.seccionActiva = seccion;
+    this.vistaActual = 'ejercicios';
+  }
+
+  volverASecciones() {
+    console.log('🏠 Volviendo a vista de secciones');
+    this.seccionActiva = null;
+    this.vistaActual = 'secciones';
+  }
+
+  // MÉTODOS AUXILIARES PARA ESTADÍSTICAS
+  getEjerciciosPorSeccion(seccionId: string): Ejercicio[] {
+    return this.ejercicios.filter(ej => ej.seccionId === seccionId);
+  }
+
+  getEjerciciosCompletadosPorSeccion(seccionId: string): number {
+    const ejerciciosSeccion = this.getEjerciciosPorSeccion(seccionId);
+    return ejerciciosSeccion.filter(ej => 
+      this.resultados[ej.id] && this.resultados[ej.id].completado
+    ).length;
+  }
+
+  getProgresoSeccion(seccionId: string): number {
+    const ejerciciosSeccion = this.getEjerciciosPorSeccion(seccionId);
+    const completados = this.getEjerciciosCompletadosPorSeccion(seccionId);
+    return ejerciciosSeccion.length > 0 ? Math.round((completados / ejerciciosSeccion.length) * 100) : 0;
+  }
+
   private async initializeMediaPipe() {
     try {
       console.log('🚀 Inicializando MediaPipe para ejercicios...');
       
-      // CRÍTICO: Verificar que los elementos existen
       if (!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) {
         console.error('❌ Elementos de video/canvas no disponibles');
         return;
@@ -233,7 +400,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     this.canvasCtx.save();
     this.canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Dibujar imagen de video
     this.canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
     if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
@@ -252,36 +418,23 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     let esCorrectoFrame = false;
 
     switch (this.ejercicioActivo.id) {
-      case 1: // Sonrisa Grande
-        esCorrectoFrame = this.detectarSonrisa(landmarks);
-        break;
-      case 2: // Beso de Pez
-        esCorrectoFrame = this.detectarBesoPez(landmarks);
-        break;
-      case 3: // Abrir la Boca
-        esCorrectoFrame = this.detectarBocaAbierta(landmarks);
-        break;
-      case 4: // Guiño Alternado
-        esCorrectoFrame = this.detectarGuino(landmarks);
-        break;
-      case 5: // Lengua Arriba
-        esCorrectoFrame = this.detectarLenguaArriba(landmarks);
-        break;
-      case 6: // Mejillas de Globo
-        esCorrectoFrame = this.detectarMejillasInfladas(landmarks);
-        break;
-      case 7: // Cara de Sorpresa
-        esCorrectoFrame = this.detectarSorpresa(landmarks);
-        break;
-      case 8: // Masticar Chicle
-        esCorrectoFrame = this.detectarMasticado(landmarks);
-        break;
-      case 9: // Vibrar Labios
-        esCorrectoFrame = this.detectarVibracionLabios(landmarks);
-        break;
-      case 10: // Cara Simétrica
-        esCorrectoFrame = this.detectarSimetria(landmarks);
-        break;
+      case 1: esCorrectoFrame = this.detectarSonrisa(landmarks); break;
+      case 2: esCorrectoFrame = this.detectarBesoPez(landmarks); break;
+      case 3: esCorrectoFrame = this.detectarBocaAbierta(landmarks); break;
+      case 4: esCorrectoFrame = this.detectarGuino(landmarks); break;
+      case 5: esCorrectoFrame = this.detectarLenguaArriba(landmarks); break;
+      case 6: esCorrectoFrame = this.detectarMejillasInfladas(landmarks); break;
+      case 7: esCorrectoFrame = this.detectarSorpresa(landmarks); break;
+      case 8: esCorrectoFrame = this.detectarMasticado(landmarks); break;
+      case 9: esCorrectoFrame = this.detectarVibracionLabios(landmarks); break;
+      case 10: esCorrectoFrame = this.detectarSimetria(landmarks); break;
+      case 11: esCorrectoFrame = this.detectarLenguaCircular(landmarks); break;
+      case 12: esCorrectoFrame = this.detectarLenguaLateral(landmarks); break;
+      case 13: esCorrectoFrame = this.detectarVibracionLingual(landmarks); break;
+      case 14: esCorrectoFrame = this.detectarSostenerLapiz(landmarks); break;
+      case 15: esCorrectoFrame = this.detectarBesitosAire(landmarks); break;
+      case 16: esCorrectoFrame = this.detectarMandibularLateral(landmarks); break;
+      case 17: esCorrectoFrame = this.detectarBostezo(landmarks); break;
     }
 
     if (esCorrectoFrame) {
@@ -291,7 +444,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       this.mostrarFeedback('¡Inténtalo de nuevo!', 'warning');
     }
 
-    // Actualizar puntuación en tiempo real
     this.puntuacionActual = Math.round(
       (this.contadorFramesCorrectos / this.contadorFramesTotales) * 100
     );
@@ -299,7 +451,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     this.landmarksAnteriores = landmarks;
   }
 
-  // Métodos de detección de ejercicios
+  // MÉTODOS DE DETECCIÓN DE EJERCICIOS ORIGINALES
   private detectarSonrisa(landmarks: any[]): boolean {
     const comisuraIzq = landmarks[61];
     const comisuraDer = landmarks[291];
@@ -439,6 +591,107 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     return simetriaTotal > 0.85;
   }
 
+  // NUEVOS MÉTODOS DE DETECCIÓN PARA LOS EJERCICIOS AÑADIDOS
+  private detectarLenguaCircular(landmarks: any[]): boolean {
+    if (!this.landmarksAnteriores.length) return false;
+    
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    const labioSuperiorPrev = this.landmarksAnteriores[13];
+    const labioInferiorPrev = this.landmarksAnteriores[14];
+    
+    if (!labioSuperior || !labioInferior || !labioSuperiorPrev || !labioInferiorPrev) return false;
+    
+    const movimientoSuperior = Math.abs(labioSuperior.x - labioSuperiorPrev.x);
+    const movimientoInferior = Math.abs(labioInferior.x - labioInferiorPrev.x);
+    
+    return (movimientoSuperior + movimientoInferior) > 0.01;
+  }
+
+  private detectarLenguaLateral(landmarks: any[]): boolean {
+    if (!this.landmarksAnteriores.length) return false;
+    
+    const comisuraIzq = landmarks[61];
+    const comisuraDer = landmarks[291];
+    const comisuraIzqPrev = this.landmarksAnteriores[61];
+    const comisuraDerPrev = this.landmarksAnteriores[291];
+    
+    if (!comisuraIzq || !comisuraDer || !comisuraIzqPrev || !comisuraDerPrev) return false;
+    
+    const movimientoIzq = Math.abs(comisuraIzq.x - comisuraIzqPrev.x);
+    const movimientoDer = Math.abs(comisuraDer.x - comisuraDerPrev.x);
+    
+    return Math.abs(movimientoIzq - movimientoDer) > 0.008;
+  }
+
+  private detectarVibracionLingual(landmarks: any[]): boolean {
+    if (!this.landmarksAnteriores.length) return false;
+    
+    const centroLabios = landmarks[13];
+    const centroLabiosPrev = this.landmarksAnteriores[13];
+    
+    if (!centroLabios || !centroLabiosPrev) return false;
+    
+    const vibracion = Math.abs(centroLabios.y - centroLabiosPrev.y);
+    return vibracion > 0.007;
+  }
+
+  private detectarSostenerLapiz(landmarks: any[]): boolean {
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    const comisuraIzq = landmarks[61];
+    const comisuraDer = landmarks[291];
+    
+    if (!labioSuperior || !labioInferior || !comisuraIzq || !comisuraDer) return false;
+    
+    const aperturaLabial = Math.abs(labioSuperior.y - labioInferior.y);
+    const tension = Math.abs(comisuraDer.x - comisuraIzq.x);
+    
+    return aperturaLabial < 0.01 && tension < 0.03;
+  }
+
+  private detectarBesitosAire(landmarks: any[]): boolean {
+    if (!this.landmarksAnteriores.length) return false;
+    
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    const labioSuperiorPrev = this.landmarksAnteriores[13];
+    const labioInferiorPrev = this.landmarksAnteriores[14];
+    
+    if (!labioSuperior || !labioInferior || !labioSuperiorPrev || !labioInferiorPrev) return false;
+    
+    const movimiento = Math.abs(labioSuperior.z - labioSuperiorPrev.z) + 
+                      Math.abs(labioInferior.z - labioInferiorPrev.z);
+    
+    return movimiento > 0.008;
+  }
+
+  private detectarMandibularLateral(landmarks: any[]): boolean {
+    if (!this.landmarksAnteriores.length) return false;
+    
+    const mandibula = landmarks[18];
+    const mandibulaPrev = this.landmarksAnteriores[18];
+    
+    if (!mandibula || !mandibulaPrev) return false;
+    
+    const movimientoLateral = Math.abs(mandibula.x - mandibulaPrev.x);
+    return movimientoLateral > 0.01;
+  }
+
+  private detectarBostezo(landmarks: any[]): boolean {
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    const ojoIzqSuperior = landmarks[159];
+    const ojoIzqInferior = landmarks[145];
+    
+    if (!labioSuperior || !labioInferior || !ojoIzqSuperior || !ojoIzqInferior) return false;
+    
+    const aperturaBoca = Math.abs(labioSuperior.y - labioInferior.y);
+    const aperturaOjos = Math.abs(ojoIzqSuperior.y - ojoIzqInferior.y);
+    
+    return aperturaBoca > 0.05 && aperturaOjos < 0.01;
+  }
+
   private dibujarLandmarksEjercicio(landmarks: any[]) {
     if (!this.ejercicioActivo) return;
     
@@ -450,34 +703,57 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
         this.dibujarPuntosLabios(landmarks, '#FFD700');
         break;
       case 2: // Beso de Pez
-        this.dibujarPuntosLabios(landmarks, '#00CED1');
-        this.dibujarLineasLabios(landmarks, '#00CED1');
+        this.dibujarPuntosLabios(landmarks, '#FFD700');
+        this.dibujarLineasLabios(landmarks, '#FFD700');
         break;
       case 3: // Boca Abierta
-        this.dibujarPuntosLabios(landmarks, '#FF6347');
-        this.dibujarAperturaBoca(landmarks, '#FF6347');
+        this.dibujarPuntosLabios(landmarks, '#32CD32');
+        this.dibujarAperturaBoca(landmarks, '#32CD32');
         break;
       case 4: // Guiño
-        this.dibujarPuntosOjos(landmarks, '#9370DB');
+        this.dibujarPuntosOjos(landmarks, '#32CD32');
         break;
       case 5: // Lengua Arriba
         this.dibujarPuntosLabios(landmarks, '#FF1493');
         break;
       case 6: // Mejillas Infladas
-        this.dibujarPuntosMejillas(landmarks, '#32CD32');
+        this.dibujarPuntosMejillas(landmarks, '#FFD700');
         break;
       case 7: // Sorpresa
-        this.dibujarPuntosOjos(landmarks, '#FFA500');
-        this.dibujarPuntosLabios(landmarks, '#FFA500');
+        this.dibujarPuntosOjos(landmarks, '#32CD32');
+        this.dibujarPuntosLabios(landmarks, '#32CD32');
         break;
       case 8: // Masticar
-        this.dibujarPuntosMandibula(landmarks, '#FF69B4');
+        this.dibujarPuntosMandibula(landmarks, '#32CD32');
         break;
       case 9: // Vibrar Labios
-        this.dibujarPuntosLabios(landmarks, '#8B4513');
+        this.dibujarPuntosLabios(landmarks, '#FFD700');
         break;
       case 10: // Simetría
-        this.dibujarLineasSimetria(landmarks, '#4682B4');
+        this.dibujarLineasSimetria(landmarks, '#32CD32');
+        break;
+      case 11: // Lengua Circular
+        this.dibujarPuntosLabios(landmarks, '#FF1493');
+        break;
+      case 12: // Lengua Lateral
+        this.dibujarPuntosLabios(landmarks, '#FF1493');
+        break;
+      case 13: // Vibración Lingual
+        this.dibujarPuntosLabios(landmarks, '#FF1493');
+        break;
+      case 14: // Sostener Lápiz
+        this.dibujarPuntosLabios(landmarks, '#FFD700');
+        this.dibujarLineasLabios(landmarks, '#FFD700');
+        break;
+      case 15: // Besitos Aire
+        this.dibujarPuntosLabios(landmarks, '#FFD700');
+        break;
+      case 16: // Mandíbula Lateral
+        this.dibujarPuntosMandibula(landmarks, '#32CD32');
+        break;
+      case 17: // Bostezo
+        this.dibujarPuntosLabios(landmarks, '#32CD32');
+        this.dibujarAperturaBoca(landmarks, '#32CD32');
         break;
     }
   }
@@ -647,16 +923,15 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     }, 1000);
   }
 
-  // Métodos públicos para interacción
+  // MÉTODOS PÚBLICOS PARA INTERACCIÓN (ACTUALIZADOS)
   iniciarEjercicio(ejercicio: Ejercicio) {
     console.log('🎯 Iniciando ejercicio:', ejercicio.nombre);
     this.ejercicioActivo = ejercicio;
+    this.vistaActual = 'activo';
     this.mostrarResultados = false;
     
-    // Forzar detección de cambios para asegurar que el DOM esté actualizado
     this.cdr.detectChanges();
     
-    // Esperar un frame adicional para asegurar que los elementos estén en el DOM
     setTimeout(() => {
       this.startCamera();
     }, 100);
@@ -666,7 +941,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     try {
       console.log('🎥 Iniciando cámara...');
       
-      // Esperar hasta que los elementos estén disponibles
       let intentos = 0;
       while ((!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) && intentos < 10) {
         console.log(`⏳ Esperando elementos DOM (intento ${intentos + 1}/10)...`);
@@ -674,17 +948,13 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
         intentos++;
       }
       
-      // CRÍTICO: Verificar elementos después de espera
       if (!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) {
         console.error('❌ Elementos de video/canvas no disponibles después de espera');
-        console.log('Video element:', this.videoElement?.nativeElement);
-        console.log('Canvas element:', this.canvasElement?.nativeElement);
         return;
       }
 
       console.log('✅ Elementos DOM disponibles');
 
-      // Inicializar MediaPipe ANTES de la cámara
       if (!this.mediaPipeReady) {
         console.log('📋 Inicializando MediaPipe primero...');
         await this.initializeMediaPipe();
@@ -694,7 +964,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
           return;
         }
         
-        // Esperar un poco más para asegurar inicialización
         await new Promise(resolve => setTimeout(resolve, 1500));
       }
       
@@ -769,20 +1038,13 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       console.log('📊 Resultado final:', resultado);
     }
     
-    // Detener cámara DESPUÉS de guardar resultado
     this.stopCamera();
     
-    // Mostrar resultados con un pequeño delay
     setTimeout(() => {
       this.mostrarResultados = true;
-      this.cdr.detectChanges(); // Forzar detección de cambios
+      this.vistaActual = 'resultados';
+      this.cdr.detectChanges();
       console.log('🎉 Mostrando pantalla de resultados');
-      console.log('Estado actual:', {
-        ejercicioActivo: !!this.ejercicioActivo,
-        mostrarResultados: this.mostrarResultados,
-        isRecording: this.isRecording,
-        ultimoResultado: this.ultimoResultado
-      });
     }, 500);
   }
 
@@ -797,9 +1059,10 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   }
 
   volverAlMenu() {
-    console.log('🏠 Volviendo al menú principal...');
+    console.log('🏠 Volviendo al menú de ejercicios...');
     this.ejercicioActivo = null;
     this.mostrarResultados = false;
+    this.vistaActual = this.seccionActiva ? 'ejercicios' : 'secciones';
     this.stopCamera();
     
     // Limpiar estados
@@ -816,8 +1079,8 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   repetirEjercicio() {
     console.log('🔄 Repitiendo ejercicio...');
     this.mostrarResultados = false;
+    this.vistaActual = 'activo';
     if (this.ejercicioActivo) {
-      // Limpiar estados antes de reiniciar
       this.tiempoRestante = 0;
       this.puntuacionActual = 0;
       this.progresoEjercicio = 0;
@@ -827,7 +1090,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       this.contadorFramesTotales = 0;
       this.ejercicioIniciado = false;
       
-      // Esperar un poco antes de reiniciar
       setTimeout(() => {
         this.iniciarEjercicio(this.ejercicioActivo!);
       }, 500);
@@ -839,10 +1101,9 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     if (this.camera) {
       this.camera.stop();
-      this.camera = null as any; // Limpiar referencia
+      this.camera = null as any;
     }
     
-    // Limpiar el canvas
     if (this.canvasCtx && this.canvasElement?.nativeElement) {
       const canvas = this.canvasElement.nativeElement;
       this.canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
