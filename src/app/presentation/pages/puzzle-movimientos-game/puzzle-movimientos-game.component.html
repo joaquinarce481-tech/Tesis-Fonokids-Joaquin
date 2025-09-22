@@ -1,0 +1,316 @@
+<!-- puzzle-movimientos-game.component.html -->
+
+<div class="game-container">
+  <!-- Header del juego -->
+  <header class="game-header">
+    <div class="header-content">
+      <button class="btn-back" (click)="volverAJuegos()">
+        <span class="back-icon">←</span>
+        <span>Volver</span>
+      </button>
+      
+      <div class="game-info">
+        <h1>🧩 Puzzle de Movimientos</h1>
+        <p>Ordena los ejercicios en la secuencia correcta</p>
+      </div>
+      
+      <div class="game-stats">
+        <div class="stat-item">
+          <span class="stat-icon">🏆</span>
+          <span class="stat-value">{{ puntaje }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon">❤️</span>
+          <span class="stat-value">{{ vidas }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon">📈</span>
+          <span class="stat-value">{{ nivelActual }}/{{ maxNiveles }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Pantalla de instrucciones -->
+  <div *ngIf="faseJuego === 'instrucciones'" class="instructions-screen">
+    <div class="instructions-content">
+      <div class="instructions-header">
+        <h2>🧩 ¿Cómo jugar?</h2>
+        <div class="game-icon">🎯</div>
+      </div>
+      
+      <div class="instructions-list">
+        <div class="instruction-item">
+          <span class="instruction-number">1</span>
+          <div class="instruction-text">
+            <h3>Observa la secuencia</h3>
+            <p>Lee los ejercicios que debes ordenar</p>
+          </div>
+        </div>
+        
+        <div class="instruction-item">
+          <span class="instruction-number">2</span>
+          <div class="instruction-text">
+            <h3>Arrastra y ordena</h3>
+            <p>Mueve cada ejercicio a su posición correcta</p>
+          </div>
+        </div>
+        
+        <div class="instruction-item">
+          <span class="instruction-number">3</span>
+          <div class="instruction-text">
+            <h3>Verifica tu secuencia</h3>
+            <p>Presiona el botón para comprobar si es correcta</p>
+          </div>
+        </div>
+        
+        <div class="instruction-item">
+          <span class="instruction-number">4</span>
+          <div class="instruction-text">
+            <h3>Practica los ejercicios</h3>
+            <p>Sigue las instrucciones para fortalecer tu lengua</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="instructions-footer">
+        <button class="btn-primary" (click)="empezarNivel()">
+          ¡Comenzar a Jugar! 🚀
+        </button>
+        <p class="difficulty-info">6 niveles de dificultad progresiva</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pantalla de juego -->
+  <div *ngIf="faseJuego === 'jugando' || faseJuego === 'verificando'" class="game-screen">
+    <!-- Información del nivel -->
+    <div class="level-info">
+      <div class="level-header">
+        <h2>Nivel {{ nivelActual }}: {{ secuenciaActual?.nombre }}</h2>
+        <p>{{ secuenciaActual?.descripcion }}</p>
+        <div class="difficulty-badge" [ngClass]="'difficulty-' + secuenciaActual?.dificultad">
+          {{ secuenciaActual?.dificultad?.toUpperCase() }}
+        </div>
+      </div>
+      
+      <div class="game-controls">
+        <div class="timer-display">
+          <span class="timer-icon">⏱️</span>
+          <span class="timer-text">{{ formatearTiempo(obtenerTiempoRestante()) }}</span>
+        </div>
+        
+        <div class="attempts-display">
+          <span class="attempts-icon">🎯</span>
+          <span class="attempts-text">Intento {{ intentos + 1 }}</span>
+        </div>
+        
+        <div class="progress-display">
+          <span class="progress-icon">📊</span>
+          <span class="progress-text">{{ obtenerPorcentajeProgreso() }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zona de construcción de secuencia -->
+    <div class="sequence-builder">
+      <h3>🎯 Construye la secuencia correcta:</h3>
+      
+      <div class="drop-zones">
+        <div 
+          *ngFor="let zona of zonasDestino; let i = index" 
+          class="drop-zone"
+          [ngClass]="{
+            'zone-occupied': zona !== null,
+            'zone-correct': secuenciaCompleta && obtenerMovimientoPorId(zona!)?.posicionCorrecta === i,
+            'zone-incorrect': faseJuego === 'verificando' && zona !== null && obtenerMovimientoPorId(zona!)?.posicionCorrecta !== i
+          }"
+          (dragover)="onDragOver($event)"
+          (drop)="onDrop($event, i)">
+          
+          <div class="zone-number">{{ i + 1 }}</div>
+          
+          <div *ngIf="zona === null" class="zone-placeholder">
+            <span class="placeholder-icon">📋</span>
+            <span class="placeholder-text">Suelta aquí</span>
+          </div>
+          
+          <div *ngIf="zona !== null" class="zone-content">
+            <div class="movement-card placed" 
+                 [draggable]="faseJuego === 'jugando'"
+                 (dragstart)="onDragStart($event, obtenerMovimientoPorId(zona)!)">
+              <div class="movement-emoji">{{ obtenerMovimientoPorId(zona)?.emoji }}</div>
+              <div class="movement-name">{{ obtenerMovimientoPorId(zona)?.nombre }}</div>
+              <div class="movement-instruction">{{ obtenerMovimientoPorId(zona)?.instruccion }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="sequence-actions">
+        <button 
+          class="btn-verify" 
+          [disabled]="faseJuego === 'verificando'"
+          (click)="verificarSecuencia()">
+          <span class="verify-icon">✓</span>
+          Verificar Secuencia
+        </button>
+        
+        <button 
+          *ngIf="mostrarPista" 
+          class="btn-hint"
+          (click)="mostrarPista = false">
+          <span class="hint-icon">💡</span>
+          Ocultar Pista
+        </button>
+      </div>
+    </div>
+
+    <!-- Banco de movimientos -->
+    <div class="movements-bank">
+      <h3>🎪 Movimientos disponibles:</h3>
+      
+      <div class="movements-grid">
+        <div 
+          *ngFor="let movimiento of movimientosArrastrable" 
+          class="movement-card"
+          [ngClass]="{
+            'movement-placed': movimiento.colocado,
+            'movement-dragging': movimiento.arrastrando,
+            'movement-available': !movimiento.colocado
+          }"
+          [draggable]="!movimiento.colocado && faseJuego === 'jugando'"
+          (dragstart)="onDragStart($event, movimiento)">
+          
+          <div class="movement-emoji">{{ movimiento.emoji }}</div>
+          <div class="movement-name">{{ movimiento.nombre }}</div>
+          <div class="movement-description">{{ movimiento.descripcion }}</div>
+          <div class="movement-instruction">{{ movimiento.instruccion }}</div>
+          
+          <div *ngIf="movimiento.colocado" class="placed-indicator">
+            <span class="placed-icon">✓</span>
+            <span class="placed-text">Colocado</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de pistas -->
+    <div *ngIf="mostrarPista" class="hints-panel">
+      <div class="hints-content">
+        <h4>💡 Pista para la secuencia:</h4>
+        <div class="hint-text">
+          <p>Los ejercicios linguales suelen seguir este orden:</p>
+          <ol class="hint-list">
+            <li>Preparación y posicionamiento inicial</li>
+            <li>Movimientos básicos de extensión</li>
+            <li>Ejercicios de coordinación lateral</li>
+            <li>Movimientos avanzados y precisos</li>
+            <li>Relajación y posición de descanso</li>
+          </ol>
+        </div>
+        
+        <button class="btn-close-hint" (click)="mostrarPista = false">
+          <span class="close-icon">×</span>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pantalla de completado -->
+  <div *ngIf="faseJuego === 'completado'" class="completion-screen">
+    <div class="completion-content">
+      <div class="completion-header">
+        <h2 *ngIf="vidas > 0">🎉 ¡Felicitaciones!</h2>
+        <h2 *ngIf="vidas <= 0">💪 ¡Buen intento!</h2>
+        <div class="completion-icon">
+          <span *ngIf="vidas > 0">🏆</span>
+          <span *ngIf="vidas <= 0">🎯</span>
+        </div>
+      </div>
+      
+      <div class="completion-stats">
+        <div class="final-score">
+          <span class="score-label">Puntaje Final</span>
+          <span class="score-value">{{ puntaje }}</span>
+        </div>
+        
+        <div class="stars-earned">
+          <span class="stars-label">Estrellas</span>
+          <div class="stars-display">
+            <span *ngFor="let star of [1,2,3]" 
+                  class="star" 
+                  [ngClass]="{'star-earned': star <= obtenerEstrellas()}">
+              ⭐
+            </span>
+          </div>
+        </div>
+        
+        <div class="completion-details">
+          <div class="stat-final">
+            <span class="stat-icon">📊</span>
+            <span class="stat-text">Niveles completados: {{ nivelActual - (vidas <= 0 ? 1 : 0) }}/{{ maxNiveles }}</span>
+          </div>
+          
+          <div class="stat-final">
+            <span class="stat-icon">🧩</span>
+            <span class="stat-text">Puzzles resueltos: {{ puzzlesCompletados }}</span>
+          </div>
+          
+          <div class="stat-final">
+            <span class="stat-icon">✅</span>
+            <span class="stat-text">Secuencias correctas: {{ secuenciasCorrectas }}</span>
+          </div>
+          
+          <div class="stat-final">
+            <span class="stat-icon">🎲</span>
+            <span class="stat-text">Intentos promedio: {{ getIntentosPromedio() }}</span>
+          </div>
+          
+          <div class="stat-final">
+            <span class="stat-icon">❤️</span>
+            <span class="stat-text">Vidas restantes: {{ vidas }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="completion-message">
+        <div *ngIf="vidas > 0" class="success-message">
+          <p>¡Excelente trabajo ordenando las secuencias de ejercicios linguales!</p>
+          <p>Has demostrado gran capacidad de secuenciación lógica y comprensión de los movimientos terapéuticos.</p>
+        </div>
+        
+        <div *ngIf="vidas <= 0" class="encouragement-message">
+          <p>¡Sigue practicando! Los puzzles de movimientos requieren tiempo para dominar.</p>
+          <p>Cada intento te ayuda a entender mejor la secuencia correcta de los ejercicios.</p>
+        </div>
+      </div>
+      
+      <div class="completion-actions">
+        <button class="btn-restart" (click)="reiniciarJuego()">
+          <span class="restart-icon">🔄</span>
+          Jugar de Nuevo
+        </button>
+        
+        <button class="btn-continue" (click)="siguienteJuego()">
+          <span class="continue-icon">➡️</span>
+          Siguiente Juego
+        </button>
+        
+        <button class="btn-menu" (click)="volverAJuegos()">
+          <span class="menu-icon">🏠</span>
+          Menú de Juegos
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div *ngIf="faseJuego === 'verificando'" class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>Verificando secuencia...</p>
+    </div>
+  </div>
+</div>

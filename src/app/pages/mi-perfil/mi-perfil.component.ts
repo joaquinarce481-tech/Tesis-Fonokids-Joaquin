@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PatientService, PatientProfile } from '../../services/patient.service';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, BehaviorSubject, of } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-mi-perfil',
@@ -233,6 +237,7 @@ export class MiPerfilComponent implements OnInit {
     const field = this.profileForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
   }
+
 
   // Método para obtener el mensaje de error de un campo
   getFieldError(fieldName: string): string {

@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FaqModalComponent } from '../../components/faq-modal/faq-modal.component';
 import { LogoutModalComponent } from '../../../presentation/components/logout-modal/logout-modal.component';
-import { AuthService } from '../../services/auth.service'; // 🆕 IMPORT AUTHSERVICE
+import { AuthService } from '../../services/auth.service';
 
 interface MenuItem {
   id: string;
@@ -33,14 +33,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showLogoutModal: boolean = false;
   private timeInterval: any;
   
-  // 🆕 NUEVAS PROPIEDADES PARA DATOS DEL USUARIO
   userName: string = 'Usuario';
   userEmail: string = '';
   private destroy$ = new Subject<void>();
   
-  // 🆕 INYECCIÓN DEL AUTHSERVICE
   private authService = inject(AuthService);
 
+  // MENÚ ACTUALIZADO CON LA NUEVA SECCIÓN DE JUEGOS - IDs CORREGIDOS
   menuItems: MenuItem[] = [
     {
       id: 'agenda',
@@ -52,13 +51,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
       description: 'Ve tus citas programadas'
     },
     {
-      id: 'juegos',
+      id: 'juegos', // Cambié de 'ejercicios' a 'juegos' para el análisis
       title: 'Analisis de tus Practicas',
       subtitle: '¡A practicar!',
       color: 'from-purple-400 to-purple-600',
       hoverColor: 'from-purple-500 to-purple-700',
       emoji: '🎥',
       description: 'Haz tus movimientos de practicas'
+    },
+    {
+      id: 'juegos-terapeuticos', // Nuevo ID único para juegos terapéuticos
+      title: 'Juegos Terapéuticos',
+      subtitle: '¡Diviértete mientras entrenas!',
+      color: 'from-pink-400 to-pink-600',
+      hoverColor: 'from-pink-500 to-pink-700',
+      emoji: '🎮',
+      description: 'Juegos para fortalecer tu boca'
     },
     {
       id: 'practicas',
@@ -89,22 +97,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadDarkModePreference();
-    this.loadUserData(); // 🆕 CARGAR DATOS DEL USUARIO
+    this.loadUserData();
   }
 
-  // 🆕 NUEVO MÉTODO PARA CARGAR DATOS DEL USUARIO
   private loadUserData(): void {
-    // Suscribirse a los cambios del usuario actual
     this.authService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
         if (user) {
-          // Si hay un usuario, usar su nombre
           this.userName = user.name || user.username || 'Usuario';
           this.userEmail = user.email || '';
           console.log('✅ Usuario cargado:', this.userName);
         } else {
-          // Si no hay usuario, valores por defecto
           this.userName = 'Usuario';
           this.userEmail = '';
         }
@@ -115,7 +119,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.timeInterval) {
       clearInterval(this.timeInterval);
     }
-    // 🆕 CLEANUP DE SUSCRIPCIONES
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -148,6 +151,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  // MANEJO DE NAVEGACIÓN ACTUALIZADO CON IDs CORREGIDOS
   handleItemClick(item: MenuItem) {
     this.selectedItem = item.id;
     console.log(`Navegando a: ${item.title}`);
@@ -162,7 +166,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
         break;
       
       case 'juegos':
+        // Este es para "Análisis de tus Prácticas"
         this.router.navigate(['/ejercicios']);
+        break;
+
+      case 'juegos-terapeuticos':
+        // NUEVA NAVEGACIÓN PARA JUEGOS TERAPÉUTICOS
+        this.router.navigate(['/juegos-terapeuticos']);
+        console.log('🎮 Navegando a Juegos Terapéuticos...');
         break;
       
       case 'practicas':
@@ -207,7 +218,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   goToSettings() {
     this.closeUserMenu();
     console.log('Navegando a configuración...');
-    // this.router.navigate(['/settings']);
   }
 
   goToHelp() {
@@ -220,7 +230,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.showFaqModal = false;
   }
 
-  // MÉTODOS PARA EL MODAL DE LOGOUT
   showLogoutConfirmation() {
     this.showLogoutModal = true;
     this.closeUserMenu();
@@ -235,10 +244,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onLogoutConfirm() {
     this.showLogoutModal = false;
     console.log('Logout confirmado - el modal maneja la navegación automáticamente');
-    // El modal ya maneja el logout automáticamente en su componente
   }
 
-  // MÉTODO LEGACY (mantener por compatibilidad)
   logout() {
     this.closeUserMenu();
     console.log('Cerrando sesión directamente...');

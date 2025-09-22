@@ -1,4 +1,4 @@
-/* dashboard.component.css */
+/* dashboard.component.css - ACTUALIZADO CON JUEGOS */
 
 /* ===== VARIABLES CSS PARA MODO CLARO Y OSCURO ===== */
 :root {
@@ -35,14 +35,13 @@
 /* ===== CONTENEDOR PRINCIPAL CORREGIDO ===== */
 .dashboard-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%); /* Púrpura claro por defecto */
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%);
   overflow-x: hidden;
   transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Modo oscuro - fondo oscuro */
 .dashboard-container.dark-mode {
-  background: var(--bg-primary); /* Solo en modo oscuro usa la variable */
+  background: var(--bg-primary);
 }
 
 /* Header */
@@ -298,7 +297,7 @@
 }
 
 .dashboard-main {
-  max-width: 1200px;
+  max-width: 1400px; /* 🎮 AUMENTADO PARA ACOMODAR 5 TARJETAS */
   margin: 0 auto;
   padding: 3rem 1.5rem;
   position: relative;
@@ -325,11 +324,12 @@
   transition: color 0.3s ease;
 }
 
+/* 🎮 GRID ACTUALIZADO PARA 5 TARJETAS */
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -369,7 +369,7 @@
   overflow: hidden;
 }
 
-/* IMÁGENES ESPECÍFICAS PARA CADA TARJETA - CORREGIDAS PARA ANGULAR */
+/* 🎮 IMÁGENES ESPECÍFICAS PARA CADA TARJETA - INCLUYE LA NUEVA TARJETA ROSA */
 .bg-gradient-from-blue-400 .menu-image {
   background-image: url('/assets/images/pruebasfoto.jpg') !important;
   background-size: cover !important;
@@ -377,6 +377,13 @@
 }
 
 .bg-gradient-from-purple-400 .menu-image {
+  background-image: url('/assets/images/pruebasfoto.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+/* 🎮 NUEVA IMAGEN PARA JUEGOS TERAPÉUTICOS */
+.bg-gradient-from-pink-400 .menu-image {
   background-image: url('/assets/images/pruebasfoto.jpg') !important;
   background-size: cover !important;
   background-position: center !important;
@@ -394,7 +401,7 @@
   background-position: center !important;
 }
 
-/* Overlay en las imágenes - AJUSTADO */
+/* Overlay en las imágenes */
 .menu-image::after {
   content: '';
   position: absolute;
@@ -406,7 +413,6 @@
   z-index: 1;
 }
 
-/* Modo oscuro - Overlay más oscuro */
 .dark-mode .menu-image::after {
   background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5));
 }
@@ -423,13 +429,18 @@
   z-index: 10;
 }
 
-/* Colores de fondo para el contenido */
+/* 🎮 COLORES DE FONDO PARA EL CONTENIDO - INCLUYE ROSA PARA JUEGOS */
 .bg-gradient-from-blue-400.to-blue-600 .menu-content {
   background: #4a90e2;
 }
 
 .bg-gradient-from-purple-400.to-purple-600 .menu-content {
   background: #9b59b6;
+}
+
+/* 🎮 NUEVO COLOR ROSA PARA JUEGOS TERAPÉUTICOS */
+.bg-gradient-from-pink-400.to-pink-600 .menu-content {
+  background: #e91e63;
 }
 
 .bg-gradient-from-green-400.to-green-600 .menu-content {
@@ -440,13 +451,17 @@
   background: #f39c12;
 }
 
-/* Modo oscuro - Colores más oscuros */
+/* 🎮 MODO OSCURO - COLORES MÁS OSCUROS INCLUYE ROSA */
 .dark-mode .bg-gradient-from-blue-400.to-blue-600 .menu-content {
   background: #2c5282;
 }
 
 .dark-mode .bg-gradient-from-purple-400.to-purple-600 .menu-content {
   background: #6b46c1;
+}
+
+.dark-mode .bg-gradient-from-pink-400.to-pink-600 .menu-content {
+  background: #be185d;
 }
 
 .dark-mode .bg-gradient-from-green-400.to-green-600 .menu-content {
@@ -513,7 +528,7 @@
   }
 }
 
-/* Mensaje motivacional - CORREGIDO */
+/* Mensaje motivacional */
 .motivational-message {
   text-align: center;
   margin-top: 4rem;
@@ -529,14 +544,12 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-/* Forzar el contenedor en modo claro */
 .dashboard-container:not(.dark-mode) .motivational-message {
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-/* Forzar el contenedor en modo oscuro */
 .dashboard-container.dark-mode .motivational-message {
   background: rgba(45, 55, 72, 0.95);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
@@ -568,7 +581,7 @@
 }
 
 .floating-message {
-  background: #f97316 !important; /* Naranja como en la imagen */
+  background: #f97316 !important;
   color: white !important;
   padding: 12px 20px !important;
   border-radius: 25px !important;
@@ -603,7 +616,7 @@
 }
 
 .floating-message {
-  animation: slideInMessage 0.5s ease-out 1s both !important; /* Aparece después de 1 segundo */
+  animation: slideInMessage 0.5s ease-out 1s both !important;
 }
 
 /* Estilo del botón flotante dentro del container */
@@ -617,7 +630,14 @@
   box-shadow: 0 15px 40px rgba(37, 211, 102, 0.6) !important;
 }
 
-/* Responsive - Ocultar mensaje en móviles */
+/* ===== RESPONSIVE ACTUALIZADO PARA 5 TARJETAS ===== */
+@media (max-width: 1200px) {
+  .menu-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    max-width: 1200px;
+  }
+}
+
 @media (max-width: 768px) {
   .floating-help-container {
     bottom: 16px !important;
@@ -625,61 +645,9 @@
   }
   
   .floating-message {
-    display: none !important; /* Ocultar mensaje en móviles para ahorrar espacio */
-  }
-}
-
-@media (max-width: 480px) {
-  .floating-help-container {
-    bottom: 12px !important;
-    right: 12px !important;
+    display: none !important;
   }
   
-  .floating-help-container .floating-mascot {
-    width: 52px !important;
-    height: 52px !important;
-    font-size: 1.6rem !important;
-  }
-}
-
-/* ===== ANIMACIONES ===== */
-@keyframes pulse-border-enhanced {
-  0%, 100% {
-    opacity: 0.7;
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
-    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
-  }
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
   .header-content {
     flex-direction: column;
     gap: 1rem;
@@ -742,6 +710,17 @@
 }
 
 @media (max-width: 480px) {
+  .floating-help-container {
+    bottom: 12px !important;
+    right: 12px !important;
+  }
+  
+  .floating-help-container .floating-mascot {
+    width: 52px !important;
+    height: 52px !important;
+    font-size: 1.6rem !important;
+  }
+  
   .menu-item {
     height: 300px;
   }
@@ -760,5 +739,41 @@
   
   .menu-description {
     font-size: 0.8rem;
+  }
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes pulse-border-enhanced {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

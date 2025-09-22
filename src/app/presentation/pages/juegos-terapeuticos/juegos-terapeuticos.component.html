@@ -1,0 +1,138 @@
+<!-- juegos-terapeuticos.component.html -->
+
+<div class="juegos-container">
+  <!-- Header con navegación -->
+  <header class="juegos-header">
+    <div class="header-content">
+      <button class="btn-back" (click)="volverAlDashboard()">
+        <span class="back-icon">←</span>
+        <span>Volver al Dashboard</span>
+      </button>
+      
+      <div class="header-title" *ngIf="!categoriaSeleccionada">
+        <h1>🎮 Juegos Terapéuticos</h1>
+        <p>Selecciona una categoría para comenzar a jugar</p>
+      </div>
+      
+      <div class="header-title" *ngIf="categoriaSeleccionada">
+        <button class="btn-back-categoria" (click)="volverACategorias()">
+          <span class="back-icon">←</span>
+          <span>Volver a Categorías</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Vista principal: Selección de categorías -->
+  <main class="main-content" *ngIf="!categoriaSeleccionada">
+    <div class="categorias-grid">
+      <div 
+        *ngFor="let categoria of categorias"
+        class="categoria-card"
+        [ngClass]="'bg-gradient-' + categoria.color"
+        (click)="seleccionarCategoria(categoria)">
+        
+        <div class="categoria-header">
+          <div class="categoria-emoji">{{ categoria.emoji }}</div>
+          <div class="categoria-badge">{{ categoria.juegos.length }} juegos</div>
+        </div>
+        
+        <div class="categoria-content">
+          <h3>{{ categoria.titulo }}</h3>
+          <p class="categoria-subtitulo">{{ categoria.subtitulo }}</p>
+          <p class="categoria-descripcion">{{ categoria.descripcion }}</p>
+        </div>
+        
+        <div class="categoria-footer">
+          <div class="play-button">
+            <span class="play-icon">▶</span>
+            <span>Jugar</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="info-section">
+      <div class="info-card">
+        <h3>📚 ¿Cómo funcionan los juegos?</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-emoji">🧩</span>
+            <div>
+              <strong>Drag & Drop</strong>
+              <p>Arrastra elementos a su lugar correcto</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-emoji">🧠</span>
+            <div>
+              <strong>Memoria</strong>
+              <p>Recuerda secuencias y patrones</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-emoji">⚡</span>
+            <div>
+              <strong>Reacción</strong>
+              <p>Responde rápido a los estímulos</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-emoji">🎵</span>
+            <div>
+              <strong>Audio</strong>
+              <p>Usa tu voz y respiración</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Vista de juegos por categoría -->
+  <main class="main-content" *ngIf="categoriaSeleccionada">
+    <div class="categoria-selected" 
+         *ngFor="let categoria of categorias" 
+         [ngStyle]="categoria.id === categoriaSeleccionada ? {} : {display: 'none'}">
+      
+      <div class="categoria-header-selected">
+        <div class="categoria-info">
+          <span class="categoria-emoji-large">{{ categoria.emoji }}</span>
+          <div>
+            <h2>{{ categoria.titulo }}</h2>
+            <p>{{ categoria.descripcion }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="juegos-grid">
+        <div 
+          *ngFor="let juego of categoria.juegos"
+          class="juego-card"
+          (click)="jugarJuego(juego, categoria)">
+          
+          <div class="juego-header">
+            <span class="juego-emoji">{{ juego.emoji }}</span>
+            <div class="juego-dificultad" [ngClass]="getDificultadColor(juego.dificultad)">
+              {{ getDificultadTexto(juego.dificultad) }}
+            </div>
+          </div>
+          
+          <div class="juego-content">
+            <h4>{{ juego.nombre }}</h4>
+            <p>{{ juego.descripcion }}</p>
+          </div>
+          
+          <div class="juego-footer">
+            <div class="juego-tipo">{{ juego.tipo }}</div>
+            <button class="btn-jugar">
+              <span class="play-icon">▶</span>
+              Jugar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,272 @@
+<!-- soplo-virtual-game.component.html -->
+
+<div class="game-container">
+  <!-- Header del juego -->
+  <header class="game-header">
+    <div class="header-content">
+      <button class="btn-back" (click)="volverAJuegos()">
+        <span class="back-icon">←</span>
+        <span>Volver</span>
+      </button>
+      
+      <div class="game-info">
+        <h1>🌬️ Soplo Virtual</h1>
+        <p>Sopla fuerte para apagar todas las velas</p>
+      </div>
+      
+      <div class="game-stats" *ngIf="faseJuego === 'jugando'">
+        <div class="stat">
+          <span class="stat-label">Nivel</span>
+          <span class="stat-value">{{ nivelActual }}/{{ maxNiveles }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Velas</span>
+          <span class="stat-value">{{ velasApagadas }}/{{ totalVelas }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Tiempo</span>
+          <span class="stat-value">{{ formatearTiempo(getTiempoRestante()) }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Puntaje</span>
+          <span class="stat-value">{{ puntaje }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Pantalla de instrucciones -->
+  <main class="game-main" *ngIf="faseJuego === 'instrucciones'">
+    <div class="instructions-screen">
+      <div class="instructions-card">
+        <div class="instructions-header">
+          <h2>🕯️ Cómo Jugar</h2>
+          <div class="difficulty-badge">Soplo</div>
+        </div>
+        
+        <div class="instructions-content">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-text">
+              <strong>Permite el micrófono</strong>
+              <p>Necesitamos acceso al micrófono para detectar tu soplo</p>
+            </div>
+          </div>
+          
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-text">
+              <strong>Sopla fuerte</strong>
+              <p>Sopla hacia el micrófono para apagar las velas encendidas</p>
+            </div>
+          </div>
+          
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-text">
+              <strong>Apaga todas las velas</strong>
+              <p>Completa cada nivel antes de que se acabe el tiempo</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tips-section">
+          <h3>💡 Consejos</h3>
+          <ul>
+            <li>🔊 Ajusta el volumen de tu dispositivo</li>
+            <li>🎤 Sopla directamente al micrófono</li>
+            <li>💨 Un soplo fuerte y constante es más efectivo</li>
+            <li>⚡ Cada nivel tiene más velas que apagar</li>
+          </ul>
+        </div>
+        
+        <button class="btn-start" (click)="saltarInstrucciones()">
+          🎤 Permitir Micrófono y Jugar
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Pantalla de preparación -->
+  <main class="game-main" *ngIf="faseJuego === 'preparando'">
+    <div class="preparing-screen">
+      <div class="preparing-card">
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+        </div>
+        <h2>🎤 Configurando micrófono...</h2>
+        <p>Por favor, permite el acceso al micrófono cuando te lo solicite el navegador.</p>
+        
+        <div class="microphone-test" *ngIf="permisoMicrofono">
+          <h3>✅ Micrófono conectado</h3>
+          <div class="sound-meter">
+            <div class="sound-bar" 
+                 [style.height.%]="getIntensidadSoplo()"
+                 [class.active]="getIntensidadSoplo() > 20">
+            </div>
+          </div>
+          <p>Prueba soplando para ver si funciona</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Pantalla de error -->
+  <main class="game-main" *ngIf="faseJuego === 'error'">
+    <div class="error-screen">
+      <div class="error-card">
+        <div class="error-icon">❌</div>
+        <h2>Error de Micrófono</h2>
+        <p>{{ errorMicrofono }}</p>
+        
+        <div class="error-solutions">
+          <h3>Posibles soluciones:</h3>
+          <ul>
+            <li>🔄 Recarga la página y permite el micrófono</li>
+            <li>🔧 Verifica que tu micrófono esté conectado</li>
+            <li>🌐 Asegúrate de usar un navegador compatible</li>
+            <li>⚙️ Revisa la configuración de permisos del navegador</li>
+          </ul>
+        </div>
+        
+        <div class="error-actions">
+          <button class="btn-retry" (click)="solicitarPermisoMicrofono()">
+            🔄 Reintentar
+          </button>
+          <button class="btn-back-error" (click)="volverAJuegos()">
+            🏠 Volver a Juegos
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Área principal del juego -->
+  <main class="game-main" *ngIf="faseJuego === 'jugando'">
+    <!-- Indicador de soplo -->
+    <div class="breath-indicator">
+      <div class="breath-meter">
+        <div class="breath-label">Intensidad del soplo:</div>
+        <div class="breath-bar-container">
+          <div class="breath-bar" 
+               [style.width.%]="getIntensidadSoplo()"
+               [class.breathing]="getIntensidadSoplo() > 20">
+          </div>
+        </div>
+        <div class="breath-value">{{ getIntensidadSoplo().toFixed(0) }}%</div>
+      </div>
+    </div>
+
+    <!-- Área de velas -->
+    <div class="candles-area">
+      <div *ngFor="let vela of velas" 
+           class="candle-container"
+           [style.left.px]="vela.x"
+           [style.top.px]="vela.y">
+        
+        <!-- Vela encendida -->
+        <div class="candle" *ngIf="!vela.apagada">
+          <div class="flame" 
+               [style.opacity]="vela.intensidadLlama"
+               [class.flickering]="vela.intensidadLlama < 0.5">
+            🔥
+          </div>
+          <div class="candle-body">🕯️</div>
+        </div>
+        
+        <!-- Vela apagada -->
+        <div class="candle extinguished" *ngIf="vela.apagada">
+          <div class="smoke">💨</div>
+          <div class="candle-body">🕯️</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Partículas de soplo -->
+    <div class="particles-container">
+      <div *ngFor="let particula of particulas" 
+           class="particle"
+           [style.left.px]="particula.x"
+           [style.top.px]="particula.y">
+        💨
+      </div>
+    </div>
+
+    <!-- Progreso del nivel -->
+    <div class="level-progress">
+      <div class="progress-header">
+        <h3>Nivel {{ nivelActual }} - Apaga todas las velas</h3>
+        <div class="progress-stats">
+          {{ velasApagadas }}/{{ totalVelas }} velas apagadas
+        </div>
+      </div>
+      
+      <div class="progress-bar-container">
+        <div class="progress-bar" 
+             [style.width.%]="(velasApagadas / totalVelas) * 100">
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de juego completado -->
+  <div class="completion-modal" *ngIf="faseJuego === 'completado'">
+    <div class="modal-content">
+      <div class="celebration" *ngIf="nivelActual >= maxNiveles">
+        <div class="celebration-emoji">🎉</div>
+        <h2>¡Excelente soplo!</h2>
+        <p>Has apagado todas las velas en todos los niveles</p>
+      </div>
+      
+      <div class="celebration" *ngIf="nivelActual < maxNiveles">
+        <div class="celebration-emoji">⏰</div>
+        <h2>¡Buen intento!</h2>
+        <p>Llegaste al nivel {{ nivelActual }}. ¡Sigue practicando tu soplo!</p>
+      </div>
+      
+      <div class="final-stats">
+        <div class="stat-final">
+          <span class="stat-icon">🎯</span>
+          <span class="stat-text">Nivel alcanzado: {{ nivelActual }}/{{ maxNiveles }}</span>
+        </div>
+        <div class="stat-final">
+          <span class="stat-icon">🕯️</span>
+          <span class="stat-text">Velas apagadas: {{ velasApagadas }}</span>
+        </div>
+        <div class="stat-final">
+          <span class="stat-icon">⏱️</span>
+          <span class="stat-text">Tiempo: {{ formatearTiempo(tiempoTranscurrido) }}</span>
+        </div>
+        <div class="stat-final">
+          <span class="stat-icon">⭐</span>
+          <span class="stat-text">Puntaje: {{ puntaje }}</span>
+        </div>
+      </div>
+      
+      <div class="stars-rating" *ngIf="nivelActual >= maxNiveles">
+        <span *ngFor="let star of [1,2,3]; let i = index" 
+              class="star"
+              [class.filled]="i < getEstrellas()">
+          ⭐
+        </span>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="reiniciarJuego()">
+          🔄 Jugar de Nuevo
+        </button>
+        
+        <button class="btn-primary" (click)="siguienteJuego()">
+          ➡️ Siguiente Juego
+        </button>
+        
+        <button class="btn-outline" (click)="volverAJuegos()">
+          🏠 Volver a Juegos
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay del modal -->
+  <div class="modal-overlay" *ngIf="faseJuego === 'completado'" (click)="volverAJuegos()"></div>
+</div>

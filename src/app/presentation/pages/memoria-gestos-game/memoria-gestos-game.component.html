@@ -1,0 +1,221 @@
+<!-- memoria-gestos-game.component.html -->
+
+<div class="game-container">
+  <!-- Header del juego -->
+  <header class="game-header">
+    <div class="header-content">
+      <button class="btn-back" (click)="volverAJuegos()">
+        <span class="back-icon">←</span>
+        <span>Volver</span>
+      </button>
+      
+      <div class="game-info">
+        <h1>🧠 Memoria de Gestos</h1>
+        <p>Recuerda y repite la secuencia de gestos faciales</p>
+      </div>
+      
+      <div class="game-stats">
+        <div class="stat">
+          <span class="stat-label">Nivel</span>
+          <span class="stat-value">{{ nivelActual }}/{{ maxNiveles }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Vidas</span>
+          <span class="stat-value">
+            <span *ngFor="let vida of [1,2,3]; let i = index" 
+                  class="vida-icon"
+                  [class.perdida]="i >= vidas">❤️</span>
+          </span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Puntaje</span>
+          <span class="stat-value">{{ puntaje }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Tiempo</span>
+          <span class="stat-value">{{ formatearTiempo(tiempoTranscurrido) }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Pantalla de instrucciones -->
+  <main class="game-main" *ngIf="faseJuego === 'instrucciones'">
+    <div class="instructions-screen">
+      <div class="instructions-card">
+        <div class="instructions-header">
+          <h2>📋 Cómo Jugar</h2>
+          <div class="difficulty-badge">{{ getDificultadTexto() }}</div>
+        </div>
+        
+        <div class="instructions-content">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-text">
+              <strong>Observa atentamente</strong>
+              <p>Mira la secuencia de gestos que aparece en pantalla</p>
+            </div>
+          </div>
+          
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-text">
+              <strong>Memoriza el orden</strong>
+              <p>Recuerda los gestos y el orden en que aparecieron</p>
+            </div>
+          </div>
+          
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-text">
+              <strong>Repite la secuencia</strong>
+              <p>Toca los gestos en el mismo orden que los viste</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="gestos-preview">
+          <h3>🎭 Gestos Disponibles</h3>
+          <div class="gestos-grid">
+            <div *ngFor="let gesto of gestosDisponibles" class="gesto-preview">
+              <span class="gesto-emoji">{{ gesto.emoji }}</span>
+              <span class="gesto-nombre">{{ gesto.nombre }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn-start" (click)="saltarInstrucciones()">
+          🚀 ¡Empezar a Jugar!
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Área principal del juego -->
+  <main class="game-main" *ngIf="faseJuego !== 'instrucciones'">
+    <!-- Área de demostración -->
+    <div class="demo-area" *ngIf="mostrandoSecuencia">
+      <div class="demo-header">
+        <h3>👀 Observa la secuencia</h3>
+        <div class="sequence-progress">
+          <span *ngFor="let gesto of secuenciaActual; let i = index"
+                class="progress-dot"
+                [class.active]="i === indiceGestoActual"
+                [class.completed]="i < indiceGestoActual">
+          </span>
+        </div>
+      </div>
+      
+      <div class="demo-gesture" *ngIf="gestoMostrando">
+        <div class="gesture-display">
+          <span class="gesture-emoji">{{ gestoMostrando.emoji }}</span>
+          <h4>{{ gestoMostrando.nombre }}</h4>
+          <p>{{ gestoMostrando.descripcion }}</p>
+        </div>
+      </div>
+      
+      <div class="demo-waiting" *ngIf="!gestoMostrando">
+        <div class="waiting-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje de fase -->
+    <div class="phase-message" *ngIf="!mostrandoSecuencia">
+      <div class="message-content" [ngClass]="faseJuego">
+        <div *ngIf="faseJuego === 'esperando'">
+          <h3>🎯 Nivel {{ nivelActual }}</h3>
+          <p>Prepárate para ver la secuencia...</p>
+        </div>
+        
+        <div *ngIf="faseJuego === 'jugando'">
+          <h3>🤔 Tu turno</h3>
+          <p>Repite la secuencia tocando los gestos en orden</p>
+          <div class="progress-indicator">
+            Progreso: {{ respuestaJugador.length }} / {{ secuenciaActual.length }}
+          </div>
+        </div>
+        
+        <div *ngIf="faseJuego === 'error'">
+          <h3>❌ ¡Oops!</h3>
+          <p>Ese no era el gesto correcto. ¡Inténtalo de nuevo!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controles de gestos -->
+    <div class="gestos-container" *ngIf="faseJuego === 'jugando'">
+      <div class="gestos-grid">
+        <button *ngFor="let gesto of gestosDisponibles"
+                class="gesto-button"
+                [class.pulsado]="gestoPulsado === gesto.id"
+                (click)="seleccionarGesto(gesto)">
+          <span class="gesto-emoji">{{ gesto.emoji }}</span>
+          <span class="gesto-nombre">{{ gesto.nombre }}</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de juego completado -->
+  <div class="completion-modal" *ngIf="faseJuego === 'completado'">
+    <div class="modal-content">
+      <div class="celebration" *ngIf="vidas > 0">
+        <div class="celebration-emoji">🎉</div>
+        <h2>¡Increíble memoria!</h2>
+        <p>Has completado todos los niveles del juego</p>
+      </div>
+      
+      <div class="celebration" *ngIf="vidas <= 0">
+        <div class="celebration-emoji">💪</div>
+        <h2>¡Buen intento!</h2>
+        <p>Llegaste al nivel {{ nivelActual }}. ¡Sigue practicando!</p>
+      </div>
+      
+      <div class="final-stats">
+        <div class="stat-final">
+          <span class="stat-icon">🎯</span>
+          <span class="stat-text">Nivel alcanzado: {{ nivelActual }}/{{ maxNiveles }}</span>
+        </div>
+        <div class="stat-final">
+          <span class="stat-icon">❤️</span>
+          <span class="stat-text">Vidas restantes: {{ vidas }}</span>
+        </div>
+        <div class="stat-final">
+          <span class="stat-icon">⏱️</span>
+          <span class="stat-text">Tiempo: {{ formatearTiempo(tiempoTranscurrido) }}</span>
+        </div>
+        <div class="stat-final">
+          <span class="stat-icon">⭐</span>
+          <span class="stat-text">Puntaje: {{ puntaje }}</span>
+        </div>
+      </div>
+      
+      <div class="stars-rating" *ngIf="vidas > 0">
+        <span *ngFor="let star of [1,2,3]; let i = index" 
+              class="star"
+              [class.filled]="i < getEstrellas()">
+          ⭐
+        </span>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="reiniciarJuego()">
+          🔄 Jugar de Nuevo
+        </button>
+        
+        <button class="btn-primary" (click)="siguienteJuego()">
+          ➡️ Siguiente Juego
+        </button>
+        
+        <button class="btn-outline" (click)="volverAJuegos()">
+          🏠 Volver a Juegos
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay del modal -->
+  <div class="modal-overlay" *ngIf="faseJuego === 'completado'" (click)="volverAJuegos()"></div>
+</div>

@@ -1,0 +1,335 @@
+<!-- ritmo-silabas-game.component.html -->
+
+<div class="game-container">
+  <!-- Header del juego -->
+  <header class="game-header">
+    <div class="header-content">
+      <button class="btn-back" (click)="volverAJuegos()">
+        <span class="back-icon">←</span>
+        <span>Volver</span>
+      </button>
+      
+      <div class="game-info">
+        <h1>🎵 Ritmo de Sílabas</h1>
+        <p>Presiona las teclas al ritmo de las sílabas</p>
+      </div>
+      
+      <div class="game-stats">
+        <div class="stat">
+          <span class="stat-label">🏆</span>
+          <span class="stat-value">{{ puntaje }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">❤️</span>
+          <span class="stat-value">{{ vidas }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">📈</span>
+          <span class="stat-value">{{ nivelActual }}/{{ maxNiveles }}</span>
+        </div>
+        <div class="stat" *ngIf="faseJuego === 'jugando'">
+          <span class="stat-label">🔥</span>
+          <span class="stat-value">{{ combo }}x</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Pantalla de instrucciones -->
+  <div *ngIf="faseJuego === 'instrucciones'" class="instructions-screen">
+    <div class="instructions-card">
+      <div class="instructions-header">
+        <h2>🎵 ¿Cómo jugar?</h2>
+        <div class="difficulty-badge">Nivel {{ nivelActual }}</div>
+      </div>
+      
+      <div class="instructions-content">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-text">
+            <strong>Observa las sílabas</strong>
+            <p>Las sílabas caerán desde la parte superior de la pantalla en diferentes carriles.</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-text">
+            <strong>Presiona las teclas correctas</strong>
+            <p>Cuando una sílaba llegue a la línea de tiempo, presiona la tecla correspondiente.</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-text">
+            <strong>Mantén el ritmo</strong>
+            <p>La precisión es clave. Golpea las sílabas exactamente cuando lleguen a la línea.</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-text">
+            <strong>Construye combos</strong>
+            <p>Golpea sílabas consecutivas para aumentar tu multiplicador de puntos.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="controls-guide">
+        <h3>🎹 Controles del teclado:</h3>
+        <div class="controls-grid">
+          <div class="control-item" *ngFor="let silaba of silabasDisponibles">
+            <div class="control-key" [ngStyle]="{'background-color': silaba.color}">
+              {{ silaba.tecla }}
+            </div>
+            <div class="control-label">
+              <span class="control-emoji">{{ silaba.emoji }}</span>
+              <span class="control-text">{{ silaba.texto }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tips-section">
+        <h3>💡 Consejos:</h3>
+        <ul>
+          <li>Mantén tus dedos sobre las teclas A, S, D, F</li>
+          <li>Concéntrate en el timing, no en la velocidad</li>
+          <li>Los combos multiplican tu puntaje hasta 4x</li>
+          <li>Cada nivel aumenta la velocidad y frecuencia</li>
+        </ul>
+      </div>
+      
+      <button class="btn-start" (click)="empezarNivel()">
+        ¡Comenzar Ritmo! 🎵
+      </button>
+    </div>
+  </div>
+
+  <!-- Cuenta regresiva -->
+  <div *ngIf="faseJuego === 'countdown'" class="countdown-screen">
+    <div class="countdown-content">
+      <h2>¡Prepárate!</h2>
+      <div class="countdown-number">{{ cuentaRegresiva }}</div>
+      <p>Coloca tus dedos en A, S, D, F</p>
+    </div>
+  </div>
+
+  <!-- Pantalla principal del juego -->
+  <div *ngIf="faseJuego === 'jugando' || faseJuego === 'pausado'" class="game-main">
+    
+    <!-- Información del nivel en juego -->
+    <div class="level-hud">
+      <div class="level-info-compact">
+        <span class="level-text">Nivel {{ nivelActual }}</span>
+        <span class="time-remaining">{{ formatearTiempo(tiempoRestante) }}</span>
+      </div>
+      
+      <div class="combo-display" *ngIf="combo > 0">
+        <span class="combo-text">{{ combo }}x COMBO</span>
+        <div class="combo-bar">
+          <div class="combo-fill" [ngStyle]="{'width': Math.min(100, (combo / 10) * 100) + '%'}"></div>
+        </div>
+      </div>
+      
+      <div class="multiplier-display" *ngIf="multiplicador > 1">
+        <span class="multiplier-text">{{ multiplicador }}x MULTIPLICADOR</span>
+      </div>
+    </div>
+
+    <!-- Área de juego principal -->
+    <div class="rhythm-area">
+      
+      <!-- Carriles del juego -->
+      <div class="game-lanes">
+        <div class="lane" *ngFor="let silaba of silabasDisponibles; let i = index">
+          
+          <!-- Cabecera del carril -->
+          <div class="lane-header" [ngStyle]="{'background-color': silaba.color}">
+            <div class="lane-key">{{ silaba.tecla }}</div>
+            <div class="lane-syllable">{{ silaba.texto }}</div>
+            <div class="lane-emoji">{{ silaba.emoji }}</div>
+          </div>
+          
+          <!-- Sílabas cayendo en este carril -->
+          <div class="falling-syllables">
+            <div 
+              class="falling-syllable"
+              *ngFor="let silabaCayendo of silabasCayendo"
+              [ngClass]="{
+                'syllable-hit': silabaCayendo.golpeada,
+                'syllable-active': silabaCayendo.activa
+              }"
+              [ngStyle]="{
+                'top': silabaCayendo.posicionY + 'px',
+                'background-color': silabaCayendo.silaba.color,
+                'display': silabaCayendo.carril === i ? 'flex' : 'none'
+              }">
+              {{ silabaCayendo.silaba.texto }}
+            </div>
+          </div>
+          
+          <!-- Línea de golpe -->
+          <div class="hit-line" [ngClass]="{'hit-line-active': teclasPresionadas.has(silaba.tecla.toLowerCase())}">
+            <div class="hit-target"></div>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- Efectos de notas golpeadas -->
+      <div class="hit-effects">
+        <div 
+          class="hit-effect"
+          *ngFor="let nota of notasGolpeadas"
+          [ngClass]="'effect-' + nota.precision"
+          [ngStyle]="{
+            'left': nota.posicion.x + 'px',
+            'top': nota.posicion.y + 'px'
+          }">
+          
+          <div class="effect-text">{{ nota.precision.toUpperCase() }}</div>
+          <div class="effect-points">+{{ nota.puntos }}</div>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Panel de pausa -->
+    <div *ngIf="faseJuego === 'pausado'" class="pause-overlay">
+      <div class="pause-content">
+        <h2>⏸️ Juego Pausado</h2>
+        <div class="pause-actions">
+          <button class="btn-primary" (click)="reanudarJuego()">
+            ▶️ Continuar
+          </button>
+          <button class="btn-secondary" (click)="reiniciarJuego()">
+            🔄 Reiniciar
+          </button>
+          <button class="btn-outline" (click)="volverAJuegos()">
+            🏠 Salir
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Pantalla de completado -->
+  <div *ngIf="faseJuego === 'completado'" class="completion-screen">
+    <div class="completion-content">
+      <div class="completion-header">
+        <h2 *ngIf="vidas > 0">🎉 ¡Excelente ritmo!</h2>
+        <h2 *ngIf="vidas <= 0">🎵 ¡Sigue practicando!</h2>
+        <div class="completion-icon">
+          <span *ngIf="vidas > 0">🏆</span>
+          <span *ngIf="vidas <= 0">🎯</span>
+        </div>
+      </div>
+      
+      <div class="completion-stats">
+        <div class="final-score">
+          <span class="score-label">Puntaje Final</span>
+          <span class="score-value">{{ puntaje }}</span>
+        </div>
+        
+        <div class="stars-rating">
+          <span *ngFor="let star of [1,2,3]" 
+                class="star" 
+                [ngClass]="{'star-filled': star <= obtenerEstrellas()}">
+            ⭐
+          </span>
+        </div>
+        
+        <div class="detailed-stats">
+          <div class="stats-grid">
+            <div class="stat-detail">
+              <span class="stat-icon">🎯</span>
+              <span class="stat-label">Precisión</span>
+              <span class="stat-value">{{ calcularPrecision() }}%</span>
+            </div>
+            
+            <div class="stat-detail">
+              <span class="stat-icon">🔥</span>
+              <span class="stat-label">Max Combo</span>
+              <span class="stat-value">{{ maxCombo }}x</span>
+            </div>
+            
+            <div class="stat-detail">
+              <span class="stat-icon">🎵</span>
+              <span class="stat-label">Sílabas Golpeadas</span>
+              <span class="stat-value">{{ silabasGolpeadas }}</span>
+            </div>
+            
+            <div class="stat-detail">
+              <span class="stat-icon">⭐</span>
+              <span class="stat-label">Perfectas</span>
+              <span class="stat-value">{{ silabasPerfectas }}</span>
+            </div>
+            
+            <div class="stat-detail">
+              <span class="stat-icon">👍</span>
+              <span class="stat-label">Buenas</span>
+              <span class="stat-value">{{ silabasBuenas }}</span>
+            </div>
+            
+            <div class="stat-detail">
+              <span class="stat-icon">👌</span>
+              <span class="stat-label">Regulares</span>
+              <span class="stat-value">{{ silabasRegulares }}</span>
+            </div>
+            
+            <div class="stat-detail">
+              <span class="stat-icon">❌</span>
+              <span class="stat-label">Falladas</span>
+              <span class="stat-value">{{ silabasFalladas }}</span>
+            </div>
+            
+            <div class="stat-detail">
+              <span class="stat-icon">📊</span>
+              <span class="stat-label">Niveles</span>
+              <span class="stat-value">{{ nivelActual - (vidas <= 0 ? 1 : 0) }}/{{ maxNiveles }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="completion-message">
+        <div *ngIf="vidas > 0" class="success-message">
+          <p>¡Fantástico trabajo siguiendo el ritmo de las sílabas!</p>
+          <p>Has demostrado excelente coordinación y timing para la articulación del habla.</p>
+        </div>
+        
+        <div *ngIf="vidas <= 0" class="encouragement-message">
+          <p>¡El ritmo requiere práctica! Sigue intentándolo.</p>
+          <p>Cada sesión mejora tu coordinación y timing para el habla.</p>
+        </div>
+      </div>
+      
+      <div class="completion-actions">
+        <button class="btn-restart" (click)="reiniciarJuego()">
+          <span class="restart-icon">🔄</span>
+          Jugar de Nuevo
+        </button>
+        
+        <button class="btn-continue" (click)="siguienteJuego()">
+          <span class="continue-icon">➡️</span>
+          Siguiente Categoría
+        </button>
+        
+        <button class="btn-menu" (click)="volverAJuegos()">
+          <span class="menu-icon">🏠</span>
+          Menú de Juegos
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón de pausa (solo visible durante el juego) -->
+  <button *ngIf="faseJuego === 'jugando'" class="btn-pause" (click)="pausarJuego()">
+    ⏸️
+  </button>
+
+</div>
