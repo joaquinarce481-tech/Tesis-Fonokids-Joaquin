@@ -17,6 +17,7 @@ import { MemoriaGestosGameComponent } from './presentation/pages/memoria-gestos-
 import { AtrapaLenguaGameComponent } from './presentation/pages/atrapa-lengua-game/atrapa-lengua-game.component';
 import { PuzzleMovimientosGameComponent } from './presentation/pages/puzzle-movimientos-game/puzzle-movimientos-game.component';
 import { RitmoSilabasGameComponent } from './presentation/pages/ritmo-silabas-game/ritmo-silabas-game.component';
+import { RuletaPraxiasComponent } from './presentation/pages/RuletaPraxiasComponent/ruleta-praxiascomponent';
 export const routes: Routes = [
   // RUTAS PÚBLICAS (solo para usuarios NO logueados)
   {
@@ -247,6 +248,17 @@ export const routes: Routes = [
    },
 
 // RUTA DE PERFIL DE USUARIO
+// RUTA PARA LA RULETA DE PRAXIAS
+{
+  path: 'ruleta-praxias',
+  component: RuletaPraxiasComponent,
+  canActivate: [AuthGuard],
+  data: {
+    icon: 'fa-solid fa-dice',
+    title: 'Ruleta de Praxias',
+    description: 'Ruleta interactiva con IA para ejercicios de praxias orofaciales',
+  },
+},
 {
   path: 'mi-perfil',
   loadComponent: () => import('./pages/mi-perfil/mi-perfil.component').then(m => m.MiPerfilComponent),

@@ -17,7 +17,7 @@ interface JuegoInfo {
   nombre: string;
   descripcion: string;
   dificultad: 'facil' | 'medio' | 'dificil';
-  tipo: 'drag-drop' | 'memoria' | 'reaccion' | 'puzzle' | 'audio';
+  tipo: 'drag-drop' | 'memoria' | 'reaccion' | 'puzzle' | 'audio' | 'ia-ruleta';
   emoji: string;
 }
 
@@ -133,6 +133,24 @@ export class JuegosTerapeuticosComponent implements OnInit {
           emoji: '📋'
         }
       ]
+    },
+    {
+      id: 'ruleta-praxias',
+      titulo: 'Ruleta de Praxias IA',
+      subtitulo: 'Inteligencia Artificial',
+      descripcion: 'Ruleta interactiva con detección por cámara e inteligencia artificial',
+      emoji: '🎯',
+      color: 'from-purple-400 to-purple-600',
+      juegos: [
+        {
+          id: 'ruleta-praxias-ia',
+          nombre: 'Ruleta con IA',
+          descripcion: 'Gira la ruleta y demuestra con tu cámara que puedes hacer el ejercicio',
+          dificultad: 'medio',
+          tipo: 'ia-ruleta',
+          emoji: '🤖'
+        }
+      ]
     }
   ];
 
@@ -153,6 +171,12 @@ export class JuegosTerapeuticosComponent implements OnInit {
 
   jugarJuego(juego: JuegoInfo, categoria: CategoriaJuego) {
     console.log(`🎮 Iniciando juego: ${juego.nombre} de ${categoria.titulo}`);
+    
+    // Navegación especial para la ruleta de praxias
+    if (juego.id === 'ruleta-praxias-ia') {
+      this.router.navigate(['/ruleta-praxias']);
+      return;
+    }
     
     // Navegar al juego específico
     this.router.navigate(['/juego', categoria.id, juego.id]);

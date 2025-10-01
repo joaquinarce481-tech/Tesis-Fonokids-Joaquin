@@ -1,4 +1,4 @@
-<!-- dashboard.component.html - ACTUALIZADO CON JUEGOS -->
+<!-- dashboard.component.html - VERSIÓN FINAL CON CAROUSEL Y SECCIÓN ABOUT -->
 
 <div class="dashboard-container" [class.dark-mode]="isDarkMode">
   <!-- Header con información del usuario -->
@@ -38,7 +38,6 @@
                 Ayuda
               </button>
               
-              <!-- Botón de cerrar sesión con confirmación -->
               <button class="dropdown-item logout" (click)="showLogoutConfirmation()">
                 <span class="dropdown-icon">🚪</span>
                 Cerrar Sesión
@@ -67,15 +66,104 @@
       </div>
     </div>
   </header>
+
+  <!-- HERO CAROUSEL SECTION -->
+  <section class="hero-carousel-section">
+    <div class="carousel-container">
+      <!-- Botón Anterior -->
+      <button class="carousel-control prev" (click)="previousSlide()" [disabled]="isTransitioning">
+        <span class="control-icon">❮</span>
+      </button>
+
+      <!-- Slides -->
+      <div class="carousel-wrapper">
+        <div class="carousel-slide" [class.active]="currentSlide === 0">
+          <div class="slide-background" 
+               style="background-image: url('assets/images/hero-slide-1.jpg')"></div>
+          <div class="slide-content">
+            <span class="slide-tag">NUEVO ENFOQUE</span>
+            <h1 class="slide-title">Tu Viaje Hacia una<br><span class="highlight">Mejor Comunicación</span></h1>
+            <p class="slide-description">
+              Ejercicios personalizados y divertidos que te ayudarán a mejorar tu habla día a día
+            </p>
+            <div class="slide-buttons">
+              <button class="btn-primary" (click)="handleItemClick(menuItems[1])">
+                COMENZAR AHORA
+              </button>
+              <button class="btn-secondary" (click)="handleItemClick(menuItems[2])">
+                VER JUEGOS
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="carousel-slide" [class.active]="currentSlide === 1">
+          <div class="slide-background" 
+               style="background-image: url('assets/images/hero-slide-3.jpg')"></div>
+          <div class="slide-content">
+            <span class="slide-tag">PRÁCTICA DIVERTIDA</span>
+            <h1 class="slide-title">Aprende Jugando con<br><span class="highlight">Juegos Terapéuticos</span></h1>
+            <p class="slide-description">
+              Juegos especialmente diseñados para fortalecer los músculos de tu boca mientras te diviertes
+            </p>
+            <div class="slide-buttons">
+              <button class="btn-primary" (click)="handleItemClick(menuItems[2])">
+                JUGAR AHORA
+              </button>
+              <button class="btn-secondary" (click)="handleItemClick(menuItems[3])">
+                HABLAR CON IA
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="carousel-slide" [class.active]="currentSlide === 2">
+          <div class="slide-background" 
+               style="background-image: url('assets/images/hero-slide-2.jpg')"></div>
+          <div class="slide-content">
+            <span class="slide-tag">ASISTENTE INTELIGENTE</span>
+            <h1 class="slide-title">Tu Compañero de<br><span class="highlight">Práctica con IA</span></h1>
+            <p class="slide-description">
+              Practica conversaciones y mejora tu pronunciación con nuestro asistente de inteligencia artificial
+            </p>
+            <div class="slide-buttons">
+              <button class="btn-primary" (click)="handleItemClick(menuItems[3])">
+                CHATEAR CON IA
+              </button>
+              <button class="btn-secondary" (click)="handleItemClick(menuItems[1])">
+                VER EJERCICIOS
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón Siguiente -->
+      <button class="carousel-control next" (click)="nextSlide()" [disabled]="isTransitioning">
+        <span class="control-icon">❯</span>
+      </button>
+
+      <!-- Indicadores -->
+      <div class="carousel-indicators">
+        <button 
+          *ngFor="let slide of carouselSlides; let i = index"
+          class="indicator"
+          [class.active]="currentSlide === i"
+          (click)="goToSlide(i)"
+          [disabled]="isTransitioning">
+        </button>
+      </div>
+    </div>
+  </section>
   
-  <!-- Contenido principal -->
+  <!-- Contenido principal con las tarjetas -->
   <main class="dashboard-main">
     <div class="main-title">
       <h2>¿Qué quieres hacer hoy?</h2>
       <p>Selecciona una opción del menú para comenzar tu aventura 🚀</p>
     </div>
 
-    <!-- GRID CON TU FORMATO ORIGINAL USANDO *ngFor -->
+    <!-- Grid de tarjetas -->
     <div class="menu-grid">
       <div 
         *ngFor="let item of menuItems"
@@ -101,6 +189,89 @@
       </div>
     </div>
 
+    <!-- NUEVA SECCIÓN ABOUT CON IMAGEN DE NIÑA -->
+    <section class="about-section">
+      <div class="about-container">
+        <div class="about-content">
+          <div class="about-badge">¿POR QUÉ ELEGIRNOS?</div>
+          <h2 class="about-title">Fonoaudiología Especializada para Niños</h2>
+          <p class="about-description">
+            Creamos un ambiente divertido y seguro donde los niños aprenden mientras juegan. 
+            Nuestro método combina ejercicios terapéuticos profesionales con actividades 
+            interactivas diseñadas específicamente para mejorar el habla y la comunicación.
+          </p>
+          <ul class="about-features">
+            <li>
+              <span class="feature-icon">✓</span>
+              <span>Ejercicios personalizados según el nivel de cada niño</span>
+            </li>
+            <li>
+              <span class="feature-icon">✓</span>
+              <span>Seguimiento profesional por fonoaudiólogos certificados</span>
+            </li>
+            <li>
+              <span class="feature-icon">✓</span>
+              <span>Juegos terapéuticos que hacen el aprendizaje divertido</span>
+            </li>
+            <li>
+              <span class="feature-icon">✓</span>
+              <span>Tecnología de IA para práctica y retroalimentación instantánea</span>
+            </li>
+          </ul>
+          <button class="about-cta-button" (click)="handleItemClick(menuItems[4])">
+            CONTACTAR ESPECIALISTA
+          </button>
+        </div>
+        
+        <div class="about-image-container">
+          <div class="about-decoration-circle circle-1"></div>
+          <div class="about-decoration-circle circle-2"></div>
+          <div class="about-decoration-circle circle-3"></div>
+          <img 
+            src="assets/images/niñaimagen.jpg" 
+            alt="Niña practicando ejercicios de habla"
+            class="about-image">
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección de estadísticas rápidas -->
+    <div class="quick-stats">
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-icon active-learning">👥</div>
+          <div class="stat-info">
+            <h4>Aprendizaje Activo</h4>
+            <p>Ejercicios interactivos adaptados a tu nivel</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon expert-teachers">🎓</div>
+          <div class="stat-info">
+            <h4>Profesionales Expertos</h4>
+            <p>Fonoaudiólogos certificados a tu disposición</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon parents-day">👨‍👩‍👧</div>
+          <div class="stat-info">
+            <h4>Apoyo Familiar</h4>
+            <p>Involucra a tu familia en tu progreso</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon music-lessons">🎵</div>
+          <div class="stat-info">
+            <h4>Ejercicios Variados</h4>
+            <p>Música, juegos y actividades divertidas</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="motivational-message">
       <div class="message-emoji">🌟</div>
       <h3>¡Cada día eres mejor!</h3>
@@ -109,14 +280,12 @@
   </main>
 </div>
 
-<!-- BOTÓN FLOTANTE CON MENSAJE AL LADO -->
+<!-- BOTÓN FLOTANTE CON MENSAJE -->
 <div class="floating-help-container">
-  <!-- Mensaje al lado del botón -->
   <div class="floating-message">
     Preguntas frecuentes
   </div>
   
-  <!-- Botón flotante -->
   <button class="floating-mascot" 
           (click)="goToHelp()"
           style="position: relative !important; 
@@ -137,13 +306,12 @@
   </button>
 </div>
 
-<!-- MODAL FAQ EXISTENTE -->
+<!-- MODALES -->
 <app-faq-modal 
   [isVisible]="showFaqModal"
   (closeModal)="closeFaqModal()">
 </app-faq-modal>
 
-<!-- MODAL DE CONFIRMACIÓN DE LOGOUT -->
 <app-logout-modal 
   *ngIf="showLogoutModal"
   (cancel)="onLogoutCancel()"

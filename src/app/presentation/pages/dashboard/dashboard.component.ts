@@ -1,7 +1,7 @@
 import { Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Subject } from 'rxjs';
+import { Subject, interval } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FaqModalComponent } from '../../components/faq-modal/faq-modal.component';
 import { LogoutModalComponent } from '../../../presentation/components/logout-modal/logout-modal.component';
@@ -15,6 +15,16 @@ interface MenuItem {
   hoverColor: string;
   emoji: string;
   description: string;
+}
+
+interface CarouselSlide {
+  title: string;
+  highlight: string;
+  tag: string;
+  description: string;
+  primaryAction: string;
+  secondaryAction: string;
+  backgroundImage: string;
 }
 
 @Component({
@@ -31,15 +41,51 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isDarkMode: boolean = false;
   showFaqModal: boolean = false;
   showLogoutModal: boolean = false;
-  private timeInterval: any;
   
+  // Carousel properties
+  currentSlide: number = 0;
+  isTransitioning: boolean = false;
+  autoPlayInterval: any;
+  
+  private timeInterval: any;
   userName: string = 'Usuario';
   userEmail: string = '';
   private destroy$ = new Subject<void>();
   
   private authService = inject(AuthService);
 
-  // MENÚ ACTUALIZADO CON LA NUEVA SECCIÓN DE JUEGOS - IDs CORREGIDOS
+  // Carousel slides configuration
+  carouselSlides: CarouselSlide[] = [
+    {
+      title: 'Tu Viaje Hacia una',
+      highlight: 'Mejor Comunicación',
+      tag: 'NUEVO ENFOQUE',
+      description: 'Ejercicios personalizados y divertidos que te ayudarán a mejorar tu habla día a día',
+      primaryAction: 'COMENZAR AHORA',
+      secondaryAction: 'VER JUEGOS',
+      backgroundImage: 'assets/images/hero-slide-1.jpg'
+    },
+    {
+      title: 'Aprende Jugando con',
+      highlight: 'Juegos Terapéuticos',
+      tag: 'PRÁCTICA DIVERTIDA',
+      description: 'Juegos especialmente diseñados para fortalecer los músculos de tu boca mientras te diviertes',
+      primaryAction: 'JUGAR AHORA',
+      secondaryAction: 'HABLAR CON IA',
+      backgroundImage: 'assets/images/hero-slide-2.jpg'
+    },
+    {
+      title: 'Tu Compañero de',
+      highlight: 'Práctica con IA',
+      tag: 'ASISTENTE INTELIGENTE',
+      description: 'Practica conversaciones y mejora tu pronunciación con nuestro asistente de inteligencia artificial',
+      primaryAction: 'CHATEAR CON IA',
+      secondaryAction: 'VER EJERCICIOS',
+      backgroundImage: 'assets/images/hero-slide-3.jpg'
+    }
+  ];
+
+  // Menu items configuration
   menuItems: MenuItem[] = [
     {
       id: 'agenda',
@@ -51,7 +97,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       description: 'Ve tus citas programadas'
     },
     {
-      id: 'juegos', // Cambié de 'ejercicios' a 'juegos' para el análisis
+      id: 'juegos',
       title: 'Analisis de tus Practicas',
       subtitle: '¡A practicar!',
       color: 'from-purple-400 to-purple-600',
@@ -60,7 +106,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       description: 'Haz tus movimientos de practicas'
     },
     {
-      id: 'juegos-terapeuticos', // Nuevo ID único para juegos terapéuticos
+      id: 'juegos-terapeuticos',
       title: 'Juegos Terapéuticos',
       subtitle: '¡Diviértete mientras entrenas!',
       color: 'from-pink-400 to-pink-600',
@@ -98,6 +144,70 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadDarkModePreference();
     this.loadUserData();
+    this.startAutoPlay();
+  }
+
+  ngOnDestroy() {
+    if (this.timeInterval) {
+      clearInterval(this.timeInterval);
+    }
+    if (this.autoPlayInterval) {
+      clearInterval(this.autoPlayInterval);
+    }
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // Carousel methods
+  startAutoPlay(): void {
+    this.autoPlayInterval = setInterval(() => {
+      this.nextSlide();
+    }, 5000); // Cambiar slide cada 5 segundos
+  }
+
+  stopAutoPlay(): void {
+    if (this.autoPlayInterval) {
+      clearInterval(this.autoPlayInterval);
+    }
+  }
+
+  nextSlide(): void {
+    if (this.isTransitioning) return;
+    
+    this.isTransitioning = true;
+    this.currentSlide = (this.currentSlide + 1) % this.carouselSlides.length;
+    
+    setTimeout(() => {
+      this.isTransitioning = false;
+    }, 600);
+  }
+
+  previousSlide(): void {
+    if (this.isTransitioning) return;
+    
+    this.isTransitioning = true;
+    this.currentSlide = this.currentSlide === 0 
+      ? this.carouselSlides.length - 1 
+      : this.currentSlide - 1;
+    
+    setTimeout(() => {
+      this.isTransitioning = false;
+    }, 600);
+  }
+
+  goToSlide(index: number): void {
+    if (this.isTransitioning || this.currentSlide === index) return;
+    
+    this.isTransitioning = true;
+    this.currentSlide = index;
+    
+    // Reiniciar autoplay cuando el usuario interactúa
+    this.stopAutoPlay();
+    this.startAutoPlay();
+    
+    setTimeout(() => {
+      this.isTransitioning = false;
+    }, 600);
   }
 
   private loadUserData(): void {
@@ -113,14 +223,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.userEmail = '';
         }
       });
-  }
-
-  ngOnDestroy() {
-    if (this.timeInterval) {
-      clearInterval(this.timeInterval);
-    }
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private updateTime() {
@@ -151,27 +253,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // MANEJO DE NAVEGACIÓN ACTUALIZADO CON IDs CORREGIDOS
   handleItemClick(item: MenuItem) {
     this.selectedItem = item.id;
     console.log(`Navegando a: ${item.title}`);
     
+    // Detener el autoplay del carousel cuando navegamos
+    this.stopAutoPlay();
+    
     switch(item.id) {
       case 'contacto':
         console.log('Función de contacto aún no implementada');
+        // this.router.navigate(['/contacto']);
         break;
       
       case 'agenda':
         console.log('Función de agenda aún no implementada');
+        // this.router.navigate(['/agenda']);
         break;
       
       case 'juegos':
-        // Este es para "Análisis de tus Prácticas"
         this.router.navigate(['/ejercicios']);
         break;
 
       case 'juegos-terapeuticos':
-        // NUEVA NAVEGACIÓN PARA JUEGOS TERAPÉUTICOS
         this.router.navigate(['/juegos-terapeuticos']);
         console.log('🎮 Navegando a Juegos Terapéuticos...');
         break;
@@ -218,6 +322,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   goToSettings() {
     this.closeUserMenu();
     console.log('Navegando a configuración...');
+    // this.router.navigate(['/configuracion']);
   }
 
   goToHelp() {

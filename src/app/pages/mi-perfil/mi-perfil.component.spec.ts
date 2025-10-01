@@ -48,6 +48,12 @@ describe('MiPerfilComponent', () => {
     expect(component.profileForm.get('nivelLenguaje')?.value).toBe('Inicial');
   });
 
+  it('should initialize arrays correctly', () => {
+    expect(component.objetivosTerapia).toEqual([]);
+    expect(component.dificultadesHabla).toEqual([]);
+    expect(component.edadCalculada).toBe(0);
+  });
+
   it('should calculate age correctly', () => {
     const birthDate = new Date();
     birthDate.setFullYear(birthDate.getFullYear() - 25);
@@ -84,29 +90,42 @@ describe('MiPerfilComponent', () => {
     expect(component.statusType).toBe('success');
   });
 
-  it('should add therapy goals', () => {
-    component.addTherapyGoal('Mejorar pronunciación');
-    expect(component.objetivosTerapia).toContain('Mejorar pronunciación');
+  it('should process objectives correctly', () => {
+    // Test con string separado por comas
+    component.procesarObjetivos('Objetivo 1, Objetivo 2, Objetivo 3');
+    expect(component.objetivosTerapia).toEqual(['Objetivo 1', 'Objetivo 2', 'Objetivo 3']);
     
-    // No debe agregar duplicados
-    component.addTherapyGoal('Mejorar pronunciación');
-    expect(component.objetivosTerapia.length).toBe(1);
+    // Test con array
+    component.procesarObjetivos(['Objetivo A', 'Objetivo B']);
+    expect(component.objetivosTerapia).toEqual(['Objetivo A', 'Objetivo B']);
+    
+    // Test con undefined
+    component.procesarObjetivos(undefined);
+    expect(component.objetivosTerapia).toEqual([]);
   });
 
-  it('should remove therapy goals', () => {
-    component.objetivosTerapia = ['Goal 1', 'Goal 2', 'Goal 3'];
-    component.removeTherapyGoal(1);
-    expect(component.objetivosTerapia).toEqual(['Goal 1', 'Goal 3']);
+  it('should process difficulties correctly', () => {
+    // Test con string separado por comas
+    component.procesarDificultades('Dificultad 1; Dificultad 2');
+    expect(component.dificultadesHabla).toEqual(['Dificultad 1', 'Dificultad 2']);
+    
+    // Test con array
+    component.procesarDificultades(['Dificultad A', 'Dificultad B']);
+    expect(component.dificultadesHabla).toEqual(['Dificultad A', 'Dificultad B']);
+    
+    // Test con undefined
+    component.procesarDificultades(undefined);
+    expect(component.dificultadesHabla).toEqual([]);
   });
 
-  it('should toggle field disabled state', () => {
-    const field = component.profileForm.get('nivelLenguaje');
+  it('should format dates correctly', () => {
+    const testDate = '2023-12-25T10:30:00.000Z';
+    const formattedDate = component.formatearFecha(testDate);
+    expect(formattedDate).toBe('2023-12-25');
     
-    component.toggleFieldDisabled('nivelLenguaje', true);
-    expect(field?.disabled).toBeTruthy();
-    
-    component.toggleFieldDisabled('nivelLenguaje', false);
-    expect(field?.enabled).toBeTruthy();
+    // Test con fecha undefined
+    const emptyDate = component.formatearFecha(undefined);
+    expect(emptyDate).toBe('');
   });
 
   it('should detect field errors correctly', () => {
@@ -115,6 +134,48 @@ describe('MiPerfilComponent', () => {
     
     expect(component.hasFieldError('nombreCompleto')).toBeTruthy();
     expect(component.getFieldError('nombreCompleto')).toBe('Este campo es obligatorio');
+  });
+
+  it('should handle user config correctly', () => {
+    // Simular configuración guardada
+    const mockConfig = {
+      theme: 'dark',
+      notifications: false
+    };
+    
+    spyOn(localStorage, 'getItem').and.returnValue(JSON.stringify(mockConfig));
+    
+    component.loadUserConfig();
+    
+    expect(component.profileForm.get('theme')?.value).toBe('dark');
+    expect(component.profileForm.get('notificationsEnabled')?.value).toBe(false);
+  });
+
+  it('should save user config correctly', () => {
+    spyOn(localStorage, 'setItem');
+    
+    component.profileForm.patchValue({
+      theme: 'light',
+      notificationsEnabled: true
+    });
+    
+    component.saveUserConfig();
+    
+    expect(localStorage.setItem).toHaveBeenCalledWith(
+      'fonokids_user_config', 
+      jasmine.stringMatching(/"theme":"light"/)
+    );
+  });
+
+  it('should handle theme updates', () => {
+    spyOn(component, 'saveUserConfig');
+    spyOn(component, 'showStatus');
+    
+    component.profileForm.patchValue({ theme: 'dark' });
+    component.updateTheme();
+    
+    expect(component.saveUserConfig).toHaveBeenCalled();
+    expect(component.showStatus).toHaveBeenCalledWith('Tema actualizado', 'success');
   });
 
   it('should handle save profile with valid data', () => {
@@ -139,6 +200,20 @@ describe('MiPerfilComponent', () => {
     component.profileForm.patchValue({
       nombreCompleto: '',
       fechaNacimiento: ''
+    });
+    
+    component.saveProfile();
+    
+    expect(component.statusMessage).toBe('Por favor completa los campos obligatorios');
+    expect(component.statusType).toBe('error');
+  });
+
+  it('should handle save profile without current patient', () => {
+    component.currentPatient = null;
+    
+    component.profileForm.patchValue({
+      nombreCompleto: 'Juan Pérez',
+      fechaNacimiento: '2000-01-01'
     });
     
     component.saveProfile();

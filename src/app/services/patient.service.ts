@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -28,25 +28,25 @@ export interface PatientProfile {
     esContactoEmergencia: boolean;
     esResponsableLegal: boolean;
   }[];
-  informacionFonoaudiologica: {
+  informacionFonoaudiologica?: {
     diagnostico?: string;
-    dificultadesHabla: string[];
-    nivelLenguaje: 'Inicial' | 'Intermedio' | 'Avanzado';
-    objetivosTerapia: string[];
+    dificultadesHabla?: string[];
+    nivelLenguaje?: 'Inicial' | 'Intermedio' | 'Avanzado';
+    objetivosTerapia?: string[];
     fechaInicioTerapia?: string;
-    sesionesCompletadas: number;
-    progresoActual: number;
-    logrosAlcanzados: string[];
+    sesionesCompletadas?: number;
+    progresoActual?: number;
+    logrosAlcanzados?: string[];
     observacionesTerapeuta?: string;
   };
-  estadisticasPracticas: {
-    tiempoTotalMinutos: number;
-    ejerciciosCompletados: number;
-    diasConsecutivos: number;
-    ejerciciosFavoritos: string[];
-    nivelDificultad: 'Fácil' | 'Medio' | 'Difícil';
-    puntuacionTotal: number;
-    insigniasObtenidas: string[];
+  estadisticasPracticas?: {
+    tiempoTotalMinutos?: number;
+    ejerciciosCompletados?: number;
+    diasConsecutivos?: number;
+    ejerciciosFavoritos?: string[];
+    nivelDificultad?: 'Fácil' | 'Medio' | 'Difícil';
+    puntuacionTotal?: number;
+    insigniasObtenidas?: string[];
   };
 }
 
@@ -55,44 +55,126 @@ export interface PatientProfile {
 })
 export class PatientService {
   private apiUrl = 'http://localhost:3001/api';
-  
+     
   // Estado reactivo del perfil actual
   private currentPatientSubject = new BehaviorSubject<PatientProfile | null>(null);
   public currentPatient$ = this.currentPatientSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
-  // Obtener perfil de paciente
-  getPatientProfile(patientId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/pacientes/${patientId}`).pipe(
+  // Obtener headers de autenticación
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('fonokids_token');
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+  }
+
+  // OBTENER PERFIL DEL USUARIO ACTUAL (usa /api/perfil)
+  getPatientProfile(patientId?: number): Observable<any> {
+    const headers = this.getAuthHeaders();
+    
+    return this.http.get(`${this.apiUrl}/perfil`, { headers }).pipe(
       tap((response: any) => {
-        if (response.success) {
-          this.currentPatientSubject.next(response.data);
+        if (response.success && response.data) {
+          // Transformar datos del backend a la estructura del frontend
+          const transformedData = this.transformBackendData(response.data);
+          this.currentPatientSubject.next(transformedData);
         }
       })
     );
   }
 
-  // Crear nuevo paciente
-  createPatient(patientData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/pacientes`, patientData);
-  }
-
-  // Actualizar paciente
-  updatePatient(patientId: number, patientData: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/pacientes/${patientId}`, patientData).pipe(
+  // ACTUALIZAR PERFIL DEL USUARIO ACTUAL (usa /api/perfil)
+  updatePersonalData(patientId: number, data: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    
+    // Transformar datos del frontend al formato del backend
+    const backendData = {
+      nombre_completo: data.nombreCompleto,
+      fecha_nacimiento: data.fechaNacimiento,
+      sexo: data.sexo,
+      numero_documento: data.numeroDocumento,
+      direccion: data.direccion,
+      telefono_principal: data.telefonoPrincipal,
+      telefono_secundario: data.telefonoSecundario,
+      email: data.email
+    };
+    
+    return this.http.put(`${this.apiUrl}/perfil`, backendData, { headers }).pipe(
       tap((response: any) => {
         if (response.success) {
           // Recargar datos después de actualizar
-          this.getPatientProfile(patientId).subscribe();
+          this.getPatientProfile().subscribe();
         }
       })
     );
   }
 
-  // Obtener todos los pacientes (para lista)
+  // TRANSFORMAR DATOS DEL BACKEND AL FORMATO DEL FRONTEND
+  private transformBackendData(backendData: any): PatientProfile {
+    return {
+      id: backendData.id_paciente,
+      datosPersonales: {
+        nombreCompleto: backendData.nombre_completo || '',
+        fechaNacimiento: backendData.fecha_nacimiento || '',
+        edad: backendData.edad || 0,
+        sexo: backendData.sexo || 'Otro',
+        numeroDocumento: backendData.numero_documento || '',
+        direccion: backendData.direccion || '',
+        telefonoPrincipal: backendData.telefono_principal || '',
+        telefonoSecundario: backendData.telefono_secundario || '',
+        email: backendData.email || '',
+        username: backendData.username || ''
+      },
+      // Por ahora estas secciones estarán vacías hasta que implementes las tablas relacionadas
+      informacionFonoaudiologica: {
+        diagnostico: '',
+        dificultadesHabla: [],
+        nivelLenguaje: 'Inicial',
+        objetivosTerapia: [],
+        sesionesCompletadas: 0,
+        progresoActual: 0,
+        logrosAlcanzados: [],
+        observacionesTerapeuta: ''
+      },
+      estadisticasPracticas: {
+        tiempoTotalMinutos: 0,
+        ejerciciosCompletados: 0,
+        diasConsecutivos: 0,
+        ejerciciosFavoritos: [],
+        nivelDificultad: 'Fácil',
+        puntuacionTotal: 0,
+        insigniasObtenidas: []
+      }
+    };
+  }
+
+  // OBTENER PERFIL DE OTRO PACIENTE POR ID (para admin/terapeutas)
+  getPatientById(patientId: number): Observable<any> {
+    const headers = this.getAuthHeaders();
+    
+    return this.http.get(`${this.apiUrl}/perfil/${patientId}`, { headers }).pipe(
+      tap((response: any) => {
+        if (response.success && response.data) {
+          const transformedData = this.transformBackendData(response.data);
+          this.currentPatientSubject.next(transformedData);
+        }
+      })
+    );
+  }
+
+  // Crear nuevo paciente (mantenemos para compatibilidad)
+  createPatient(patientData: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.post(`${this.apiUrl}/pacientes`, patientData, { headers });
+  }
+
+  // Obtener todos los pacientes (para lista - solo admin/terapeutas)
   getAllPatients(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/pacientes`);
+    const headers = this.getAuthHeaders();
+    return this.http.get(`${this.apiUrl}/pacientes`, { headers });
   }
 
   // Obtener paciente actual desde el estado
@@ -100,28 +182,18 @@ export class PatientService {
     return this.currentPatientSubject.value;
   }
 
-  // Actualizar solo información personal
-  updatePersonalData(patientId: number, data: any): Observable<any> {
-    const updateData = {
-      datosPersonales: data
-    };
-    return this.updatePatient(patientId, updateData);
-  }
-
-  // Actualizar información fonoaudiológica
+  // Actualizar información fonoaudiológica (cuando implementes esas tablas)
   updateClinicalInfo(patientId: number, data: any): Observable<any> {
-    const updateData = {
-      informacionFonoaudiologica: data
-    };
-    return this.updatePatient(patientId, updateData);
+    const headers = this.getAuthHeaders();
+    // TODO: Implementar cuando tengas las tablas de información fonoaudiológica
+    return this.http.put(`${this.apiUrl}/clinical-info`, data, { headers });
   }
 
-  // Actualizar estadísticas de prácticas
+  // Actualizar estadísticas de prácticas (cuando implementes esas tablas)
   updateStatistics(patientId: number, data: any): Observable<any> {
-    const updateData = {
-      estadisticasPracticas: data
-    };
-    return this.updatePatient(patientId, updateData);
+    const headers = this.getAuthHeaders();
+    // TODO: Implementar cuando tengas las tablas de estadísticas
+    return this.http.put(`${this.apiUrl}/statistics`, data, { headers });
   }
 
   // Limpiar estado

@@ -116,11 +116,38 @@
   color: white;
 }
 
+/* NUEVO: Gradiente para la ruleta de praxias */
+.bg-gradient-from-purple-400.to-purple-600 {
+  background: linear-gradient(135deg, #a78bfa 0%, #9333ea 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto especial para la carta de IA */
+.bg-gradient-from-purple-400.to-purple-600::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .categoria-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .categoria-emoji {
@@ -138,6 +165,8 @@
 .categoria-content {
   flex: 1;
   padding: 0 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .categoria-content h3 {
@@ -164,6 +193,8 @@
   padding: 1.5rem;
   display: flex;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .play-button {
@@ -363,6 +394,20 @@
   font-weight: 600;
 }
 
+/* Estilo especial para el tipo IA */
+.juego-tipo.ia-ruleta {
+  background: linear-gradient(135deg, #a78bfa 0%, #9333ea 100%);
+  color: white;
+  font-weight: bold;
+  position: relative;
+  overflow: hidden;
+}
+
+.juego-tipo.ia-ruleta::before {
+  content: '🤖 ';
+  font-size: 0.9rem;
+}
+
 .btn-jugar {
   display: flex;
   align-items: center;
@@ -381,6 +426,17 @@
 .btn-jugar:hover {
   background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
   transform: scale(1.05);
+}
+
+/* Botón especial para IA */
+.btn-jugar.ia-special {
+  background: linear-gradient(135deg, #a78bfa 0%, #9333ea 100%);
+  box-shadow: 0 4px 15px rgba(167, 139, 250, 0.4);
+}
+
+.btn-jugar.ia-special:hover {
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+  box-shadow: 0 6px 20px rgba(167, 139, 250, 0.6);
 }
 
 /* ===== RESPONSIVE ===== */

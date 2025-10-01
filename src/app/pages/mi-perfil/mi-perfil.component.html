@@ -134,76 +134,26 @@
       </div>
     </div>
 
-    <!-- Información de Tutores/Padres -->
+    <!-- SECCIÓN DE CONTACTO DE EMERGENCIA (Adaptada) -->
     <div class="form-section">
-      <h3><i class="fas fa-users"></i> Información de Tutores</h3>
-      
-      <!-- Tutor 1 -->
-      <div class="tutor-section">
-        <h4>Tutor 1</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Nombre del Tutor</label>
-            <input 
-              type="text" 
-              formControlName="nombreTutor1"
-              class="form-control"
-              placeholder="Nombre completo del tutor">
+      <h3><i class="fas fa-phone-alt"></i> Información de Contacto</h3>
+      <div class="contact-info">
+        <p class="contact-description">
+          <i class="fas fa-info-circle"></i>
+          Para agregar información de contacto de tutores o familiares, 
+          contacta a tu fonoaudiólogo.
+        </p>
+        
+        <!-- Mostrar teléfonos disponibles como contactos -->
+        <div class="contact-display" *ngIf="profileForm.get('telefonoPrincipal')?.value || profileForm.get('telefonoSecundario')?.value">
+          <h4>Contactos disponibles:</h4>
+          <div class="contact-item" *ngIf="profileForm.get('telefonoPrincipal')?.value">
+            <i class="fas fa-phone"></i>
+            <span>Principal: {{ profileForm.get('telefonoPrincipal')?.value }}</span>
           </div>
-          
-          <div class="form-group">
-            <label>Relación</label>
-            <select formControlName="relacionTutor1" class="form-control">
-              <option value="Padre/Madre">Padre/Madre</option>
-              <option value="Abuelo/Abuela">Abuelo/Abuela</option>
-              <option value="Tío/Tía">Tío/Tía</option>
-              <option value="Tutor Legal">Tutor Legal</option>
-              <option value="Otro">Otro</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label>Teléfono del Tutor</label>
-            <input 
-              type="tel" 
-              formControlName="telefonoTutor1"
-              class="form-control"
-              placeholder="+595 981 123456">
-          </div>
-        </div>
-      </div>
-
-      <!-- Tutor 2 -->
-      <div class="tutor-section">
-        <h4>Tutor 2 (Opcional)</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Nombre del Tutor</label>
-            <input 
-              type="text" 
-              formControlName="nombreTutor2"
-              class="form-control"
-              placeholder="Nombre completo del tutor">
-          </div>
-          
-          <div class="form-group">
-            <label>Relación</label>
-            <select formControlName="relacionTutor2" class="form-control">
-              <option value="Padre/Madre">Padre/Madre</option>
-              <option value="Abuelo/Abuela">Abuelo/Abuela</option>
-              <option value="Tío/Tía">Tío/Tía</option>
-              <option value="Tutor Legal">Tutor Legal</option>
-              <option value="Otro">Otro</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label>Teléfono del Tutor</label>
-            <input 
-              type="tel" 
-              formControlName="telefonoTutor2"
-              class="form-control"
-              placeholder="+595 981 654321">
+          <div class="contact-item" *ngIf="profileForm.get('telefonoSecundario')?.value">
+            <i class="fas fa-mobile-alt"></i>
+            <span>Secundario: {{ profileForm.get('telefonoSecundario')?.value }}</span>
           </div>
         </div>
       </div>
@@ -220,7 +170,7 @@
             formControlName="diagnostico"
             class="form-control textarea"
             rows="3"
-            placeholder="Diagnóstico fonoaudiológico actual..."
+            placeholder="Diagnóstico fonoaudiológico..."
             readonly></textarea>
           <small class="form-text">Solo tu fonoaudiólogo puede editar este campo</small>
         </div>
@@ -229,18 +179,12 @@
       <div class="form-row">
         <div class="form-group">
           <label>Nivel de Lenguaje</label>
-          <select formControlName="nivelLenguaje" class="form-control">
+          <select formControlName="nivelLenguaje" class="form-control" [disabled]="true">
             <option value="Inicial">Inicial</option>
             <option value="Intermedio">Intermedio</option>
             <option value="Avanzado">Avanzado</option>
           </select>
           <small class="form-text">Tu fonoaudiólogo actualiza este nivel</small>
-          <button 
-            type="button" 
-            class="toggle-btn" 
-            (click)="toggleFieldDisabled('nivelLenguaje', !profileForm.get('nivelLenguaje')?.disabled)">
-            {{ profileForm.get('nivelLenguaje')?.disabled ? 'Habilitar' : 'Deshabilitar' }}
-          </button>
         </div>
 
         <div class="form-group">
@@ -253,23 +197,34 @@
         </div>
       </div>
 
+      <!-- Mostrar campos adicionales si existen -->
+      <div class="form-row" *ngIf="currentPatient?.informacionFonoaudiologica">
+        <div class="form-group" *ngIf="currentPatient?.informacionFonoaudiologica?.logrosAlcanzados">
+          <label>Logros Alcanzados</label>
+          <div class="logros-display">
+            {{ currentPatient?.informacionFonoaudiologica?.logrosAlcanzados }}
+          </div>
+        </div>
+        
+        <div class="form-group" *ngIf="currentPatient?.informacionFonoaudiologica?.observacionesTerapeuta">
+          <label>Observaciones del Terapeuta</label>
+          <div class="observaciones-display">
+            {{ currentPatient?.informacionFonoaudiologica?.observacionesTerapeuta }}
+          </div>
+        </div>
+      </div>
+
       <div class="form-group">
         <label>Objetivos de Terapia</label>
-        <div class="goals-list" *ngIf="objetivosTerapia.length > 0">
+        <div class="goals-list" *ngIf="objetivosTerapia && objetivosTerapia.length > 0">
           <div 
             *ngFor="let goal of objetivosTerapia; let i = index" 
             class="goal-tag">
             {{ goal }}
-            <button 
-              type="button" 
-              class="remove-goal" 
-              (click)="removeTherapyGoal(i)"
-              title="Remover objetivo">
-              <i class="fas fa-times"></i>
-            </button>
           </div>
         </div>
-        <div *ngIf="objetivosTerapia.length === 0" class="empty-state">
+        <div *ngIf="!objetivosTerapia || objetivosTerapia.length === 0" class="empty-state">
+          <i class="fas fa-clipboard-list"></i>
           No hay objetivos definidos aún
         </div>
         <small class="form-text">Los objetivos son definidos por tu fonoaudiólogo</small>
@@ -277,14 +232,15 @@
 
       <div class="form-group">
         <label>Dificultades del Habla</label>
-        <div class="goals-list" *ngIf="dificultadesHabla.length > 0">
+        <div class="goals-list" *ngIf="dificultadesHabla && dificultadesHabla.length > 0">
           <div 
             *ngFor="let dificultad of dificultadesHabla" 
             class="difficulty-tag">
             {{ dificultad }}
           </div>
         </div>
-        <div *ngIf="dificultadesHabla.length === 0" class="empty-state">
+        <div *ngIf="!dificultadesHabla || dificultadesHabla.length === 0" class="empty-state">
+          <i class="fas fa-user-check"></i>
           No hay dificultades registradas
         </div>
       </div>
@@ -350,14 +306,14 @@
       </div>
     </div>
 
-    <!-- Configuraciones adicionales -->
+    <!-- Configuraciones - Solo Frontend -->
     <div class="form-section">
       <h3><i class="fas fa-cog"></i> Configuraciones</h3>
       
       <div class="form-row">
         <div class="form-group">
           <label>Tema de la aplicación</label>
-          <select formControlName="theme" class="form-control">
+          <select formControlName="theme" class="form-control" (change)="updateTheme()">
             <option value="auto">Automático</option>
             <option value="light">Claro</option>
             <option value="dark">Oscuro</option>
@@ -369,10 +325,16 @@
             <input 
               type="checkbox" 
               formControlName="notificationsEnabled"
-              class="checkbox">
+              class="checkbox"
+              (change)="updateNotifications()">
             Recibir notificaciones
           </label>
         </div>
+      </div>
+      
+      <div class="config-note">
+        <i class="fas fa-info-circle"></i>
+        <small>Estas configuraciones se guardan en tu dispositivo</small>
       </div>
     </div>
 
