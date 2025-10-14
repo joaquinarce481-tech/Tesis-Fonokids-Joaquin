@@ -1,15 +1,26 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 interface ParteCara {
   id: string;
-  nombre: string;
   emoji: string;
-  posicionCorrecta: { x: number; y: number };
-  posicionActual: { x: number; y: number };
-  colocada: boolean;
-  arrastrando: boolean;
+  nombre: string;
+  zona: string;
+}
+
+interface Emocion {
+  nombre: string;
+  color: string;
+  partes: ParteCara[];
+  emoji: string;
+}
+
+interface Zona {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 @Component({
@@ -20,230 +31,311 @@ interface ParteCara {
   styleUrls: ['./arma-cara-game.component.css']
 })
 export class ArmaCaraGameComponent implements OnInit, OnDestroy {
-  // Estado del juego
-  juegoCompletado: boolean = false;
+  // Estados de pantalla
+  pantalla: 'inicio' | 'seleccion' | 'juego' | 'completado' = 'inicio';
+  
+  // Configuración del juego
+  modoJuego: 'practica' | 'contrarreloj' | 'desafio' = 'practica';
+  emocionObjetivo: string = 'feliz';
+  nivel: number = 1;
+  
+  // Estadísticas
   puntaje: number = 0;
   intentos: number = 0;
-  tiempoInicio: number = 0;
-  tiempoTranscurrido: number = 0;
+  tiempo: number = 0;
+  juegoActivo: boolean = false;
+  
+  // Estado del juego
+  partesColocadas: Set<string> = new Set();
+  mensajeFeedback: string = '';
+  mostrarPista: boolean = false;
+  
+  // Timer
   intervaloTiempo: any;
   
-  // Elementos arrastrables
-  partesCara: ParteCara[] = [
-    {
-      id: 'labios',
-      nombre: 'Labios',
-      emoji: '💋',
-      posicionCorrecta: { x: 250, y: 320 },
-      posicionActual: { x: 50, y: 500 },
-      colocada: false,
-      arrastrando: false
-    },
-    {
-      id: 'lengua',
-      nombre: 'Lengua',
-      emoji: '👅',
-      posicionCorrecta: { x: 250, y: 350 },
-      posicionActual: { x: 150, y: 500 },
-      colocada: false,
-      arrastrando: false
-    },
-    {
-      id: 'mejillas',
-      nombre: 'Mejillas',
+  // Definición de emociones
+  emociones: { [key: string]: Emocion } = {
+    feliz: {
+      nombre: 'Feliz',
       emoji: '😊',
-      posicionCorrecta: { x: 180, y: 280 },
-      posicionActual: { x: 250, y: 500 },
-      colocada: false,
-      arrastrando: false
+      color: '#10b981',
+      partes: [
+        { id: 'boca-feliz', emoji: '😊', nombre: 'Sonrisa', zona: 'boca' },
+        { id: 'cejas-feliz', emoji: '😄', nombre: 'Cejas Alegres', zona: 'cejas' },
+        { id: 'mejillas', emoji: '😊', nombre: 'Mejillas Rosadas', zona: 'mejillas' }
+      ]
+    },
+    triste: {
+      nombre: 'Triste',
+      emoji: '😢',
+      color: '#3b82f6',
+      partes: [
+        { id: 'boca-triste', emoji: '☹️', nombre: 'Boca Triste', zona: 'boca' },
+        { id: 'cejas-triste', emoji: '😔', nombre: 'Cejas Tristes', zona: 'cejas' },
+        { id: 'lagrimas', emoji: '💧', nombre: 'Lágrimas', zona: 'ojos' }
+      ]
+    },
+    sorprendido: {
+      nombre: 'Sorprendido',
+      emoji: '😮',
+      color: '#f59e0b',
+      partes: [
+        { id: 'boca-O', emoji: '😮', nombre: 'Boca Abierta', zona: 'boca' },
+        { id: 'cejas-arriba', emoji: '😯', nombre: 'Cejas Levantadas', zona: 'cejas' },
+        { id: 'ojos-grandes', emoji: '👀', nombre: 'Ojos Grandes', zona: 'ojos' }
+      ]
+    },
+    enojado: {
+      nombre: 'Enojado',
+      emoji: '😠',
+      color: '#ef4444',
+      partes: [
+        { id: 'boca-enojo', emoji: '😠', nombre: 'Boca Enojada', zona: 'boca' },
+        { id: 'cejas-enojo', emoji: '😡', nombre: 'Cejas Fruncidas', zona: 'cejas' },
+        { id: 'vapor', emoji: '💢', nombre: 'Vapor', zona: 'cejas-extra' }
+      ]
     }
-  ];
+  };
+  
+  // Zonas de la cara (CORREGIDAS para que coincidan con la forma de cara oval)
+  zonas: { [key: string]: Zona } = {
+    'cejas-extra': { x: 50, y: 18, width: 35, height: 10 },  // Muy arriba (para vapor)
+    cejas: { x: 50, y: 28, width: 45, height: 12 },          // Arriba (cejas)
+    ojos: { x: 50, y: 42, width: 45, height: 14 },           // Debajo de cejas (lágrimas/ojos grandes)
+    mejillas: { x: 50, y: 58, width: 50, height: 16 },       // Centro de la cara
+    boca: { x: 50, y: 78, width: 40, height: 16 }            // Abajo (boca)
+  };
+  
+  // Elemento siendo arrastrado
+  parteArrastrada: string | null = null;
 
-  // Variables para drag & drop
-  elementoArrastrado: ParteCara | null = null;
-  offsetX: number = 0;
-  offsetY: number = 0;
-
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
+  constructor(private router: Router) {}
 
   ngOnInit() {
-    this.iniciarJuego();
-    this.iniciarTemporizador();
+    console.log('🎮 Juego Arma la Cara iniciado');
   }
 
   ngOnDestroy() {
-    if (this.intervaloTiempo) {
-      clearInterval(this.intervaloTiempo);
-    }
+    this.detenerTemporizador();
   }
 
-  iniciarJuego() {
-    this.tiempoInicio = Date.now();
-    this.puntaje = 0;
-    this.intentos = 0;
-    this.juegoCompletado = false;
-    
-    // Randomizar posiciones iniciales
-    this.partesCara.forEach((parte, index) => {
-      parte.posicionActual = {
-        x: 50 + (index * 120),
-        y: 500 + (Math.random() * 50)
-      };
-      parte.colocada = false;
-      parte.arrastrando = false;
-    });
-
-    console.log('🎮 Juego "Arma la cara" iniciado');
+  // ========== NAVEGACIÓN DE PANTALLAS ==========
+  
+  irASeleccion(modo: string) {
+    this.modoJuego = modo as 'practica' | 'contrarreloj' | 'desafio';
+    this.pantalla = 'seleccion';
   }
 
-  iniciarTemporizador() {
-    this.intervaloTiempo = setInterval(() => {
-      if (!this.juegoCompletado) {
-        this.tiempoTranscurrido = Math.floor((Date.now() - this.tiempoInicio) / 1000);
-      }
-    }, 1000);
-  }
-
-  // === EVENTOS DE DRAG & DROP ===
-  onDragStart(event: DragEvent, parte: ParteCara) {
-    if (parte.colocada) return; // No permitir arrastrar piezas ya colocadas
-    
-    this.elementoArrastrado = parte;
-    parte.arrastrando = true;
-    
-    // Calcular offset para drag suave
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    this.offsetX = event.clientX - rect.left;
-    this.offsetY = event.clientY - rect.top;
-    
-    console.log(`🎯 Arrastrando: ${parte.nombre}`);
-  }
-
-  onDragOver(event: DragEvent) {
-    event.preventDefault(); // Permitir drop
-  }
-
-  onDrop(event: DragEvent) {
-    event.preventDefault();
-    
-    if (!this.elementoArrastrado) return;
-
-    // Obtener coordenadas del contenedor del juego
-    const gameContainer = document.querySelector('.game-area');
-    if (!gameContainer) return;
-    
-    const rect = gameContainer.getBoundingClientRect();
-    const x = event.clientX - rect.left - this.offsetX;
-    const y = event.clientY - rect.top - this.offsetY;
-
-    // Actualizar posición
-    this.elementoArrastrado.posicionActual = { x, y };
-    this.elementoArrastrado.arrastrando = false;
-    
-    // Verificar si está en la posición correcta
-    this.verificarPosicion(this.elementoArrastrado);
-    
-    this.intentos++;
-    this.elementoArrastrado = null;
-  }
-
-  onDragEnd(event: DragEvent) {
-    if (this.elementoArrastrado) {
-      this.elementoArrastrado.arrastrando = false;
-      this.elementoArrastrado = null;
-    }
-  }
-
-  // === LÓGICA DEL JUEGO ===
-  verificarPosicion(parte: ParteCara) {
-    const tolerancia = 60; // Píxeles de tolerancia para considerar correcta la posición
-    
-    const distanciaX = Math.abs(parte.posicionActual.x - parte.posicionCorrecta.x);
-    const distanciaY = Math.abs(parte.posicionActual.y - parte.posicionCorrecta.y);
-    
-    if (distanciaX <= tolerancia && distanciaY <= tolerancia) {
-      // ¡Posición correcta!
-      parte.colocada = true;
-      parte.posicionActual = { ...parte.posicionCorrecta }; // Snap a posición exacta
-      this.puntaje += 100;
-      
-      this.mostrarFeedbackPositivo(parte);
-      
-      // Verificar si el juego está completo
-      if (this.todasLasPartesColocadas()) {
-        setTimeout(() => this.completarJuego(), 500);
-      }
-    } else {
-      // Posición incorrecta
-      this.mostrarFeedbackNegativo();
-    }
-  }
-
-  todasLasPartesColocadas(): boolean {
-    return this.partesCara.every(parte => parte.colocada);
-  }
-
-  mostrarFeedbackPositivo(parte: ParteCara) {
-    console.log(`✅ ¡Correcto! ${parte.nombre} colocado correctamente`);
-    
-    // Efecto visual de éxito
-    const elemento = document.getElementById(`parte-${parte.id}`);
-    if (elemento) {
-      elemento.classList.add('colocado-correctamente');
-    }
-  }
-
-  mostrarFeedbackNegativo() {
-    console.log('❌ Inténtalo de nuevo');
-    
-    // Vibración si está disponible
-    if ('vibrate' in navigator) {
-      navigator.vibrate(100);
-    }
-  }
-
-  completarJuego() {
-    this.juegoCompletado = true;
-    
-    // Calcular puntaje final
-    const bonusTiempo = Math.max(0, 60 - this.tiempoTranscurrido) * 10;
-    const bonusIntentos = Math.max(0, 10 - this.intentos) * 20;
-    this.puntaje += bonusTiempo + bonusIntentos;
-    
-    console.log('🎉 ¡Juego completado!');
-    console.log(`📊 Puntaje final: ${this.puntaje}`);
-    console.log(`⏱️ Tiempo: ${this.tiempoTranscurrido}s`);
-    console.log(`🎯 Intentos: ${this.intentos}`);
-  }
-
-  // === NAVEGACIÓN ===
-  reiniciarJuego() {
-    this.iniciarJuego();
+  volverInicio() {
+    this.pantalla = 'inicio';
+    this.detenerTemporizador();
   }
 
   volverAJuegos() {
     this.router.navigate(['/juegos-terapeuticos']);
   }
 
-  siguienteJuego() {
-    // Navegar al próximo juego
-    this.router.navigate(['/juego', 'labiales', 'memoria-gestos-labiales']);
+  // ========== INICIAR JUEGO ==========
+  
+  iniciarJuego(emocion: string) {
+    this.emocionObjetivo = emocion;
+    this.pantalla = 'juego';
+    this.juegoActivo = true;
+    this.puntaje = 0;
+    this.intentos = 0;
+    this.tiempo = 0;
+    this.partesColocadas = new Set();
+    this.mensajeFeedback = '';
+    this.mostrarPista = false;
+    
+    // Iniciar temporizador si es modo contrarreloj
+    if (this.modoJuego === 'contrarreloj') {
+      this.iniciarTemporizador();
+    }
+    
+    console.log(`🎯 Iniciando juego - Emoción: ${emocion}, Modo: ${this.modoJuego}`);
   }
 
-  // === UTILIDADES ===
-  formatearTiempo(segundos: number): string {
-    const minutos = Math.floor(segundos / 60);
-    const segs = segundos % 60;
-    return `${minutos}:${segs.toString().padStart(2, '0')}`;
+  iniciarDesafioAleatorio() {
+    const emocionesKeys = Object.keys(this.emociones);
+    const emocionAleatoria = emocionesKeys[Math.floor(Math.random() * emocionesKeys.length)];
+    this.iniciarJuego(emocionAleatoria);
+  }
+
+  // ========== TEMPORIZADOR ==========
+  
+  iniciarTemporizador() {
+    this.detenerTemporizador();
+    this.intervaloTiempo = setInterval(() => {
+      if (this.juegoActivo) {
+        this.tiempo++;
+        
+        // Si es contrarreloj y se acabó el tiempo
+        if (this.modoJuego === 'contrarreloj' && this.tiempo >= 60) {
+          this.completarJuego(false);
+        }
+      }
+    }, 1000);
+  }
+
+  detenerTemporizador() {
+    if (this.intervaloTiempo) {
+      clearInterval(this.intervaloTiempo);
+      this.intervaloTiempo = null;
+    }
+  }
+
+  getTiempoRestante(): number {
+    return Math.max(0, 60 - this.tiempo);
+  }
+
+  // ========== DRAG & DROP ==========
+  
+  onDragStart(event: DragEvent, parteId: string) {
+    if (this.partesColocadas.has(parteId)) {
+      event.preventDefault();
+      return;
+    }
+    
+    this.parteArrastrada = parteId;
+    
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', parteId);
+    }
+    
+    console.log(`🎯 Arrastrando: ${parteId}`);
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  onDrop(event: DragEvent, zona: string) {
+    event.preventDefault();
+    
+    const parteId = event.dataTransfer?.getData('text/plain');
+    
+    if (parteId) {
+      this.verificarColocacion(parteId, zona);
+    }
+    
+    this.parteArrastrada = null;
+  }
+
+  onDragEnd(event: DragEvent) {
+    this.parteArrastrada = null;
+  }
+
+  // ========== LÓGICA DEL JUEGO ==========
+  
+  verificarColocacion(parteId: string, zona: string) {
+    const emocion = this.emociones[this.emocionObjetivo];
+    const parte = emocion.partes.find(p => p.id === parteId);
+    
+    this.intentos++;
+    
+    if (parte && parte.zona === zona) {
+      // ¡Correcto!
+      this.partesColocadas.add(parteId);
+      this.puntaje += 100;
+      this.mensajeFeedback = '¡Excelente! 🎉';
+      
+      console.log(`✅ Correcto! Parte ${parteId} colocada en ${zona}`);
+      
+      // Limpiar mensaje después de 2 segundos
+      setTimeout(() => {
+        this.mensajeFeedback = '';
+      }, 2000);
+      
+      // Verificar si completó todas las partes
+      if (this.partesColocadas.size === emocion.partes.length) {
+        setTimeout(() => {
+          this.completarJuego(true);
+        }, 500);
+      }
+    } else {
+      // Incorrecto
+      this.mensajeFeedback = 'Intenta otra zona 🤔';
+      
+      console.log(`❌ Incorrecto! Parte ${parteId} en ${zona}`);
+      
+      setTimeout(() => {
+        this.mensajeFeedback = '';
+      }, 2000);
+    }
+  }
+
+  completarJuego(exito: boolean) {
+    this.juegoActivo = false;
+    this.detenerTemporizador();
+    
+    if (exito) {
+      // Calcular bonus
+      const bonusTiempo = this.modoJuego === 'contrarreloj' 
+        ? Math.max(0, (60 - this.tiempo) * 10) 
+        : 0;
+      const bonusIntentos = Math.max(0, (10 - this.intentos) * 20);
+      
+      this.puntaje += bonusTiempo + bonusIntentos;
+      
+      console.log(`🎉 Juego completado! Puntaje final: ${this.puntaje}`);
+    } else {
+      console.log('⏱️ Se acabó el tiempo');
+    }
+    
+    this.pantalla = 'completado';
+  }
+
+  // ========== UTILIDADES ==========
+  
+  getEmocionActual(): Emocion {
+    return this.emociones[this.emocionObjetivo];
+  }
+
+  getEmocionesList(): Array<{ key: string; emocion: Emocion }> {
+    return Object.entries(this.emociones).map(([key, emocion]) => ({
+      key,
+      emocion
+    }));
+  }
+
+  estaColocada(parteId: string): boolean {
+    return this.partesColocadas.has(parteId);
+  }
+
+  getParteEnZona(zona: string): ParteCara | undefined {
+    const emocion = this.getEmocionActual();
+    return emocion.partes.find(p => 
+      p.zona === zona && this.partesColocadas.has(p.id)
+    );
+  }
+
+  getProgreso(): number {
+    const emocion = this.getEmocionActual();
+    return (this.partesColocadas.size / emocion.partes.length) * 100;
   }
 
   getEstrellas(): number {
-    if (this.puntaje >= 300) return 3;
-    if (this.puntaje >= 200) return 2;
-    if (this.puntaje >= 100) return 1;
-    return 0;
+    if (this.puntaje >= 400) return 3;
+    if (this.puntaje >= 250) return 2;
+    return 1;
+  }
+
+  togglePista() {
+    this.mostrarPista = !this.mostrarPista;
+  }
+
+  reiniciarJuego() {
+    this.pantalla = 'seleccion';
+  }
+
+  formatearTiempo(segundos: number): string {
+    const mins = Math.floor(segundos / 60);
+    const segs = segundos % 60;
+    return `${mins}:${segs.toString().padStart(2, '0')}`;
   }
 }

@@ -1,217 +1,169 @@
 <div class="ruleta-container">
-  <!-- Header -->
   <div class="header">
-    <h1 class="title">🎯 Ruleta de Praxias con IA</h1>
-    <p class="subtitle">¡Gira la ruleta y demuestra que puedes hacer el ejercicio!</p>
-    
-    <!-- Puntuación -->
-    <div class="score-container">
-      <span class="score">⭐ {{puntos}} puntos</span>
+    <div class="score-badge">
+      <span class="score-icon">⭐</span>
+      <span class="score-value">{{puntos}} puntos</span>
     </div>
   </div>
 
-  <!-- Contenido principal -->
-  <div class="main-content">
+  <div class="game-wrapper">
     
-    <!-- Columna izquierda: Ruleta -->
-    <div class="ruleta-column">
-      <div class="ruleta-wrapper">
-        <!-- Flecha indicadora -->
-        <div class="arrow-indicator"></div>
+    <div class="wheel-section">
+      <div class="arrow-indicator"></div>
+      
+      <svg width="360" height="360" viewBox="0 0 360 360" class="ruleta-svg"
+        [style.transform]="'rotate(' + rotation + 'deg)'"
+        [class.spinning]="isSpinning">
         
-        <!-- SVG Ruleta CORREGIDO -->
-        <svg 
-          width="320" 
-          height="320" 
-          viewBox="0 0 320 320" 
-          class="ruleta-svg"
-          [style.transform]="'rotate(' + rotation + 'deg)'"
-          [class.spinning]="isSpinning">
-          
-          <!-- Segmento 1: Beso -->
-          <path d="M 160 160 L 310 160 A 150 150 0 0 1 266.066 266.066 Z" fill="#FF6B6B" stroke="#fff" stroke-width="3"></path>
-          <text x="238" y="213" text-anchor="middle" dominant-baseline="middle" font-size="24" transform="rotate(45, 238, 213)">😗</text>
-          
-          <!-- Segmento 2: Inflar Cachetes -->
-          <path d="M 160 160 L 266.066 266.066 A 150 150 0 0 1 160 310 Z" fill="#4ECDC4" stroke="#fff" stroke-width="3"></path>
-          <text x="213" y="266" text-anchor="middle" dominant-baseline="middle" font-size="24" transform="rotate(117, 213, 266)">😮</text>
-          
-          <!-- Segmento 3: Lengua Afuera -->
-          <path d="M 160 160 L 160 310 A 150 150 0 0 1 53.934 266.066 Z" fill="#45B7D1" stroke="#fff" stroke-width="3"></path>
-          <text x="107" y="266" text-anchor="middle" dominant-baseline="middle" font-size="24" transform="rotate(189, 107, 266)">😛</text>
-          
-          <!-- Segmento 4: Sonrisa Grande -->
-          <path d="M 160 160 L 53.934 266.066 A 150 150 0 0 1 10 160 Z" fill="#96CEB4" stroke="#fff" stroke-width="3"></path>
-          <text x="82" y="213" text-anchor="middle" dominant-baseline="middle" font-size="24" transform="rotate(261, 82, 213)">😄</text>
-          
-          <!-- Segmento 5: Soplar -->
-          <path d="M 160 160 L 10 160 A 150 150 0 0 1 160 10 Z" fill="#FF9FF3" stroke="#fff" stroke-width="3"></path>
-          <text x="110" y="85" text-anchor="middle" dominant-baseline="middle" font-size="24" transform="rotate(333, 110, 85)">💨</text>
-          
-          <!-- Centro de la ruleta -->
-          <circle cx="160" cy="160" r="25" fill="#fff" stroke="#333" stroke-width="3"></circle>
-          <text x="160" y="167" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">
-            GIRA
-          </text>
-        </svg>
-      </div>
-
-      <!-- Botones de control -->
-      <div class="control-buttons">
-        <button 
-          class="spin-button"
-          [disabled]="isSpinning"
-          (click)="spinWheel()">
-          {{isSpinning ? 'Girando...' : '¡GIRAR!'}}
+        <!-- BESO: 0° a 72° (Derecha) -->
+        <path d="M 180 180 L 330 180 A 150 150 0 0 1 226.42 313.58 Z" fill="#FF6B6B" stroke="#fff" stroke-width="5"/>
+        <text x="255" y="235" font-size="35" text-anchor="middle">😗</text>
+        <text x="255" y="205" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">BESO</text>
+        
+        <!-- CACHETES: 72° a 144° (Abajo derecha) -->
+        <path d="M 180 180 L 226.42 313.58 A 150 150 0 0 1 46.42 226.42 Z" fill="#4ECDC4" stroke="#fff" stroke-width="5"/>
+        <text x="150" y="275" font-size="35" text-anchor="middle">😮</text>
+        <text x="150" y="245" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">CACHETES</text>
+        
+        <!-- LENGUA: 144° a 216° (Izquierda) -->
+        <path d="M 180 180 L 46.42 226.42 A 150 150 0 0 1 46.42 133.58 Z" fill="#45B7D1" stroke="#fff" stroke-width="5"/>
+        <text x="80" y="190" font-size="35" text-anchor="middle">😛</text>
+        <text x="80" y="160" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">LENGUA</text>
+        
+        <!-- SONRISA: 216° a 288° (Arriba izquierda) -->
+        <path d="M 180 180 L 46.42 133.58 A 150 150 0 0 1 226.42 46.42 Z" fill="#96CEB4" stroke="#fff" stroke-width="5"/>
+        <text x="150" y="105" font-size="35" text-anchor="middle">😄</text>
+        <text x="150" y="135" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">SONRISA</text>
+        
+        <!-- SOPLAR: 288° a 360° (Arriba derecha) -->
+        <path d="M 180 180 L 226.42 46.42 A 150 150 0 0 1 330 180 Z" fill="#FF9FF3" stroke="#fff" stroke-width="5"/>
+        <text x="255" y="125" font-size="35" text-anchor="middle">💨</text>
+        <text x="255" y="155" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">SOPLAR</text>
+        
+        <!-- Borde exterior -->
+        <circle cx="180" cy="180" r="150" fill="none" stroke="#fff" stroke-width="6"/>
+        
+        <!-- Centro -->
+        <circle cx="180" cy="180" r="50" fill="#FFD93D" stroke="#fff" stroke-width="5"/>
+        <text x="180" y="190" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">GIRA</text>
+      </svg>
+      
+      <div class="button-row">
+        <button class="btn-spin" [disabled]="isSpinning" (click)="spinWheel()">
+          🎲 {{isSpinning ? '¡GIRANDO!' : '¡GIRAR AHORA!'}}
         </button>
-        
-        <button 
-          class="reset-button"
-          (click)="resetRuleta()">
-          🔄 Reset
+        <button class="btn-reset" (click)="resetRuleta()">
+          🔄 REINICIAR
         </button>
       </div>
     </div>
 
-    <!-- Columna derecha: Instrucciones y cámara -->
-    <div class="instructions-column">
+    <div class="side-panel">
       
-      <!-- Panel de instrucciones -->
-      <div *ngIf="showInstructions && selectedPraxia && !isCameraActive" class="instructions-panel">
-        <div class="praxia-header">
-          <div class="praxia-emoji">{{selectedPraxia?.emoji}}</div>
-          <h2 class="praxia-name">{{selectedPraxia?.nombre}}</h2>
-        </div>
-        
-        <div class="instruction-content">
-          <div class="instruction-text">
-            <h3>📋 Instrucciones:</h3>
-            <p>{{selectedPraxia?.instruccion}}</p>
-          </div>
-          
-          <div class="exercise-details">
-            <div class="detail-box">
-              <p class="detail-label">⏱️ Duración</p>
-              <p class="detail-value">{{selectedPraxia?.duracion}}</p>
-            </div>
-            <div class="detail-box">
-              <p class="detail-label">🔄 Repetir</p>
-              <p class="detail-value">{{selectedPraxia?.repeticiones}} veces</p>
-            </div>
-          </div>
-          
-          <button 
-            class="start-camera-button"
-            (click)="startCamera()">
-            📹 ¡Empezar con cámara!
-          </button>
-        </div>
+      <!-- Pantalla de instrucciones -->
+      <div *ngIf="showInstructions && selectedPraxia && !isCameraActive && !isExerciseCorrect" class="praxia-display">
+        <div class="big-emoji">{{selectedPraxia?.emoji}}</div>
+        <h2 class="praxia-title">{{selectedPraxia?.nombre}}</h2>
+        <div class="difficulty-stars">★★★☆☆</div>
       </div>
 
-      <!-- Panel de cámara activa CORREGIDO -->
-      <div *ngIf="isCameraActive" class="camera-panel">
-        <div class="camera-header">
-          <h3>{{selectedPraxia?.nombre}} - ¡Hazlo ahora!</h3>
-          <button class="close-camera" (click)="stopCamera()">❌</button>
+      <div *ngIf="showInstructions && selectedPraxia && !isCameraActive && !isExerciseCorrect" class="instruction-panel">
+        <div class="instruction-header">
+          <span class="icon">📋</span>
+          <h3>¿Cómo hacerlo?</h3>
         </div>
+        <p class="instruction-text">{{selectedPraxia?.instruccion}}</p>
         
-        <!-- Video y canvas superpuestos -->
-        <div class="video-container">
-          <video 
-            #videoElement
-            autoplay 
-            muted
-            playsinline
-            class="video-element">
-          </video>
-          <canvas 
-            #canvasElement
-            class="detection-overlay">
-          </canvas>
-          
-          <!-- Overlay de progreso -->
-          <div class="progress-overlay">
-            <!-- Barra de progreso circular -->
-            <div class="progress-circle">
-              <svg width="100" height="100" class="progress-svg">
-                <circle 
-                  cx="50" 
-                  cy="50" 
-                  r="40" 
-                  stroke="#e0e0e0" 
-                  stroke-width="8" 
-                  fill="none">
-                </circle>
-                <circle 
-                  cx="50" 
-                  cy="50" 
-                  r="40" 
-                  stroke="#4CAF50" 
-                  stroke-width="8" 
-                  fill="none"
-                  [style.stroke-dasharray]="2 * Math.PI * 40"
-                  [style.stroke-dashoffset]="2 * Math.PI * 40 * (1 - exerciseProgress / 100)"
-                  class="progress-circle-fill">
-                </circle>
-              </svg>
-              <div class="progress-text">{{exerciseProgress.toFixed(0)}}%</div>
+        <div class="info-cards">
+          <div class="info-card">
+            <div class="info-icon">⏱️</div>
+            <div class="info-content">
+              <span class="info-label">DURACIÓN</span>
+              <span class="info-value">{{selectedPraxia?.duracion}}</span>
             </div>
-            
-            <!-- Indicador de detección -->
-            <div class="detection-indicator" [class.active]="detectionScore > 70">
-              <div class="detection-score">
-                Precisión: {{detectionScore.toFixed(0)}}%
-              </div>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">🔄</div>
+            <div class="info-content">
+              <span class="info-label">REPETICIONES</span>
+              <span class="info-value">{{selectedPraxia?.repeticiones}}x</span>
             </div>
           </div>
         </div>
         
-        <!-- Estado de la cámara AGREGADO -->
+        <button class="btn-start" (click)="startCamera()">
+          📹 ¡COMENZAR DESAFÍO!
+        </button>
+      </div>
+
+      <!-- Panel de cámara activa -->
+      <div *ngIf="isCameraActive && !isExerciseCorrect" class="camera-panel">
+        <div class="camera-header">
+          <h3>{{selectedPraxia?.nombre}}</h3>
+          <button class="btn-close" (click)="stopCamera()">✕</button>
+        </div>
+        
+        <div class="video-wrapper">
+          <video #videoElement autoplay muted playsinline class="video-feed"></video>
+          <canvas #canvasElement class="canvas-overlay"></canvas>
+          
+          <div class="progress-indicator">
+            <div class="progress-ring">
+              <svg width="90" height="90">
+                <circle cx="45" cy="45" r="35" stroke="#ddd" stroke-width="6" fill="none"></circle>
+                <circle cx="45" cy="45" r="35" stroke="#4CAF50" stroke-width="6" fill="none"
+                  [style.stroke-dasharray]="2 * Math.PI * 35"
+                  [style.stroke-dashoffset]="2 * Math.PI * 35 * (1 - exerciseProgress / 100)"
+                  class="progress-fill"></circle>
+              </svg>
+              <div class="progress-percent">{{exerciseProgress.toFixed(0)}}%</div>
+            </div>
+            <div class="detection-badge" [class.active]="detectionScore > 70">
+              Precisión: {{detectionScore.toFixed(0)}}%
+            </div>
+          </div>
+        </div>
+        
         <div class="camera-status">
           <p *ngIf="!stream">🔴 Activando cámara...</p>
-          <p *ngIf="stream && !isDetecting">📹 Cámara activa - Preparando detección...</p>
-          <p *ngIf="isDetecting">🤖 IA detectando movimientos...</p>
+          <p *ngIf="stream && !isDetecting">📹 Cámara lista</p>
+          <p *ngIf="isDetecting">🤖 IA detectando...</p>
         </div>
         
-        <!-- Feedback del ejercicio -->
-        <div class="exercise-feedback">
-          <div *ngIf="detectionScore > 80" class="feedback success">
-            🎉 ¡PERFECTO! ¡Sigue así!
-          </div>
-          <div *ngIf="detectionScore > 50 && detectionScore <= 80" class="feedback good">
-            👍 ¡Muy bien! Un poquito más...
-          </div>
-          <div *ngIf="detectionScore <= 50" class="feedback try-again">
-            💪 ¡Inténtalo! Mira el ejemplo
-          </div>
+        <div class="feedback-box">
+          <div *ngIf="detectionScore > 80" class="feedback success">¡PERFECTO!</div>
+          <div *ngIf="detectionScore > 50 && detectionScore <= 80" class="feedback good">¡Muy bien!</div>
+          <div *ngIf="detectionScore <= 50 && detectionScore > 0" class="feedback try">¡Inténtalo!</div>
         </div>
       </div>
 
-      <!-- Panel de éxito -->
-      <div *ngIf="isExerciseCorrect" class="success-panel">
-        <div class="success-animation">🎉</div>
+      <!-- Pantalla de éxito -->
+      <div *ngIf="isExerciseCorrect" class="success-box">
+        <div class="success-emoji">🎉</div>
         <h2>¡INCREÍBLE!</h2>
-        <p>¡Completaste el ejercicio perfectamente!</p>
-        <div class="points-earned">+20 puntos ganados</div>
+        <p>¡Completaste el ejercicio!</p>
+        <div class="points-badge">+20 puntos</div>
       </div>
 
-      <!-- Panel de espera -->
-      <div *ngIf="!showInstructions && !isCameraActive && !isExerciseCorrect" class="waiting-panel">
-        <div class="waiting-icon">🎲</div>
-        <h3>¡Gira la ruleta!</h3>
-        <p>Haz clic en el botón "¡GIRAR!" para descubrir qué praxia vas a practicar.</p>
+      <!-- Pantalla de espera inicial -->
+      <div *ngIf="!showInstructions && !isCameraActive && !isExerciseCorrect" class="waiting-box">
+        <div class="waiting-dice">🎲</div>
+        <h3>¡Hora de Jugar!</h3>
+        <p>Presiona <strong>"¡GIRAR AHORA!"</strong> para comenzar</p>
+        <div class="tip">
+          <span>💡</span>
+          <span>La IA detectará tus movimientos</span>
+        </div>
       </div>
       
     </div>
   </div>
 
-  <!-- Confetti de celebración -->
-  <div *ngIf="isExerciseCorrect" class="confetti-container">
-    <div 
-      *ngFor="let item of [].constructor(20); let i = index"
-      class="confetti-piece"
-      [style.left.%]="Math.random() * 100"
-      [style.animation-delay.s]="Math.random() * 2">
-    </div>
+  <!-- Confeti de celebración -->
+  <div *ngIf="isExerciseCorrect" class="confetti">
+    <div *ngFor="let item of [0,1,2,3,4,5,6,7,8,9]" 
+         class="confetti-piece"
+         [style.left.%]="getConfettiLeft(item)"
+         [style.animation-delay.s]="getConfettiDelay(item)"></div>
   </div>
 </div>

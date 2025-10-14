@@ -1,468 +1,583 @@
-/* ruleta-praxias.component.css */
-
+/* ========================================
+   CONTENEDOR PRINCIPAL
+   ======================================== */
 .ruleta-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Header */
+/* ========================================
+   HEADER Y PUNTUACIÓN
+   ======================================== */
 .header {
   text-align: center;
   margin-bottom: 30px;
 }
 
-.title {
-  font-size: 2.5rem;
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  padding: 15px 40px;
+  border-radius: 50px;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.score-icon {
+  font-size: 2rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.score-value {
   color: white;
-  margin: 0;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.subtitle {
-  font-size: 1.2rem;
-  color: rgba(255,255,255,0.9);
-  margin: 10px 0;
-}
-
-.score-container {
-  display: inline-block;
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(10px);
-  padding: 10px 20px;
-  border-radius: 25px;
-  border: 1px solid rgba(255,255,255,0.3);
-}
-
-.score {
-  font-size: 1.3rem;
-  color: white;
-  font-weight: bold;
-}
-
-/* Layout principal */
-.main-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+/* ========================================
+   LAYOUT PRINCIPAL
+   ======================================== */
+.game-wrapper {
+  display: flex;
   gap: 40px;
   max-width: 1200px;
   margin: 0 auto;
+  align-items: flex-start;
+  justify-content: center;
 }
 
-@media (max-width: 768px) {
-  .main-content {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-}
-
-/* Columna de la ruleta */
-.ruleta-column {
+/* ========================================
+   SECCIÓN DE LA RULETA
+   ======================================== */
+.wheel-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.ruleta-wrapper {
-  position: relative;
-  margin-bottom: 30px;
+  gap: 30px;
 }
 
 .arrow-indicator {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-bottom: 20px solid #ff4757;
-  z-index: 10;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+  border-bottom: 35px solid #ff4757;
+  filter: drop-shadow(0 4px 12px rgba(255, 71, 87, 0.6));
+  animation: bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
 }
 
 .ruleta-svg {
-  transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+  background: white;
+  border-radius: 50%;
+  padding: 10px;
+  filter: drop-shadow(0 15px 45px rgba(0, 0, 0, 0.4));
+  transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 }
 
 .ruleta-svg.spinning {
-  transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+  transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 }
 
-/* Botones de control */
-.control-buttons {
+/* ========================================
+   BOTONES PRINCIPALES
+   ======================================== */
+.button-row {
   display: flex;
   gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.spin-button {
-  background: linear-gradient(45deg, #00d2ff 0%, #3a7bd5 100%);
-  color: white;
+.btn-spin, 
+.btn-reset {
   border: none;
-  padding: 15px 30px;
-  border-radius: 25px;
-  font-size: 1.2rem;
-  font-weight: bold;
+  padding: 18px 40px;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 800;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  letter-spacing: 0.5px;
 }
 
-.spin-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+.btn-spin {
+  background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+  color: white;
 }
 
-.spin-button:disabled {
-  opacity: 0.6;
+.btn-spin:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(58, 123, 213, 0.5);
+}
+
+.btn-spin:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn-spin:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
-.reset-button {
-  background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 100%);
+.btn-reset {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
   color: white;
-  border: none;
-  padding: 15px 20px;
-  border-radius: 25px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-.reset-button:hover {
-  transform: translateY(-2px);
+.btn-reset:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(255, 154, 158, 0.5);
 }
 
-/* Columna de instrucciones */
-.instructions-column {
+.btn-reset:active {
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   PANEL LATERAL
+   ======================================== */
+.side-panel {
+  width: 480px;
   display: flex;
   flex-direction: column;
+  gap: 20px;
 }
 
-/* Panel de instrucciones */
-.instructions-panel {
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  border: 1px solid rgba(255,255,255,0.3);
-}
-
-.praxia-header {
+/* ========================================
+   DISPLAY DE PRAXIA SELECCIONADA
+   ======================================== */
+.praxia-display {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border-radius: 30px;
+  padding: 35px;
   text-align: center;
-  margin-bottom: 25px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
-.praxia-emoji {
-  font-size: 4rem;
-  margin-bottom: 10px;
+.big-emoji {
+  font-size: 6rem;
+  margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
 }
 
-.praxia-name {
-  font-size: 1.8rem;
-  color: #333;
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+.praxia-title {
+  font-size: 2.5rem;
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.difficulty-stars {
+  color: #FFD93D;
+  font-size: 1.6rem;
+  letter-spacing: 6px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================
+   PANEL DE INSTRUCCIONES
+   ======================================== */
+.instruction-panel {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border-radius: 30px;
+  padding: 30px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.instruction-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #f0f0f0;
+}
+
+.instruction-header .icon {
+  font-size: 2.2rem;
+}
+
+.instruction-header h3 {
   margin: 0;
-}
-
-.instruction-content h3 {
   color: #4a90e2;
-  margin-bottom: 10px;
+  font-size: 1.5rem;
+  font-weight: 800;
 }
 
 .instruction-text {
-  background: #f8f9ff;
-  padding: 20px;
-  border-radius: 15px;
-  margin-bottom: 20px;
+  color: #2c3e50;
+  font-size: 1.15rem;
+  line-height: 1.7;
+  margin-bottom: 25px;
+  font-weight: 500;
 }
 
-.exercise-details {
+/* ========================================
+   TARJETAS DE INFORMACIÓN
+   ======================================== */
+.info-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
   margin-bottom: 25px;
 }
 
-.detail-box {
-  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 15px;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.detail-label {
-  font-size: 0.9rem;
-  margin: 0 0 5px 0;
-  opacity: 0.9;
-}
-
-.detail-value {
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin: 0;
-}
-
-.start-camera-button {
-  width: 100%;
-  background: linear-gradient(45deg, #56ab2f 0%, #a8e6cf 100%);
-  color: white;
-  border: none;
-  padding: 15px;
-  border-radius: 12px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.start-camera-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-
-/* Panel de cámara COMPLETAMENTE CORREGIDO */
-.camera-panel {
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
+.info-card {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  min-height: 500px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.info-icon {
+  font-size: 2.5rem;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.info-label {
+  font-size: 0.7rem;
+  color: #7f8c8d;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.info-value {
+  font-size: 1.3rem;
+  color: #2c3e50;
+  font-weight: 900;
+}
+
+/* ========================================
+   BOTÓN DE INICIO
+   ======================================== */
+.btn-start {
+  width: 100%;
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: white;
+  border: none;
+  padding: 22px;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px rgba(67, 233, 123, 0.4);
+  letter-spacing: 1px;
+}
+
+.btn-start:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(67, 233, 123, 0.5);
+}
+
+.btn-start:active {
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   PANEL DE CÁMARA
+   ======================================== */
+.camera-panel {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border-radius: 30px;
+  padding: 25px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 .camera-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #f0f0f0;
 }
 
 .camera-header h3 {
   margin: 0;
-  color: #333;
+  color: #2c3e50;
+  font-size: 1.6rem;
+  font-weight: 800;
 }
 
-.close-camera {
-  background: #ff4757;
+.btn-close {
+  background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
   color: white;
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
+  font-weight: 800;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
 }
 
-/* Contenedor de video COMPLETAMENTE CORREGIDO */
-.video-container {
+.btn-close:hover {
+  background: linear-gradient(135deg, #ee5a6f 0%, #ff8899 100%);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 6px 18px rgba(255, 71, 87, 0.5);
+}
+
+/* ========================================
+   VIDEO Y CANVAS
+   ======================================== */
+.video-wrapper {
   position: relative;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto 20px auto;
-  border-radius: 15px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  margin-bottom: 20px;
   background: #000;
-  min-height: 300px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Video element COMPLETAMENTE CORREGIDO */
-.video-element {
-  width: 100% !important;
-  height: 300px !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  background: #000;
-  border-radius: 15px;
+.video-feed {
+  width: 100%;
+  height: 340px;
+  display: block;
   object-fit: cover;
-  position: relative;
-  z-index: 10;
 }
 
-/* FORZAR todos los videos */
-video {
-  width: 100% !important;
-  height: 300px !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  object-fit: cover !important;
-  background: #000 !important;
-}
-
-.detection-overlay {
+.canvas-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 5;
 }
 
-/* Estado de cámara */
+/* ========================================
+   INDICADOR DE PROGRESO
+   ======================================== */
+.progress-indicator {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-ring {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.progress-ring svg {
+  transform: rotate(-90deg);
+}
+
+.progress-fill {
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.progress-percent {
+  position: absolute;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.detection-badge {
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.detection-badge.active {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  box-shadow: 0 6px 18px rgba(76, 175, 80, 0.6);
+}
+
+/* ========================================
+   ESTADO DE CÁMARA
+   ======================================== */
 .camera-status {
-  background: rgba(0,0,0,0.1);
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 15px;
+  border-radius: 15px;
   text-align: center;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .camera-status p {
   margin: 0;
-  font-weight: bold;
-  color: #333;
-}
-
-/* Overlay de progreso */
-.progress-overlay {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  z-index: 15;
-}
-
-.progress-circle {
-  position: relative;
-  width: 100px;
-  height: 100px;
-}
-
-.progress-svg {
-  transform: rotate(-90deg);
-}
-
-.progress-circle-fill {
-  transition: stroke-dashoffset 0.3s ease;
-}
-
-.progress-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   color: white;
-  font-weight: bold;
-  font-size: 1.2rem;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-.detection-indicator {
-  background: rgba(0,0,0,0.7);
-  color: white;
-  padding: 8px 12px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.detection-indicator.active {
-  background: rgba(76, 175, 80, 0.8);
-  box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
-}
-
-/* Feedback del ejercicio */
-.exercise-feedback {
+/* ========================================
+   FEEDBACK
+   ======================================== */
+.feedback-box {
   text-align: center;
-  padding: 15px;
-  border-radius: 12px;
-  font-weight: bold;
-  font-size: 1.1rem;
+}
+
+.feedback {
+  padding: 18px;
+  border-radius: 15px;
+  font-weight: 800;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .feedback.success {
-  background: linear-gradient(45deg, #4CAF50, #8BC34A);
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
   color: white;
-  animation: pulse 1s infinite;
+  animation: successPulse 0.6s ease-in-out;
 }
 
 .feedback.good {
-  background: linear-gradient(45deg, #FF9800, #FFC107);
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
   color: white;
 }
 
-.feedback.try-again {
-  background: linear-gradient(45deg, #F44336, #FF5722);
+.feedback.try {
+  background: linear-gradient(135deg, #F44336 0%, #FF5722 100%);
   color: white;
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); }
+@keyframes successPulse {
+  0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
 }
 
-/* Panel de éxito */
-.success-panel {
-  background: linear-gradient(45deg, #4CAF50, #8BC34A);
+/* ========================================
+   CAJA DE ÉXITO
+   ======================================== */
+.success-box {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  border-radius: 30px;
+  padding: 50px 35px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
   color: white;
-  padding: 40px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  animation: successBounce 0.6s ease-out;
+  border: 3px solid rgba(255, 255, 255, 0.4);
 }
 
-.success-animation {
-  font-size: 4rem;
-  animation: bounce 1s infinite;
+.success-emoji {
+  font-size: 6rem;
+  animation: celebrate 0.6s ease-in-out infinite;
 }
 
-.success-panel h2 {
-  font-size: 2rem;
-  margin: 20px 0;
+@keyframes celebrate {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.1) rotate(-10deg); }
+  75% { transform: scale(1.1) rotate(10deg); }
 }
 
-.points-earned {
-  background: rgba(255,255,255,0.2);
-  padding: 10px 20px;
-  border-radius: 15px;
+.success-box h2 {
+  font-size: 2.5rem;
+  margin: 25px 0 15px 0;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.success-box p {
   font-size: 1.3rem;
-  font-weight: bold;
-  margin-top: 20px;
+  margin-bottom: 25px;
+  font-weight: 600;
+}
+
+.points-badge {
+  background: rgba(255, 255, 255, 0.35);
+  padding: 15px 35px;
+  border-radius: 30px;
+  font-size: 1.6rem;
+  font-weight: 900;
   display: inline-block;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
-@keyframes successBounce {
-  0% { transform: scale(0.3); opacity: 0; }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-10px); }
-  60% { transform: translateY(-5px); }
-}
-
-/* Panel de espera */
-.waiting-panel {
-  background: rgba(255,255,255,0.7);
-  backdrop-filter: blur(10px);
-  border: 2px dashed #ccc;
-  border-radius: 20px;
-  padding: 40px;
+/* ========================================
+   CAJA DE ESPERA
+   ======================================== */
+.waiting-box {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border-radius: 30px;
+  padding: 50px 35px;
   text-align: center;
-  color: #666;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  border: 4px dashed rgba(102, 126, 234, 0.4);
 }
 
-.waiting-icon {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  animation: rotate 2s linear infinite;
+.waiting-dice {
+  font-size: 5rem;
+  margin-bottom: 25px;
+  animation: rotate 3s linear infinite;
 }
 
 @keyframes rotate {
@@ -470,39 +585,72 @@ video {
   to { transform: rotate(360deg); }
 }
 
-.waiting-panel h3 {
-  color: #4a90e2;
-  margin-bottom: 15px;
+.waiting-box h3 {
+  color: #667eea;
+  font-size: 2.2rem;
+  margin: 0 0 15px 0;
+  font-weight: 900;
 }
 
-/* Confetti */
-.confetti-container {
+.waiting-box p {
+  color: #555;
+  font-size: 1.15rem;
+  margin-bottom: 25px;
+  line-height: 1.7;
+  font-weight: 500;
+}
+
+.waiting-box strong {
+  color: #3a7bd5;
+  font-weight: 900;
+}
+
+.tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2c3e50;
+  box-shadow: 0 4px 12px rgba(253, 203, 110, 0.4);
+}
+
+/* ========================================
+   CONFETI
+   ======================================== */
+.confetti {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 1000;
+  z-index: 9999;
+  overflow: hidden;
 }
 
 .confetti-piece {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
+  width: 12px;
+  height: 12px;
+  background: #ff6b6b;
   animation: fall 3s linear infinite;
+  top: -20px;
 }
 
-.confetti-piece:nth-child(odd) {
-  background: linear-gradient(45deg, #ff9ff3, #54a0ff, #5f27cd);
-  border-radius: 50%;
-}
-
-.confetti-piece:nth-child(even) {
-  background: linear-gradient(45deg, #feca57, #ff6b6b, #4ecdc4);
-  transform: rotate(45deg);
-}
+.confetti-piece:nth-child(1) { background: #ff6b6b; }
+.confetti-piece:nth-child(2) { background: #4ecdc4; border-radius: 50%; }
+.confetti-piece:nth-child(3) { background: #feca57; }
+.confetti-piece:nth-child(4) { background: #48dbfb; border-radius: 50%; }
+.confetti-piece:nth-child(5) { background: #ff9ff3; }
+.confetti-piece:nth-child(6) { background: #54a0ff; border-radius: 50%; }
+.confetti-piece:nth-child(7) { background: #5f27cd; }
+.confetti-piece:nth-child(8) { background: #00d2d3; border-radius: 50%; }
+.confetti-piece:nth-child(9) { background: #feca57; }
+.confetti-piece:nth-child(10) { background: #ee5a6f; border-radius: 50%; }
 
 @keyframes fall {
   0% {
@@ -515,69 +663,141 @@ video {
   }
 }
 
-/* Efectos de glassmorphism */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(10px);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-/* Animaciones de entrada */
-.fade-in {
-  animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .title {
-    font-size: 2rem;
-  }
-  
-  .instructions-panel, .camera-panel {
-    padding: 20px;
-  }
-  
-  .exercise-details {
-    grid-template-columns: 1fr;
-  }
-  
-  .video-container {
-    max-width: 300px;
-  }
-  
-  .video-element {
-    height: 250px !important;
-  }
-  
-  .progress-circle {
-    width: 80px;
-    height: 80px;
-  }
-  
-  .control-buttons {
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 1024px) {
+  .game-wrapper {
     flex-direction: column;
     align-items: center;
   }
+  
+  .side-panel {
+    width: 100%;
+    max-width: 520px;
+  }
 }
 
-/* Estados de carga */
-.loading-spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #4a90e2;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 20px auto;
+@media (max-width: 768px) {
+  .ruleta-container {
+    padding: 15px;
+  }
+
+  .score-badge {
+    padding: 12px 30px;
+  }
+
+  .score-icon {
+    font-size: 1.5rem;
+  }
+
+  .score-value {
+    font-size: 1.2rem;
+  }
+
+  .ruleta-svg {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .button-row {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .btn-spin, .btn-reset {
+    width: 100%;
+    padding: 16px 30px;
+    font-size: 1rem;
+  }
+  
+  .side-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .praxia-display {
+    padding: 25px;
+  }
+
+  .big-emoji {
+    font-size: 4.5rem;
+  }
+
+  .praxia-title {
+    font-size: 2rem;
+  }
+
+  .instruction-panel {
+    padding: 25px;
+  }
+  
+  .info-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .video-feed {
+    height: 280px;
+  }
+
+  .waiting-box {
+    padding: 35px 25px;
+  }
+
+  .waiting-dice {
+    font-size: 4rem;
+  }
+
+  .waiting-box h3 {
+    font-size: 1.8rem;
+  }
+
+  .camera-panel {
+    padding: 20px;
+  }
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+@media (max-width: 480px) {
+  .ruleta-svg {
+    width: 260px;
+    height: 260px;
+  }
+
+  .arrow-indicator {
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 28px solid #ff4757;
+  }
+
+  .big-emoji {
+    font-size: 3.5rem;
+  }
+
+  .praxia-title {
+    font-size: 1.6rem;
+  }
+
+  .video-feed {
+    height: 220px;
+  }
+
+  .progress-ring {
+    width: 70px;
+    height: 70px;
+  }
+
+  .progress-ring svg {
+    width: 70px;
+    height: 70px;
+  }
+
+  .progress-percent {
+    font-size: 1.2rem;
+  }
+
+  .detection-badge {
+    font-size: 0.8rem;
+    padding: 8px 15px;
+  }
 }

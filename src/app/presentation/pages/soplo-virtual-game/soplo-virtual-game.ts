@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
-// Declaración de tipos para Web Audio API
 declare global {
   interface Window {
     webkitAudioContext: typeof AudioContext;
@@ -33,30 +32,36 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   puntaje: number = 0;
   tiempoInicio: number = 0;
   tiempoTranscurrido: number = 0;
-  tiempoLimite: number = 60; // segundos por nivel
+  tiempoLimite: number = 60;
   intervaloTiempo: any;
   
-  // Audio y micrófono - Tipos más específicos para evitar errores
+  // Audio y micrófono
   audioContext: AudioContext | null = null;
   microphone: MediaStreamAudioSourceNode | null = null;
   analyser: AnalyserNode | null = null;
   dataArray: Uint8Array = new Uint8Array(0);
+  frequencyData: Uint8Array = new Uint8Array(0);
   stream: MediaStream | null = null;
+  
+  // Detección de soplo simplificada
   nivelSoplo: number = 0;
   promedioSoplo: number = 0;
-  umbralSoplo: number = 30; // Umbral mínimo para detectar soplo
+  umbralSoplo: number = 8; // Bajado de 40 a 8 para micrófonos con baja sensibilidad
+  tiempoSoploInicio: number = 0;
+  soploActivo: boolean = false;
+  duracionMinimaSoplo: number = 150; // Aumentado a 150ms para mayor precisión
   
   // Velas
   velas: Vela[] = [];
   velasApagadas: number = 0;
   totalVelas: number = 3;
   
-  // Animaciones y efectos
+  // Animaciones
   particulas: any[] = [];
   mostrandoParticulas: boolean = false;
   intervaloAnimacion: any;
   
-  // Permisos de micrófono
+  // Permisos
   permisoMicrofono: boolean = false;
   errorMicrofono: string = '';
 
@@ -73,8 +78,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     this.limpiarRecursos();
   }
 
-  // === INICIALIZACIÓN ===
-  
   iniciarJuego() {
     this.tiempoInicio = Date.now();
     this.puntaje = 0;
@@ -96,39 +99,37 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  // === MICRÓFONO Y AUDIO ===
-  
   async solicitarPermisoMicrofono() {
     try {
       this.faseJuego = 'preparando';
+      console.log('🎤 Solicitando permiso de micrófono...');
       
-      // Solicitar acceso al micrófono
       this.stream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
+          echoCancellation: false,
+          noiseSuppression: false,
           autoGainControl: false
         }
       });
       
-      // Crear contexto de audio
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       this.microphone = this.audioContext.createMediaStreamSource(this.stream);
       this.analyser = this.audioContext.createAnalyser();
       
-      // Configurar analizador
-      this.analyser.fftSize = 256;
-      this.analyser.smoothingTimeConstant = 0.3;
+      this.analyser.fftSize = 2048;
+      this.analyser.smoothingTimeConstant = 0.2;
+      this.analyser.minDecibels = -90;
+      this.analyser.maxDecibels = -10;
+      
       const bufferLength = this.analyser.frequencyBinCount;
       this.dataArray = new Uint8Array(bufferLength);
+      this.frequencyData = new Uint8Array(bufferLength);
       
-      // Conectar micrófono al analizador
       this.microphone.connect(this.analyser);
       
       this.permisoMicrofono = true;
-      console.log('🎤 Micrófono configurado correctamente');
+      console.log('✅ Micrófono configurado');
       
-      // Empezar nivel después de un breve delay
       setTimeout(() => {
         this.empezarNivel();
       }, 1000);
@@ -141,68 +142,78 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   }
 
   detectarSoplo() {
-    if (!this.analyser || this.faseJuego !== 'jugando') return;
-    
-    // Obtener datos de frecuencia - cast explícito para resolver el error de tipos
-    this.analyser.getByteFrequencyData(this.dataArray as any);
-    
-    // Calcular nivel promedio de audio
-    let sum = 0;
-    const arrayLength = this.dataArray.length;
-    for (let i = 0; i < arrayLength; i++) {
-      sum += this.dataArray[i];
+    if (!this.analyser || this.faseJuego !== 'jugando') {
+      return;
     }
     
-    this.nivelSoplo = arrayLength > 0 ? sum / arrayLength : 0;
+    this.analyser.getByteFrequencyData(this.frequencyData as any);
     
-    // Calcular promedio móvil para suavizar
-    this.promedioSoplo = (this.promedioSoplo * 0.7) + (this.nivelSoplo * 0.3);
+    let suma = 0;
+    for (let i = 0; i < this.frequencyData.length; i++) {
+      suma += this.frequencyData[i];
+    }
+    const volumenPromedio = suma / this.frequencyData.length;
     
-    // Procesar soplo si supera el umbral
-    if (this.promedioSoplo > this.umbralSoplo) {
-      this.procesarSoplo(this.promedioSoplo);
+    if (Math.random() < 0.03) {
+      console.log('🔊 Volumen:', volumenPromedio.toFixed(1));
     }
     
-    // Continuar detectando
+    this.nivelSoplo = (this.nivelSoplo * 0.7) + (volumenPromedio * 0.3);
+    
+    const hayVolumenAlto = this.nivelSoplo > this.umbralSoplo;
+    
+    if (hayVolumenAlto) {
+      if (!this.soploActivo) {
+        this.soploActivo = true;
+        this.tiempoSoploInicio = Date.now();
+        console.log('🌬️ Posible soplo iniciado - Volumen:', this.nivelSoplo.toFixed(1));
+      } else {
+        const duracion = Date.now() - this.tiempoSoploInicio;
+        
+        if (duracion >= this.duracionMinimaSoplo) {
+          this.procesarSoplo(this.nivelSoplo);
+          console.log('💨 SOPLO CONFIRMADO - Volumen:', this.nivelSoplo.toFixed(1), 'Duración:', duracion + 'ms');
+        }
+      }
+    } else {
+      if (this.soploActivo) {
+        const duracion = Date.now() - this.tiempoSoploInicio;
+        if (duracion < this.duracionMinimaSoplo) {
+          console.log('🗣️ VOZ DETECTADA (muy corta) - Duración:', duracion + 'ms');
+        }
+        this.soploActivo = false;
+      }
+    }
+    
     if (this.faseJuego === 'jugando') {
       requestAnimationFrame(() => this.detectarSoplo());
     }
   }
 
   procesarSoplo(intensidad: number) {
-    // Aplicar soplo a todas las velas no apagadas
     this.velas.forEach(vela => {
       if (!vela.apagada) {
-        // Calcular distancia del soplo a la vela (simulado)
-        const distancia = Math.random() * 0.5 + 0.5; // 0.5 - 1.0
+        const distancia = Math.random() * 0.5 + 0.5;
         const fuerzaSoplo = (intensidad / 100) * distancia;
         
-        // Reducir intensidad de la llama
         vela.intensidadLlama = Math.max(0, vela.intensidadLlama - fuerzaSoplo * 2);
         
-        // Si la llama es muy débil, apagar vela
         if (vela.intensidadLlama <= 0.1) {
           this.apagarVela(vela);
         }
       }
     });
     
-    // Generar partículas de soplo
     this.generarParticulas(intensidad);
   }
 
-  // === CONTROL DE JUEGO ===
-  
   empezarNivel() {
     this.faseJuego = 'jugando';
     this.tiempoInicio = Date.now();
     this.tiempoTranscurrido = 0;
     this.velasApagadas = 0;
     
-    // Generar velas para el nivel
     this.generarVelas();
-    
-    // Empezar detección de soplo
     this.detectarSoplo();
     
     console.log(`🕯️ Nivel ${this.nivelActual}: ${this.totalVelas} velas generadas`);
@@ -210,7 +221,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
 
   generarVelas() {
     this.velas = [];
-    this.totalVelas = Math.min(3 + this.nivelActual, 8); // Aumentar velas por nivel
+    this.totalVelas = Math.min(3 + this.nivelActual, 8);
     
     for (let i = 0; i < this.totalVelas; i++) {
       const vela: Vela = {
@@ -232,18 +243,15 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     vela.tiempoApagado = Date.now();
     this.velasApagadas++;
     
-    // Efectos visuales y sonoros
     this.mostrarEfectoApagado(vela);
     this.puntaje += 100 + (this.nivelActual * 25);
     
-    // Vibración
     if ('vibrate' in navigator) {
       navigator.vibrate(50);
     }
     
     console.log(`🕯️ Vela apagada! ${this.velasApagadas}/${this.totalVelas}`);
     
-    // Verificar si se completó el nivel
     if (this.velasApagadas >= this.totalVelas) {
       setTimeout(() => {
         this.completarNivel();
@@ -254,7 +262,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   completarNivel() {
     this.faseJuego = 'preparando';
     
-    // Calcular bonus
     const bonusTiempo = Math.max(0, this.tiempoLimite - this.tiempoTranscurrido) * 10;
     const bonusNivel = this.nivelActual * 100;
     this.puntaje += bonusTiempo + bonusNivel;
@@ -262,12 +269,10 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     console.log(`✅ Nivel ${this.nivelActual} completado. Bonus: +${bonusTiempo + bonusNivel}`);
     
     if (this.nivelActual >= this.maxNiveles) {
-      // Juego completado
       setTimeout(() => {
         this.completarJuego();
       }, 2000);
     } else {
-      // Siguiente nivel
       setTimeout(() => {
         this.nivelActual++;
         this.empezarNivel();
@@ -278,7 +283,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   completarJuego() {
     this.faseJuego = 'completado';
     
-    // Bonus final
     const bonusCompletado = 1000;
     this.puntaje += bonusCompletado;
     
@@ -291,10 +295,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     console.log('⏰ Tiempo agotado');
   }
 
-  // === EFECTOS VISUALES ===
-  
   mostrarEfectoApagado(vela: Vela) {
-    // Crear efecto de humo
     this.generarHumo(vela.x, vela.y);
   }
 
@@ -303,7 +304,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     
     this.mostrandoParticulas = true;
     
-    // Generar partículas basadas en la intensidad
     const numParticulas = Math.floor(intensidad / 10);
     
     for (let i = 0; i < numParticulas; i++) {
@@ -311,13 +311,12 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
         id: Math.random(),
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
-        vida: 1000 // milisegundos
+        vida: Date.now()
       };
       
       this.particulas.push(particula);
     }
     
-    // Limpiar partículas antiguas
     setTimeout(() => {
       this.particulas = this.particulas.filter(p => Date.now() - p.vida < 1000);
       this.mostrandoParticulas = false;
@@ -325,12 +324,9 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   }
 
   generarHumo(x: number, y: number) {
-    // Efecto de humo cuando se apaga una vela
     console.log(`💨 Generando humo en posición ${x}, ${y}`);
   }
 
-  // === UTILIDADES ===
-  
   formatearTiempo(segundos: number): string {
     const minutos = Math.floor(segundos / 60);
     const segs = segundos % 60;
@@ -342,7 +338,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   }
 
   getIntensidadSoplo(): number {
-    return Math.min(100, this.umbralSoplo > 0 ? (this.promedioSoplo / this.umbralSoplo) * 100 : 0);
+    return Math.min(100, this.umbralSoplo > 0 ? (this.nivelSoplo / this.umbralSoplo) * 100 : 0);
   }
 
   getEstrellas(): number {
@@ -352,8 +348,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     return 0;
   }
 
-  // === NAVEGACIÓN ===
-  
   reiniciarJuego() {
     this.limpiarRecursos();
     this.iniciarJuego();
@@ -369,10 +363,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     this.router.navigate(['/juego', 'linguales', 'atrapa-lengua']);
   }
 
-  // === LIMPIEZA DE RECURSOS ===
-  
   limpiarRecursos() {
-    // Detener intervalos
     if (this.intervaloTiempo) {
       clearInterval(this.intervaloTiempo);
     }
@@ -381,7 +372,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       clearInterval(this.intervaloAnimacion);
     }
     
-    // Cerrar recursos de audio
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
       this.stream = null;
@@ -399,8 +389,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     console.log('🧹 Recursos limpiados');
   }
 
-  // === CONTROL DE PERMISOS ===
-  
   saltarInstrucciones() {
     this.solicitarPermisoMicrofono();
   }
