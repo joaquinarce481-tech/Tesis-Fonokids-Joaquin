@@ -2,8 +2,14 @@
   
   <!-- 📂 VISTA 1: SELECTOR DE SECCIONES PRINCIPALES -->
   <div class="secciones-menu" *ngIf="vistaActual === 'secciones'">
+    <!-- ✅ BOTÓN VOLVER AL DASHBOARD -->
+    <button class="btn-volver-dashboard" (click)="volverAlDashboard()">
+      <span class="icono-flecha">←</span>
+      <span class="texto-btn">Volver al Menú Principal</span>
+    </button>
+    
     <div class="header-secciones">
-      <h2>🎯 Ejercicios de Fonoaudiología</h2>
+      <h2>Ejercicios de Fonoaudiología</h2>
       <p class="subtitulo">Selecciona el área que quieres trabajar</p>
     </div>
     
@@ -12,37 +18,43 @@
         class="seccion-card" 
         *ngFor="let seccion of secciones"
         (click)="seleccionarSeccion(seccion)"
-        [style.border-color]="seccion.color"
-        [style.background-image]="'linear-gradient(135deg, ' + seccion.color + '20, ' + seccion.color + '10)'">
+        [style.border-color]="seccion.color">
         
-        <div class="seccion-icono" [style.color]="seccion.color">
-          {{seccion.icono}}
-        </div>
+        <!-- ✅ NUEVA SECCIÓN DE IMAGEN -->
+        <div class="seccion-imagen" [style.background-image]="'url(' + seccion.imagen + ')'"></div>
         
-        <h3>{{seccion.nombre}}</h3>
-        <p class="seccion-descripcion">{{seccion.descripcion}}</p>
-        
-        <div class="seccion-stats">
-          <div class="stat-item">
-            <span class="stat-numero">{{seccion.ejercicios.length}}</span>
-            <span class="stat-texto">ejercicios</span>
+        <!-- ✅ CONTENEDOR DE CONTENIDO -->
+        <div class="seccion-contenido">
+          <!-- Emoji oculto por CSS pero mantiene compatibilidad -->
+          <div class="seccion-icono" [style.color]="seccion.color">
+            {{seccion.icono}}
           </div>
-          <div class="stat-item">
-            <span class="stat-numero">{{getEjerciciosCompletadosPorSeccion(seccion.id)}}</span>
-            <span class="stat-texto">completados</span>
+          
+          <h3>{{seccion.nombre}}</h3>
+          <p class="seccion-descripcion">{{seccion.descripcion}}</p>
+          
+          <div class="seccion-stats">
+            <div class="stat-item">
+              <span class="stat-numero">{{seccion.ejercicios.length}}</span>
+              <span class="stat-texto">ejercicios</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-numero">{{getEjerciciosCompletadosPorSeccion(seccion.id)}}</span>
+              <span class="stat-texto">completados</span>
+            </div>
           </div>
-        </div>
-        
-        <div class="progreso-seccion">
-          <div class="progreso-bar" 
-               [style.width.%]="getProgresoSeccion(seccion.id)"
-               [style.background-color]="seccion.color">
+          
+          <div class="progreso-seccion">
+            <div class="progreso-bar" 
+                 [style.width.%]="getProgresoSeccion(seccion.id)"
+                 [style.background-color]="seccion.color">
+            </div>
+            <span class="progreso-texto">{{getProgresoSeccion(seccion.id)}}%</span>
           </div>
-          <span class="progreso-texto">{{getProgresoSeccion(seccion.id)}}%</span>
-        </div>
-        
-        <div class="btn-entrar" [style.background-color]="seccion.color">
-          <span>Entrar →</span>
+          
+          <div class="btn-entrar" [style.background-color]="seccion.color">
+            <span>Entrar →</span>
+          </div>
         </div>
       </div>
     </div>
@@ -105,7 +117,7 @@
     </div>
   </div>
 
-  <!-- 🎯 VISTA 3: EJERCICIO ACTIVO (sin cambios del original) -->
+  <!-- 🎯 VISTA 3: EJERCICIO ACTIVO -->
   <div class="ejercicio-activo" *ngIf="vistaActual === 'activo' && ejercicioActivo">
     <div class="ejercicio-header">
       <div class="header-info">
@@ -125,9 +137,6 @@
       <div class="ejercicio-info" *ngIf="isRecording">
         <div class="tiempo-restante">
           ⏱️ {{tiempoRestante}}s
-        </div>
-        <div class="puntuacion-actual">
-          🎯 {{puntuacionActual}}/100
         </div>
       </div>
     </div>
@@ -179,7 +188,7 @@
     </div>
   </div>
 
-  <!-- 🎉 VISTA 4: PANTALLA DE RESULTADOS (actualizada) -->
+  <!-- 🎉 VISTA 4: PANTALLA DE RESULTADOS -->
   <div class="resultados-screen" *ngIf="vistaActual === 'resultados' || mostrarResultados">
     <div class="resultado-card">
       <div class="resultado-header">
@@ -190,20 +199,12 @@
       </div>
       
       <div class="resultado-principal">
-        <div class="puntuacion-final" [style.color]="colorPuntuacion">
-          {{ultimoResultado?.puntuacion}}%
+        <div class="icono-celebracion">🎊</div>
+        <div class="mensaje-resultado-grande">
+          ¡EXCELENTE!
         </div>
-        <div class="mensaje-resultado">{{mensajeResultado}}</div>
-      </div>
-      
-      <div class="estadisticas">
-        <div class="stat">
-          <span class="stat-label">Tiempo:</span>
-          <span class="stat-value">{{ultimoResultado?.tiempoRealizado}}s</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Errores:</span>
-          <span class="stat-value">{{ultimoResultado?.errores}}</span>
+        <div class="mensaje-motivacional">
+          ¡Lo hiciste muy bien! Cada vez que practicas te vuelves más fuerte. ¡Sigue así campeón! 💪
         </div>
       </div>
       
@@ -212,10 +213,10 @@
           🏠 Volver a {{seccionActiva?.nombre || 'Ejercicios'}}
         </button>
         <button (click)="repetirEjercicio()" class="btn-repetir">
-          🔄 Repetir
+          🔄 Hacer Otro Ejercicio
         </button>
         <button (click)="volverASecciones()" class="btn-secciones" *ngIf="seccionActiva">
-          📂 Ver Todas las Secciones
+          📂 Ver Otras Secciones
         </button>
       </div>
     </div>

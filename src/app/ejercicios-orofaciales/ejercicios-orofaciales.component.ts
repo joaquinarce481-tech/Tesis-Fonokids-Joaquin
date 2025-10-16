@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router'; // ← NUEVO IMPORT
+import { Router } from '@angular/router';
 import { FaceMesh } from '@mediapipe/face_mesh';
 import { Camera } from '@mediapipe/camera_utils';
 
@@ -10,6 +10,7 @@ interface Seccion {
   descripcion: string;
   icono: string;
   color: string;
+  imagen: string; // ✅ NUEVA PROPIEDAD
   ejercicios: Ejercicio[];
 }
 
@@ -49,7 +50,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   private mediaPipeReady = false;
   private intervalTimer: any;
 
-  // ← CONSTRUCTOR ACTUALIZADO CON ROUTER
   constructor(
     private cdr: ChangeDetectorRef,
     private router: Router
@@ -76,6 +76,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   seccionActiva: Seccion | null = null;
   vistaActual: 'secciones' | 'ejercicios' | 'activo' | 'resultados' = 'secciones';
 
+  // ✅ SECCIONES CON IMÁGENES
   secciones: Seccion[] = [
     {
       id: 'linguales',
@@ -83,6 +84,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       descripcion: 'Ejercicios para mejorar la fuerza, coordinación y movilidad de la lengua',
       icono: '👅',
       color: '#FF1493',
+      imagen: 'assets/images/LabialesRojo.png', // ✅ AGREGAR TU IMAGEN AQUÍ
       ejercicios: []
     },
     {
@@ -91,6 +93,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       descripcion: 'Ejercicios para fortalecer el cierre, tono y movilidad de los labios',
       icono: '👄', 
       color: '#FFD700',
+      imagen: 'assets/images/Labiales.png', // ✅ AGREGAR TU IMAGEN AQUÍ
       ejercicios: []
     },
     {
@@ -99,6 +102,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       descripcion: 'Ejercicios para estimular la movilidad y control de la mandíbula',
       icono: '🦷',
       color: '#32CD32',
+      imagen: 'assets/images/Mandibulares.png', // ✅ AGREGAR TU IMAGEN AQUÍ
       ejercicios: []
     }
   ];
@@ -311,7 +315,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     }
   }
 
-  // ← NUEVO MÉTODO PARA VOLVER AL DASHBOARD
   volverAlDashboard() {
     console.log('🏠 Volviendo al dashboard principal');
     this.router.navigate(['/dashboard']);
@@ -434,14 +437,10 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
 
     if (esCorrectoFrame) {
       this.contadorFramesCorrectos++;
-      this.mostrarFeedback('¡Muy bien!', 'success');
+      this.mostrarFeedback('¡Muy bien! ¡Sigue así! 😊', 'success');
     } else {
-      this.mostrarFeedback('¡Inténtalo de nuevo!', 'warning');
+      this.mostrarFeedback('¡Vamos, tú puedes! 💪', 'warning');
     }
-
-    this.puntuacionActual = Math.round(
-      (this.contadorFramesCorrectos / this.contadorFramesTotales) * 100
-    );
 
     this.landmarksAnteriores = landmarks;
   }
