@@ -33,23 +33,12 @@
           <h3>{{seccion.nombre}}</h3>
           <p class="seccion-descripcion">{{seccion.descripcion}}</p>
           
-          <div class="seccion-stats">
-            <div class="stat-item">
-              <span class="stat-numero">{{seccion.ejercicios.length}}</span>
-              <span class="stat-texto">ejercicios</span>
+          <!-- ✅ SOLO MOSTRAR CANTIDAD DE EJERCICIOS -->
+          <div class="seccion-ejercicios-count">
+            <div class="count-badge" [style.background-color]="seccion.color">
+              <span class="count-numero">{{seccion.ejercicios.length}}</span>
+              <span class="count-texto">ejercicios</span>
             </div>
-            <div class="stat-item">
-              <span class="stat-numero">{{getEjerciciosCompletadosPorSeccion(seccion.id)}}</span>
-              <span class="stat-texto">completados</span>
-            </div>
-          </div>
-          
-          <div class="progreso-seccion">
-            <div class="progreso-bar" 
-                 [style.width.%]="getProgresoSeccion(seccion.id)"
-                 [style.background-color]="seccion.color">
-            </div>
-            <span class="progreso-texto">{{getProgresoSeccion(seccion.id)}}%</span>
           </div>
           
           <div class="btn-entrar" [style.background-color]="seccion.color">
@@ -62,27 +51,21 @@
 
   <!-- 📚 VISTA 2: EJERCICIOS DE LA SECCIÓN SELECCIONADA -->
   <div class="ejercicios-seccion-menu" *ngIf="vistaActual === 'ejercicios' && seccionActiva">
-    <div class="header-ejercicios">
-      <button class="btn-back" (click)="volverASecciones()">
+    <!-- ✅ NUEVO HEADER CON IMAGEN DE FONDO (SIN STATS NI BARRA) -->
+    <div class="header-ejercicios-nuevo">
+      <button class="btn-back-nuevo" (click)="volverASecciones()">
         ← Volver a Secciones
       </button>
       
-      <div class="seccion-title" [style.color]="seccionActiva.color">
-        <span class="seccion-icono-header">{{seccionActiva.icono}}</span>
-        <h2>{{seccionActiva.nombre}}</h2>
-        <p>{{seccionActiva.descripcion}}</p>
-      </div>
-      
-      <div class="seccion-progress">
-        <div class="progress-info">
-          <span>Progreso: {{getProgresoSeccion(seccionActiva.id)}}%</span>
-          <span>{{getEjerciciosCompletadosPorSeccion(seccionActiva.id)}}/{{seccionActiva.ejercicios.length}} completados</span>
-        </div>
-        <div class="progress-bar-container">
-          <div class="progress-bar-fill" 
-               [style.width.%]="getProgresoSeccion(seccionActiva.id)"
-               [style.background-color]="seccionActiva.color">
-          </div>
+      <!-- Imagen de fondo con overlay -->
+      <div class="header-background" 
+           [style.background-image]="'url(' + seccionActiva.imagen + ')'">
+        <div class="header-overlay"></div>
+        
+        <!-- Contenido del header (SOLO TÍTULO Y DESCRIPCIÓN) -->
+        <div class="header-content">
+          <h2 class="seccion-titulo-nuevo">{{seccionActiva.nombre}}</h2>
+          <p class="seccion-descripcion-nuevo">{{seccionActiva.descripcion}}</p>
         </div>
       </div>
     </div>
@@ -94,7 +77,15 @@
         (click)="iniciarEjercicio(ejercicio)"
         [style.border-color]="ejercicio.color">
         
-        <div class="ejercicio-icono" [style.color]="ejercicio.color">{{ejercicio.icono}}</div>
+        <!-- ✅ IMAGEN EN VEZ DE EMOJI -->
+        <div class="ejercicio-imagen-container">
+          <img 
+            [src]="ejercicio.imagen" 
+            [alt]="ejercicio.nombre"
+            class="ejercicio-imagen"
+            [style.border-color]="ejercicio.color">
+        </div>
+        
         <h3>{{ejercicio.nombre}}</h3>
         <p>{{ejercicio.descripcion}}</p>
         
@@ -103,21 +94,22 @@
           <span>{{ejercicio.duracion}}s</span>
         </div>
         
-        <div class="ejercicio-resultado" *ngIf="resultados[ejercicio.id]">
-          <span class="puntuacion">{{resultados[ejercicio.id].puntuacion}}%</span>
-          <span class="estado" [class.completado]="resultados[ejercicio.id].completado">
-            {{resultados[ejercicio.id].completado ? '✅' : '⏳'}}
-          </span>
+        <!-- ✅ SOLO MOSTRAR CHECKMARK SI ESTÁ COMPLETADO -->
+        <div class="ejercicio-completado" *ngIf="resultados[ejercicio.id] && resultados[ejercicio.id].completado">
+          <span class="checkmark">✅</span>
+          <span class="texto-completado">Completado</span>
         </div>
         
-        <div class="btn-iniciar" *ngIf="!resultados[ejercicio.id]">
+        <div class="btn-iniciar" 
+             *ngIf="!resultados[ejercicio.id] || !resultados[ejercicio.id].completado"
+             [style.background]="'linear-gradient(135deg, ' + ejercicio.color + ', ' + ejercicio.color + 'dd)'">
           <span>¡Comenzar!</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 🎯 VISTA 3: EJERCICIO ACTIVO -->
+  <!-- 🎯 VISTA 3: EJERCICIO ACTIVO - ✅ CORREGIDO -->
   <div class="ejercicio-activo" *ngIf="vistaActual === 'activo' && ejercicioActivo">
     <div class="ejercicio-header">
       <div class="header-info">
@@ -142,9 +134,13 @@
     </div>
 
     <div class="video-section">
+      <!-- ✅ CONTENEDOR CORREGIDO -->
       <div class="video-container">
+        <!-- ✅ Video sin width/height fijos -->
         <video #videoElement class="input-video" playsinline autoplay muted></video>
-        <canvas #canvasElement class="output-canvas" width="640" height="480"></canvas>
+        
+        <!-- ✅ Canvas sin width/height fijos (se ajustan por JS) -->
+        <canvas #canvasElement class="output-canvas"></canvas>
         
         <!-- Feedback Visual -->
         <div class="feedback-overlay" *ngIf="isRecording">
@@ -188,35 +184,64 @@
     </div>
   </div>
 
-  <!-- 🎉 VISTA 4: PANTALLA DE RESULTADOS -->
+  <!-- 🎉 VISTA 4: PANTALLA DE RESULTADOS MEJORADA -->
   <div class="resultados-screen" *ngIf="vistaActual === 'resultados' || mostrarResultados">
-    <div class="resultado-card">
-      <div class="resultado-header">
-        <div class="seccion-badge" *ngIf="seccionActiva" [style.background-color]="seccionActiva.color">
-          {{seccionActiva.icono}} {{seccionActiva.nombre}}
-        </div>
-        <h2>🎉 ¡Ejercicio Completado!</h2>
+    <div class="resultado-card-nuevo">
+      <!-- Badge de sección arriba -->
+      <div class="resultado-seccion-badge" *ngIf="seccionActiva" [style.background-color]="seccionActiva.color">
+        {{seccionActiva.nombre}}
       </div>
       
-      <div class="resultado-principal">
-        <div class="icono-celebracion">🎊</div>
-        <div class="mensaje-resultado-grande">
-          ¡EXCELENTE!
+      <!-- Título principal -->
+      <div class="resultado-titulo-principal">
+        <h2 class="resultado-titulo">¡Ejercicio Completado!</h2>
+      </div>
+      
+      <!-- Mensaje motivacional DINÁMICO según puntuación -->
+      <div class="resultado-contenido">
+        <!-- ✅ Mensaje si puntuación >= 70% -->
+        <div *ngIf="ultimoResultado && ultimoResultado.puntuacion >= 70">
+          <h3 class="resultado-mensaje-grande excelente">¡EXCELENTE!</h3>
+          <p class="resultado-mensaje-motivacional">
+            ¡Lo hiciste muy bien! Cada vez que practicas te vuelves más fuerte. ¡Sigue así campeón!
+          </p>
         </div>
-        <div class="mensaje-motivacional">
-          ¡Lo hiciste muy bien! Cada vez que practicas te vuelves más fuerte. ¡Sigue así campeón! 💪
+        
+        <!-- ⚠️ Mensaje si puntuación entre 40% y 69% -->
+        <div *ngIf="ultimoResultado && ultimoResultado.puntuacion >= 40 && ultimoResultado.puntuacion < 70">
+          <h3 class="resultado-mensaje-grande bien">¡BUEN INTENTO!</h3>
+          <p class="resultado-mensaje-motivacional">
+            Vas por buen camino. Sigue practicando y mejorarás cada día más. ¡No te rindas!
+          </p>
+        </div>
+        
+        <!-- ❌ Mensaje si puntuación < 40% -->
+        <div *ngIf="ultimoResultado && ultimoResultado.puntuacion < 40">
+          <h3 class="resultado-mensaje-grande intentalo">¡INTÉNTALO DE NUEVO!</h3>
+          <p class="resultado-mensaje-motivacional">
+            Parece que no pudimos detectar el ejercicio correctamente. Asegúrate de estar bien iluminado y de hacer el movimiento claramente. ¡Tú puedes!
+          </p>
+        </div>
+        
+        <!-- Si no hay resultado (no debería pasar) -->
+        <div *ngIf="!ultimoResultado">
+          <h3 class="resultado-mensaje-grande">¡COMPLETADO!</h3>
+          <p class="resultado-mensaje-motivacional">
+            Has terminado el ejercicio. ¡Sigue practicando!
+          </p>
         </div>
       </div>
       
-      <div class="acciones-resultado">
-        <button (click)="volverAlMenu()" class="btn-menu">
-          🏠 Volver a {{seccionActiva?.nombre || 'Ejercicios'}}
+      <!-- Botones de acción mejorados -->
+      <div class="resultado-acciones-nuevo">
+        <button (click)="repetirEjercicio()" class="btn-resultado btn-repetir-nuevo">
+          Repetir Ejercicio
         </button>
-        <button (click)="repetirEjercicio()" class="btn-repetir">
-          🔄 Hacer Otro Ejercicio
+        <button (click)="volverAlMenu()" class="btn-resultado btn-volver-nuevo">
+          Volver a {{seccionActiva?.nombre}}
         </button>
-        <button (click)="volverASecciones()" class="btn-secciones" *ngIf="seccionActiva">
-          📂 Ver Otras Secciones
+        <button (click)="volverASecciones()" class="btn-resultado btn-secciones-nuevo" *ngIf="seccionActiva">
+          Otras Secciones
         </button>
       </div>
     </div>

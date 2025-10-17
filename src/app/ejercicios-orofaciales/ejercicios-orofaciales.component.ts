@@ -10,7 +10,7 @@ interface Seccion {
   descripcion: string;
   icono: string;
   color: string;
-  imagen: string; // ✅ NUEVA PROPIEDAD
+  imagen: string;
   ejercicios: Ejercicio[];
 }
 
@@ -21,6 +21,7 @@ interface Ejercicio {
   instrucciones: string;
   duracion: number;
   icono: string;
+  imagen: string;
   color: string;
   seccionId: string;
 }
@@ -76,7 +77,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   seccionActiva: Seccion | null = null;
   vistaActual: 'secciones' | 'ejercicios' | 'activo' | 'resultados' = 'secciones';
 
-  // ✅ SECCIONES CON IMÁGENES
   secciones: Seccion[] = [
     {
       id: 'linguales',
@@ -84,7 +84,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       descripcion: 'Ejercicios para mejorar la fuerza, coordinación y movilidad de la lengua',
       icono: '👅',
       color: '#FF1493',
-      imagen: 'assets/images/LabialesRojo.png', // ✅ AGREGAR TU IMAGEN AQUÍ
+      imagen: 'assets/images/LabialesRojo.png',
       ejercicios: []
     },
     {
@@ -93,7 +93,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       descripcion: 'Ejercicios para fortalecer el cierre, tono y movilidad de los labios',
       icono: '👄', 
       color: '#FFD700',
-      imagen: 'assets/images/Labiales.png', // ✅ AGREGAR TU IMAGEN AQUÍ
+      imagen: 'assets/images/Labiales.png',
       ejercicios: []
     },
     {
@@ -102,7 +102,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       descripcion: 'Ejercicios para estimular la movilidad y control de la mandíbula',
       icono: '🦷',
       color: '#32CD32',
-      imagen: 'assets/images/Mandibulares.png', // ✅ AGREGAR TU IMAGEN AQUÍ
+      imagen: 'assets/images/Mandibulares.png',
       ejercicios: []
     }
   ];
@@ -115,6 +115,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '👅 ¡Saca la lengua! Trata de tocar tu nariz',
       duracion: 8,
       icono: '👅',
+      imagen: 'assets/images/ejercicios/lengua-arriba.png',
       color: '#FF1493',
       seccionId: 'linguales'
     },
@@ -125,6 +126,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🔄 ¡Gira la lengua! Haz círculos alrededor de tus labios',
       duracion: 10,
       icono: '🔄',
+      imagen: 'assets/images/ejercicios/lengua-circular.png',
       color: '#FF1493',
       seccionId: 'linguales'
     },
@@ -135,6 +137,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '↔️ ¡Toca las comisuras! Lengua de izquierda a derecha',
       duracion: 8,
       icono: '↔️',
+      imagen: 'assets/images/ejercicios/lengua-lateral.png',
       color: '#FF1493',
       seccionId: 'linguales'
     },
@@ -145,6 +148,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🎵 ¡Vibra la lengua! Como cuando dices "RRRR"',
       duracion: 6,
       icono: '🎵',
+      imagen: 'assets/images/ejercicios/vibracion-lingual.png',
       color: '#FF1493',
       seccionId: 'linguales'
     },
@@ -155,6 +159,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '😄 ¡Sonríe muy grande! Estira las comisuras hacia arriba',
       duracion: 10,
       icono: '😄',
+      imagen: 'assets/images/ejercicios/sonrisa-grande.png',
       color: '#FFD700',
       seccionId: 'labiales'
     },
@@ -165,6 +170,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🐠 ¡Haz un beso de pez! Junta y empuja los labios hacia adelante',
       duracion: 8,
       icono: '🐠',
+      imagen: 'assets/images/ejercicios/beso-pez.png',
       color: '#FFD700',
       seccionId: 'labiales'
     },
@@ -175,6 +181,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🐴 ¡Como un caballo! Haz vibrar los labios "brrr"',
       duracion: 8,
       icono: '🐴',
+      imagen: 'assets/images/ejercicios/vibrar-labios.png',
       color: '#FFD700',
       seccionId: 'labiales'
     },
@@ -185,6 +192,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '✏️ ¡Sostén fuerte! Imagina un lápiz entre tus labios',
       duracion: 12,
       icono: '✏️',
+      imagen: 'assets/images/ejercicios/sostener-lapiz.png',
       color: '#FFD700',
       seccionId: 'labiales'
     },
@@ -195,6 +203,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '💋 ¡Manda besitos! Repetidos y exagerados',
       duracion: 8,
       icono: '💋',
+      imagen: 'assets/images/ejercicios/besitos-aire.png',
       color: '#FFD700',
       seccionId: 'labiales'
     },
@@ -205,6 +214,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🎈 ¡Infla las mejillas! Llena de aire como un globo',
       duracion: 10,
       icono: '🎈',
+      imagen: 'assets/images/ejercicios/mejillas-globo.png',
       color: '#FFD700',
       seccionId: 'labiales'
     },
@@ -215,6 +225,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '😮 ¡Abre grande la boca! Como si fueras a gritar "¡AAAA!"',
       duracion: 6,
       icono: '😮',
+      imagen: 'assets/images/ejercicios/abrir-boca.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     },
@@ -225,6 +236,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🍬 ¡Mastica chicle imaginario! Mueve la mandíbula',
       duracion: 15,
       icono: '🍬',
+      imagen: 'assets/images/ejercicios/masticar-chicle.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     },
@@ -235,6 +247,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '↔️ ¡Lado a lado! Mueve la mandíbula izquierda-derecha',
       duracion: 10,
       icono: '↔️',
+      imagen: 'assets/images/ejercicios/mandibula-lateral.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     },
@@ -245,6 +258,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🥱 ¡Gran bostezo! Abre bien la boca y estira',
       duracion: 8,
       icono: '🥱',
+      imagen: 'assets/images/ejercicios/bostezo-grande.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     },
@@ -255,6 +269,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '😉 ¡Guiña! Primero un ojo, luego el otro. ¡Alterna!',
       duracion: 12,
       icono: '😉',
+      imagen: 'assets/images/ejercicios/guino-alternado.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     },
@@ -265,6 +280,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '😲 ¡Sorpréndete! Abre grande los ojos y la boca',
       duracion: 6,
       icono: '😲',
+      imagen: 'assets/images/ejercicios/cara-sorpresa.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     },
@@ -275,6 +291,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '⚖️ ¡Mantén equilibrio! Cara simétrica y relajada',
       duracion: 12,
       icono: '⚖️',
+      imagen: 'assets/images/ejercicios/cara-simetrica.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     }
@@ -930,6 +947,18 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     try {
       console.log('🎥 Iniciando cámara...');
       
+      // ✅ FORZAR REINICIO DE MEDIAPIPE si es necesario
+      if (this.isRecording) {
+        console.log('⚠️ Cámara ya estaba activa, reiniciando...');
+        this.stopCamera();
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      // ✅ Limpiar estado previo
+      this.landmarksAnteriores = [];
+      this.contadorFramesCorrectos = 0;
+      this.contadorFramesTotales = 0;
+      
       let intentos = 0;
       while ((!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) && intentos < 10) {
         console.log(`⏳ Esperando elementos DOM (intento ${intentos + 1}/10)...`);
@@ -1012,10 +1041,27 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     this.ejercicioIniciado = false;
     
     if (this.ejercicioActivo) {
+      // ✅ CALCULAR PUNTUACIÓN REAL BASADA EN FRAMES CORRECTOS
+      let puntuacionCalculada = 0;
+      
+      if (this.contadorFramesTotales > 0) {
+        puntuacionCalculada = Math.round(
+          (this.contadorFramesCorrectos / this.contadorFramesTotales) * 100
+        );
+      }
+      
+      // ✅ ACTUALIZAR PUNTUACIÓN ACTUAL
+      this.puntuacionActual = puntuacionCalculada;
+      
+      // ✅ LOGGING PARA DEBUG
+      console.log('📊 Frames correctos:', this.contadorFramesCorrectos);
+      console.log('📊 Frames totales:', this.contadorFramesTotales);
+      console.log('📊 Puntuación final:', puntuacionCalculada + '%');
+      
       const resultado: ResultadoEjercicio = {
         ejercicioId: this.ejercicioActivo.id,
-        puntuacion: this.puntuacionActual,
-        completado: this.puntuacionActual >= 60,
+        puntuacion: puntuacionCalculada,
+        completado: puntuacionCalculada >= 60, // ✅ Completado solo si >= 60%
         tiempoRealizado: this.ejercicioActivo.duracion,
         errores: this.contadorFramesTotales - this.contadorFramesCorrectos
       };
@@ -1066,32 +1112,49 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
 
   repetirEjercicio() {
     console.log('🔄 Repitiendo ejercicio...');
+    
+    // ✅ Detener cámara actual antes de reiniciar
+    this.stopCamera();
+    
+    // ✅ Resetear todo el estado
     this.mostrarResultados = false;
+    this.tiempoRestante = 0;
+    this.puntuacionActual = 0;
+    this.progresoEjercicio = 0;
+    this.mensajeFeedback = '';
+    this.feedbackTipo = '';
+    this.contadorFramesCorrectos = 0;
+    this.contadorFramesTotales = 0;
+    this.ejercicioIniciado = false;
+    this.isRecording = false;
+    this.landmarksAnteriores = []; // ✅ IMPORTANTE: Limpiar landmarks
+    
+    // ✅ Cambiar vista
     this.vistaActual = 'activo';
-    if (this.ejercicioActivo) {
-      this.tiempoRestante = 0;
-      this.puntuacionActual = 0;
-      this.progresoEjercicio = 0;
-      this.mensajeFeedback = '';
-      this.feedbackTipo = '';
-      this.contadorFramesCorrectos = 0;
-      this.contadorFramesTotales = 0;
-      this.ejercicioIniciado = false;
-      
-      setTimeout(() => {
-        this.iniciarEjercicio(this.ejercicioActivo!);
-      }, 500);
-    }
+    this.cdr.detectChanges();
+    
+    // ✅ Esperar un poco más antes de reiniciar
+    setTimeout(() => {
+      if (this.ejercicioActivo) {
+        this.startCamera();
+      }
+    }, 800); // Aumentado de 500ms a 800ms
   }
 
   private stopCamera() {
     console.log('🛑 Deteniendo cámara...');
     
+    // ✅ Detener cámara
     if (this.camera) {
-      this.camera.stop();
+      try {
+        this.camera.stop();
+      } catch (error) {
+        console.warn('⚠️ Error deteniendo cámara:', error);
+      }
       this.camera = null as any;
     }
     
+    // ✅ Limpiar canvas completamente
     if (this.canvasCtx && this.canvasElement?.nativeElement) {
       const canvas = this.canvasElement.nativeElement;
       this.canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1099,8 +1162,21 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       this.canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
     }
     
+    // ✅ Detener video stream
+    if (this.videoElement?.nativeElement?.srcObject) {
+      const stream = this.videoElement.nativeElement.srcObject as MediaStream;
+      stream.getTracks().forEach(track => {
+        track.stop();
+        console.log('🛑 Track detenido:', track.kind);
+      });
+      this.videoElement.nativeElement.srcObject = null;
+    }
+    
+    // ✅ Resetear estado
     this.isRecording = false;
-    console.log('✅ Cámara detenida');
+    this.landmarksAnteriores = [];
+    
+    console.log('✅ Cámara detenida completamente');
   }
 
   private cargarResultados() {
