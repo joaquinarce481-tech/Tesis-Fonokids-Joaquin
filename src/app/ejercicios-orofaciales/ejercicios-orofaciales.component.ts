@@ -115,7 +115,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '👅 ¡Saca la lengua! Trata de tocar tu nariz',
       duracion: 8,
       icono: '👅',
-      imagen: 'assets/images/ejercicios/lengua-arriba.png',
+      imagen: 'assets/images/LenguaArriba.png',
       color: '#FF1493',
       seccionId: 'linguales'
     },
@@ -126,7 +126,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🔄 ¡Gira la lengua! Haz círculos alrededor de tus labios',
       duracion: 10,
       icono: '🔄',
-      imagen: 'assets/images/ejercicios/lengua-circular.png',
+      imagen: 'assets/images/LenguaCircular.png',
       color: '#FF1493',
       seccionId: 'linguales'
     },
@@ -137,7 +137,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '↔️ ¡Toca las comisuras! Lengua de izquierda a derecha',
       duracion: 8,
       icono: '↔️',
-      imagen: 'assets/images/ejercicios/lengua-lateral.png',
+      imagen: 'assets/images/LenguaLateral.png',
       color: '#FF1493',
       seccionId: 'linguales'
     },
@@ -148,7 +148,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🎵 ¡Vibra la lengua! Como cuando dices "RRRR"',
       duracion: 6,
       icono: '🎵',
-      imagen: 'assets/images/ejercicios/vibracion-lingual.png',
+      imagen:'assets/images/LenguaRR.png',
       color: '#FF1493',
       seccionId: 'linguales'
     },
@@ -159,7 +159,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '😄 ¡Sonríe muy grande! Estira las comisuras hacia arriba',
       duracion: 10,
       icono: '😄',
-      imagen: 'assets/images/ejercicios/sonrisa-grande.png',
+      imagen: 'assets/images/SonrisaGrande.png',
       color: '#FFD700',
       seccionId: 'labiales'
     },
@@ -170,7 +170,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🐠 ¡Haz un beso de pez! Junta y empuja los labios hacia adelante',
       duracion: 8,
       icono: '🐠',
-      imagen: 'assets/images/ejercicios/beso-pez.png',
+      imagen: 'assets/images/BesoPez.png',
       color: '#FFD700',
       seccionId: 'labiales'
     },
@@ -181,7 +181,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🐴 ¡Como un caballo! Haz vibrar los labios "brrr"',
       duracion: 8,
       icono: '🐴',
-      imagen: 'assets/images/ejercicios/vibrar-labios.png',
+      imagen: 'assets/images/VibrarLabiosVerdadero.png',
       color: '#FFD700',
       seccionId: 'labiales'
     },
@@ -192,7 +192,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '✏️ ¡Sostén fuerte! Imagina un lápiz entre tus labios',
       duracion: 12,
       icono: '✏️',
-      imagen: 'assets/images/ejercicios/sostener-lapiz.png',
+      imagen: 'assets/images/LabiosLapiz.png',
       color: '#FFD700',
       seccionId: 'labiales'
     },
@@ -203,7 +203,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '💋 ¡Manda besitos! Repetidos y exagerados',
       duracion: 8,
       icono: '💋',
-      imagen: 'assets/images/ejercicios/besitos-aire.png',
+      imagen: 'assets/images/BesosAire.png',
       color: '#FFD700',
       seccionId: 'labiales'
     },
@@ -214,7 +214,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🎈 ¡Infla las mejillas! Llena de aire como un globo',
       duracion: 10,
       icono: '🎈',
-      imagen: 'assets/images/ejercicios/mejillas-globo.png',
+      imagen: 'assets/images/MejillaDeGlobo.png',
       color: '#FFD700',
       seccionId: 'labiales'
     },
@@ -225,7 +225,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '😮 ¡Abre grande la boca! Como si fueras a gritar "¡AAAA!"',
       duracion: 6,
       icono: '😮',
-      imagen: 'assets/images/ejercicios/abrir-boca.png',
+      imagen: 'assets/images/AbrirBoca.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     },
@@ -236,7 +236,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🍬 ¡Mastica chicle imaginario! Mueve la mandíbula',
       duracion: 15,
       icono: '🍬',
-      imagen: 'assets/images/ejercicios/masticar-chicle.png',
+      imagen: 'assets/images/ChicleNiño.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     },
@@ -247,7 +247,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '↔️ ¡Lado a lado! Mueve la mandíbula izquierda-derecha',
       duracion: 10,
       icono: '↔️',
-      imagen: 'assets/images/ejercicios/mandibula-lateral.png',
+      imagen: 'assets/images/MandiLateral.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     },
@@ -258,7 +258,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '🥱 ¡Gran bostezo! Abre bien la boca y estira',
       duracion: 8,
       icono: '🥱',
-      imagen: 'assets/images/ejercicios/bostezo-grande.png',
+      imagen: 'assets/images/Bostezo.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     },
@@ -269,7 +269,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '😉 ¡Guiña! Primero un ojo, luego el otro. ¡Alterna!',
       duracion: 12,
       icono: '😉',
-      imagen: 'assets/images/ejercicios/guino-alternado.png',
+      imagen: 'assets/images/Guiño.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     },
@@ -280,20 +280,21 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       instrucciones: '😲 ¡Sorpréndete! Abre grande los ojos y la boca',
       duracion: 6,
       icono: '😲',
-      imagen: 'assets/images/ejercicios/cara-sorpresa.png',
+      imagen: 'assets/images/CaraSorpresa.png',
       color: '#32CD32',
       seccionId: 'mandibulares'
     },
     {
       id: 10,
-      nombre: 'Cara Simétrica',
-      descripcion: 'Mantén la cara equilibrada',
-      instrucciones: '⚖️ ¡Mantén equilibrio! Cara simétrica y relajada',
-      duracion: 12,
-      icono: '⚖️',
-      imagen: 'assets/images/ejercicios/cara-simetrica.png',
-      color: '#32CD32',
-      seccionId: 'mandibulares'
+  
+  nombre: 'Inflar Globo',
+  descripcion: 'Sopla como si inflaras un globo',
+  instrucciones: '🎈 ¡Infla el globo! Sopla con fuerza hacia adelante',
+  duracion: 10,
+  icono: '🎈',
+  imagen: 'assets/images/InflarGlobo.png',
+  color: '#32CD32',
+  seccionId: 'mandibulares'
     }
   ];
 
@@ -442,7 +443,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       case 7: esCorrectoFrame = this.detectarSorpresa(landmarks); break;
       case 8: esCorrectoFrame = this.detectarMasticado(landmarks); break;
       case 9: esCorrectoFrame = this.detectarVibracionLabios(landmarks); break;
-      case 10: esCorrectoFrame = this.detectarSimetria(landmarks); break;
+      case 10: esCorrectoFrame = this.detectarInflarGlobo(landmarks); break;
       case 11: esCorrectoFrame = this.detectarLenguaCircular(landmarks); break;
       case 12: esCorrectoFrame = this.detectarLenguaLateral(landmarks); break;
       case 13: esCorrectoFrame = this.detectarVibracionLingual(landmarks); break;
@@ -477,21 +478,32 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     return (alturaCentro > alturaComisuras) && (anchoLabios > 0.03);
   }
 
-  private detectarBesoPez(landmarks: any[]): boolean {
-    const labioSuperior = landmarks[13];
-    const labioInferior = landmarks[14];
-    const comisuraIzq = landmarks[61];
-    const comisuraDer = landmarks[291];
-    
-    if (!labioSuperior || !labioInferior || !comisuraIzq || !comisuraDer) return false;
-    
-    const protrusion = (labioSuperior.z + labioInferior.z) / 2;
-    const aperturaLabial = Math.abs(labioSuperior.y - labioInferior.y);
-    const anchoLabios = Math.abs(comisuraDer.x - comisuraIzq.x);
-    
-    return protrusion > -0.02 && aperturaLabial < 0.015 && anchoLabios < 0.025;
-  }
-
+private detectarBesoPez(landmarks: any[]): boolean {
+  const labioSuperior = landmarks[13];
+  const labioInferior = landmarks[14];
+  const comisuraIzq = landmarks[61];
+  const comisuraDer = landmarks[291];
+  const labioSupExt = landmarks[0];  // Punto externo labio superior
+  const labioInfExt = landmarks[17]; // Punto externo labio inferior
+  
+  if (!labioSuperior || !labioInferior || !comisuraIzq || !comisuraDer || !labioSupExt || !labioInfExt) return false;
+  
+  // 1. Detectar que los labios NO estén muy abiertos
+  const aperturaLabial = Math.abs(labioSuperior.y - labioInferior.y);
+  const labiosCerrados = aperturaLabial < 0.022;
+  
+  // 2. Detectar labios FRUNCIDOS (ancho reducido significativamente)
+  const anchoLabios = Math.abs(comisuraDer.x - comisuraIzq.x);
+  const labiosFruncidos = anchoLabios < 0.045; // Ancho bien reducido
+  
+  // 3. Detectar labios PROYECTADOS (comparando punto central vs comisuras en eje Y)
+  const proyeccionSuperior = Math.abs(labioSupExt.y - labioSuperior.y);
+  const proyeccionInferior = Math.abs(labioInfExt.y - labioInferior.y);
+  const labiosProyectados = (proyeccionSuperior + proyeccionInferior) > 0.015;
+  
+  // ✅ Necesita: labios cerrados + fruncidos + proyectados
+  return labiosCerrados && labiosFruncidos && labiosProyectados;
+}
   private detectarBocaAbierta(landmarks: any[]): boolean {
     const labioSuperior = landmarks[13];
     const labioInferior = landmarks[14];
@@ -502,44 +514,91 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     return apertura > 0.04;
   }
 
-  private detectarGuino(landmarks: any[]): boolean {
-    const ojoIzqSuperior = landmarks[159];
-    const ojoIzqInferior = landmarks[145];
-    const ojoDerSuperior = landmarks[386];
-    const ojoDerInferior = landmarks[374];
-    
-    if (!ojoIzqSuperior || !ojoIzqInferior || !ojoDerSuperior || !ojoDerInferior) return false;
-    
-    const aperturaIzq = Math.abs(ojoIzqSuperior.y - ojoIzqInferior.y);
-    const aperturaDer = Math.abs(ojoDerSuperior.y - ojoDerInferior.y);
-    
-    const diferencia = Math.abs(aperturaIzq - aperturaDer);
-    return diferencia > 0.008;
-  }
+ private detectarGuino(landmarks: any[]): boolean {
+  const ojoIzqSuperior = landmarks[159];
+  const ojoIzqInferior = landmarks[145];
+  const ojoDerSuperior = landmarks[386];
+  const ojoDerInferior = landmarks[374];
+  
+  if (!ojoIzqSuperior || !ojoIzqInferior || !ojoDerSuperior || !ojoDerInferior) return false;
+  
+  const aperturaIzq = Math.abs(ojoIzqSuperior.y - ojoIzqInferior.y);
+  const aperturaDer = Math.abs(ojoDerSuperior.y - ojoDerInferior.y);
+  
+  // Detectar que haya diferencia significativa entre los ojos
+  const diferencia = Math.abs(aperturaIzq - aperturaDer);
+  const hayGuino = diferencia > 0.006; // Más permisivo (antes 0.008)
+  
+  // Detectar que al menos un ojo esté cerrado o semi-cerrado
+  const ojoIzqCerrado = aperturaIzq < 0.012;
+  const ojoDerCerrado = aperturaDer < 0.012;
+  const unOjoCerrado = ojoIzqCerrado || ojoDerCerrado;
+  
+  // El otro ojo debe estar abierto
+  const ojoIzqAbierto = aperturaIzq > 0.015;
+  const ojoDerAbierto = aperturaDer > 0.015;
+  const unOjoAbierto = ojoIzqAbierto || ojoDerAbierto;
+  
+  // ✅ Debe haber diferencia + un ojo cerrado + el otro abierto
+  return hayGuino && unOjoCerrado && unOjoAbierto;
+}
 
   private detectarLenguaArriba(landmarks: any[]): boolean {
-    const labioInferior = landmarks[14];
-    const barbilla = landmarks[18];
-    
-    if (!labioInferior || !barbilla) return false;
-    
-    const distanciaLabioBarbilla = Math.abs(barbilla.y - labioInferior.y);
-    return distanciaLabioBarbilla > 0.06;
-  }
+  const labioSuperior = landmarks[13];
+  const labioInferior = landmarks[14];
+  const barbilla = landmarks[18];
+  const nariz = landmarks[1];
+  
+  if (!labioSuperior || !labioInferior || !barbilla || !nariz) return false;
+  
+  // Detectar apertura de boca (lengua afuera)
+  const aperturaBoca = Math.abs(labioSuperior.y - labioInferior.y);
+  
+  // Detectar si la boca está abierta lo suficiente
+  const bocaAbierta = aperturaBoca > 0.025; // Más sensible
+  
+  // Detectar movimiento hacia arriba (distancia entre barbilla y labio inferior aumenta)
+  const distanciaLabioBarbilla = Math.abs(barbilla.y - labioInferior.y);
+  const movimientoArriba = distanciaLabioBarbilla > 0.045; // Más fácil (antes era 0.06)
+  
+  return bocaAbierta && movimientoArriba;
+}
 
-  private detectarMejillasInfladas(landmarks: any[]): boolean {
-    const mejillaIzq = landmarks[116];
-    const mejillaDer = landmarks[345];
-    const centroCaraX = landmarks[9].x;
-    
-    if (!mejillaIzq || !mejillaDer) return false;
-    
-    const distanciaIzq = Math.abs(mejillaIzq.x - centroCaraX);
-    const distanciaDer = Math.abs(mejillaDer.x - centroCaraX);
-    
-    return (distanciaIzq + distanciaDer) > 0.12;
-  }
-
+private detectarMejillasInfladas(landmarks: any[]): boolean {
+  const mejillaIzq = landmarks[116];
+  const mejillaDer = landmarks[345];
+  const mejillaIzqExt = landmarks[50];  // Punto más externo de mejilla izquierda
+  const mejillaDerExt = landmarks[280]; // Punto más externo de mejilla derecha
+  const centroCaraX = landmarks[9].x;
+  const labioSuperior = landmarks[13];
+  const labioInferior = landmarks[14];
+  
+  if (!mejillaIzq || !mejillaDer || !mejillaIzqExt || !mejillaDerExt || !labioSuperior || !labioInferior) return false;
+  
+  // 1. Detectar expansión SIGNIFICATIVA de mejillas
+  const distanciaIzq = Math.abs(mejillaIzq.x - centroCaraX);
+  const distanciaDer = Math.abs(mejillaDer.x - centroCaraX);
+  const expansionTotal = distanciaIzq + distanciaDer;
+  
+  // Usar puntos externos también
+  const distanciaIzqExt = Math.abs(mejillaIzqExt.x - centroCaraX);
+  const distanciaDerExt = Math.abs(mejillaDerExt.x - centroCaraX);
+  const expansionExterna = distanciaIzqExt + distanciaDerExt;
+  
+  // 🔥 BALANCEADO - un chiquitito más fácil
+  const mejillasInfladas = expansionTotal > 0.155 && expansionExterna > 0.20; // Antes: 0.17 y 0.22
+  
+  // 2. Boca cerrada (un poco más permisivo)
+  const aperturaBoca = Math.abs(labioSuperior.y - labioInferior.y);
+  const bocaCerrada = aperturaBoca < 0.018; // Antes: 0.012 - más permisivo
+  
+  // 3. Ambas mejillas infladas simétricamente (más permisivo)
+  const diferencia = Math.abs(distanciaIzq - distanciaDer);
+  const simetrico = diferencia < 0.03; // Antes: 0.02 - más permisivo
+  
+  // ✅ TODAS las condiciones obligatorias
+  return mejillasInfladas && bocaCerrada && simetrico;
+}
   private detectarSorpresa(landmarks: any[]): boolean {
     const ojoIzqSuperior = landmarks[159];
     const ojoIzqInferior = landmarks[145];
@@ -567,98 +626,189 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   }
 
   private detectarVibracionLabios(landmarks: any[]): boolean {
-    if (!this.landmarksAnteriores.length) return false;
-    
-    const labioSuperior = landmarks[13];
-    const labioSuperiorPrev = this.landmarksAnteriores[13];
-    
-    if (!labioSuperior || !labioSuperiorPrev) return false;
-    
-    const vibracion = Math.abs(labioSuperior.x - labioSuperiorPrev.x) + 
-                     Math.abs(labioSuperior.y - labioSuperiorPrev.y);
-    
-    return vibracion > 0.005;
-  }
+  if (!this.landmarksAnteriores.length) return false;
+  
+  const labioSuperior = landmarks[13];
+  const labioInferior = landmarks[14];
+  const comisuraIzq = landmarks[61];
+  const comisuraDer = landmarks[291];
+  
+  const labioSuperiorPrev = this.landmarksAnteriores[13];
+  const labioInferiorPrev = this.landmarksAnteriores[14];
+  const comisuraIzqPrev = this.landmarksAnteriores[61];
+  const comisuraDerPrev = this.landmarksAnteriores[291];
+  
+  if (!labioSuperior || !labioInferior || !comisuraIzq || !comisuraDer) return false;
+  if (!labioSuperiorPrev || !labioInferiorPrev || !comisuraIzqPrev || !comisuraDerPrev) return false;
+  
+  // Detectar vibración rápida en múltiples puntos de los labios
+  const vibracionSuperior = Math.abs(labioSuperior.x - labioSuperiorPrev.x) + 
+                            Math.abs(labioSuperior.y - labioSuperiorPrev.y);
+  const vibracionInferior = Math.abs(labioInferior.x - labioInferiorPrev.x) + 
+                            Math.abs(labioInferior.y - labioInferiorPrev.y);
+  const vibracionIzq = Math.abs(comisuraIzq.x - comisuraIzqPrev.x) + 
+                       Math.abs(comisuraIzq.y - comisuraIzqPrev.y);
+  const vibracionDer = Math.abs(comisuraDer.x - comisuraDerPrev.x) + 
+                       Math.abs(comisuraDer.y - comisuraDerPrev.y);
+  
+  const vibracionTotal = vibracionSuperior + vibracionInferior + vibracionIzq + vibracionDer;
+  
+  // Detectar que los labios estén juntos (no muy abiertos)
+  const aperturaLabial = Math.abs(labioSuperior.y - labioInferior.y);
+  const labiosJuntos = aperturaLabial < 0.025;
+  
+  // ✅ Debe haber vibración significativa Y labios relativamente juntos
+  return vibracionTotal > 0.008 && labiosJuntos;
+}
 
-  private detectarSimetria(landmarks: any[]): boolean {
-    const ojoIzq = landmarks[133];
-    const ojoDer = landmarks[362];
-    const centroFacial = landmarks[9];
-    const comisuraIzq = landmarks[61];
-    const comisuraDer = landmarks[291];
-    
-    if (!ojoIzq || !ojoDer || !centroFacial || !comisuraIzq || !comisuraDer) return false;
-    
-    const distOjoIzq = Math.abs(ojoIzq.x - centroFacial.x);
-    const distOjoDer = Math.abs(ojoDer.x - centroFacial.x);
-    const distComIzq = Math.abs(comisuraIzq.x - centroFacial.x);
-    const distComDer = Math.abs(comisuraDer.x - centroFacial.x);
-    
-    const simetriaOjos = 1 - Math.abs(distOjoIzq - distOjoDer) / Math.max(distOjoIzq, distOjoDer);
-    const simetriaLabios = 1 - Math.abs(distComIzq - distComDer) / Math.max(distComIzq, distComDer);
-    
-    const simetriaTotal = (simetriaOjos + simetriaLabios) / 2;
-    return simetriaTotal > 0.85;
-  }
-
-  private detectarLenguaCircular(landmarks: any[]): boolean {
-    if (!this.landmarksAnteriores.length) return false;
-    
-    const labioSuperior = landmarks[13];
-    const labioInferior = landmarks[14];
-    const labioSuperiorPrev = this.landmarksAnteriores[13];
-    const labioInferiorPrev = this.landmarksAnteriores[14];
-    
-    if (!labioSuperior || !labioInferior || !labioSuperiorPrev || !labioInferiorPrev) return false;
-    
-    const movimientoSuperior = Math.abs(labioSuperior.x - labioSuperiorPrev.x);
-    const movimientoInferior = Math.abs(labioInferior.x - labioInferiorPrev.x);
-    
-    return (movimientoSuperior + movimientoInferior) > 0.01;
-  }
+ private detectarInflarGlobo(landmarks: any[]): boolean {
+  const labioSuperior = landmarks[13];
+  const labioInferior = landmarks[14];
+  const comisuraIzq = landmarks[61];
+  const comisuraDer = landmarks[291];
+  const labioSupExt = landmarks[0];
+  const labioInfExt = landmarks[17];
+  
+  if (!labioSuperior || !labioInferior || !comisuraIzq || !comisuraDer || !labioSupExt || !labioInfExt) return false;
+  
+  // 1. Detectar labios en forma de "O" (abiertos moderadamente)
+  const aperturaLabial = Math.abs(labioSuperior.y - labioInferior.y);
+  const labiosEnO = aperturaLabial > 0.018 && aperturaLabial < 0.04;
+  
+  // 2. Detectar labios FRUNCIDOS (ancho reducido)
+  const anchoLabios = Math.abs(comisuraDer.x - comisuraIzq.x);
+  const labiosFruncidos = anchoLabios < 0.05;
+  
+  // 3. Detectar forma redondeada (distancia entre puntos externos e internos)
+  const distanciaVertical = Math.abs(labioSupExt.y - labioInfExt.y);
+  const formaRedondeada = distanciaVertical > 0.03;
+  
+  // ✅ Solo necesita 2 de las 3 condiciones
+  const condicionesCumplidas = [labiosEnO, labiosFruncidos, formaRedondeada].filter(c => c).length;
+  
+  return condicionesCumplidas >= 2;
+}
+private detectarLenguaCircular(landmarks: any[]): boolean {
+  if (!this.landmarksAnteriores.length) return false;
+  
+  const labioSuperior = landmarks[13];
+  const labioInferior = landmarks[14];
+  const comisuraIzq = landmarks[61];
+  const comisuraDer = landmarks[291];
+  
+  const labioSuperiorPrev = this.landmarksAnteriores[13];
+  const labioInferiorPrev = this.landmarksAnteriores[14];
+  const comisuraIzqPrev = this.landmarksAnteriores[61];
+  const comisuraDerPrev = this.landmarksAnteriores[291];
+  
+  if (!labioSuperior || !labioInferior || !comisuraIzq || !comisuraDer) return false;
+  if (!labioSuperiorPrev || !labioInferiorPrev || !comisuraIzqPrev || !comisuraDerPrev) return false;
+  
+  // Detectar movimiento en cualquier dirección (horizontal y vertical)
+  const movimientoSuperior = Math.abs(labioSuperior.x - labioSuperiorPrev.x) + 
+                             Math.abs(labioSuperior.y - labioSuperiorPrev.y);
+  const movimientoInferior = Math.abs(labioInferior.x - labioInferiorPrev.x) + 
+                             Math.abs(labioInferior.y - labioInferiorPrev.y);
+  const movimientoIzq = Math.abs(comisuraIzq.x - comisuraIzqPrev.x);
+  const movimientoDer = Math.abs(comisuraDer.x - comisuraDerPrev.x);
+  
+  const movimientoTotal = movimientoSuperior + movimientoInferior + movimientoIzq + movimientoDer;
+  
+  return movimientoTotal > 0.005; // 🔥 MUCHO MÁS FÁCIL (antes era 0.01)
+}
 
   private detectarLenguaLateral(landmarks: any[]): boolean {
-    if (!this.landmarksAnteriores.length) return false;
-    
-    const comisuraIzq = landmarks[61];
-    const comisuraDer = landmarks[291];
-    const comisuraIzqPrev = this.landmarksAnteriores[61];
-    const comisuraDerPrev = this.landmarksAnteriores[291];
-    
-    if (!comisuraIzq || !comisuraDer || !comisuraIzqPrev || !comisuraDerPrev) return false;
-    
-    const movimientoIzq = Math.abs(comisuraIzq.x - comisuraIzqPrev.x);
-    const movimientoDer = Math.abs(comisuraDer.x - comisuraDerPrev.x);
-    
-    return Math.abs(movimientoIzq - movimientoDer) > 0.008;
-  }
+  if (!this.landmarksAnteriores.length) return false;
+  
+  const comisuraIzq = landmarks[61];
+  const comisuraDer = landmarks[291];
+  const labioSuperior = landmarks[13];
+  const labioInferior = landmarks[14];
+  
+  const comisuraIzqPrev = this.landmarksAnteriores[61];
+  const comisuraDerPrev = this.landmarksAnteriores[291];
+  const labioSuperiorPrev = this.landmarksAnteriores[13];
+  const labioInferiorPrev = this.landmarksAnteriores[14];
+  
+  if (!comisuraIzq || !comisuraDer || !labioSuperior || !labioInferior) return false;
+  if (!comisuraIzqPrev || !comisuraDerPrev || !labioSuperiorPrev || !labioInferiorPrev) return false;
+  
+  // 🔥 SOLO movimiento HORIZONTAL (eje X)
+  const movimientoLateralIzq = Math.abs(comisuraIzq.x - comisuraIzqPrev.x);
+  const movimientoLateralDer = Math.abs(comisuraDer.x - comisuraDerPrev.x);
+  const movimientoLateralCentro = Math.abs(labioSuperior.x - labioSuperiorPrev.x) + 
+                                   Math.abs(labioInferior.x - labioInferiorPrev.x);
+  
+  // Movimiento vertical (para detectar y rechazar)
+  const movimientoVertical = Math.abs(labioSuperior.y - labioSuperiorPrev.y) + 
+                             Math.abs(labioInferior.y - labioInferiorPrev.y);
+  
+  const movimientoHorizontalTotal = movimientoLateralIzq + movimientoLateralDer + movimientoLateralCentro;
+  
+  // ✅ Debe haber movimiento horizontal Y el movimiento horizontal debe ser MAYOR que el vertical
+  return movimientoHorizontalTotal > 0.004 && movimientoHorizontalTotal > movimientoVertical;
+}
 
   private detectarVibracionLingual(landmarks: any[]): boolean {
-    if (!this.landmarksAnteriores.length) return false;
-    
-    const centroLabios = landmarks[13];
-    const centroLabiosPrev = this.landmarksAnteriores[13];
-    
-    if (!centroLabios || !centroLabiosPrev) return false;
-    
-    const vibracion = Math.abs(centroLabios.y - centroLabiosPrev.y);
-    return vibracion > 0.007;
-  }
-
-  private detectarSostenerLapiz(landmarks: any[]): boolean {
-    const labioSuperior = landmarks[13];
-    const labioInferior = landmarks[14];
-    const comisuraIzq = landmarks[61];
-    const comisuraDer = landmarks[291];
-    
-    if (!labioSuperior || !labioInferior || !comisuraIzq || !comisuraDer) return false;
-    
-    const aperturaLabial = Math.abs(labioSuperior.y - labioInferior.y);
-    const tension = Math.abs(comisuraDer.x - comisuraIzq.x);
-    
-    return aperturaLabial < 0.01 && tension < 0.03;
-  }
-
+  if (!this.landmarksAnteriores.length) return false;
+  
+  const labioSuperior = landmarks[13];
+  const labioInferior = landmarks[14];
+  const comisuraIzq = landmarks[61];
+  const comisuraDer = landmarks[291];
+  
+  const labioSuperiorPrev = this.landmarksAnteriores[13];
+  const labioInferiorPrev = this.landmarksAnteriores[14];
+  const comisuraIzqPrev = this.landmarksAnteriores[61];
+  const comisuraDerPrev = this.landmarksAnteriores[291];
+  
+  if (!labioSuperior || !labioInferior || !comisuraIzq || !comisuraDer) return false;
+  if (!labioSuperiorPrev || !labioInferiorPrev || !comisuraIzqPrev || !comisuraDerPrev) return false;
+  
+  // Detectar vibración (movimiento rápido en cualquier dirección)
+  const vibracionSuperior = Math.abs(labioSuperior.x - labioSuperiorPrev.x) + 
+                            Math.abs(labioSuperior.y - labioSuperiorPrev.y);
+  const vibracionInferior = Math.abs(labioInferior.x - labioInferiorPrev.x) + 
+                            Math.abs(labioInferior.y - labioInferiorPrev.y);
+  const vibracionIzq = Math.abs(comisuraIzq.x - comisuraIzqPrev.x) + 
+                       Math.abs(comisuraIzq.y - comisuraIzqPrev.y);
+  const vibracionDer = Math.abs(comisuraDer.x - comisuraDerPrev.x) + 
+                       Math.abs(comisuraDer.y - comisuraDerPrev.y);
+  
+  const vibracionTotal = vibracionSuperior + vibracionInferior + vibracionIzq + vibracionDer;
+  
+  // 🔥 MUCHO MÁS FÁCIL - cualquier movimiento rápido/vibración cuenta
+  return vibracionTotal > 0.006; // Antes era solo 0.007 en una dirección
+}
+private detectarSostenerLapiz(landmarks: any[]): boolean {
+  const labioSuperior = landmarks[13];
+  const labioInferior = landmarks[14];
+  const nariz = landmarks[1]; // Punta de la nariz
+  const labioSupExt = landmarks[0]; // Borde externo labio superior
+  const comisuraIzq = landmarks[61];
+  const comisuraDer = landmarks[291];
+  
+  if (!labioSuperior || !labioInferior || !nariz || !labioSupExt || !comisuraIzq || !comisuraDer) return false;
+  
+  // 1. Detectar que el labio superior SUBE hacia la nariz
+  const distanciaLabioNariz = Math.abs(nariz.y - labioSuperior.y);
+  const labioSubido = distanciaLabioNariz < 0.045; // El labio está cerca de la nariz
+  
+  // 2. Detectar que el labio superior está ELEVADO (comparado con posición normal)
+  const distanciaLabioSupInf = Math.abs(labioSuperior.y - labioInferior.y);
+  const labioElevado = distanciaLabioSupInf > 0.02; // Hay separación (labio superior subió)
+  
+  // 3. Detectar labios fruncidos hacia adelante (como haciendo morritos)
+  const anchoLabios = Math.abs(comisuraDer.x - comisuraIzq.x);
+  const labiosFruncidos = anchoLabios < 0.05;
+  
+  // 4. Detectar tensión en el labio superior (está haciendo fuerza)
+  const elevacionLabio = Math.abs(labioSupExt.y - labioSuperior.y);
+  const hayTension = elevacionLabio > 0.015;
+  
+  // ✅ Necesita: labio cerca de nariz + elevado + fruncido
+  return labioSubido && labioElevado && labiosFruncidos;
+}
   private detectarBesitosAire(landmarks: any[]): boolean {
     if (!this.landmarksAnteriores.length) return false;
     
@@ -688,18 +838,22 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   }
 
   private detectarBostezo(landmarks: any[]): boolean {
-    const labioSuperior = landmarks[13];
-    const labioInferior = landmarks[14];
-    const ojoIzqSuperior = landmarks[159];
-    const ojoIzqInferior = landmarks[145];
-    
-    if (!labioSuperior || !labioInferior || !ojoIzqSuperior || !ojoIzqInferior) return false;
-    
-    const aperturaBoca = Math.abs(labioSuperior.y - labioInferior.y);
-    const aperturaOjos = Math.abs(ojoIzqSuperior.y - ojoIzqInferior.y);
-    
-    return aperturaBoca > 0.05 && aperturaOjos < 0.01;
-  }
+  const labioSuperior = landmarks[13];
+  const labioInferior = landmarks[14];
+  const ojoIzqSuperior = landmarks[159];
+  const ojoIzqInferior = landmarks[145];
+  
+  if (!labioSuperior || !labioInferior || !ojoIzqSuperior || !ojoIzqInferior) return false;
+  
+  // Detectar boca BIEN abierta
+  const aperturaBoca = Math.abs(labioSuperior.y - labioInferior.y);
+  const bocaMuyAbierta = aperturaBoca > 0.04; // Más permisivo (antes 0.05)
+  
+  // Ya NO requerimos que los ojos estén cerrados
+  // Un bostezo puede ser con ojos abiertos o semi-cerrados
+  
+  return bocaMuyAbierta; // ✅ Solo necesita boca bien abierta
+}
 
   private dibujarLandmarksEjercicio(landmarks: any[]) {
     if (!this.ejercicioActivo) return;
@@ -739,8 +893,9 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
         this.dibujarPuntosLabios(landmarks, '#FFD700');
         break;
       case 10:
-        this.dibujarLineasSimetria(landmarks, '#32CD32');
-        break;
+  this.dibujarPuntosLabios(landmarks, '#32CD32');
+  this.dibujarPuntosMandibula(landmarks, '#32CD32');
+  break;
       case 11:
         this.dibujarPuntosLabios(landmarks, '#FF1493');
         break;
@@ -959,6 +1114,9 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       this.contadorFramesCorrectos = 0;
       this.contadorFramesTotales = 0;
       
+      // 🔥 NUEVA LÍNEA: FORZAR REINICIO DE MEDIAPIPE SIEMPRE
+      this.mediaPipeReady = false;
+      
       let intentos = 0;
       while ((!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) && intentos < 10) {
         console.log(`⏳ Esperando elementos DOM (intento ${intentos + 1}/10)...`);
@@ -973,17 +1131,16 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
 
       console.log('✅ Elementos DOM disponibles');
 
+      // 🔥 SIEMPRE REINICIALIZAR MEDIAPIPE
+      console.log('📋 Reinicializando MediaPipe...');
+      await this.initializeMediaPipe();
+      
       if (!this.mediaPipeReady) {
-        console.log('📋 Inicializando MediaPipe primero...');
-        await this.initializeMediaPipe();
-        
-        if (!this.mediaPipeReady) {
-          console.error('❌ MediaPipe no se pudo inicializar');
-          return;
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        console.error('❌ MediaPipe no se pudo inicializar');
+        return;
       }
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       console.log('📷 Creando instancia de cámara...');
       this.camera = new Camera(this.videoElement.nativeElement, {
@@ -1154,6 +1311,16 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       this.camera = null as any;
     }
     
+    // 🔥 NUEVO: Cerrar MediaPipe también
+    if (this.faceMesh) {
+      try {
+        this.faceMesh.close();
+        console.log('🛑 FaceMesh cerrado');
+      } catch (error) {
+        console.warn('⚠️ Error cerrando FaceMesh:', error);
+      }
+    }
+    
     // ✅ Limpiar canvas completamente
     if (this.canvasCtx && this.canvasElement?.nativeElement) {
       const canvas = this.canvasElement.nativeElement;
@@ -1175,6 +1342,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     // ✅ Resetear estado
     this.isRecording = false;
     this.landmarksAnteriores = [];
+    this.mediaPipeReady = false; // 🔥 NUEVO: Forzar reinicialización
     
     console.log('✅ Cámara detenida completamente');
   }

@@ -18,6 +18,7 @@ import { AtrapaLenguaGameComponent } from './presentation/pages/atrapa-lengua-ga
 import { PuzzleMovimientosGameComponent } from './presentation/pages/puzzle-movimientos-game/puzzle-movimientos-game.component';
 import { RitmoSilabasGameComponent } from './presentation/pages/ritmo-silabas-game/ritmo-silabas-game.component';
 import { RuletaPraxiasComponent } from './presentation/pages/RuletaPraxiasComponent/ruleta-praxiascomponent';
+
 export const routes: Routes = [
   // RUTAS PÚBLICAS (solo para usuarios NO logueados)
   {
@@ -111,9 +112,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./presentation/pages/audioToTextPage/audioToTextPage.component'),
         data: {
-          icon: 'fa-solid fa-comment-dots',
-          title: 'Audio a texto',
-          description: 'Convertir audio a texto',
+          icon: 'fa-solid fa-microphone',
+          title: 'Evaluar Pronunciación',
+          description: 'Graba tu voz y evalúa tu pronunciación',
         },
       },
       {
@@ -146,6 +147,16 @@ export const routes: Routes = [
           description: 'Información del asistente',
         },
       },
+      {
+        path: 'assistant-page',
+        loadComponent: () =>
+          import('./presentation/pages/assistantPage/assistantPage.component'),
+        data: {
+          icon: 'fa-solid fa-robot',
+          title: 'FonoBot',
+          description: 'Asistente de Fonoaudiología',
+        },
+      },
       // Ruta por defecto cuando entras a /chat
       {
         path: '',
@@ -157,117 +168,115 @@ export const routes: Routes = [
   
   // RUTAS INDIVIDUALES PROTEGIDAS
   {
-  path: 'ejercicios',
-  component: EjerciciosOrofacialesComponent,
-  canActivate: [AuthGuard],
-  data: {
-    icon: 'fa-solid fa-dumbbell',
-    title: 'Ejercicios Orofaciales',
-    description: '10 ejercicios interactivos de fonoaudiología',
+    path: 'ejercicios',
+    component: EjerciciosOrofacialesComponent,
+    canActivate: [AuthGuard],
+    data: {
+      icon: 'fa-solid fa-dumbbell',
+      title: 'Ejercicios Orofaciales',
+      description: '10 ejercicios interactivos de fonoaudiología',
+    },
   },
-},
-{
-  path: 'orofacial',
-  component: OrofacialAnalysisComponent,
-  canActivate: [AuthGuard],
-  data: {
-    icon: 'fa-solid fa-face-smile',
-    title: 'Análisis Orofacial',
-    description: 'Análisis de movimientos faciales',
+  {
+    path: 'orofacial',
+    component: OrofacialAnalysisComponent,
+    canActivate: [AuthGuard],
+    data: {
+      icon: 'fa-solid fa-face-smile',
+      title: 'Análisis Orofacial',
+      description: 'Análisis de movimientos faciales',
+    },
   },
-},
-// NUEVA RUTA PARA JUEGOS TERAPÉUTICOS
-{
-  path: 'juegos-terapeuticos',
-  component: JuegosTerapeuticosComponent,
-  canActivate: [AuthGuard],
-  data: {
-    icon: 'fa-solid fa-gamepad',
-    title: 'Juegos Terapéuticos',
-    description: 'Juegos interactivos para fortalecer la musculatura orofacial',
+  // NUEVA RUTA PARA JUEGOS TERAPÉUTICOS
+  {
+    path: 'juegos-terapeuticos',
+    component: JuegosTerapeuticosComponent,
+    canActivate: [AuthGuard],
+    data: {
+      icon: 'fa-solid fa-gamepad',
+      title: 'Juegos Terapéuticos',
+      description: 'Juegos interactivos para fortalecer la musculatura orofacial',
+    },
   },
-},
-// RUTA PARA EL JUEGO ARMA LA CARA
-{
-  path: 'juego/labiales/arma-cara-labiales',
-  component: ArmaCaraGameComponent,
-  canActivate: [AuthGuard],
-  data: {
-    title: 'Arma la Cara - Labiales',
-    description: 'Juego de drag & drop para ejercicios labiales',
+  // RUTA PARA EL JUEGO ARMA LA CARA
+  {
+    path: 'juego/labiales/arma-cara-labiales',
+    component: ArmaCaraGameComponent,
+    canActivate: [AuthGuard],
+    data: {
+      title: 'Arma la Cara - Labiales',
+      description: 'Juego de drag & drop para ejercicios labiales',
+    },
   },
-},
-// RUTA PARA EL JUEGO MEMORIA DE GESTOS
-{
-  path: 'juego/labiales/memoria-gestos-labiales',
-  component: MemoriaGestosGameComponent,
-  canActivate: [AuthGuard],
-  data: {
-    title: 'Memoria de Gestos - Labiales',
-    description: 'Juego de memoria para ejercicios labiales',
+  // RUTA PARA EL JUEGO MEMORIA DE GESTOS
+  {
+    path: 'juego/labiales/memoria-gestos-labiales',
+    component: MemoriaGestosGameComponent,
+    canActivate: [AuthGuard],
+    data: {
+      title: 'Memoria de Gestos - Labiales',
+      description: 'Juego de memoria para ejercicios labiales',
+    },
   },
-},
-// RUTA PARA EL JUEGO SOPLO VIRTUAL
-{
-  path: 'juego/labiales/soplo-virtual',
-  component: SoploVirtualGameComponent,
-  canActivate: [AuthGuard],
-  data: {
-    title: 'Soplo Virtual - Labiales',
-    description: 'Juego de soplo para ejercicios respiratorios',
+  // RUTA PARA EL JUEGO SOPLO VIRTUAL
+  {
+    path: 'juego/labiales/soplo-virtual',
+    component: SoploVirtualGameComponent,
+    canActivate: [AuthGuard],
+    data: {
+      title: 'Soplo Virtual - Labiales',
+      description: 'Juego de soplo para ejercicios respiratorios',
+    },
   },
-},
-// RUTA PARA EL JUEGO ATRAPA LA LENGUA
-// RUTAS DE JUEGOS LINGUALES
-{
-  path: 'juego/linguales/atrapa-lengua',
-  component: AtrapaLenguaGameComponent,
-  canActivate: [AuthGuard],
-  data: {
-    title: 'Atrapa la Lengua - Linguales',
-    description: 'Juego de reacción para ejercicios linguales',
+  // RUTAS DE JUEGOS LINGUALES
+  {
+    path: 'juego/linguales/atrapa-lengua',
+    component: AtrapaLenguaGameComponent,
+    canActivate: [AuthGuard],
+    data: {
+      title: 'Atrapa la Lengua - Linguales',
+      description: 'Juego de reacción para ejercicios linguales',
+    },
   },
-},
-{
-  path: 'juego/linguales/puzzle-movimientos',
-  component: PuzzleMovimientosGameComponent,
-  canActivate: [AuthGuard],
-  data: {
-    title: 'Puzzle de Movimientos - Linguales',
-    description: 'Juego de secuenciación para ejercicios linguales'
+  {
+    path: 'juego/linguales/puzzle-movimientos',
+    component: PuzzleMovimientosGameComponent,
+    canActivate: [AuthGuard],
+    data: {
+      title: 'Puzzle de Movimientos - Linguales',
+      description: 'Juego de secuenciación para ejercicios linguales'
+    },
   },
-},
-{
-     path: 'juego/linguales/ritmo-silabas',
-     component: RitmoSilabasGameComponent,
-     canActivate: [AuthGuard],
-     data: {
-       title: 'Ritmo de Sílabas - Linguales',
-       description: 'Juego de ritmo para coordinación lingüística'
-     },
-   },
+  {
+    path: 'juego/linguales/ritmo-silabas',
+    component: RitmoSilabasGameComponent,
+    canActivate: [AuthGuard],
+    data: {
+      title: 'Ritmo de Sílabas - Linguales',
+      description: 'Juego de ritmo para coordinación lingüística'
+    },
+  },
+  // RUTA PARA LA RULETA DE PRAXIAS
+  {
+    path: 'ruleta-praxias',
+    component: RuletaPraxiasComponent,
+    canActivate: [AuthGuard],
+    data: {
+      icon: 'fa-solid fa-dice',
+      title: 'Ruleta de Praxias',
+      description: 'Ruleta interactiva con IA para ejercicios de praxias orofaciales',
+    },
+  },
+  // RUTA DE PERFIL DE USUARIO
+  {
+    path: 'mi-perfil',
+    loadComponent: () => import('./pages/mi-perfil/mi-perfil.component').then(m => m.MiPerfilComponent),
+    canActivate: [AuthGuard]
+  },
 
-// RUTA DE PERFIL DE USUARIO
-// RUTA PARA LA RULETA DE PRAXIAS
-{
-  path: 'ruleta-praxias',
-  component: RuletaPraxiasComponent,
-  canActivate: [AuthGuard],
-  data: {
-    icon: 'fa-solid fa-dice',
-    title: 'Ruleta de Praxias',
-    description: 'Ruleta interactiva con IA para ejercicios de praxias orofaciales',
-  },
-},
-{
-  path: 'mi-perfil',
-  loadComponent: () => import('./pages/mi-perfil/mi-perfil.component').then(m => m.MiPerfilComponent),
-  canActivate: [AuthGuard]
-},
-
-// WILDCARD ROUTE - DEBE SER SIEMPRE LA ÚLTIMA RUTA
-{
-  path: '**',
-  redirectTo: '/login'
-}
+  // WILDCARD ROUTE - DEBE SER SIEMPRE LA ÚLTIMA RUTA
+  {
+    path: '**',
+    redirectTo: '/login'
+  }
 ];

@@ -5,31 +5,23 @@
 
       <!-- Chat Messages -->
       <app-chat-message
-        text="Escribe el texto que quieres que revise."
+        text="Escribe el texto que quieres convertir a audio."
       />
 
       @for (message of messages(); track $index) {
         @if( message.isGpt ) {
           <app-chat-message
             [text]="message.text"
-            
+            [audioUrl]="message.audioUrl"
           />
         } @else {
-          <app-my-message [text]="message.text"
-          />
+          <app-my-message [text]="message.text" />
         }
       }
-
-
-
-
-
 
       @if (isLoading()) {
         <app-typing-loader />
       }
-
-
 
     </div>
   </div>
@@ -37,10 +29,8 @@
   <!-- MessageBox -->
   <app-text-message-box-select
     [options]="voices()"
-    placeholder="Escribe aquí lo que deseas"
+    placeholder="Escribe aquí lo que deseas convertir a audio"
     (onMessage)="handleMessageWithSelect($event)"
   />
-
-
 
 </div>

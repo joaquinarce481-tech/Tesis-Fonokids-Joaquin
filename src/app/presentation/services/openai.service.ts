@@ -5,6 +5,8 @@ import {
   prosConsStreamUseCase,
   prosConsUseCase,
   textToAudioUseCase,
+  assistantPageUseCase, 
+  audioToTextUseCase,       // 👈 AGREGAR ESTE IMPORT
 } from '@use-cases/index';
 import { from } from 'rxjs';
 
@@ -30,4 +32,13 @@ export class OpenAiService {
   textToAudio(prompt: string, voice: string) {
     return from(textToAudioUseCase(prompt, voice));
   }
+
+  // 👇 MÉTODO CORREGIDO
+  assistantPage(prompt: string) {
+    return from(assistantPageUseCase(prompt));
+  }
+  audioToText(audioFile: File) {
+  return from(audioToTextUseCase(audioFile));
+  } 
+
 }

@@ -2,17 +2,19 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { MarkdownModule } from 'ngx-markdown';
 
-@Component( {
+@Component({
   selector: 'app-chat-message',
   standalone: true,
   imports: [
+    CommonModule,
     MarkdownModule,
   ],
   templateUrl: './chatMessage.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-} )
+})
 export class ChatMessageComponent {
 
   @Input({ required: true }) text!: string;
+  @Input() audioUrl?: string;  // 👈 NUEVA LÍNEA - Input para el audio
 
 }
