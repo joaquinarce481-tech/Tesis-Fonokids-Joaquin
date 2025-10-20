@@ -1,4 +1,5 @@
-const backendUrl = 'http://localhost:3000';
+import { environment } from '../../../../environments/environment';
+const backendUrl = environment.backendApi.replace('/gpt', '');
 
 interface AudioToTextResponse {
   transcription: string;

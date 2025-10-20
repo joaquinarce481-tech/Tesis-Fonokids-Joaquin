@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface PatientProfile {
   id: number;
@@ -54,7 +55,7 @@ export interface PatientProfile {
   providedIn: 'root'
 })
 export class PatientService {
-  private apiUrl = 'http://localhost:3001/api';
+  private apiUrl = `${environment.backendLogin}/api`;
      
   // Estado reactivo del perfil actual
   private currentPatientSubject = new BehaviorSubject<PatientProfile | null>(null);
