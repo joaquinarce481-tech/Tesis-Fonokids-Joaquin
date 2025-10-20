@@ -1,4 +1,6 @@
-const backendUrl = 'http://localhost:3000';
+import { environment } from '../../../../environments/environment';
+
+const backendUrl = environment.backendApi.replace('/gpt', '');
 
 export const assistantPageUseCase = async (prompt: string) => {
   try {
