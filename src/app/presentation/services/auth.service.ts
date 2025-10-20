@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 export interface User {
   id: number;
@@ -26,7 +27,7 @@ export interface ApiResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly apiUrl = 'http://localhost:3001/api/auth'; // Siguiendo tu patrón
+  private readonly apiUrl = `${environment.backendLogin}/api/auth`;
   
   // 🔐 Estado de autenticación
   private currentUserSubject = new BehaviorSubject<User | null>(null);
