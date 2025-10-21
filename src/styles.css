@@ -2,13 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================
+   ESTILOS BASE - SIN TOCAR
+   ======================================== */
 html, body {
-  background-color: #000000;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%) !important;
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
   color: white;
   font-family: 'Open Sans', sans-serif;
-
 }
 
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
 h1 {
   @apply text-3xl font-bold mb-4;
@@ -23,34 +32,327 @@ ul {
 }
 
 strong {
-  @apply font-bold text-indigo-400 text-xl;
+  @apply font-bold text-pink-400 text-xl;
 }
 
 em {
-  @apply italic text-pink-500;
+  @apply italic text-yellow-300;
 }
 
-
 .btn-primary {
-  @apply bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl hover:bg-indigo-700 transition-all duration-200 ease-in-out;
+  @apply bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-2 px-4 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 ease-in-out;
+  box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
 }
 
 .btn-primary:disabled {
-  @apply bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl opacity-50 cursor-not-allowed;
+  @apply opacity-50 cursor-not-allowed;
+  transform: none !important;
 }
 
+/* ========================================
+   CONTENEDOR DEL CHAT - COLORIDO
+   ======================================== */
 .chat-container {
-  @apply flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-white bg-opacity-5 h-[calc(100vh-90px)] p-4 w-[calc(100vw-500px)];
+  background: linear-gradient(135deg, #e0f7fa 0%, #fff9c4 50%, #ffe0ec 100%) !important;
+  border-radius: 30px !important;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  flex-shrink: 0;
+  height: calc(100vh - 90px);
+  padding: 1rem;
+  width: calc(100vw - 500px);
 }
 
+/* Decoración de fondo con emojis */
+.chat-container::before {
+  content: '';
+  position: absolute;
+  font-size: 40px;
+  opacity: 0.08;
+  top: 20px;
+  left: 20px;
+  letter-spacing: 20px;
+  animation: float 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+/* ========================================
+   MENSAJES - Z-INDEX PARA VER CONTENIDO
+   ======================================== */
 .chat-messages {
-  @apply flex flex-col h-full overflow-x-auto mb-4 overflow-scroll;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: scroll;
+  margin-bottom: 1rem;
 }
 
+.chat-messages > .grid {
+  gap: 20px;
+}
 
-/* Animations */
+/* Animación de aparición */
+.chat-messages > .grid > * {
+  animation: slideIn 0.4s ease-out;
+}
 
-.fade-in { animation: fadeIn .3s; }
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   MENSAJE DEL BOT - COLORIDO
+   Solo afecta mensajes dentro de .chat-messages
+   ======================================== */
+.chat-messages .col-start-1 .bg-green-600 {
+  background: linear-gradient(135deg, #ee0979, #ff6a00) !important;
+  box-shadow: 0 4px 15px rgba(238, 9, 121, 0.4) !important;
+  width: 55px !important;
+  height: 55px !important;
+  font-size: 26px !important;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Burbuja del bot - blanca con borde amarillo */
+.chat-messages .col-start-1 .bg-black {
+  background: white !important;
+  border: 4px solid #ffd93d !important;
+  border-radius: 20px !important;
+  border-bottom-left-radius: 5px !important;
+  padding: 18px 24px !important;
+  box-shadow: 0 6px 20px rgba(255, 217, 61, 0.3) !important;
+  color: #333 !important;
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  animation: popIn 0.3s ease;
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   MENSAJE DEL USUARIO - MORADO LINDO
+   ======================================== */
+.chat-messages .col-start-6 .bg-indigo-500 {
+  background: linear-gradient(135deg, #11998e, #38ef7d) !important;
+  box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4) !important;
+  width: 55px !important;
+  height: 55px !important;
+  font-size: 26px !important;
+}
+
+.chat-messages .col-start-6 .bg-black {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 20px !important;
+  border-bottom-right-radius: 5px !important;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+  padding: 18px 24px !important;
+  font-size: 16px !important;
+}
+
+/* ========================================
+   CAJA DE TEXTO - INPUT COLORIDO
+   ======================================== */
+app-text-message-box {
+  background: white;
+  border-radius: 25px;
+  padding: 20px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  border-top: 5px solid #ffd93d;
+  position: relative;
+  z-index: 2;
+}
+
+app-text-message-box input,
+app-text-message-box textarea {
+  border: 3px solid #ff6b6b !important;
+  border-radius: 20px !important;
+  padding: 15px 20px !important;
+  font-size: 16px !important;
+  font-family: 'Open Sans', sans-serif !important;
+  background: #fff9f9 !important;
+  transition: all 0.3s ease !important;
+  color: #333 !important;
+}
+
+app-text-message-box input:focus,
+app-text-message-box textarea:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.3) !important;
+  transform: translateY(-2px);
+  outline: none !important;
+}
+
+app-text-message-box input::placeholder,
+app-text-message-box textarea::placeholder {
+  color: #ff6b6b !important;
+  opacity: 0.6;
+}
+
+/* Botón de enviar - gradiente morado */
+app-text-message-box button {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 20px !important;
+  padding: 15px 30px !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  cursor: pointer;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+app-text-message-box button:hover {
+  transform: translateY(-3px) scale(1.05) !important;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
+}
+
+app-text-message-box button:active {
+  transform: translateY(-1px) scale(1.02) !important;
+}
+
+app-text-message-box button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ========================================
+   TYPING LOADER
+   ======================================== */
+app-typing-loader {
+  display: flex;
+  justify-content: flex-start;
+  padding: 10px 0;
+}
+
+/* ========================================
+   REPRODUCTOR DE AUDIO
+   ======================================== */
+audio {
+  border-radius: 15px !important;
+  margin-top: 10px;
+  width: 100%;
+  min-width: 320px;
+  filter: hue-rotate(45deg) saturate(1.5);
+}
+
+/* ========================================
+   SCROLLBAR PERSONALIZADO
+   ======================================== */
+.chat-messages::-webkit-scrollbar {
+  width: 12px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
+/* ========================================
+   MARKDOWN EN MENSAJES
+   ======================================== */
+markdown {
+  display: block;
+  line-height: 1.7;
+}
+
+markdown strong {
+  color: #ff6b6b !important;
+  font-weight: 800 !important;
+  font-size: 1.1em !important;
+}
+
+markdown em {
+  color: #f093fb !important;
+}
+
+markdown code {
+  background: rgba(102, 126, 234, 0.15) !important;
+  padding: 2px 8px;
+  border-radius: 8px;
+  color: #667eea !important;
+  font-family: 'Courier New', monospace;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .chat-container {
+    border-radius: 20px !important;
+  }
+
+  .chat-messages .col-start-1 .bg-black,
+  .chat-messages .col-start-6 .bg-black {
+    font-size: 14px !important;
+    padding: 12px 16px !important;
+  }
+
+  .chat-messages .col-start-1 .bg-green-600,
+  .chat-messages .col-start-6 .bg-indigo-500 {
+    width: 45px !important;
+    height: 45px !important;
+    font-size: 20px !important;
+  }
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+.fade-in { 
+  animation: fadeIn .3s; 
+}
 
 @keyframes fadeIn {
   0% { opacity: 0; }

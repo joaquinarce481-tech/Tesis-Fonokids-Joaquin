@@ -5,7 +5,7 @@ import { ChatMessageComponent, MyMessageComponent, TypingLoaderComponent, TextMe
 import { Message } from '@interfaces/message.interface';
 import { OpenAiService } from 'app/presentation/services/openai.service';
 
-@Component( {
+@Component({
   selector: 'app-pros-cons-stream-page',
   standalone: true,
   imports: [
@@ -18,54 +18,39 @@ import { OpenAiService } from 'app/presentation/services/openai.service';
   ],
   templateUrl: './prosConsStreamPage.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-} )
+})
 export default class ProsConsStreamPageComponent {
-
-
 
   public messages = signal<Message[]>([]);
   public isLoading = signal(false);
-  public openAiService = inject( OpenAiService );
+  public openAiService = inject(OpenAiService);
 
-  public abortSignal = new AbortController();
+  handleMessage(prompt: string) {
 
-  async handleMessage( prompt: string ) {
+    this.isLoading.set(true);
 
-    this.abortSignal.abort();
-    this.abortSignal = new AbortController();
-
-    this.messages.update( prev => [
+    this.messages.update((prev) => [
       ...prev,
       {
         isGpt: false,
         text: prompt
-      },
-      {
-        isGpt: true,
-        text: '...'
       }
     ]);
 
+    this.openAiService.prosConsDiscusser(prompt)
+      .subscribe(resp => {
+        this.isLoading.set(false);
 
-    this.isLoading.set(true);
-    const stream = this.openAiService.prosConsStreamDiscusser(prompt, this.abortSignal.signal);
-    this.isLoading.set(false);
+        this.messages.update(prev => [
+          ...prev,
+          {
+            isGpt: true,
+            text: resp.content,
+          }
+        ])
 
-    for await (const text of stream) {
-      this.handleStreamResponse(text);
-    }
-
-  }
-
-
-  handleStreamResponse( message: string ) {
-
-    this.messages().pop();
-    const messages = this.messages();
-
-    this.messages.set([ ...messages, { isGpt: true, text: message } ]);
+      })
 
   }
-
 
 }

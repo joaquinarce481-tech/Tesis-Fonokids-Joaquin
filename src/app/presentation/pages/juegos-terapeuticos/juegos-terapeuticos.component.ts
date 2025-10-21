@@ -134,6 +134,25 @@ export class JuegosTerapeuticosComponent implements OnInit {
         }
       ]
     },
+    // ========== NUEVA CATEGORÍA DE AUDIO CON IA ==========
+    {
+      id: 'audio',
+      titulo: 'Ejercicios de Audio',
+      subtitulo: 'Practica con tu voz',
+      descripcion: 'Juegos de pronunciación con inteligencia artificial',
+      emoji: '🎤',
+      color: 'from-green-400 to-green-600',
+      juegos: [
+        {
+          id: 'repite-sonido',
+          nombre: 'Repite el Sonido',
+          descripcion: 'Escucha y repite fonemas, sílabas y palabras. La IA evalúa tu pronunciación',
+          dificultad: 'facil',
+          tipo: 'audio',
+          emoji: '🎙️'
+        }
+      ]
+    },
     {
       id: 'ruleta-praxias',
       titulo: 'Ruleta de Praxias IA',
@@ -175,6 +194,12 @@ export class JuegosTerapeuticosComponent implements OnInit {
     // Navegación especial para la ruleta de praxias
     if (juego.id === 'ruleta-praxias-ia') {
       this.router.navigate(['/ruleta-praxias']);
+      return;
+    }
+    
+    // ========== NAVEGACIÓN ESPECIAL PARA REPITE EL SONIDO ==========
+    if (juego.id === 'repite-sonido') {
+      this.router.navigate(['/juego/audio/repite-sonido']);
       return;
     }
     

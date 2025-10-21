@@ -1,3 +1,5 @@
 export const environment = {
-  backendApi: 'http://localhost:3000/gpt'
+  production: false,
+  backendApi: 'http://localhost:3000/gpt',
+  backendLogin: 'http://localhost:3001'
 };

@@ -4,11 +4,19 @@
 
       <!-- Mensaje de bienvenida -->
       <app-chat-message
-        text="🎤 ¡Hola! Presiona el botón para grabar tu voz. Te ayudaré a mejorar tu pronunciación."
+        text="🎤 **¡Hola! Vamos a evaluar tu pronunciación.**
+
+**Consejos para grabar:**
+- Habla alto y claro
+- Acércate al micrófono
+- Di una palabra o frase completa
+- Evita lugares con ruido
+
+Presiona el botón cuando estés listo."
       />
 
-      <!-- Mensajes del chat -->
-      @for (message of messages(); track $index) {
+      <!-- Mensajes del chat CON trackBy -->
+      @for (message of messages(); track trackByMessageId($index, message)) {
         @if( message.isGpt ) {
           <app-chat-message [text]="message.text"/>
         } @else {

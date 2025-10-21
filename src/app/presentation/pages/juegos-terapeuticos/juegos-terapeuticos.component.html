@@ -1,30 +1,28 @@
 <!-- juegos-terapeuticos.component.html -->
 
 <div class="juegos-container">
-  <!-- Header con navegación -->
-  <header class="juegos-header">
-    <div class="header-content">
-      <button class="btn-back" (click)="volverAlDashboard()">
-        <span class="back-icon">←</span>
-        <span>Volver al Dashboard</span>
-      </button>
-      
-      <div class="header-title" *ngIf="!categoriaSeleccionada">
-        <h1>🎮 Juegos Terapéuticos</h1>
-        <p>Selecciona una categoría para comenzar a jugar</p>
-      </div>
-      
-      <div class="header-title" *ngIf="categoriaSeleccionada">
-        <button class="btn-back-categoria" (click)="volverACategorias()">
-          <span class="back-icon">←</span>
-          <span>Volver a Categorías</span>
-        </button>
+  
+  <!-- Vista principal: Selección de categorías -->
+  <main class="juegos-seccion-menu" *ngIf="!categoriaSeleccionada">
+    
+    <!-- Botón volver al dashboard -->
+    <button class="btn-volver-dashboard" (click)="volverAlDashboard()">
+      <span class="icono-flecha">←</span>
+      <span class="texto-btn">Volver al Dashboard</span>
+    </button>
+
+    <!-- Header con imagen de fondo -->
+    <div class="header-juegos-nuevo">
+      <div class="header-background">
+        <div class="header-overlay"></div>
+        <div class="header-content">
+          <h1 class="seccion-titulo-nuevo">🎮 Juegos Terapéuticos</h1>
+          <p class="seccion-descripcion-nuevo">Selecciona una categoría para comenzar a jugar</p>
+        </div>
       </div>
     </div>
-  </header>
 
-  <!-- Vista principal: Selección de categorías -->
-  <main class="main-content" *ngIf="!categoriaSeleccionada">
+    <!-- Grid de categorías -->
     <div class="categorias-grid">
       <div 
         *ngFor="let categoria of categorias"
@@ -32,66 +30,42 @@
         [ngClass]="'bg-gradient-' + categoria.color"
         (click)="seleccionarCategoria(categoria)">
         
-        <div class="categoria-header">
-          <div class="categoria-emoji">{{ categoria.emoji }}</div>
-          <div class="categoria-badge">{{ categoria.juegos.length }} juegos</div>
-        </div>
+        <!-- Imagen de la categoría -->
+        <div class="categoria-imagen" [ngClass]="'bg-imagen-' + categoria.id"></div>
         
-        <div class="categoria-content">
+        <!-- Contenido -->
+        <div class="categoria-contenido">
           <h3>{{ categoria.titulo }}</h3>
           <p class="categoria-subtitulo">{{ categoria.subtitulo }}</p>
           <p class="categoria-descripcion">{{ categoria.descripcion }}</p>
-        </div>
-        
-        <div class="categoria-footer">
-          <div class="play-button">
+          
+          <!-- Contador de juegos -->
+          <div class="categoria-juegos-count">
+            <div class="count-badge">
+              <div class="count-numero">{{ categoria.juegos.length }}</div>
+              <div class="count-texto">Juegos</div>
+            </div>
+          </div>
+          
+          <!-- Botón jugar -->
+          <button class="play-button">
             <span class="play-icon">▶</span>
             <span>Jugar</span>
-          </div>
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Información adicional -->
-    <div class="info-section">
-      <div class="info-card">
-        <h3>📚 ¿Cómo funcionan los juegos?</h3>
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="info-emoji">🧩</span>
-            <div>
-              <strong>Drag & Drop</strong>
-              <p>Arrastra elementos a su lugar correcto</p>
-            </div>
-          </div>
-          <div class="info-item">
-            <span class="info-emoji">🧠</span>
-            <div>
-              <strong>Memoria</strong>
-              <p>Recuerda secuencias y patrones</p>
-            </div>
-          </div>
-          <div class="info-item">
-            <span class="info-emoji">⚡</span>
-            <div>
-              <strong>Reacción</strong>
-              <p>Responde rápido a los estímulos</p>
-            </div>
-          </div>
-          <div class="info-item">
-            <span class="info-emoji">🎵</span>
-            <div>
-              <strong>Audio</strong>
-              <p>Usa tu voz y respiración</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </main>
 
   <!-- Vista de juegos por categoría -->
   <main class="main-content" *ngIf="categoriaSeleccionada">
+    <!-- Botón volver a categorías -->
+    <button class="btn-volver-dashboard" (click)="volverACategorias()">
+      <span class="icono-flecha">←</span>
+      <span class="texto-btn">Volver a Categorías</span>
+    </button>
+
     <div class="categoria-selected" 
          *ngFor="let categoria of categorias" 
          [ngStyle]="categoria.id === categoriaSeleccionada ? {} : {display: 'none'}">
@@ -125,8 +99,10 @@
           </div>
           
           <div class="juego-footer">
-            <div class="juego-tipo">{{ juego.tipo }}</div>
-            <button class="btn-jugar">
+            <div class="juego-tipo" [ngClass]="juego.tipo === 'ia-ruleta' ? 'ia-ruleta' : ''">
+              {{ juego.tipo }}
+            </div>
+            <button class="btn-jugar" [ngClass]="juego.tipo === 'ia-ruleta' ? 'ia-special' : ''">
               <span class="play-icon">▶</span>
               Jugar
             </button>

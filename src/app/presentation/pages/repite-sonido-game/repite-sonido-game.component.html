@@ -1,0 +1,98 @@
+<div class="juego-container">
+  
+  <!-- Header -->
+  <header class="juego-header">
+    <button class="btn-volver" (click)="volverAlMenu()">
+      <span class="icono-flecha">←</span>
+      <span>Volver</span>
+    </button>
+    
+    <div class="header-info">
+      <h1>🎤 Repite el Sonido</h1>
+      <p>Escucha y repite correctamente</p>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <main class="juego-main" *ngIf="ejercicioActual">
+    
+    <!-- Tarjeta del ejercicio -->
+    <div class="ejercicio-card">
+      
+      <!-- Categoría -->
+      <div class="categoria-badge" [ngClass]="ejercicioActual.categoria">
+        {{ ejercicioActual.categoria === 'fonema' ? '🔤 Fonema' : 
+           ejercicioActual.categoria === 'silaba' ? '📝 Sílaba' : '📖 Palabra' }}
+      </div>
+
+      <!-- Texto grande a repetir -->
+      <div class="texto-grande">
+        {{ ejercicioActual.texto }}
+      </div>
+
+      <!-- Botón para escuchar -->
+      <button class="btn-escuchar" (click)="reproducirTexto()">
+        <span class="icono">🔊</span>
+        <span>Escuchar</span>
+      </button>
+
+      <!-- Área de grabación -->
+      <div class="grabacion-area">
+        <button 
+          class="btn-grabar" 
+          [class.recording]="isRecording"
+          [disabled]="isProcessing"
+          (click)="isRecording ? detenerGrabacion() : iniciarGrabacion()">
+          <span class="icono-mic">🎤</span>
+          <span>{{ isRecording ? 'Detener Grabación' : 'Grabar mi voz' }}</span>
+        </button>
+
+        <!-- Indicador de grabación -->
+        <div class="recording-indicator" *ngIf="isRecording">
+          <div class="pulse"></div>
+          <span>Grabando...</span>
+        </div>
+
+        <!-- Botón para escuchar mi grabación -->
+        <button 
+          class="btn-escuchar-grabacion" 
+          *ngIf="audioUrl && !isRecording"
+          (click)="escucharMiGrabacion()">
+          <span class="icono">🎧</span>
+          <span>Escuchar mi grabación</span>
+        </button>
+      </div>
+
+      <!-- Feedback -->
+      <div 
+        class="feedback-message" 
+        *ngIf="feedback"
+        [ngClass]="feedbackType">
+        {{ feedback }}
+      </div>
+
+    </div>
+
+    <!-- Navegación -->
+    <div class="navegacion">
+      <button 
+        class="btn-nav" 
+        (click)="anteriorEjercicio()"
+        [disabled]="ejercicioIndex === 0">
+        ← Anterior
+      </button>
+      
+      <span class="contador">
+        {{ ejercicioIndex + 1 }} / {{ ejercicios.length }}
+      </span>
+      
+      <button 
+        class="btn-nav" 
+        (click)="siguienteEjercicio()">
+        Siguiente →
+      </button>
+    </div>
+
+  </main>
+
+</div>

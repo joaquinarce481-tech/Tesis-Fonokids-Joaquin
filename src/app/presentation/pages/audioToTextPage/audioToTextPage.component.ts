@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, NgZone } from '@angular/core';
 import { ChatMessageComponent, MyMessageComponent, TypingLoaderComponent } from '@components/index';
 import { Message } from '@interfaces/message.interface';
 import { OpenAiService } from 'app/presentation/services/openai.service';
@@ -14,7 +14,6 @@ import { OpenAiService } from 'app/presentation/services/openai.service';
     TypingLoaderComponent,
   ],
   templateUrl: './audioToTextPage.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class AudioToTextPageComponent {
   public messages = signal<Message[]>([]);
@@ -23,18 +22,38 @@ export default class AudioToTextPageComponent {
   public isRecording = signal(false);
   public recordingTime = signal(0);
   
+  private ngZone = inject(NgZone); // 👈 AGREGADO
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
   private recordingInterval: any;
 
+  private generateId(): string {
+    return `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  trackByMessageId(index: number, message: Message): string {
+    return message.id || index.toString();
+  }
+
   async startRecording() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      this.mediaRecorder = new MediaRecorder(stream);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100
+        } 
+      });
+
+      const options = {
+        mimeType: 'audio/webm;codecs=opus',
+        audioBitsPerSecond: 128000
+      };
+
+      this.mediaRecorder = new MediaRecorder(stream, options);
       this.audioChunks = [];
       this.recordingTime.set(0);
 
-      // 👇 NUEVO: Contador de tiempo
       this.recordingInterval = setInterval(() => {
         this.recordingTime.update(t => t + 1);
       }, 1000);
@@ -53,10 +72,13 @@ export default class AudioToTextPageComponent {
       this.mediaRecorder.start();
       this.isRecording.set(true);
       
-      // 👇 NUEVO: Mensaje de que está grabando
-      this.messages.update(prev => [
-        ...prev,
-        { text: '🎤 Grabando... Habla ahora', isGpt: false }
+      this.messages.set([
+        ...this.messages(),
+        { 
+          id: this.generateId(),
+          text: '🎤 Grabando... Habla claramente y alto', 
+          isGpt: false 
+        }
       ]);
       
     } catch (error) {
@@ -77,39 +99,74 @@ export default class AudioToTextPageComponent {
   private sendAudioToBackend(audioBlob: Blob) {
     const audioFile = new File([audioBlob], 'audio.webm', { type: 'audio/webm' });
 
-    // 👇 NUEVO: Mensaje de procesando
-    this.messages.update(prev => [
-      ...prev,
-      { text: '⏳ Procesando tu audio y evaluando pronunciación...', isGpt: false }
-    ]);
-
-    this.isLoading.set(true);
+    // 👇 Usar NgZone para asegurar que Angular detecte el cambio
+    this.ngZone.run(() => {
+      this.messages.set([
+        ...this.messages(),
+        { 
+          id: this.generateId(),
+          text: '⏳ Procesando tu audio y evaluando pronunciación...', 
+          isGpt: false 
+        }
+      ]);
+      
+      this.isLoading.set(true);
+    });
 
     this.openAiService.audioToText(audioFile)
       .subscribe({
         next: (resp) => {
-          this.isLoading.set(false);
+          console.log('✅ Respuesta recibida:', resp);
+          
+          // 👇 IMPORTANTE: Ejecutar dentro de NgZone
+          this.ngZone.run(() => {
+            this.isLoading.set(false);
 
-          // Agregar transcripción + evaluación
-          this.messages.update(prev => [
-            ...prev,
-            {
-              isGpt: true,
-              text: `**📝 Transcripción:**\n${resp.transcription}\n\n${resp.evaluation}`
+            let newMessage: Message;
+
+            if (resp.transcription.length < 3 || 
+                resp.transcription.includes('Amara.org') || 
+                resp.transcription.includes('Subtítulos')) {
+              
+              newMessage = {
+                id: this.generateId(),
+                isGpt: true,
+                text: '⚠️ **No pude escuchar bien tu audio.**\n\nPor favor, intenta de nuevo:\n- Habla más alto y claro\n- Acércate más al micrófono\n- Asegúrate de estar en un lugar sin ruido'
+              };
+              
+            } else {
+              
+              newMessage = {
+                id: this.generateId(),
+                isGpt: true,
+                text: `**📝 Escuché:**\n"${resp.transcription}"\n\n${resp.evaluation}`
+              };
+              
             }
-          ]);
+
+            const currentMessages = this.messages();
+            this.messages.set([...currentMessages, newMessage]);
+
+            console.log('📝 Total de mensajes:', this.messages().length);
+            console.log('📝 Último mensaje agregado:', newMessage);
+          });
         },
         error: (error) => {
-          this.isLoading.set(false);
-          console.error('Error:', error);
+          console.error('❌ Error:', error);
           
-          this.messages.update(prev => [
-            ...prev,
-            {
-              isGpt: true,
-              text: '❌ Lo siento, ocurrió un error al procesar el audio. Por favor, intenta de nuevo.'
-            }
-          ]);
+          // 👇 Ejecutar dentro de NgZone
+          this.ngZone.run(() => {
+            this.isLoading.set(false);
+            
+            this.messages.set([
+              ...this.messages(),
+              {
+                id: this.generateId(),
+                isGpt: true,
+                text: '❌ Lo siento, ocurrió un error al procesar el audio. Por favor, intenta de nuevo.'
+              }
+            ]);
+          });
         }
       });
   }

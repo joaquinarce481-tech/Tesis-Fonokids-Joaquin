@@ -117,35 +117,34 @@ export const routes: Routes = [
           description: 'Graba tu voz y evalúa tu pronunciación',
         },
       },
-      {
-        path: 'image-generation',
-        loadComponent: () =>
-          import('./presentation/pages/imageGenerationPage/imageGenerationPage.component'),
-        data: {
-          icon: 'fa-solid fa-image',
-          title: 'Imágenes',
-          description: 'Generar imágenes',
-        },
-      },
-      {
-        path: 'image-tunning',
-        loadComponent: () =>
-          import('./presentation/pages/imageTunningPage/imageTunningPage.component'),
-        data: {
-          icon: 'fa-solid fa-wand-magic',
-          title: 'Editar imagen',
-          description: 'Generación continua',
-        },
-      },
+      // ========== RUTAS COMENTADAS (NO APARECEN EN MENÚ) ==========
+      // {
+      //   path: 'image-generation',
+      //   loadComponent: () =>
+      //     import('./presentation/pages/imageGenerationPage/imageGenerationPage.component'),
+      //   data: {
+      //     icon: 'fa-solid fa-image',
+      //     title: 'Imágenes',
+      //     description: 'Generar imágenes',
+      //   },
+      // },
+      // {
+      //   path: 'image-tunning',
+      //   loadComponent: () =>
+      //     import('./presentation/pages/imageTunningPage/imageTunningPage.component'),
+      //   data: {
+      //     icon: 'fa-solid fa-wand-magic',
+      //     title: 'Editar imagen',
+      //     description: 'Generación continua',
+      //   },
+      // },
+      // ========== FIN RUTAS COMENTADAS ==========
+      
+      // ========== RUTA DE ASSISTANT PARA EL DASHBOARD (sin icono destacado) ==========
       {
         path: 'assistant',
         loadComponent: () =>
           import('./presentation/pages/assistantPage/assistantPage.component'),
-        data: {
-          icon: 'fa-solid fa-user',
-          title: 'Asistente',
-          description: 'Información del asistente',
-        },
       },
       {
         path: 'assistant-page',
@@ -254,6 +253,18 @@ export const routes: Routes = [
     data: {
       title: 'Ritmo de Sílabas - Linguales',
       description: 'Juego de ritmo para coordinación lingüística'
+    },
+  },
+  // ========== NUEVA RUTA PARA REPITE EL SONIDO ==========
+  {
+    path: 'juego/audio/repite-sonido',
+    loadComponent: () => 
+      import('./presentation/pages/repite-sonido-game/repite-sonido-game.component')
+        .then(m => m.RepiteSonidoGameComponent),
+    canActivate: [AuthGuard],
+    data: {
+      title: 'Repite el Sonido',
+      description: 'Juego de pronunciación con IA'
     },
   },
   // RUTA PARA LA RULETA DE PRAXIAS
