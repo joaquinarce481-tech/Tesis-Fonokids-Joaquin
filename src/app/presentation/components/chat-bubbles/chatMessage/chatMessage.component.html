@@ -1,14 +1,18 @@
 <div class="col-start-1 col-end-9 p-3 rounded-lg">
   <div class="flex flex-row items-start">
 
-    <div class="flex items-center justify-center h-10 w-10 rounded-full bg-green-600 flex-shrink-0">
-      G
+    <!-- 👇 AVATAR DEL BOT CON IMAGEN -->
+    <div class="flex items-center justify-center h-10 w-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600">
+      <img 
+        src="assets/images/avatars/ChatbotsitoAvatar.png" 
+        alt="FonoBot"
+        class="w-full h-full object-cover"
+      />
     </div>
 
     <div class="relative ml-3 text-sm bg-black bg-opacity-25 pt-3 pb-2 px-4 shadow rounded-xl max-w-xl">
       <markdown>{{ text }}</markdown>
       
-      <!-- 👇 REPRODUCTOR DE AUDIO CON ANCHO CONSISTENTE -->
       @if (audioUrl) {
         <audio controls class="w-full mt-2 min-w-[320px]">
           <source [src]="audioUrl" type="audio/mpeg">
