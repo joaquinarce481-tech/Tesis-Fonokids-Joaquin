@@ -38,17 +38,30 @@ export default class ProsConsStreamPageComponent {
     ]);
 
     this.openAiService.prosConsDiscusser(prompt)
-      .subscribe(resp => {
-        this.isLoading.set(false);
+      .subscribe({
+        next: (resp) => {
+          this.isLoading.set(false);
 
-        this.messages.update(prev => [
-          ...prev,
-          {
-            isGpt: true,
-            text: resp.content,
-          }
-        ])
-
+          this.messages.update(prev => [
+            ...prev,
+            {
+              isGpt: true,
+              text: resp.content,
+            }
+          ])
+        },
+        error: (error) => {
+          console.error('Error:', error);
+          this.isLoading.set(false);
+          
+          this.messages.update(prev => [
+            ...prev,
+            {
+              isGpt: true,
+              text: 'Lo siento, ocurrió un error. Por favor, intenta de nuevo.'
+            }
+          ]);
+        }
       })
 
   }

@@ -3,9 +3,23 @@
 
     <div class="grid gap-y-2">
 
-      <!-- Chat Messages -->
+      <!-- Mensaje de bienvenida -->
       <app-chat-message
-        text="¡Hola! 👋 Soy FonoBot, tu asistente de fonoaudiología. ¿En qué puedo ayudarte hoy?"
+        text="🤖 **¡Hola! Soy FonoBot, tu asistente especializado en fonoaudiología.**
+
+Estoy aquí para responder todas tus dudas sobre terapia del lenguaje, ejercicios orofaciales, pronunciación y más.
+
+**❓ Ejemplos de lo que puedes preguntarme:**
+- *¿Qué ejercicios ayudan con la pronunciación de la R?*
+- *¿Cómo mejorar la fluidez del habla?*
+- *¿Qué son las praxias orofaciales?*
+- *¿Cuándo consultar a un fonoaudiólogo?*
+
+
+
+**⚠️ Nota:** Solo puedo responder temas relacionados con fonoaudiología. Si preguntas otra cosa, te pediré que reformules tu consulta.
+
+¡Pregúntame lo que necesites! 💬"
       />
 
       @for (message of messages(); track $index) {

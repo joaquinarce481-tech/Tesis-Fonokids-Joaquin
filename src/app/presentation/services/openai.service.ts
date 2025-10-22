@@ -6,7 +6,7 @@ import {
   prosConsUseCase,
   textToAudioUseCase,
   assistantPageUseCase, 
-  audioToTextUseCase,       // 👈 AGREGAR ESTE IMPORT
+  audioToTextUseCase,
 } from '@use-cases/index';
 import { from } from 'rxjs';
 
@@ -21,7 +21,8 @@ export class OpenAiService {
     return from(prosConsUseCase(prompt));
   }
 
-  prosConsStreamDiscusser(prompt: string, abortSignal: AbortSignal) {
+  // 👇 ESTE ES EL MÉTODO CORRECTO PARA EL STREAM
+  prosConsDiscusserStream(prompt: string, abortSignal: AbortSignal) {
     return prosConsStreamUseCase(prompt, abortSignal);
   }
 
@@ -33,12 +34,12 @@ export class OpenAiService {
     return from(textToAudioUseCase(prompt, voice));
   }
 
-  // 👇 MÉTODO CORREGIDO
   assistantPage(prompt: string) {
     return from(assistantPageUseCase(prompt));
   }
+
   audioToText(audioFile: File) {
-  return from(audioToTextUseCase(audioFile));
-  } 
+    return from(audioToTextUseCase(audioFile));
+  }
 
 }

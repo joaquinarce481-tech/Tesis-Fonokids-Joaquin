@@ -3,30 +3,31 @@
 
     <div class="grid gap-y-2">
 
-      <!-- Chat Messages -->
+      <!-- 👇 MENSAJE DE BIENVENIDA MEJORADO -->
       <app-chat-message
-        text="Escribe el texto que quieres que revise."
+        text="🌍 **¡Hola! Soy tu traductor multilingüe.**
+
+Escribe cualquier texto y lo traduciré al idioma que elijas.
+
+**🎯 Cómo funciona:**
+1. Selecciona el idioma de destino
+2. Escribe el texto que quieres traducir
+3. Presiona Enviar
+
+¡Traduce cualquier cosa de forma rápida y precisa! 🚀"
       />
 
       @for (message of messages(); track $index) {
         @if( message.isGpt ) {
           <app-chat-message [text]="message.text"/>
         } @else {
-          <app-my-message [text]="message.text"
-          />
+          <app-my-message [text]="message.text" />
         }
       }
-
-
-
-
-
 
       @if (isLoading()) {
         <app-typing-loader />
       }
-
-
 
     </div>
   </div>
@@ -34,10 +35,8 @@
   <!-- MessageBox -->
   <app-text-message-box-select
     [options]="languages()"
-    placeholder="Escribe aquí lo que deseas"
+    placeholder="Escribe aquí lo que quieres traducir..."
     (onMessage)="handleMessageWithSelect($event)"
   />
-
-
 
 </div>

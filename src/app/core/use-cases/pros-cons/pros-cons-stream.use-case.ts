@@ -1,53 +1,51 @@
-import { environment } from 'environments/environment';
+const backendUrl = 'http://localhost:3000';
 
+export const prosConsStreamUseCase = async (prompt: string, abortSignal: AbortSignal) => {
+  try {
+    const resp = await fetch(`${backendUrl}/gpt/pros-cons-discusser-stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt }),
+      signal: abortSignal,
+    });
 
-export async function* prosConsStreamUseCase( prompt: string, abortSignal: AbortSignal ) {
-
-    try {
-
-      const resp = await fetch(`${ environment.backendApi }/pros-cons-discusser-stream`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ prompt }),
-        signal: abortSignal,
-      });
-
-      if ( !resp.ok ) throw new Error('No se pudo realizar la comparación');
-
-      const reader = resp.body?.getReader();
-      if ( !reader ) {
-        console.log('No se pudo generar el reader');
-        throw new Error('No se pudo generar el reader');
-      }
-
-
-      const decoder = new TextDecoder();
-      let text = '';
-
-      while( true ) {
-        const { value, done } = await reader.read();
-
-        if ( done ) {
-          break;
-        }
-
-        const decodedChunk = decoder.decode( value, { stream: true } );
-        text += decodedChunk;
-        yield text;
-
-      }
-
-
-      return text;
-
-
-    } catch (error) {
-      return null;
+    if (!resp.ok) {
+      throw new Error('No se pudo realizar la consulta');
     }
 
+    if (!resp.body) {
+      throw new Error('No se recibió respuesta del servidor');
+    }
 
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
 
+    return {
+      async *[Symbol.asyncIterator]() {
+        let buffer = '';
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) break;
+          
+          buffer += decoder.decode(value, { stream: true });
+          
+          yield {
+            choices: [{
+              delta: {
+                content: buffer
+              }
+            }]
+          };
+        }
+      }
+    };
 
-}
+  } catch (error) {
+    console.error('Error en prosConsStreamUseCase:', error);
+    throw error;
+  }
+};

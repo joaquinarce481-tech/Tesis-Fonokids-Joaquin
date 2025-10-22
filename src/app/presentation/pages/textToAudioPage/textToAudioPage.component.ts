@@ -11,8 +11,6 @@ import {
   MyMessageComponent,
   TypingLoaderComponent,
   TextMessageBoxComponent,
-  TextMessageBoxEvent,
-  TextMessageBoxSelectComponent,
 } from '@components/index';
 import { Message } from '@interfaces/message.interface';
 import { OpenAiService } from 'app/presentation/services/openai.service';
@@ -26,7 +24,7 @@ import { OpenAiService } from 'app/presentation/services/openai.service';
     ChatMessageComponent,
     MyMessageComponent,
     TypingLoaderComponent,
-    TextMessageBoxSelectComponent,
+    TextMessageBoxComponent, // 👈 Cambiado de Select a normal
   ],
   templateUrl: './textToAudioPage.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,23 +34,16 @@ export default class TextToAudioPageComponent {
   public isLoading = signal(false);
   public openAiService = inject(OpenAiService);
 
-  public voices = signal([
-    { id: "nova", text: "Nova" },
-    { id: "alloy", text: "Alloy" },
-    { id: "echo", text: "Echo" },
-    { id: "fable", text: "Fable" },
-    { id: "onyx", text: "Onyx" },
-    { id: "shimmer", text: "Shimmer" },
-  ]);
+  // 👇 ELIMINADO: public voices = signal([...])
 
-
-  handleMessageWithSelect({ prompt, selectedOption }: TextMessageBoxEvent) {
-    const message = `${selectedOption} - ${prompt}`;
+  handleMessage(prompt: string) { // 👈 Cambiado nombre del método
+    const message = prompt;
 
     this.messages.update( prev => [...prev, { text: message, isGpt: false }] );
     this.isLoading.set(true);
 
-    this.openAiService.textToAudio( prompt, selectedOption )
+    // 👇 ELIMINADO: selectedOption - ahora solo envía el prompt
+    this.openAiService.textToAudio( prompt, 'nova' ) // 👈 Voz fija: nova
       .subscribe( ({ message, audioUrl }) => {
 
         this.isLoading.set(false);
@@ -64,13 +55,6 @@ export default class TextToAudioPageComponent {
             audioUrl: audioUrl,
           }
         ])
-
-
       })
-
-
-
-
-
   }
 }

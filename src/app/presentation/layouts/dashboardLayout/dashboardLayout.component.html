@@ -2,15 +2,21 @@
  <nav
    class="hidden sm:flex flex-col ml-5 w-[370px] min-h-[calc(100vh-3.0rem)] bg-white bg-opacity-10 p-5 rounded-3xl"
  >
+   <!-- 👇 BOTÓN ARRIBA DE FONOKIDS -->
+   <button 
+     routerLink="/dashboard"
+     class="mb-4 flex items-center gap-2 text-white/70 hover:text-white transition-colors">
+     <i class="fa-solid fa-arrow-left"></i>
+     <span class="font-medium">Volver al Menú Principal</span>
+   </button>
+
    <h1
      class="font-bold text-lg lg:text-3xl bg-gradient-to-br from-white via-white/50 bg-clip-text text-transparent"
    >
      FonoKids<span class="text-indigo-500"></span>
    </h1>
    <span class="text-xl">Bienvenido</span>
-
    <div class="border-gray-700 border my-3"></div>
-
    <!-- Nav Links -->
    @for (route of routes; track route.path) {
      <app-sidebar-menu-item
@@ -28,7 +34,6 @@
  >
    <div class="flex h-full flex-row">
      <div class="flex flex-col flex-auto p-1">
-       <!-- ✅ ESTE ES EL ÚNICO <router-outlet /> QUE DEBE EXISTIR -->
        <router-outlet />
      </div>
    </div>

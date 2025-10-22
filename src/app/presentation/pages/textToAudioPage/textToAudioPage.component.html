@@ -5,7 +5,16 @@
 
       <!-- Chat Messages -->
       <app-chat-message
-        text="Escribe el texto que quieres convertir a audio."
+        text="✨ **¡Hola! Soy tu asistente de pronunciación.**
+
+Escribe cualquier palabra o frase que quieras practicar y te ayudaré a pronunciarla correctamente.
+
+**Ejemplos:**
+- Una palabra: *perro*
+- Un sonido: *rrrrr*
+- Una frase: *la casa es grande*
+
+¡Vamos a practicar juntos!"
       />
 
       @for (message of messages(); track $index) {
@@ -26,11 +35,10 @@
     </div>
   </div>
 
-  <!-- MessageBox -->
-  <app-text-message-box-select
-    [options]="voices()"
-    placeholder="Escribe aquí lo que deseas convertir a audio"
-    (onMessage)="handleMessageWithSelect($event)"
+  <!-- MessageBox SIN selector de voz -->
+  <app-text-message-box
+    placeholder="Escribe la palabra o frase que quieres practicar..."
+    (onMessage)="handleMessage($event)"
   />
 
 </div>

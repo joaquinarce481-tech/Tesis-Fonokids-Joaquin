@@ -3,40 +3,46 @@
 
     <div class="grid gap-y-2">
 
-      <!-- Chat Messages -->
+      <!-- 👇 MENSAJE DE BIENVENIDA MEJORADO -->
       <app-chat-message
-        text="¡HOLA👋🏻! ¿Qué deseas comparar?"
+        text="⚖️ **¡Hola! Soy tu asistente para comparar opciones.**
+
+¿Tienes una decisión difícil? Te ayudaré a analizar los **pros y contras** de cualquier situación.
+
+**📝 Ejemplos de lo que puedes comparar:**
+- *comprar un perro vs un gato*
+- *estudiar medicina vs ingeniería*
+- *vivir en la ciudad vs en el campo*
+- *iPhone vs Android*
+
+**🎯 Lo que haré:**
+- ✅ Listar ventajas (pros)
+- ❌ Listar desventajas (contras)
+- 💡 Darte un análisis objetivo
+- 🔍 Ayudarte a decidir mejor
+
+¡Escribe qué quieres comparar y te ayudaré a decidir! 🚀"
       />
 
       @for (message of messages(); track $index) {
         @if( message.isGpt ) {
           <app-chat-message [text]="message.text"/>
         } @else {
-          <app-my-message [text]="message.text"
-          />
+          <app-my-message [text]="message.text" />
         }
       }
-
-
-
-
-
 
       @if (isLoading()) {
         <app-typing-loader />
       }
-
-
 
     </div>
   </div>
 
   <!-- MessageBox -->
   <app-text-message-box
-    placeholder="Escribe aquí lo que deseas"
+    placeholder="Escribe qué quieres comparar (ej: estudiar vs trabajar)..."
     (onMessage)="handleMessage($event)"
   />
-
-
 
 </div>

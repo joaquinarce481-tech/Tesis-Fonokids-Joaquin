@@ -3,9 +3,24 @@
 
     <div class="grid gap-y-2">
 
-      <!-- Chat Messages -->
+      <!-- 👇 MENSAJE DE BIENVENIDA MEJORADO -->
       <app-chat-message
-        text="¡HOLA👋🏻! Pon tu texto aquí y lo vemos juntos."
+        text="✏️ **¡Hola! Soy tu corrector de ortografía.**
+
+Escribe cualquier texto y te ayudaré a corregir errores ortográficos y mejorar tu escritura.
+
+**📝 Ejemplos de lo que puedes escribir:**
+- Una palabra: *casa*, *trabajar*, *computadora*
+- Una frase: *ayer fui al parque*
+- Un párrafo completo
+
+**🎯 Lo que haré por ti:**
+- ✅ Detectar errores ortográficos
+- ✅ Corregir gramática
+- ✅ Darte una puntuación
+- ✅ Explicar los errores
+
+¡Escribe tu texto y vamos a mejorarlo juntos! 🚀"
       />
 
       @for (message of messages(); track $index) {
@@ -13,37 +28,25 @@
           <app-gpt-message-orthography
             [text]="message.text"
             [errors]="message.info!.errors"
-            [text]="message.text"
             [userScore]="message.info!.userScore"
           />
         } @else {
-          <app-my-message [text]="message.text"
-          />
+          <app-my-message [text]="message.text" />
         }
       }
-
-
-
-
-
 
       @if (isLoading()) {
         <app-typing-loader />
       }
-
-
 
     </div>
   </div>
 
   <!-- MessageBox -->
   <app-text-message-box
-    placeholder="Escribe aquí lo que deseas"
+    placeholder="Escribe aquí el texto que quieres corregir..."
     (onMessage)="handleMessage($event)"
     [disableCorrections]="true"
   />
-
-
-
 
 </div>
