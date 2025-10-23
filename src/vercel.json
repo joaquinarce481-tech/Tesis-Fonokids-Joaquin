@@ -1,12 +1,31 @@
 {
   "rewrites": [
     {
-      "source": "/api/gpt/:path*",
-      "destination": "https://tesis-fonokids-joaquin-backend-ia-production.up.railway.app/gpt/:path*"
+      "source": "/api/gpt/(.*)",
+      "destination": "https://tesis-fonokids-joaquin-backend-ia-production.up.railway.app/gpt/$1"
     },
     {
-      "source": "/api/auth/:path*",
-      "destination": "https://tesis-fonokids-joaquin-backend-login-production.up.railway.app/api/auth/:path*"
+      "source": "/api/auth/(.*)",
+      "destination": "https://tesis-fonokids-joaquin-backend-login-production.up.railway.app/api/auth/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
     }
   ]
 }
