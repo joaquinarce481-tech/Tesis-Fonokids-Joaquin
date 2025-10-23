@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  backendApi: '/api',           // ✅ Proxy para el backend de IA
-  backendLogin: '/api'          // ✅ Proxy para el backend de login
+  backendApi: '/api',       // ✅ Usa el proxy de Vercel
+  backendLogin: '/api'      // ✅ Usa el proxy de Vercel
 };
