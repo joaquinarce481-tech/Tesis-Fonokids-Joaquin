@@ -8,7 +8,7 @@ export const prosConsUseCase = async(prompt: string) => {
 
   try {
 
-    const resp = await fetch(`${ environment.backendApi }/pros-cons-discusser`, {
+    const resp = await fetch(`${ environment.backendApi }/gpt/pros-cons-discusser`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

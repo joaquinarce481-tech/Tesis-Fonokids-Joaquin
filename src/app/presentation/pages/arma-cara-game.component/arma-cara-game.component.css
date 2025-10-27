@@ -281,9 +281,7 @@
   flex-wrap: wrap;
 }
 
-.stat-item {
-  text-align: center;
-}
+.stat-item { text-align: center; }
 
 .stat-label {
   font-size: 0.9rem;
@@ -291,20 +289,10 @@
   margin-bottom: 0.3rem;
 }
 
-.stat-value {
-  font-size: 1.8rem;
-  font-weight: bold;
-}
+.stat-value { font-size: 1.8rem; font-weight: bold; }
+.stat-value-grande { font-size: 2rem; font-weight: bold; }
 
-.stat-value-grande {
-  font-size: 2rem;
-  font-weight: bold;
-}
-
-.stats-grupo {
-  display: flex;
-  gap: 2rem;
-}
+.stats-grupo { display: flex; gap: 2rem; }
 
 .btn-pista {
   background: #fbbf24;
@@ -349,6 +337,7 @@
   margin: 0 0 2rem 0;
 }
 
+/* ===== Cara base (fallback) ===== */
 .cara-container {
   position: relative;
   width: 380px;
@@ -360,6 +349,25 @@
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
 }
 
+/* ===== Cara bonita (SVG) ===== */
+.cara-container.pretty{
+  position: relative;
+  width: min(440px, 90vw);
+  aspect-ratio: 3 / 4;
+  margin: 0 auto 2rem;
+  background: transparent;
+  border: none;
+  border-radius: 28px;
+  box-shadow: 0 15px 38px rgba(0,0,0,.25);
+  isolation: isolate;
+}
+
+.face-svg{
+  position:absolute; inset: 0;
+  width:100%; height:100%;
+  border-radius: 28px;
+}
+
 .elementos-fijos {
   position: absolute;
   width: 100%;
@@ -368,6 +376,27 @@
   z-index: 1;
 }
 
+/* Ojos/nariz para la versión SVG (3:4) */
+.cara-container.pretty .ojos-fijos{
+  position:absolute;
+  top: 43%;
+  left: 50%;
+  transform: translateX(-50%);
+  display:flex;
+  gap: 84px;
+  font-size: clamp(2rem, 5.3vw, 2.6rem);
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.15));
+}
+
+.cara-container.pretty .nariz-fija{
+  position:absolute;
+  top: 56%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(1.6rem, 4.4vw, 2.2rem);
+}
+
+/* Ojos/nariz (fallback oval) */
 .ojos-fijos {
   position: absolute;
   top: 32%;
@@ -378,9 +407,7 @@
   font-size: 2.8rem;
 }
 
-.ojo-fijo {
-  animation: parpadeo 5s infinite;
-}
+.ojo-fijo { animation: parpadeo 5s infinite; }
 
 @keyframes parpadeo {
   0%, 92%, 100% { opacity: 1; }
@@ -395,6 +422,7 @@
   font-size: 2.2rem;
 }
 
+/* Slots – fallback */
 .zona-drop {
   position: absolute;
   border: 6px dashed;
@@ -420,20 +448,54 @@
   cursor: pointer;
 }
 
+/* Slots – versión SVG (más sutil)  */
+/*  ← Soporte directo a onDragOverFancy / onDragLeaveFancy  */
+.cara-container.pretty .zona-drop{
+  border: 4px dashed #cbd5e1;
+  border-radius: 18px;
+  min-height: 54px;
+  min-width: 54px;
+  background: rgba(255,255,255,.12);
+  backdrop-filter: blur(6px);
+  transition: transform .18s ease, box-shadow .2s ease,
+              background .2s ease, border-color .2s ease;
+}
+
+/*  ← Clase aplicada por onDragOverFancy() */
+.cara-container.pretty .zona-drop.z-hover{
+  transform: translate(-50%,-50%) scale(1.06);
+  border-color:#8b5cf6;
+  box-shadow: 0 0 22px rgba(139,92,246,.35);
+}
+
+/* Ocupada */
 .zona-ocupada {
   border-style: solid;
   background: rgba(16, 185, 129, 0.25) !important;
   border-width: 6px;
   box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
 }
+.cara-container.pretty .zona-ocupada{
+  border-width: 4px;
+  background: rgba(16,185,129,.22) !important;
+  box-shadow: 0 6px 16px rgba(16,185,129,.35);
+}
 
+/* Parte colocada */
 .parte-colocada {
   font-size: 5rem;
   animation: bounceIn 0.7s ease-out;
   filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.5));
   z-index: 10;
 }
+.cara-container.pretty .parte-colocada{
+  font-size: clamp(2.6rem, 6vw, 3.6rem);
+}
 
+/*  ← Animación usada cuando cae una parte correcta (onDrop + .drop-pop) */
+.drop-pop{ animation: dropPop .45s ease-out; }
+
+/* Pista */
 .zona-pista {
   font-size: 1.2rem;
   color: #111827;
@@ -447,6 +509,15 @@
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
   border: 2px solid #f59e0b;
 }
+
+/* pista más limpia en SVG (opcional) */
+/*
+.cara-container.pretty .zona-pista{
+  font-size: .95rem; color:#334155; font-weight:700;
+  padding:.4rem .8rem; background:#fff; border-radius:12px; letter-spacing:.04em;
+  border:2px dashed #94a3b8;
+}
+*/
 
 .feedback-mensaje {
   text-align: center;
@@ -497,13 +568,9 @@
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12) !important;
 }
 
-.parte-emoji-grande {
-  font-size: 4rem;
-}
+.parte-emoji-grande { font-size: 4rem; }
 
-.parte-info {
-  flex: 1;
-}
+.parte-info { flex: 1; }
 
 .parte-nombre {
   font-size: 1.4rem;
@@ -518,9 +585,7 @@
   font-weight: 500;
 }
 
-.progreso-container {
-  margin-top: 2rem;
-}
+.progreso-container { margin-top: 2rem; }
 
 .progreso-barra {
   width: 100%;
@@ -566,9 +631,7 @@
   animation: scaleIn 0.5s ease-out;
 }
 
-.celebracion {
-  margin-bottom: 2rem;
-}
+.celebracion { margin-bottom: 2rem; }
 
 .celebracion-emoji {
   font-size: 6rem;
@@ -589,21 +652,11 @@
   margin: 0;
 }
 
-.estrellas-container {
-  font-size: 4rem;
-  margin: 2rem 0;
-}
+.estrellas-container { font-size: 4rem; margin: 2rem 0; }
 
-.estrella {
-  margin: 0 0.3rem;
-  opacity: 0.2;
-  transition: all 0.3s ease;
-}
+.estrella { margin: 0 0.3rem; opacity: 0.2; transition: all 0.3s ease; }
 
-.estrella-llena {
-  opacity: 1;
-  animation: starShine 0.6s ease-out;
-}
+.estrella-llena { opacity: 1; animation: starShine 0.6s ease-out; }
 
 .stats-finales {
   display: grid;
@@ -618,10 +671,7 @@
   padding: 1.5rem;
 }
 
-.stat-final-emoji {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-}
+.stat-final-emoji { font-size: 2.5rem; margin-bottom: 0.5rem; }
 
 .stat-final-valor {
   font-size: 2rem;
@@ -630,10 +680,7 @@
   margin-bottom: 0.3rem;
 }
 
-.stat-final-label {
-  font-size: 0.9rem;
-  color: #6b7280;
-}
+.stat-final-label { font-size: 0.9rem; color: #6b7280; }
 
 .botones-completado {
   display: flex;
@@ -660,183 +707,100 @@
 }
 
 /* ========== ANIMACIONES ========== */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 @keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-30px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(50px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes bounceIn {
   0% { transform: scale(0); }
   50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
+  100%{ transform: scale(1); }
 }
 
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50%      { transform: scale(1.05); }
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg) scale(0.5);
-  }
-  50% {
-    transform: rotate(180deg) scale(1.2);
-  }
-  100% {
-    transform: rotate(360deg) scale(1);
-  }
+  0%   { transform: rotate(0deg) scale(0.5); }
+  50%  { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
 }
 
 @keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 @keyframes starShine {
   0% { transform: scale(1); }
-  50% { transform: scale(1.4); }
-  100% { transform: scale(1); }
+  50%{ transform: scale(1.4); }
+  100%{ transform: scale(1); }
+}
+
+/* Pop al encastrar (para .drop-pop) */
+@keyframes dropPop{
+  0%   { transform: scale(.6) rotate(-8deg); opacity:.2 }
+  60%  { transform: scale(1.15) rotate(3deg); opacity:1 }
+  100% { transform: scale(1) rotate(0) }
 }
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 1200px) {
-  .juego-area {
-    grid-template-columns: 1fr;
-  }
+  .juego-area { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-  .titulo-juego {
-    font-size: 3rem;
-  }
+  .titulo-juego { font-size: 3rem; }
+  .subtitulo-juego { font-size: 1.3rem; }
+  .modos-grid { grid-template-columns: 1fr; }
+  .header-stats { flex-direction: column; gap: 1rem; }
+  .stats-grupo { flex-direction: column; gap: 0.5rem; }
+  .juego-area { grid-template-columns: 1fr; }
 
-  .subtitulo-juego {
-    font-size: 1.3rem;
-  }
+  .cara-container { width: 300px; height: 400px; }
+  .cara-container.pretty { width: min(380px, 92vw); }
 
-  .modos-grid {
-    grid-template-columns: 1fr;
-  }
+  .ojos-fijos { gap: 75px; font-size: 2.2rem; }
+  .cara-container.pretty .ojos-fijos { gap: 64px; }
 
-  .header-stats {
-    flex-direction: column;
-    gap: 1rem;
-  }
+  .nariz-fija { font-size: 1.8rem; }
 
-  .stats-grupo {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .juego-area {
-    grid-template-columns: 1fr;
-  }
-
-  .cara-container {
-    width: 300px;
-    height: 400px;
-  }
-
-  .ojos-fijos {
-    gap: 75px;
-    font-size: 2.2rem;
-  }
-
-  .nariz-fija {
-    font-size: 1.8rem;
-  }
-
-  .parte-colocada {
-    font-size: 3.5rem;
-  }
-
-  .stats-finales {
-    grid-template-columns: 1fr;
-  }
-
-  .botones-completado {
-    flex-direction: column;
-  }
-
-  .btn-completado {
-    width: 100%;
-  }
+  .parte-colocada { font-size: 3.5rem; }
+  .stats-finales { grid-template-columns: 1fr; }
+  .botones-completado { flex-direction: column; }
+  .btn-completado { width: 100%; }
 }
 
 @media (max-width: 480px) {
   .pantalla-inicio,
   .pantalla-seleccion,
-  .pantalla-completado {
-    padding: 1rem;
-  }
+  .pantalla-completado { padding: 1rem; }
 
-  .titulo-juego {
-    font-size: 2.5rem;
-  }
+  .titulo-juego { font-size: 2.5rem; }
 
-  .cara-container {
-    width: 260px;
-    height: 350px;
-  }
+  .cara-container { width: 260px; height: 350px; }
+  .cara-container.pretty { width: min(320px, 94vw); }
 
-  .ojos-fijos {
-    gap: 60px;
-    font-size: 1.8rem;
-  }
+  .ojos-fijos { gap: 60px; font-size: 1.8rem; }
+  .nariz-fija { font-size: 1.5rem; }
 
-  .nariz-fija {
-    font-size: 1.5rem;
-  }
+  .zona-drop { min-height: 50px; border-width: 4px; }
 
-  .zona-drop {
-    min-height: 50px;
-    border-width: 4px;
-  }
+  .parte-colocada { font-size: 3rem; }
+  .parte-emoji-grande { font-size: 3rem; }
 
-  .parte-colocada {
-    font-size: 3rem;
-  }
-
-  .parte-emoji-grande {
-    font-size: 3rem;
-  }
-
-  .celebracion-emoji {
-    font-size: 4rem;
-  }
-
-  .celebracion-titulo {
-    font-size: 2rem;
-  }
+  .celebracion-emoji { font-size: 4rem; }
+  .celebracion-titulo { font-size: 2rem; }
 }
 
 /* ========== ACCESIBILIDAD ========== */

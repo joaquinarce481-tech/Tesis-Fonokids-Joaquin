@@ -1,571 +1,864 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+// puzzle-movimientos-game.component.ts
+
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { Camera } from '@mediapipe/camera_utils';
+import { FaceMesh, Results } from '@mediapipe/face_mesh';
 
+// Interfaces
 interface MovimientoLingual {
-  id: string;
+  id: number;
   nombre: string;
-  descripcion: string;
   emoji: string;
-  instruccion: string;
-  orden: number;
-}
-
-interface SecuenciaEjercicio {
-  id: string;
-  nombre: string;
   descripcion: string;
-  movimientos: MovimientoLingual[];
-  dificultad: 'facil' | 'medio' | 'dificil';
-  categoria: string;
-}
-
-interface MovimientoDraggable extends MovimientoLingual {
-  posicionActual: number;
+  instruccion: string;
   posicionCorrecta: number;
   colocado: boolean;
   arrastrando: boolean;
+  foto?: string | null; // Nueva propiedad para almacenar la foto
 }
+
+interface SecuenciaNivel {
+  nivel: number;
+  nombre: string;
+  descripcion: string;
+  dificultad: 'fácil' | 'media' | 'difícil';
+  movimientos: number[];
+  tiempoLimite: number;
+}
+
+interface EstadisticasJuego {
+  secuenciasCorrectas: number;
+  intentosTotales: number;
+  tiempoTotal: number;
+}
+
+type FaseJuego = 'instrucciones' | 'captura' | 'jugando' | 'verificando' | 'completado';
 
 @Component({
   selector: 'app-puzzle-movimientos-game',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './puzzle-movimientos-game.component.html',
-  styleUrls: ['./puzzle-movimientos-game.component.css']
+  styleUrls: ['./puzzle-movimientos-game.component.scss']
 })
 export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
-  // Estados del juego
-  faseJuego: 'instrucciones' | 'jugando' | 'verificando' | 'completado' = 'instrucciones';
+  @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
+  @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+
+  // Estado del juego
+  faseJuego: FaseJuego = 'instrucciones';
   nivelActual: number = 1;
   maxNiveles: number = 6;
-  puntaje: number = 0;
-  vidas: number = 3;
-  tiempoInicio: number = 0;
-  tiempoTranscurrido: number = 0;
-  tiempoLimite: number = 120; // 2 minutos por nivel
-  intervaloTiempo: any;
+  intentos: number = 0;
   
-  // Secuencias de ejercicios
-  secuenciasDisponibles: SecuenciaEjercicio[] = [
+  // Estado de captura de fotos
+  movimientoActualCaptura: number = 0;
+  movimientoDetectado: boolean = false;
+  mensajeValidacion: string = '';
+  fotosCapturadas: string[] = [];
+  
+  // MediaPipe
+  faceMesh!: FaceMesh;
+  camera!: Camera;
+  
+  // Temporizador
+  tiempoInicio: number = 0;
+  intervalTemporizador: any;
+  
+  // Movimientos disponibles (se actualizarán con fotos)
+  todosLosMovimientos: MovimientoLingual[] = [
     {
-      id: 'secuencia-basica-1',
-      nombre: 'Movimientos Básicos',
-      descripcion: 'Secuencia básica de ejercicios linguales',
-      dificultad: 'facil',
-      categoria: 'basico',
-      movimientos: [
-        {
-          id: 'sacar-lengua',
-          nombre: 'Sacar Lengua',
-          descripcion: 'Sacar la lengua hacia afuera',
-          emoji: '👅',
-          instruccion: 'Saca la lengua hacia afuera',
-          orden: 1
-        },
-        {
-          id: 'tocar-nariz',
-          nombre: 'Tocar Nariz',
-          descripcion: 'Tocar la nariz con la lengua',
-          emoji: '👃',
-          instruccion: 'Toca tu nariz con la lengua',
-          orden: 2
-        },
-        {
-          id: 'lengua-adentro',
-          nombre: 'Meter Lengua',
-          descripcion: 'Meter la lengua hacia adentro',
-          emoji: '😮',
-          instruccion: 'Mete la lengua hacia adentro',
-          orden: 3
-        }
-      ]
+      id: 1,
+      nombre: 'Sacar Lengua',
+      emoji: '👅',
+      descripcion: 'Sacar la lengua hacia afuera',
+      instruccion: 'Saca tu lengua lo más que puedas hacia afuera',
+      posicionCorrecta: 0,
+      colocado: false,
+      arrastrando: false,
+      foto: null
     },
     {
-      id: 'secuencia-lateral-1',
-      nombre: 'Movimientos Laterales',
-      descripcion: 'Ejercicios de movimiento lateral de lengua',
-      dificultad: 'medio',
-      categoria: 'lateral',
-      movimientos: [
-        {
-          id: 'lengua-izquierda',
-          nombre: 'Mover Izquierda',
-          descripcion: 'Mover lengua hacia la izquierda',
-          emoji: '⬅️',
-          instruccion: 'Mueve la lengua hacia la izquierda',
-          orden: 1
-        },
-        {
-          id: 'lengua-centro',
-          nombre: 'Posición Central',
-          descripcion: 'Regresar lengua al centro',
-          emoji: '⬆️',
-          instruccion: 'Pon la lengua en el centro',
-          orden: 2
-        },
-        {
-          id: 'lengua-derecha',
-          nombre: 'Mover Derecha',
-          descripcion: 'Mover lengua hacia la derecha',
-          emoji: '➡️',
-          instruccion: 'Mueve la lengua hacia la derecha',
-          orden: 3
-        },
-        {
-          id: 'lengua-centro-final',
-          nombre: 'Centro Final',
-          descripcion: 'Regresar al centro y relajar',
-          emoji: '😌',
-          instruccion: 'Regresa al centro y relaja',
-          orden: 4
-        }
-      ]
+      id: 2,
+      nombre: 'Tocar Nariz',
+      emoji: '🔔',
+      descripcion: 'Tocar la nariz con la lengua',
+      instruccion: 'Toca tu nariz con la lengua hacia arriba',
+      posicionCorrecta: 1,
+      colocado: false,
+      arrastrando: false,
+      foto: null
     },
     {
-      id: 'secuencia-avanzada-1',
-      nombre: 'Movimientos Avanzados',
-      descripcion: 'Secuencia compleja de ejercicios linguales',
-      dificultad: 'dificil',
-      categoria: 'avanzado',
-      movimientos: [
-        {
-          id: 'lengua-labio-superior',
-          nombre: 'Tocar Labio Superior',
-          descripcion: 'Tocar el labio superior con la lengua',
-          emoji: '⬆️',
-          instruccion: 'Toca tu labio superior',
-          orden: 1
-        },
-        {
-          id: 'movimiento-circular',
-          nombre: 'Movimiento Circular',
-          descripcion: 'Hacer círculos con la lengua',
-          emoji: '🔄',
-          instruccion: 'Haz círculos con la lengua',
-          orden: 2
-        },
-        {
-          id: 'chasquido-lengua',
-          nombre: 'Chasquido',
-          descripcion: 'Hacer chasquido con la lengua',
-          emoji: '👏',
-          instruccion: 'Haz un chasquido con la lengua',
-          orden: 3
-        },
-        {
-          id: 'lengua-labio-inferior',
-          nombre: 'Tocar Labio Inferior',
-          descripcion: 'Tocar el labio inferior con la lengua',
-          emoji: '⬇️',
-          instruccion: 'Toca tu labio inferior',
-          orden: 4
-        },
-        {
-          id: 'vibrar-lengua',
-          nombre: 'Vibrar Lengua',
-          descripcion: 'Hacer vibrar la lengua',
-          emoji: '🌪️',
-          instruccion: 'Haz vibrar tu lengua',
-          orden: 5
-        }
-      ]
+      id: 3,
+      nombre: 'Sonrisa Amplia',
+      emoji: '😁',
+      descripcion: 'Hacer una sonrisa amplia mostrando dientes',
+      instruccion: 'Sonríe mostrando todos tus dientes',
+      posicionCorrecta: 2,
+      colocado: false,
+      arrastrando: false,
+      foto: null
+    },
+    {
+      id: 4,
+      nombre: 'Hacer Beso',
+      emoji: '😘',
+      descripcion: 'Juntar los labios como para dar un beso',
+      instruccion: 'Junta tus labios como si fueras a dar un beso',
+      posicionCorrecta: 3,
+      colocado: false,
+      arrastrando: false,
+      foto: null
+    },
+    {
+      id: 5,
+      nombre: 'Tocar Mentón',
+      emoji: '⬇️',
+      descripcion: 'Bajar la lengua hacia el mentón',
+      instruccion: 'Baja tu lengua hacia tu mentón lo más que puedas',
+      posicionCorrecta: 4,
+      colocado: false,
+      arrastrando: false,
+      foto: null
+    },
+    {
+      id: 6,
+      nombre: 'Lengua Arriba',
+      emoji: '⬆️',
+      descripcion: 'Subir la lengua al paladar',
+      instruccion: 'Sube tu lengua y toca el paladar (techo de tu boca)',
+      posicionCorrecta: 5,
+      colocado: false,
+      arrastrando: false,
+      foto: null
+    },
+    {
+      id: 7,
+      nombre: 'Boca Abierta',
+      emoji: '😮',
+      descripcion: 'Abrir la boca grande con lengua visible',
+      instruccion: 'Abre tu boca lo más grande posible',
+      posicionCorrecta: 6,
+      colocado: false,
+      arrastrando: false,
+      foto: null
+    },
+    {
+      id: 8,
+      nombre: 'Boca Cerrada',
+      emoji: '😐',
+      descripcion: 'Cerrar la boca completamente',
+      instruccion: 'Cierra tu boca completamente con labios juntos',
+      posicionCorrecta: 7,
+      colocado: false,
+      arrastrando: false,
+      foto: null
     }
   ];
-  
-  // Estado actual del puzzle
-  secuenciaActual: SecuenciaEjercicio | null = null;
-  movimientosArrastrable: MovimientoDraggable[] = [];
-  zonasDestino: (string | null)[] = [];
-  movimientoArrastrado: MovimientoDraggable | null = null;
+
+  // Secuencias de niveles
+  secuencias: SecuenciaNivel[] = [
+    {
+      nivel: 1,
+      nombre: 'Apertura Bucal',
+      descripcion: 'Práctica de apertura y cierre',
+      dificultad: 'fácil',
+      movimientos: [8, 7], // Boca Cerrada, Boca Abierta
+      tiempoLimite: 90
+    },
+    {
+      nivel: 2,
+      nombre: 'Sonrisa Terapéutica',
+      descripcion: 'De reposo a sonrisa',
+      dificultad: 'fácil',
+      movimientos: [8, 3], // Boca Cerrada, Sonrisa
+      tiempoLimite: 90
+    },
+    {
+      nivel: 3,
+      nombre: 'Protrusión Labial',
+      descripcion: 'Movimiento de beso',
+      dificultad: 'fácil',
+      movimientos: [8, 4], // Boca Cerrada, Hacer Beso
+      tiempoLimite: 90
+    },
+    {
+      nivel: 4,
+      nombre: 'Extensión Lingual Vertical',
+      descripcion: 'Lengua hacia abajo',
+      dificultad: 'media',
+      movimientos: [1, 5, 8], // Sacar Lengua, Tocar Mentón, Boca Cerrada
+      tiempoLimite: 100
+    },
+    {
+      nivel: 5,
+      nombre: 'Extensión Lingual Superior',
+      descripcion: 'Lengua hacia arriba',
+      dificultad: 'media',
+      movimientos: [1, 2, 8], // Sacar Lengua, Tocar Nariz, Boca Cerrada
+      tiempoLimite: 100
+    },
+    {
+      nivel: 6,
+      nombre: 'Secuencia Completa',
+      descripcion: 'Movimientos verticales combinados',
+      dificultad: 'difícil',
+      movimientos: [1, 2, 5, 8], // Sacar Lengua, Tocar Nariz, Tocar Mentón, Boca Cerrada
+      tiempoLimite: 120
+    }
+  ];
+
+  // Estado del juego actual
+  secuenciaActual: SecuenciaNivel | null = null;
+  movimientosArrastrable: MovimientoLingual[] = [];
+  zonasDestino: (number | null)[] = [null, null, null];
   secuenciaCompleta: boolean = false;
-  
-  // Progreso y estadísticas
-  intentos: number = 0;
-  puntajePorNivel: number = 0;
-  tiempoCompletado: number = 0;
-  puzzlesCompletados: number = 0;
-  secuenciasCorrectas: number = 0;
   mostrarPista: boolean = false;
-  
-  // Audio y efectos
-  sonidosHabilitados: boolean = true;
-  efectosVisuales: boolean = true;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
+  // Estadísticas
+  secuenciasCorrectas: number = 0;
 
-  ngOnInit() {
-    this.iniciarJuego();
+  // Modal personalizado
+  mostrarModal: boolean = false;
+  tituloModal: string = '';
+  mensajeModal: string = '';
+  tipoModal: 'success' | 'error' | 'info' = 'info';
+  puntosModal: number = 0;
+
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {
+    this.cargarEstadisticas();
   }
 
-  ngOnDestroy() {
-    if (this.intervaloTiempo) {
-      clearInterval(this.intervaloTiempo);
+  ngOnDestroy(): void {
+    this.detenerCamara();
+    if (this.intervalTemporizador) {
+      clearInterval(this.intervalTemporizador);
     }
   }
 
-  // === INICIALIZACIÓN DEL JUEGO ===
-  
-  iniciarJuego() {
-    this.faseJuego = 'instrucciones';
-    this.nivelActual = 1;
-    this.puntaje = 0;
-    this.vidas = 3;
-    this.intentos = 0;
-    this.puzzlesCompletados = 0;
-    this.secuenciasCorrectas = 0;
-    this.tiempoTranscurrido = 0;
-    
-    console.log('🎮 Iniciando Puzzle de Movimientos...');
+  // ==================== MÉTODOS DE CÁMARA Y MEDIAPIPE ====================
+
+  async iniciarCamara(): Promise<void> {
+    try {
+      // Inicializar MediaPipe Face Mesh
+      this.faceMesh = new FaceMesh({
+        locateFile: (file) => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+        }
+      });
+
+      this.faceMesh.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+      });
+
+      this.faceMesh.onResults((results: Results) => this.onResults(results));
+
+      // Esperar a que el video esté disponible
+      await this.esperarVideoElement();
+
+      // Inicializar cámara
+      const video = this.videoElement.nativeElement;
+      this.camera = new Camera(video, {
+        onFrame: async () => {
+          await this.faceMesh.send({ image: video });
+        },
+        width: 640,
+        height: 480
+      });
+
+      await this.camera.start();
+      console.log('Cámara iniciada correctamente');
+    } catch (error) {
+      console.error('Error al iniciar la cámara:', error);
+      alert('No se pudo acceder a la cámara. Por favor, permite el acceso a la cámara.');
+    }
   }
 
-  empezarNivel() {
+  private esperarVideoElement(): Promise<void> {
+    return new Promise((resolve) => {
+      const checkVideo = () => {
+        if (this.videoElement && this.videoElement.nativeElement) {
+          resolve();
+        } else {
+          setTimeout(checkVideo, 100);
+        }
+      };
+      checkVideo();
+    });
+  }
+
+  onResults(results: Results): void {
+    if (this.faseJuego !== 'captura') return;
+
+    const canvas = this.canvasElement.nativeElement;
+    const ctx = canvas.getContext('2d')!;
+    const video = this.videoElement.nativeElement;
+
+    // Ajustar tamaño del canvas
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Dibujar el video en el canvas
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
+
+    // Verificar si hay rostro detectado
+    if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
+      this.movimientoDetectado = false;
+      this.mensajeValidacion = '❌ No detectamos tu cara. Acércate a la cámara';
+      return;
+    }
+
+    const landmarks = results.multiFaceLandmarks[0];
+    const movimiento = this.todosLosMovimientos[this.movimientoActualCaptura];
+
+    // Validar el movimiento según el ID
+    this.movimientoDetectado = this.validarMovimiento(movimiento.id, landmarks);
+
+    if (this.movimientoDetectado) {
+      this.mensajeValidacion = '✅ ¡Perfecto! Ahora toma la foto 📸';
+      
+      // Dibujar un borde verde en el canvas cuando detecta correctamente
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 10;
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    } else {
+      this.mensajeValidacion = `❌ ${this.getMensajeError(movimiento.id)}`;
+      
+      // Dibujar un borde rojo cuando no detecta
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 10;
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
+  validarMovimiento(movimientoId: number, landmarks: any[]): boolean {
+    switch (movimientoId) {
+      case 1: // Sacar Lengua
+        return this.detectarLenguaAfuera(landmarks);
+      case 2: // Tocar Nariz
+        return this.detectarLenguaArriba(landmarks);
+      case 3: // Sonrisa Amplia
+        return this.detectarSonrisa(landmarks);
+      case 4: // Hacer Beso
+        return this.detectarBeso(landmarks);
+      case 5: // Tocar Mentón
+        return this.detectarLenguaAbajo(landmarks);
+      case 6: // Lengua Arriba (Paladar)
+        return this.detectarLenguaPaladar(landmarks);
+      case 7: // Boca Abierta
+        return this.detectarBocaAbierta(landmarks);
+      case 8: // Boca Cerrada
+        return this.detectarBocaCerrada(landmarks);
+      default:
+        return false;
+    }
+  }
+
+  detectarLenguaAfuera(landmarks: any[]): boolean {
+    // Landmarks de la boca
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
+    
+    // Si la boca está muy abierta, asumimos que la lengua está afuera
+    return aperturaBoca > 0.04;
+  }
+
+  detectarLenguaArriba(landmarks: any[]): boolean {
+    // Detectar si la lengua está tocando la nariz
+    const labioSuperior = landmarks[13];
+    const puntaNariz = landmarks[1];
+    const labioInferior = landmarks[14];
+    
+    const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
+    const distanciaNariz = Math.abs(labioSuperior.y - puntaNariz.y);
+    
+    // Boca abierta y cerca de la nariz
+    return aperturaBoca > 0.03 && distanciaNariz < 0.10;
+  }
+
+  detectarSonrisa(landmarks: any[]): boolean {
+    // Detectar sonrisa amplia
+    // Las comisuras de la boca se estiran hacia los lados
+    const comisuraIzq = landmarks[61];
+    const comisuraDer = landmarks[291];
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    
+    // Calcular el ancho total de la boca
+    const anchoBoca = Math.abs(comisuraDer.x - comisuraIzq.x);
+    
+    // Calcular la apertura de la boca (altura)
+    const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
+    
+    // Debug opcional (descomentar para ver valores)
+    // console.log('Sonrisa - Ancho:', anchoBoca.toFixed(3), 'Apertura:', aperturaBoca.toFixed(3));
+    
+    // Para sonrisa: boca ancha (más de 0.12) y levemente abierta
+    // Hacemos la detección MÁS PERMISIVA
+    return anchoBoca > 0.12 && aperturaBoca > 0.01 && aperturaBoca < 0.06;
+  }
+
+  detectarBeso(landmarks: any[]): boolean {
+    // Detectar labios fruncidos (posición de beso)
+    const comisuraIzq = landmarks[61];
+    const comisuraDer = landmarks[291];
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    
+    // Calcular el ancho de la boca (los labios se juntan y la boca se estrecha)
+    const anchoBoca = Math.abs(comisuraDer.x - comisuraIzq.x);
+    
+    // Calcular apertura (debe ser pequeña o cerrada)
+    const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
+    
+    // Debug opcional (descomentar para ver valores)
+    // console.log('Beso - Ancho:', anchoBoca.toFixed(3), 'Apertura:', aperturaBoca.toFixed(3));
+    
+    // Para beso: boca estrecha y labios juntos o levemente separados
+    // Hacemos la detección MÁS PERMISIVA
+    return anchoBoca < 0.11 && aperturaBoca < 0.03;
+  }
+
+  detectarLenguaAbajo(landmarks: any[]): boolean {
+    // Detectar lengua bajando hacia el mentón
+    const labioInferior = landmarks[14];
+    const menton = landmarks[152]; // Punto del mentón
+    
+    const aperturaBoca = landmarks[14].y - landmarks[13].y;
+    const distanciaMenton = Math.abs(labioInferior.y - menton.y);
+    
+    // Boca abierta y lengua cerca del mentón
+    return aperturaBoca > 0.04 && distanciaMenton < 0.12;
+  }
+
+  detectarLenguaPaladar(landmarks: any[]): boolean {
+    // Detectar lengua tocando el paladar (boca levemente abierta, sin apertura grande)
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
+    
+    // Apertura moderada (lengua arriba pero no sacada)
+    return aperturaBoca > 0.015 && aperturaBoca < 0.035;
+  }
+
+  detectarBocaAbierta(landmarks: any[]): boolean {
+    // Detectar boca muy abierta
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
+    
+    // Boca MUY abierta
+    return aperturaBoca > 0.05;
+  }
+
+  detectarBocaCerrada(landmarks: any[]): boolean {
+    // Detectar boca cerrada
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
+    
+    // Boca casi cerrada
+    return aperturaBoca < 0.02;
+  }
+
+  getMensajeError(movimientoId: number): string {
+    switch (movimientoId) {
+      case 1:
+        return '¡No vemos tu lengua! Sácala más 👅';
+      case 2:
+        return '¡Intenta tocar tu nariz con la lengua! 🔔';
+      case 3:
+        return '¡Sonríe más! Muestra tus dientes 😁';
+      case 4:
+        return '¡Junta más los labios como para dar un beso! 😘';
+      case 5:
+        return '¡Baja tu lengua hacia el mentón! ⬇️';
+      case 6:
+        return '¡Sube tu lengua al paladar! ⬆️';
+      case 7:
+        return '¡Abre más la boca! 😮';
+      case 8:
+        return '¡Cierra más la boca! 😐';
+      default:
+        return 'Intenta de nuevo';
+    }
+  }
+
+  capturarFoto(): void {
+    if (!this.movimientoDetectado) {
+      this.mostrarModalPersonalizado(
+        'Movimiento no detectado',
+        'Primero debes hacer el movimiento correctamente',
+        'error',
+        0
+      );
+      return;
+    }
+
+    const canvas = this.canvasElement.nativeElement;
+    const fotoBase64 = canvas.toDataURL('image/jpeg', 0.8);
+
+    // Guardar la foto en el movimiento
+    this.todosLosMovimientos[this.movimientoActualCaptura].foto = fotoBase64;
+    this.todosLosMovimientos[this.movimientoActualCaptura].emoji = ''; // Vaciar emoji para usar foto
+
+    // Efecto de flash
+    this.mostrarFlashCaptura();
+
+    // Avanzar al siguiente movimiento
+    this.movimientoActualCaptura++;
+
+    if (this.movimientoActualCaptura >= this.todosLosMovimientos.length) {
+      // Terminó de capturar todas las fotos
+      setTimeout(() => {
+        this.detenerCamara();
+        this.iniciarFaseJuego();
+      }, 500);
+    } else {
+      // Resetear estado para el siguiente movimiento
+      this.movimientoDetectado = false;
+      this.mensajeValidacion = '';
+    }
+  }
+
+  mostrarFlashCaptura(): void {
+    const canvas = this.canvasElement.nativeElement;
+    const ctx = canvas.getContext('2d')!;
+    
+    // Flash blanco
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    setTimeout(() => {
+      // El onResults lo redibujará
+    }, 100);
+  }
+
+  detenerCamara(): void {
+    if (this.camera) {
+      this.camera.stop();
+    }
+    if (this.faceMesh) {
+      this.faceMesh.close();
+    }
+  }
+
+  // ==================== MÉTODOS DEL JUEGO ====================
+
+  empezarNivel(): void {
+    // Verificar si ya tenemos fotos capturadas
+    const yaHayFotos = this.todosLosMovimientos.some(mov => mov.foto !== null);
+    
+    if (yaHayFotos) {
+      // Si ya tenemos fotos, ir directo al juego
+      this.iniciarFaseJuego();
+    } else {
+      // Si no hay fotos, capturar todas primero
+      this.faseJuego = 'captura';
+      this.movimientoActualCaptura = 0;
+      
+      // Resetear fotos de todos los movimientos
+      const emojisOriginales = ['👅', '🔔', '😁', '😘', '⬇️', '⬆️', '😮', '😐'];
+      this.todosLosMovimientos.forEach((mov, index) => {
+        mov.foto = null;
+        mov.emoji = emojisOriginales[index];
+      });
+
+      // Iniciar cámara después de un pequeño delay para que se renderice el template
+      setTimeout(() => {
+        this.iniciarCamara();
+      }, 100);
+    }
+  }
+
+  iniciarFaseJuego(): void {
     this.faseJuego = 'jugando';
-    this.cargarSecuencia();
+    this.secuenciaActual = this.secuencias[this.nivelActual - 1];
+    this.preparaNivel();
     this.iniciarTemporizador();
-    
-    console.log(`🆙 Iniciando nivel ${this.nivelActual}`);
   }
 
-  cargarSecuencia() {
-    // Seleccionar secuencia según el nivel
-    const indiceSecuencia = Math.min(this.nivelActual - 1, this.secuenciasDisponibles.length - 1);
-    this.secuenciaActual = this.secuenciasDisponibles[indiceSecuencia];
-    
+  preparaNivel(): void {
     if (!this.secuenciaActual) return;
-    
-    // Crear movimientos arrastrables
-    this.crearMovimientosArrastrables();
-    
-    // Inicializar zonas de destino
-    this.zonasDestino = new Array(this.secuenciaActual.movimientos.length).fill(null);
+
+    // Crear zonas de destino dinámicamente según el número de movimientos
+    const numMovimientos = this.secuenciaActual.movimientos.length;
+    this.zonasDestino = new Array(numMovimientos).fill(null);
     
     this.secuenciaCompleta = false;
+    this.intentos = 0;
     this.mostrarPista = false;
-    this.puntajePorNivel = 0;
-    this.tiempoInicio = Date.now();
-    
-    console.log(`📝 Secuencia cargada: ${this.secuenciaActual.nombre} (${this.secuenciaActual.movimientos.length} movimientos)`);
+
+    // Preparar movimientos arrastrables según la secuencia del nivel
+    this.movimientosArrastrable = this.secuenciaActual.movimientos.map((idMov, index) => {
+      const movimiento = this.todosLosMovimientos.find(m => m.id === idMov)!;
+      return {
+        ...movimiento,
+        posicionCorrecta: index,
+        colocado: false,
+        arrastrando: false
+      };
+    });
+
+    // Mezclar los movimientos
+    this.movimientosArrastrable = this.mezclarArray(this.movimientosArrastrable);
   }
 
-  crearMovimientosArrastrables() {
-    if (!this.secuenciaActual) return;
-    
-    this.movimientosArrastrable = this.secuenciaActual.movimientos.map((movimiento, index) => ({
-      ...movimiento,
-      posicionActual: -1, // No colocado
-      posicionCorrecta: index,
-      colocado: false,
-      arrastrando: false
-    }));
-    
-    // Mezclar orden para hacer el puzzle
-    this.mezclarMovimientos();
-  }
-
-  mezclarMovimientos() {
-    for (let i = this.movimientosArrastrable.length - 1; i > 0; i--) {
+  mezclarArray<T>(array: T[]): T[] {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [this.movimientosArrastrable[i], this.movimientosArrastrable[j]] = 
-      [this.movimientosArrastrable[j], this.movimientosArrastrable[i]];
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
+    return arr;
   }
 
-  // === FUNCIONALIDAD DRAG & DROP ===
-  
-  onDragStart(event: DragEvent, movimiento: MovimientoDraggable) {
-    this.movimientoArrastrado = movimiento;
+  // ==================== DRAG & DROP ====================
+
+  onDragStart(event: DragEvent, movimiento: MovimientoLingual): void {
+    if (this.faseJuego !== 'jugando') return;
+    
+    event.dataTransfer!.effectAllowed = 'move';
+    event.dataTransfer!.setData('movimientoId', movimiento.id.toString());
     movimiento.arrastrando = true;
-    
-    if (event.dataTransfer) {
-      event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/plain', movimiento.id);
-    }
-    
-    console.log(`🫴 Arrastrando: ${movimiento.nombre}`);
   }
 
-  onDragOver(event: DragEvent) {
+  onDragOver(event: DragEvent): void {
     event.preventDefault();
     event.dataTransfer!.dropEffect = 'move';
   }
 
-  onDrop(event: DragEvent, posicionDestino: number) {
+  onDrop(event: DragEvent, zonaIndex: number): void {
     event.preventDefault();
     
-    if (!this.movimientoArrastrado || this.movimientoArrastrado.arrastrando === false) {
-      return;
-    }
+    const movimientoId = parseInt(event.dataTransfer!.getData('movimientoId'));
+    const movimiento = this.movimientosArrastrable.find(m => m.id === movimientoId);
     
-    // Verificar si la zona ya está ocupada
-    if (this.zonasDestino[posicionDestino] !== null) {
-      this.intercambiarPosiciones(posicionDestino);
-    } else {
-      this.colocarEnZona(posicionDestino);
-    }
-    
-    // Limpiar estado de arrastre
-    this.movimientoArrastrado.arrastrando = false;
-    this.movimientoArrastrado = null;
-  }
+    if (!movimiento) return;
 
-  colocarEnZona(posicionDestino: number) {
-    if (!this.movimientoArrastrado) return;
-    
-    // Remover de posición anterior si tenía una
-    if (this.movimientoArrastrado.posicionActual !== -1) {
-      this.zonasDestino[this.movimientoArrastrado.posicionActual] = null;
-    }
-    
-    // Colocar en nueva posición
-    this.movimientoArrastrado.posicionActual = posicionDestino;
-    this.movimientoArrastrado.colocado = true;
-    this.zonasDestino[posicionDestino] = this.movimientoArrastrado.id;
-    
-    console.log(`📍 ${this.movimientoArrastrado.nombre} colocado en posición ${posicionDestino + 1}`);
-  }
-
-  intercambiarPosiciones(posicionDestino: number) {
-    if (!this.movimientoArrastrado) return;
-    
-    const posicionAnterior = this.movimientoArrastrado.posicionActual;
-    
-    // Intercambiar las posiciones en el array
-    const movimientoEnDestino = this.movimientosArrastrable.find(m => m.posicionActual === posicionDestino);
-    
-    if (movimientoEnDestino) {
-      movimientoEnDestino.posicionActual = posicionAnterior;
-      this.zonasDestino[posicionAnterior] = movimientoEnDestino.id;
-    }
-    
-    // Actualizar zonas
-    this.movimientoArrastrado.posicionActual = posicionDestino;
-    this.zonasDestino[posicionDestino] = this.movimientoArrastrado.id;
-  }
-
-  // === VERIFICACIÓN DE SECUENCIA ===
-  
-  verificarSecuencia() {
-    if (!this.secuenciaActual) return;
-    
-    this.faseJuego = 'verificando';
-    this.intentos++;
-    
-    // Verificar si todos los movimientos están colocados
-    const todosColocados = this.movimientosArrastrable.every(m => m.colocado);
-    if (!todosColocados) {
-      this.mostrarError('¡Coloca todos los movimientos!');
-      return;
-    }
-    
-    // Verificar orden correcto
-    let secuenciaCorrecta = true;
-    
-    for (let i = 0; i < this.zonasDestino.length; i++) {
-      const movimientoId = this.zonasDestino[i];
-      const movimientoEsperado = this.secuenciaActual.movimientos[i];
-      
-      if (movimientoId !== movimientoEsperado.id) {
-        secuenciaCorrecta = false;
-        break;
+    // Si la zona ya tiene un movimiento, devolverlo al banco
+    if (this.zonasDestino[zonaIndex] !== null) {
+      const movimientoAnterior = this.obtenerMovimientoPorId(this.zonasDestino[zonaIndex]!);
+      if (movimientoAnterior) {
+        movimientoAnterior.colocado = false;
       }
     }
-    
-    if (secuenciaCorrecta) {
-      this.secuenciaCompletada();
-    } else {
-      this.secuenciaIncorrecta();
+
+    // Si el movimiento ya estaba colocado, liberar su zona anterior
+    const zonaAnterior = this.zonasDestino.indexOf(movimiento.id);
+    if (zonaAnterior !== -1) {
+      this.zonasDestino[zonaAnterior] = null;
     }
+
+    // Colocar el movimiento en la nueva zona
+    this.zonasDestino[zonaIndex] = movimiento.id;
+    movimiento.colocado = true;
+    movimiento.arrastrando = false;
+
+    // Verificar si la secuencia está completa
+    this.secuenciaCompleta = this.zonasDestino.every(z => z !== null);
   }
 
-  secuenciaCompletada() {
-    this.secuenciaCompleta = true;
-    this.secuenciasCorrectas++;
-    this.puzzlesCompletados++;
-    
-    // Calcular puntaje
-    this.tiempoCompletado = (Date.now() - this.tiempoInicio) / 1000;
-    this.calcularPuntaje();
-    
-    console.log(`✅ ¡Secuencia completada! Puntaje: +${this.puntajePorNivel}`);
-    
+  obtenerMovimientoPorId(id: number): MovimientoLingual | undefined {
+    return this.movimientosArrastrable.find(m => m.id === id);
+  }
+
+  // ==================== VERIFICACIÓN ====================
+
+  verificarSecuencia(): void {
+    if (!this.secuenciaCompleta) {
+      this.mostrarModalPersonalizado(
+        '¡Secuencia incompleta!',
+        'Completa toda la secuencia primero arrastrando todas las fotos',
+        'info',
+        0
+      );
+      return;
+    }
+
+    this.faseJuego = 'verificando';
+    this.intentos++;
+
     setTimeout(() => {
-      this.siguienteNivel();
+      const esCorrecta = this.verificarOrdenCorrecto();
+
+      if (esCorrecta) {
+        this.manejarSecuenciaCorrecta();
+      } else {
+        this.manejarSecuenciaIncorrecta();
+      }
+    }, 1500);
+  }
+
+  verificarOrdenCorrecto(): boolean {
+    return this.zonasDestino.every((movId, index) => {
+      const movimiento = this.obtenerMovimientoPorId(movId!);
+      return movimiento && movimiento.posicionCorrecta === index;
+    });
+  }
+
+  manejarSecuenciaCorrecta(): void {
+    this.secuenciasCorrectas++;
+
+    this.mostrarModalPersonalizado(
+      '¡Excelente! 🎉',
+      `¡Muy bien! Has completado la secuencia correctamente.`,
+      'success',
+      0
+    );
+
+    // Avanzar al siguiente nivel después de cerrar el modal
+    setTimeout(() => {
+      if (this.nivelActual < this.maxNiveles) {
+        this.nivelActual++;
+        this.faseJuego = 'jugando';
+        
+        // Actualizar la secuencia actual al nuevo nivel
+        this.secuenciaActual = this.secuencias[this.nivelActual - 1];
+        
+        // Preparar el nuevo nivel
+        this.preparaNivel();
+        this.iniciarTemporizador();
+      } else {
+        this.detenerTemporizador();
+        this.faseJuego = 'completado';
+        this.guardarEstadisticas();
+      }
     }, 2000);
   }
 
-  secuenciaIncorrecta() {
-    console.log('❌ Secuencia incorrecta');
+  manejarSecuenciaIncorrecta(): void {
+    this.mostrarModalPersonalizado(
+      'Inténtalo de nuevo 🔄',
+      `El orden no es correcto. ¡Vuelve a intentarlo!`,
+      'error',
+      0
+    );
     
-    // Mostrar pista después de varios intentos
-    if (this.intentos >= 3) {
-      this.mostrarPista = true;
-    }
-    
-    // Perder vida después de muchos intentos
-    if (this.intentos >= 5) {
-      this.perderVida();
-    } else {
+    setTimeout(() => {
       this.faseJuego = 'jugando';
-    }
-  }
-
-  mostrarError(mensaje: string) {
-    console.log(`⚠️ ${mensaje}`);
-    this.faseJuego = 'jugando';
-  }
-
-  // === PROGRESIÓN DE NIVELES ===
-  
-  siguienteNivel() {
-    if (this.nivelActual >= this.maxNiveles) {
-      this.juegoCompletado();
-      return;
-    }
-    
-    this.nivelActual++;
-    this.intentos = 0;
-    this.mostrarPista = false;
-    
-    this.cargarSecuencia();
-    this.faseJuego = 'jugando';
-    
-    console.log(`🆙 Avanzando al nivel ${this.nivelActual}`);
-  }
-
-  perderVida() {
-    this.vidas--;
-    console.log(`💔 Vida perdida. Vidas restantes: ${this.vidas}`);
-    
-    if (this.vidas <= 0) {
-      this.juegoTerminado();
-    } else {
-      // Reiniciar nivel actual
-      this.intentos = 0;
-      this.cargarSecuencia();
-      this.faseJuego = 'jugando';
-    }
-  }
-
-  juegoTerminado() {
-    this.faseJuego = 'completado';
-    if (this.intervaloTiempo) {
-      clearInterval(this.intervaloTiempo);
-    }
-    
-    console.log(`💀 Juego terminado. Puntaje final: ${this.puntaje}`);
-  }
-
-  juegoCompletado() {
-    this.faseJuego = 'completado';
-    if (this.intervaloTiempo) {
-      clearInterval(this.intervaloTiempo);
-    }
-    
-    console.log(`🎉 ¡Juego completado! Puntaje final: ${this.puntaje}`);
-  }
-
-  // === SISTEMA DE TIEMPO ===
-  
-  iniciarTemporizador() {
-    if (this.intervaloTiempo) {
-      clearInterval(this.intervaloTiempo);
-    }
-    
-    this.intervaloTiempo = setInterval(() => {
-      this.tiempoTranscurrido++;
       
-      if (this.tiempoTranscurrido >= this.tiempoLimite) {
-        this.perderVida();
+      // Resetear posiciones pero mantener fotos
+      const numMovimientos = this.secuenciaActual!.movimientos.length;
+      this.zonasDestino = new Array(numMovimientos).fill(null);
+      this.movimientosArrastrable.forEach(m => m.colocado = false);
+      this.secuenciaCompleta = false;
+    }, 2000);
+  }
+
+  // ==================== TEMPORIZADOR ====================
+
+  iniciarTemporizador(): void {
+    this.tiempoInicio = Date.now();
+    this.intervalTemporizador = setInterval(() => {
+      const tiempoTranscurrido = this.obtenerTiempoTranscurrido();
+      
+      if (tiempoTranscurrido >= this.secuenciaActual!.tiempoLimite) {
+        this.detenerTemporizador();
+        
+        this.mostrarModalPersonalizado(
+          '¡Tiempo agotado! ⏰',
+          'Se acabó el tiempo. ¡Intenta completar la secuencia más rápido!',
+          'error',
+          0
+        );
+        setTimeout(() => {
+          this.preparaNivel();
+          this.iniciarTemporizador();
+        }, 2000);
       }
     }, 1000);
   }
 
+  detenerTemporizador(): void {
+    if (this.intervalTemporizador) {
+      clearInterval(this.intervalTemporizador);
+    }
+  }
+
+  obtenerTiempoTranscurrido(): number {
+    return Math.floor((Date.now() - this.tiempoInicio) / 1000);
+  }
+
   obtenerTiempoRestante(): number {
-    return Math.max(0, this.tiempoLimite - this.tiempoTranscurrido);
+    if (!this.secuenciaActual) return 0;
+    return Math.max(0, this.secuenciaActual.tiempoLimite - this.obtenerTiempoTranscurrido());
   }
 
   formatearTiempo(segundos: number): string {
-    const minutos = Math.floor(segundos / 60);
-    const segs = segundos % 60;
-    return `${minutos}:${segs.toString().padStart(2, '0')}`;
+    const mins = Math.floor(segundos / 60);
+    const secs = segundos % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
-  // === SISTEMA DE PUNTAJE ===
-  
-  calcularPuntaje() {
-    if (!this.secuenciaActual) return;
-    
-    let puntajeBase = 100;
-    
-    // Bonus por dificultad
-    switch (this.secuenciaActual.dificultad) {
-      case 'facil': puntajeBase = 100; break;
-      case 'medio': puntajeBase = 200; break;
-      case 'dificil': puntajeBase = 300; break;
-    }
-    
-    // Bonus por velocidad
-    const bonusVelocidad = Math.max(0, 50 - Math.floor(this.tiempoCompletado));
-    
-    // Bonus por pocos intentos
-    const bonusIntentos = Math.max(0, (5 - this.intentos) * 20);
-    
-    // Bonus por nivel
-    const bonusNivel = this.nivelActual * 10;
-    
-    this.puntajePorNivel = puntajeBase + bonusVelocidad + bonusIntentos + bonusNivel;
-    this.puntaje += this.puntajePorNivel;
-  }
-
-  obtenerEstrellas(): number {
-    if (this.vidas >= 3 && this.nivelActual >= this.maxNiveles && this.puntaje >= 4000) return 3;
-    if (this.vidas >= 2 && this.nivelActual >= 4 && this.puntaje >= 2500) return 2;
-    if (this.puntaje >= 1500) return 1;
-    return 0;
-  }
-
-  getIntentosPromedio(): string {
-    return (this.intentos / Math.max(1, this.puzzlesCompletados)).toFixed(1);
-  }
-
-  // === UTILIDADES ADICIONALES ===
-  
-  obtenerMovimientoPorId(id: string): MovimientoDraggable | null {
-    return this.movimientosArrastrable.find(m => m.id === id) || null;
-  }
+  // ==================== ESTADÍSTICAS ====================
 
   obtenerPorcentajeProgreso(): number {
     return Math.round((this.nivelActual / this.maxNiveles) * 100);
   }
 
-  // === NAVEGACIÓN ===
-  
-  reiniciarJuego() {
-    if (this.intervaloTiempo) {
-      clearInterval(this.intervaloTiempo);
+  cargarEstadisticas(): void {
+    const stats = localStorage.getItem('puzzleMovimientosStats');
+    if (stats) {
+      const data: EstadisticasJuego = JSON.parse(stats);
+      // Cargar estadísticas si es necesario
     }
-    this.iniciarJuego();
   }
 
-  volverAJuegos() {
-    if (this.intervaloTiempo) {
-      clearInterval(this.intervaloTiempo);
-    }
-    this.router.navigate(['/juegos-terapeuticos']);
+  guardarEstadisticas(): void {
+    const stats: EstadisticasJuego = {
+      secuenciasCorrectas: this.secuenciasCorrectas,
+      intentosTotales: this.intentos,
+      tiempoTotal: this.obtenerTiempoTranscurrido()
+    };
+    localStorage.setItem('puzzleMovimientosStats', JSON.stringify(stats));
   }
 
-  siguienteJuego() {
-    if (this.intervaloTiempo) {
-      clearInterval(this.intervaloTiempo);
-    }
-    this.router.navigate(['/juego', 'linguales', 'ritmo-silabas']);
+  // ==================== NAVEGACIÓN ====================
+
+  mostrarModalPersonalizado(titulo: string, mensaje: string, tipo: 'success' | 'error' | 'info', puntos: number): void {
+    this.tituloModal = titulo;
+    this.mensajeModal = mensaje;
+    this.tipoModal = tipo;
+    this.puntosModal = puntos;
+    this.mostrarModal = true;
   }
 
-  saltarInstrucciones() {
-    this.empezarNivel();
+  cerrarModal(): void {
+    this.mostrarModal = false;
+  }
+
+  reiniciarJuego(): void {
+    this.nivelActual = 1;
+    this.intentos = 0;
+    this.secuenciasCorrectas = 0;
+    this.faseJuego = 'instrucciones';
+    
+    // Resetear fotos
+    const emojisOriginales = ['👅', '🔔', '😁', '😘', '⬇️', '⬆️', '😮', '😐'];
+    this.todosLosMovimientos.forEach((mov, index) => {
+      mov.foto = null;
+      mov.emoji = emojisOriginales[index];
+    });
+  }
+
+  siguienteJuego(): void {
+    this.router.navigate(['/chat/juego/linguales/ritmo-silabas']);
+  }
+
+  volverAJuegos(): void {
+    this.router.navigate(['/chat/juegos-terapeuticos']);
   }
 }

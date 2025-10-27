@@ -22,6 +22,8 @@ Escribe cualquier palabra o frase que quieras practicar y te ayudaré a pronunci
           <app-chat-message
             [text]="message.text"
             [audioUrl]="message.audioUrl"
+            [emojis]="message.emojis"
+            [decorativeText]="message.decorativeText"
           />
         } @else {
           <app-my-message [text]="message.text" />

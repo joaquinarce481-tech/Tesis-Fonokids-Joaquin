@@ -4,7 +4,7 @@ import type { TranslateResponse } from '@interfaces/translate.response';
 export const translateTextUseCase = async (prompt: string, lang: string ) => {
 
   try {
-    const resp = await fetch(`${environment.backendApi}/translate`, {
+    const resp = await fetch(`${environment.backendApi}/gpt/translate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

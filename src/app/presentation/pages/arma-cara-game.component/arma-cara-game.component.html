@@ -3,14 +3,11 @@
   <!-- ========== PANTALLA DE INICIO ========== -->
   <div *ngIf="pantalla === 'inicio'" class="pantalla-inicio">
     <div class="contenido-inicio">
-      
-      <!-- Título principal -->
       <div class="titulo-principal">
         <h1 class="titulo-juego">🎭 Arma la Cara</h1>
         <p class="subtitulo-juego">Juego de Reconocimiento de Emociones</p>
       </div>
 
-      <!-- Contexto del juego -->
       <div class="contexto-card">
         <h2 class="contexto-titulo">📖 ¿Cómo jugar?</h2>
         <div class="contexto-lista">
@@ -21,84 +18,58 @@
         </div>
       </div>
 
-      <!-- Modos de juego -->
       <div class="modos-grid">
-        
-        <!-- Modo Práctica -->
         <div class="modo-card">
           <div class="modo-emoji">🎯</div>
           <h3 class="modo-titulo">Modo Práctica</h3>
           <p class="modo-descripcion">Sin presión de tiempo. Aprende a tu ritmo</p>
-          <button class="btn-modo btn-verde" (click)="irASeleccion('practica')">
-            Jugar
-          </button>
+          <button class="btn-modo btn-verde" (click)="irASeleccion('practica')">Jugar</button>
         </div>
 
-        <!-- Modo Contrarreloj -->
         <div class="modo-card">
           <div class="modo-emoji">⏱️</div>
           <h3 class="modo-titulo">Contrarreloj</h3>
           <p class="modo-descripcion">¡Completa antes de que termine el tiempo!</p>
-          <button class="btn-modo btn-naranja" (click)="irASeleccion('contrarreloj')">
-            Jugar
-          </button>
+          <button class="btn-modo btn-naranja" (click)="irASeleccion('contrarreloj')">Jugar</button>
         </div>
 
-        <!-- Modo Desafío -->
         <div class="modo-card">
           <div class="modo-emoji">🏆</div>
           <h3 class="modo-titulo">Desafío</h3>
           <p class="modo-descripcion">Múltiples emociones. ¡Demuestra tu maestría!</p>
-          <button class="btn-modo btn-morado" (click)="iniciarDesafioAleatorio()">
-            Jugar
-          </button>
+          <button class="btn-modo btn-morado" (click)="iniciarDesafioAleatorio()">Jugar</button>
         </div>
-        
       </div>
 
-      <!-- Botón volver -->
-      <button class="btn-volver-juegos" (click)="volverAJuegos()">
-        ← Volver a Juegos
-      </button>
-      
+      <button class="btn-volver-juegos" (click)="volverAJuegos()">← Volver a Juegos</button>
     </div>
   </div>
 
   <!-- ========== PANTALLA DE SELECCIÓN DE EMOCIÓN ========== -->
   <div *ngIf="pantalla === 'seleccion'" class="pantalla-seleccion">
     <div class="seleccion-contenido">
-      
       <h2 class="seleccion-titulo">Elige una emoción para armar</h2>
-      
+
       <div class="emociones-grid">
-        <div *ngFor="let item of getEmocionesList()" 
+        <div *ngFor="let item of getEmocionesList()"
              class="emocion-card"
              [style.border-color]="item.emocion.color"
              [style.background]="'linear-gradient(135deg, ' + item.emocion.color + '22 0%, ' + item.emocion.color + '44 100%)'"
              (click)="iniciarJuego(item.key)">
-          
           <div class="emocion-emoji">{{ item.emocion.emoji }}</div>
-          <h3 class="emocion-nombre" [style.color]="item.emocion.color">
-            {{ item.emocion.nombre }}
-          </h3>
+          <h3 class="emocion-nombre" [style.color]="item.emocion.color">{{ item.emocion.nombre }}</h3>
           <p class="emocion-partes">{{ item.emocion.partes.length }} partes para colocar</p>
         </div>
       </div>
 
-      <button class="btn-volver" (click)="volverInicio()">
-        ← Volver
-      </button>
-      
+      <button class="btn-volver" (click)="volverInicio()">← Volver</button>
     </div>
   </div>
 
   <!-- ========== PANTALLA DE JUEGO ========== -->
   <div *ngIf="pantalla === 'juego'" class="pantalla-juego">
-    
-    <!-- Header con estadísticas -->
     <div class="juego-header">
       <div class="header-stats">
-        
         <div class="stat-item">
           <div class="stat-label">Emoción objetivo</div>
           <div class="stat-value-grande">
@@ -111,48 +82,73 @@
             <div class="stat-label">Tiempo</div>
             <div class="stat-value">{{ getTiempoRestante() }}s</div>
           </div>
-          
           <div class="stat-item">
             <div class="stat-label">Puntaje</div>
             <div class="stat-value">{{ puntaje }}</div>
           </div>
-          
           <div class="stat-item">
             <div class="stat-label">Intentos</div>
             <div class="stat-value">{{ intentos }}</div>
           </div>
         </div>
 
-        <button class="btn-pista" (click)="togglePista()">
-          💡 {{ mostrarPista ? 'Ocultar' : 'Pista' }}
-        </button>
-        
+        <button class="btn-pista" (click)="togglePista()">💡 {{ mostrarPista ? 'Ocultar' : 'Pista' }}</button>
       </div>
     </div>
 
-    <!-- Área de juego principal -->
     <div class="juego-area">
-      
       <!-- Columna izquierda: Cara para armar -->
       <div class="cara-columna">
         <h3 class="columna-titulo">Arma la cara aquí</h3>
-        
-        <!-- Contenedor de la cara -->
-        <div class="cara-container">
-          
-          <!-- Elementos fijos de la cara -->
+
+        <!-- Contenedor de la cara (SVG lindo + slots superpuestos) -->
+        <div class="cara-container pretty">
+          <!-- SVG cabeza -->
+          <svg class="face-svg" viewBox="0 0 300 400" aria-hidden="true">
+            <ellipse cx="150" cy="360" rx="90" ry="18" fill="rgba(0,0,0,.18)"/>
+            <defs>
+              <radialGradient id="skin" cx="50%" cy="30%" r="70%">
+                <stop offset="0%"  stop-color="#ffe6bf"/>
+                <stop offset="60%" stop-color="#ffd59a"/>
+                <stop offset="100%" stop-color="#ffc97c"/>
+              </radialGradient>
+              <linearGradient id="chin" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#ffc97c" />
+                <stop offset="100%" stop-color="#ffbf69" />
+              </linearGradient>
+            </defs>
+
+            <!-- silueta “cartoon”, no-egg -->
+            <path d="M150,32
+                     C205,32 246,70 246,132
+                     C246,210 230,270 210,305
+                     C198,326 174,342 150,342
+                     C126,342 102,326 90,305
+                     C70,270 54,210 54,132
+                     C54,70 95,32 150,32Z"
+                  fill="url(#skin)" stroke="#d97706" stroke-width="6" />
+
+            <!-- brillo suave -->
+            <ellipse cx="125" cy="90" rx="48" ry="24" fill="rgba(255,255,255,.22)"/>
+
+            <!-- mejillas -->
+            <ellipse cx="110" cy="230" rx="22" ry="14" fill="rgba(255,120,90,.22)"/>
+            <ellipse cx="190" cy="230" rx="22" ry="14" fill="rgba(255,120,90,.22)"/>
+
+            <!-- cuello -->
+            <rect x="110" y="342" width="80" height="28" rx="16" fill="url(#chin)" />
+          </svg>
+
+          <!-- Elementos fijos -->
           <div class="elementos-fijos">
-            <!-- Ojos fijos -->
             <div class="ojos-fijos">
               <div class="ojo-fijo">👁️</div>
               <div class="ojo-fijo">👁️</div>
             </div>
-            
-            <!-- Nariz fija -->
             <div class="nariz-fija">👃</div>
           </div>
-          
-          <!-- Zonas de drop -->
+
+          <!-- Zonas de drop (OJO: handlers fancy) -->
           <div *ngFor="let zona of zonas | keyvalue"
                class="zona-drop"
                [class.zona-ocupada]="getParteEnZona(zona.key)"
@@ -162,23 +158,18 @@
                [style.height.%]="zona.value.height"
                [style.border-color]="getParteEnZona(zona.key) ? getEmocionActual().color : '#cbd5e1'"
                [style.background-color]="getParteEnZona(zona.key) ? getEmocionActual().color + '33' : 'transparent'"
-               (dragover)="onDragOver($event)"
+               (dragover)="onDragOverFancy($event, zona.key)"
+               (dragleave)="onDragLeaveFancy($event)"
                (drop)="onDrop($event, zona.key)">
-            
-            <!-- Parte colocada -->
-            <div *ngIf="getParteEnZona(zona.key)" class="parte-colocada">
+            <div *ngIf="getParteEnZona(zona.key)" class="parte-colocada drop-pop">
               {{ getParteEnZona(zona.key)!.emoji }}
             </div>
-            
-            <!-- Pista -->
             <div *ngIf="!getParteEnZona(zona.key) && mostrarPista" class="zona-pista">
               {{ zona.key }}
             </div>
           </div>
-          
         </div>
 
-        <!-- Feedback -->
         <div *ngIf="mensajeFeedback" class="feedback-mensaje">
           {{ mensajeFeedback }}
         </div>
@@ -187,7 +178,7 @@
       <!-- Columna derecha: Partes disponibles -->
       <div class="partes-columna">
         <h3 class="columna-titulo">Partes disponibles</h3>
-        
+
         <div class="partes-lista">
           <div *ngFor="let parte of getEmocionActual().partes"
                class="parte-card"
@@ -196,7 +187,6 @@
                [draggable]="!estaColocada(parte.id)"
                (dragstart)="onDragStart($event, parte.id)"
                (dragend)="onDragEnd($event)">
-            
             <div class="parte-emoji-grande">{{ parte.emoji }}</div>
             <div class="parte-info">
               <div class="parte-nombre">{{ parte.nombre }}</div>
@@ -207,10 +197,9 @@
           </div>
         </div>
 
-        <!-- Barra de progreso -->
         <div class="progreso-container">
           <div class="progreso-barra">
-            <div class="progreso-fill" 
+            <div class="progreso-fill"
                  [style.width.%]="getProgreso()"
                  [style.background-color]="getEmocionActual().color">
             </div>
@@ -220,47 +209,38 @@
           </div>
         </div>
       </div>
-      
     </div>
   </div>
 
   <!-- ========== PANTALLA DE COMPLETADO ========== -->
   <div *ngIf="pantalla === 'completado'" class="pantalla-completado">
     <div class="completado-card">
-      
-      <!-- Celebración -->
       <div class="celebracion">
         <div class="celebracion-emoji">🎉</div>
         <h2 class="celebracion-titulo">¡Felicitaciones!</h2>
         <p class="celebracion-texto">
-          Has completado la emoción: 
+          Has completado la emoción:
           <strong>{{ getEmocionActual().emoji }} {{ getEmocionActual().nombre }}</strong>
         </p>
       </div>
 
-      <!-- Estrellas -->
       <div class="estrellas-container">
-        <span *ngFor="let i of [1, 2, 3]" 
+        <span *ngFor="let i of [1, 2, 3]"
               class="estrella"
-              [class.estrella-llena]="i <= getEstrellas()">
-          ⭐
-        </span>
+              [class.estrella-llena]="i <= getEstrellas()">⭐</span>
       </div>
 
-      <!-- Estadísticas finales -->
       <div class="stats-finales">
         <div class="stat-final">
           <div class="stat-final-emoji">🎯</div>
           <div class="stat-final-valor">{{ puntaje }}</div>
           <div class="stat-final-label">Puntaje</div>
         </div>
-        
         <div class="stat-final">
           <div class="stat-final-emoji">🔢</div>
           <div class="stat-final-valor">{{ intentos }}</div>
           <div class="stat-final-label">Intentos</div>
         </div>
-        
         <div class="stat-final">
           <div class="stat-final-emoji">⏱️</div>
           <div class="stat-final-valor">{{ tiempo }}s</div>
@@ -268,17 +248,10 @@
         </div>
       </div>
 
-      <!-- Botones de acción -->
       <div class="botones-completado">
-        <button class="btn-completado btn-morado" (click)="volverInicio()">
-          🏠 Menú Principal
-        </button>
-        
-        <button class="btn-completado btn-verde" (click)="reiniciarJuego()">
-          🔄 Jugar de Nuevo
-        </button>
+        <button class="btn-completado btn-morado" (click)="volverInicio()">🏠 Menú Principal</button>
+        <button class="btn-completado btn-verde" (click)="reiniciarJuego()">🔄 Jugar de Nuevo</button>
       </div>
-      
     </div>
   </div>
 

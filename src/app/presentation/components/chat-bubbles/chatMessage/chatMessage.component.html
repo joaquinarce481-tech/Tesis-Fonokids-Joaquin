@@ -1,7 +1,7 @@
 <div class="col-start-1 col-end-9 p-3 rounded-lg">
   <div class="flex flex-row items-start">
 
-    <!-- 👇 AVATAR DEL BOT CON IMAGEN -->
+    <!-- Avatar del bot -->
     <div class="flex items-center justify-center h-10 w-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600">
       <img 
         src="assets/images/avatars/ChatbotsitoAvatar.png" 
@@ -11,14 +11,44 @@
     </div>
 
     <div class="relative ml-3 text-sm bg-black bg-opacity-25 pt-3 pb-2 px-4 shadow rounded-xl max-w-xl">
+      
+      <!-- 👇 EMOJIS GRANDES Y ANIMADOS (si existen) -->
+      @if (emojis) {
+        <div class="emoji-header text-center mb-3 animate-bounce">
+          <span class="text-5xl">{{ emojis }}</span>
+        </div>
+      }
+
+      <!-- 👇 TEXTO DECORATIVO (si existe) -->
+      @if (decorativeText) {
+        <div class="decorative-text text-center mb-3">
+          <span class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+            {{ decorativeText }}
+          </span>
+        </div>
+      }
+
+      <!-- Texto normal -->
       <markdown>{{ text }}</markdown>
       
+      <!-- Audio -->
       @if (audioUrl) {
         <audio controls class="w-full mt-2 min-w-[320px]">
           <source [src]="audioUrl" type="audio/mpeg">
           Tu navegador no soporta el elemento de audio.
         </audio>
       }
+
+      <!-- 👇 BADGE "¡Ahora es tu turno!" -->
+      @if (audioUrl) {
+        <div class="mt-3 flex justify-center">
+          <div class="cta-badge inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 rounded-full animate-pulse">
+            <span class="text-xl">⭐</span>
+            <span class="text-white font-bold text-sm">¡Ahora es tu turno!</span>
+          </div>
+        </div>
+      }
+
     </div>
 
   </div>

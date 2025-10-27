@@ -9,6 +9,7 @@ interface CategoriaJuego {
   descripcion: string;
   emoji: string;
   color: string;
+  imagen: string;
   juegos: JuegoInfo[];
 }
 
@@ -30,15 +31,16 @@ interface JuegoInfo {
 })
 export class JuegosTerapeuticosComponent implements OnInit {
   categoriaSeleccionada: string | null = null;
-  
+
   categorias: CategoriaJuego[] = [
     {
       id: 'labiales',
-      titulo: 'Ejercicios Labiales',
-      subtitulo: 'Fortalece tus labios',
+      titulo: 'Juegos Labiales',
+      subtitulo: 'Interactua con tus labios',
       descripcion: 'Juegos para mejorar la fuerza y coordinación de los músculos de los labios',
       emoji: '💋',
       color: 'from-pink-400 to-pink-600',
+      imagen: 'Labiales.png',
       juegos: [
         {
           id: 'arma-cara-labiales',
@@ -73,6 +75,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
       descripcion: 'Actividades para mejorar la movilidad y precisión de la lengua',
       emoji: '👅',
       color: 'from-red-400 to-red-600',
+      imagen: 'Linguales.png',
       juegos: [
         {
           id: 'atrapa-lengua',
@@ -107,6 +110,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
       descripcion: 'Ejercicios para mejorar la articulación y fuerza mandibular',
       emoji: '🦴',
       color: 'from-blue-400 to-blue-600',
+      imagen: 'Mandibulares.png',
       juegos: [
         {
           id: 'clasifica-sonidos',
@@ -134,25 +138,6 @@ export class JuegosTerapeuticosComponent implements OnInit {
         }
       ]
     },
-    // ========== NUEVA CATEGORÍA DE AUDIO CON IA ==========
-    {
-      id: 'audio',
-      titulo: 'Ejercicios de Audio',
-      subtitulo: 'Practica con tu voz',
-      descripcion: 'Juegos de pronunciación con inteligencia artificial',
-      emoji: '🎤',
-      color: 'from-green-400 to-green-600',
-      juegos: [
-        {
-          id: 'repite-sonido',
-          nombre: 'Repite el Sonido',
-          descripcion: 'Escucha y repite fonemas, sílabas y palabras. La IA evalúa tu pronunciación',
-          dificultad: 'facil',
-          tipo: 'audio',
-          emoji: '🎙️'
-        }
-      ]
-    },
     {
       id: 'ruleta-praxias',
       titulo: 'Ruleta de Praxias IA',
@@ -160,6 +145,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
       descripcion: 'Ruleta interactiva con detección por cámara e inteligencia artificial',
       emoji: '🎯',
       color: 'from-purple-400 to-purple-600',
+      imagen: 'PraxiaNiño.png',
       juegos: [
         {
           id: 'ruleta-praxias-ia',
@@ -190,20 +176,12 @@ export class JuegosTerapeuticosComponent implements OnInit {
 
   jugarJuego(juego: JuegoInfo, categoria: CategoriaJuego) {
     console.log(`🎮 Iniciando juego: ${juego.nombre} de ${categoria.titulo}`);
-    
-    // Navegación especial para la ruleta de praxias
+
     if (juego.id === 'ruleta-praxias-ia') {
       this.router.navigate(['/ruleta-praxias']);
       return;
     }
-    
-    // ========== NAVEGACIÓN ESPECIAL PARA REPITE EL SONIDO ==========
-    if (juego.id === 'repite-sonido') {
-      this.router.navigate(['/juego/audio/repite-sonido']);
-      return;
-    }
-    
-    // Navegar al juego específico
+
     this.router.navigate(['/juego', categoria.id, juego.id]);
   }
 
@@ -212,7 +190,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
   }
 
   getDificultadColor(dificultad: string): string {
-    switch(dificultad) {
+    switch (dificultad) {
       case 'facil': return 'text-green-600';
       case 'medio': return 'text-yellow-600';
       case 'dificil': return 'text-red-600';
@@ -221,11 +199,20 @@ export class JuegosTerapeuticosComponent implements OnInit {
   }
 
   getDificultadTexto(dificultad: string): string {
-    switch(dificultad) {
+    switch (dificultad) {
       case 'facil': return 'Fácil';
       case 'medio': return 'Medio';
       case 'dificil': return 'Difícil';
       default: return 'Normal';
+    }
+  }
+
+  onImageError(event: any, categoria: CategoriaJuego) {
+    event.target.style.display = 'none';
+    const container = event.target.parentElement;
+    if (container) {
+      container.classList.add('no-image');
+      container.innerHTML = `<span class="emoji-fallback">${categoria.emoji}</span>`;
     }
   }
 }

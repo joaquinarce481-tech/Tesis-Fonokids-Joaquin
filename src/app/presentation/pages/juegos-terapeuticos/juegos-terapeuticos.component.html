@@ -31,7 +31,13 @@
         (click)="seleccionarCategoria(categoria)">
         
         <!-- Imagen de la categoría -->
-        <div class="categoria-imagen" [ngClass]="'bg-imagen-' + categoria.id"></div>
+        <div class="categoria-imagen-container">
+          <img 
+            [src]="'assets/images/' + categoria.imagen" 
+            [alt]="categoria.titulo"
+            class="categoria-imagen"
+            (error)="onImageError($event, categoria)">
+        </div>
         
         <!-- Contenido -->
         <div class="categoria-contenido">

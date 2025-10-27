@@ -1,12 +1,10 @@
-import type { OrthographyResponse } from '@interfaces/orthography.response';
 import { environment } from 'environments/environment';
-
 
 export const textToAudioUseCase = async ( prompt:string, voice: string ) => {
 
   try {
 
-    const resp = await fetch(`${ environment.backendApi }/text-to-audio`, {
+    const resp = await fetch(`${ environment.backendApi }/gpt/text-to-audio`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -16,13 +14,14 @@ export const textToAudioUseCase = async ( prompt:string, voice: string ) => {
 
     if ( !resp.ok ) throw new Error('No se pudo generar el audio');
 
-    const audioFile = await resp.blob();
-    const audioUrl = URL.createObjectURL(audioFile);
+    const data = await resp.json();
 
     return {
       ok: true,
-      message: prompt,
-      audioUrl: audioUrl,
+      message: data.decorativeText || prompt,
+      audioUrl: data.audioUrl, // 👈 YA VIENE COMPLETA DEL BACKEND
+      emojis: data.emojis || '🎯',
+      decorativeText: data.decorativeText || prompt,
     }
 
   } catch (error) {
@@ -31,8 +30,9 @@ export const textToAudioUseCase = async ( prompt:string, voice: string ) => {
       ok: false,
       message: 'No se pudo generar el audio',
       audioUrl: '',
+      emojis: '❌',
+      decorativeText: 'Error',
     }
   }
-
 
 }

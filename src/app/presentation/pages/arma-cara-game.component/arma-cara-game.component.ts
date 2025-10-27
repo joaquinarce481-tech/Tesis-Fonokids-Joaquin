@@ -97,13 +97,13 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     }
   };
   
-  // Zonas de la cara (CORREGIDAS para que coincidan con la forma de cara oval)
+  // Zonas de la cara (alineadas a la nueva cabeza SVG 3:4)
   zonas: { [key: string]: Zona } = {
-    'cejas-extra': { x: 50, y: 18, width: 35, height: 10 },  // Muy arriba (para vapor)
-    cejas: { x: 50, y: 28, width: 45, height: 12 },          // Arriba (cejas)
-    ojos: { x: 50, y: 42, width: 45, height: 14 },           // Debajo de cejas (lágrimas/ojos grandes)
-    mejillas: { x: 50, y: 58, width: 50, height: 16 },       // Centro de la cara
-    boca: { x: 50, y: 78, width: 40, height: 16 }            // Abajo (boca)
+    'cejas-extra': { x: 50, y: 24, width: 32, height: 8 },  // muy arriba (vapor)
+    cejas:         { x: 50, y: 34, width: 46, height: 10 }, // cejas
+    ojos:          { x: 50, y: 44, width: 50, height: 12 }, // ojos / lágrimas
+    mejillas:      { x: 50, y: 58, width: 56, height: 14 }, // centro
+    boca:          { x: 50, y: 71, width: 38, height: 13 }  // boca
   };
   
   // Elemento siendo arrastrado
@@ -120,7 +120,6 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
   }
 
   // ========== NAVEGACIÓN DE PANTALLAS ==========
-  
   irASeleccion(modo: string) {
     this.modoJuego = modo as 'practica' | 'contrarreloj' | 'desafio';
     this.pantalla = 'seleccion';
@@ -136,7 +135,6 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
   }
 
   // ========== INICIAR JUEGO ==========
-  
   iniciarJuego(emocion: string) {
     this.emocionObjetivo = emocion;
     this.pantalla = 'juego';
@@ -148,11 +146,9 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     this.mensajeFeedback = '';
     this.mostrarPista = false;
     
-    // Iniciar temporizador si es modo contrarreloj
     if (this.modoJuego === 'contrarreloj') {
       this.iniciarTemporizador();
     }
-    
     console.log(`🎯 Iniciando juego - Emoción: ${emocion}, Modo: ${this.modoJuego}`);
   }
 
@@ -163,14 +159,11 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
   }
 
   // ========== TEMPORIZADOR ==========
-  
   iniciarTemporizador() {
     this.detenerTemporizador();
     this.intervaloTiempo = setInterval(() => {
       if (this.juegoActivo) {
         this.tiempo++;
-        
-        // Si es contrarreloj y se acabó el tiempo
         if (this.modoJuego === 'contrarreloj' && this.tiempo >= 60) {
           this.completarJuego(false);
         }
@@ -190,52 +183,72 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
   }
 
   // ========== DRAG & DROP ==========
-  
   onDragStart(event: DragEvent, parteId: string) {
     if (this.partesColocadas.has(parteId)) {
       event.preventDefault();
       return;
     }
-    
     this.parteArrastrada = parteId;
-    
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/plain', parteId);
     }
-    
     console.log(`🎯 Arrastrando: ${parteId}`);
   }
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
-    if (event.dataTransfer) {
-      event.dataTransfer.dropEffect = 'move';
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+  }
+
+  // Hover “lindo” con efecto imán visual
+  onDragOverFancy(event: DragEvent, _zonaKey: string) {
+    this.onDragOver(event);
+    const el = event.currentTarget as HTMLElement;
+    el.classList.add('z-hover');
+
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const dx = (event.clientX ?? cx) - cx;
+    const dy = (event.clientY ?? cy) - cy;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist < Math.min(r.width, r.height) * 0.45) {
+      el.style.transform = 'translate(-50%,-50%) scale(1.08)';
+    } else {
+      el.style.transform = 'translate(-50%,-50%) scale(1.02)';
     }
+  }
+
+  onDragLeaveFancy(event: DragEvent) {
+    const el = event.currentTarget as HTMLElement;
+    el.classList.remove('z-hover');
+    el.style.transform = 'translate(-50%,-50%)';
   }
 
   onDrop(event: DragEvent, zona: string) {
     event.preventDefault();
-    
     const parteId = event.dataTransfer?.getData('text/plain');
-    
-    if (parteId) {
-      this.verificarColocacion(parteId, zona);
-    }
-    
+    if (parteId) this.verificarColocacion(parteId, zona);
     this.parteArrastrada = null;
+
+    // limpiar estilos hover si quedaron
+    const el = event.currentTarget as HTMLElement;
+    if (el) {
+      el.classList.remove('z-hover');
+      el.style.transform = 'translate(-50%,-50%)';
+    }
   }
 
-  onDragEnd(event: DragEvent) {
+  onDragEnd(_event: DragEvent) {
     this.parteArrastrada = null;
   }
 
   // ========== LÓGICA DEL JUEGO ==========
-  
   verificarColocacion(parteId: string, zona: string) {
     const emocion = this.emociones[this.emocionObjetivo];
     const parte = emocion.partes.find(p => p.id === parteId);
-    
     this.intentos++;
     
     if (parte && parte.zona === zona) {
@@ -243,29 +256,20 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
       this.partesColocadas.add(parteId);
       this.puntaje += 100;
       this.mensajeFeedback = '¡Excelente! 🎉';
-      
+
+      this.burstAt(zona); // chispa visual sobre la zona
+
       console.log(`✅ Correcto! Parte ${parteId} colocada en ${zona}`);
-      
-      // Limpiar mensaje después de 2 segundos
-      setTimeout(() => {
-        this.mensajeFeedback = '';
-      }, 2000);
-      
-      // Verificar si completó todas las partes
+      setTimeout(() => (this.mensajeFeedback = ''), 2000);
+
       if (this.partesColocadas.size === emocion.partes.length) {
-        setTimeout(() => {
-          this.completarJuego(true);
-        }, 500);
+        setTimeout(() => this.completarJuego(true), 500);
       }
     } else {
       // Incorrecto
       this.mensajeFeedback = 'Intenta otra zona 🤔';
-      
       console.log(`❌ Incorrecto! Parte ${parteId} en ${zona}`);
-      
-      setTimeout(() => {
-        this.mensajeFeedback = '';
-      }, 2000);
+      setTimeout(() => (this.mensajeFeedback = ''), 2000);
     }
   }
 
@@ -274,33 +278,23 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     this.detenerTemporizador();
     
     if (exito) {
-      // Calcular bonus
-      const bonusTiempo = this.modoJuego === 'contrarreloj' 
-        ? Math.max(0, (60 - this.tiempo) * 10) 
-        : 0;
+      const bonusTiempo = this.modoJuego === 'contrarreloj' ? Math.max(0, (60 - this.tiempo) * 10) : 0;
       const bonusIntentos = Math.max(0, (10 - this.intentos) * 20);
-      
       this.puntaje += bonusTiempo + bonusIntentos;
-      
       console.log(`🎉 Juego completado! Puntaje final: ${this.puntaje}`);
     } else {
       console.log('⏱️ Se acabó el tiempo');
     }
-    
     this.pantalla = 'completado';
   }
 
   // ========== UTILIDADES ==========
-  
   getEmocionActual(): Emocion {
     return this.emociones[this.emocionObjetivo];
   }
 
   getEmocionesList(): Array<{ key: string; emocion: Emocion }> {
-    return Object.entries(this.emociones).map(([key, emocion]) => ({
-      key,
-      emocion
-    }));
+    return Object.entries(this.emociones).map(([key, emocion]) => ({ key, emocion }));
   }
 
   estaColocada(parteId: string): boolean {
@@ -309,9 +303,7 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
 
   getParteEnZona(zona: string): ParteCara | undefined {
     const emocion = this.getEmocionActual();
-    return emocion.partes.find(p => 
-      p.zona === zona && this.partesColocadas.has(p.id)
-    );
+    return emocion.partes.find(p => p.zona === zona && this.partesColocadas.has(p.id));
   }
 
   getProgreso(): number {
@@ -337,5 +329,30 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     const mins = Math.floor(segundos / 60);
     const segs = segundos % 60;
     return `${mins}:${segs.toString().padStart(2, '0')}`;
+  }
+
+  // ========== EFECTOS VISUALES ==========
+  /** Pequeño "burst" de brillo/emoji en la zona correcta */
+  private burstAt(zonaKey: string) {
+    const wrap = document.querySelector('.cara-container.pretty') as HTMLElement;
+    if (!wrap) return;
+
+    // Buscar el div.zona-drop correspondiente a la key
+    const zones = Array.from(wrap.querySelectorAll('.zona-drop')) as HTMLElement[];
+    const idx = Object.keys(this.zonas).indexOf(zonaKey);
+    const el = zones[idx];
+    if (!el) return;
+
+    const burst = document.createElement('div');
+    burst.style.position = 'absolute';
+    burst.style.left = el.style.left;
+    burst.style.top = el.style.top;
+    burst.style.transform = 'translate(-50%,-50%)';
+    burst.style.pointerEvents = 'none';
+    burst.textContent = '✨';
+    burst.style.fontSize = '28px';
+    burst.style.animation = 'dropPop .6s ease-out forwards';
+    wrap.appendChild(burst);
+    setTimeout(() => burst.remove(), 600);
   }
 }
