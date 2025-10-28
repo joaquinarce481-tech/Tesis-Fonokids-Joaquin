@@ -78,14 +78,6 @@ export class JuegosTerapeuticosComponent implements OnInit {
       imagen: 'Linguales.png',
       juegos: [
         {
-          id: 'atrapa-lengua',
-          nombre: 'Atrapa la Lengua',
-          descripcion: 'Haz clic rápido cuando aparezca la lengua',
-          dificultad: 'facil',
-          tipo: 'reaccion',
-          emoji: '⚡'
-        },
-        {
           id: 'puzzle-movimientos',
           nombre: 'Puzzle de Movimientos',
           descripcion: 'Ordena la secuencia correcta de ejercicios linguales',

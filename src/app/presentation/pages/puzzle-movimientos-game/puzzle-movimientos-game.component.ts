@@ -60,8 +60,8 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   fotosCapturadas: string[] = [];
   
   // MediaPipe
-  faceMesh!: FaceMesh;
-  camera!: Camera;
+  faceMesh: FaceMesh | null = null;
+  camera: Camera | null = null;
   
   // Temporizador
   tiempoInicio: number = 0;
@@ -166,7 +166,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       nombre: 'Apertura Bucal',
       descripcion: 'Práctica de apertura y cierre',
       dificultad: 'fácil',
-      movimientos: [8, 7], // Boca Cerrada, Boca Abierta
+      movimientos: [8, 7], // Boca Cerrada, Boca Abierta (ORIGINAL)
       tiempoLimite: 90
     },
     {
@@ -190,7 +190,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       nombre: 'Extensión Lingual Vertical',
       descripcion: 'Lengua hacia abajo',
       dificultad: 'media',
-      movimientos: [1, 5, 8], // Sacar Lengua, Tocar Mentón, Boca Cerrada
+      movimientos: [8, 1, 5], // Boca Cerrada, Sacar Lengua, Tocar Mentón
       tiempoLimite: 100
     },
     {
@@ -198,7 +198,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       nombre: 'Extensión Lingual Superior',
       descripcion: 'Lengua hacia arriba',
       dificultad: 'media',
-      movimientos: [1, 2, 8], // Sacar Lengua, Tocar Nariz, Boca Cerrada
+      movimientos: [8, 1, 2], // Boca Cerrada, Sacar Lengua, Tocar Nariz
       tiempoLimite: 100
     },
     {
@@ -206,7 +206,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       nombre: 'Secuencia Completa',
       descripcion: 'Movimientos verticales combinados',
       dificultad: 'difícil',
-      movimientos: [1, 2, 5, 8], // Sacar Lengua, Tocar Nariz, Tocar Mentón, Boca Cerrada
+      movimientos: [8, 1, 2, 5], // Boca Cerrada, Sacar Lengua, Tocar Nariz, Tocar Mentón
       tiempoLimite: 120
     }
   ];
@@ -268,7 +268,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       const video = this.videoElement.nativeElement;
       this.camera = new Camera(video, {
         onFrame: async () => {
-          await this.faceMesh.send({ image: video });
+          await this.faceMesh!.send({ image: video });
         },
         width: 640,
         height: 480
@@ -371,8 +371,8 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     const labioInferior = landmarks[14];
     const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
     
-    // Si la boca está muy abierta, asumimos que la lengua está afuera
-    return aperturaBoca > 0.04;
+    // MÁS ESTRICTO: Si la boca está MUY abierta, asumimos que la lengua está afuera
+    return aperturaBoca > 0.045;
   }
 
   detectarLenguaArriba(landmarks: any[]): boolean {
@@ -384,8 +384,8 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
     const distanciaNariz = Math.abs(labioSuperior.y - puntaNariz.y);
     
-    // Boca abierta y cerca de la nariz
-    return aperturaBoca > 0.03 && distanciaNariz < 0.10;
+    // MÁS ESTRICTO: Boca muy abierta (>0.04) y MUCHO más cerca de la nariz (<0.08)
+    return aperturaBoca > 0.04 && distanciaNariz < 0.08;
   }
 
   detectarSonrisa(landmarks: any[]): boolean {
@@ -433,14 +433,16 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
 
   detectarLenguaAbajo(landmarks: any[]): boolean {
     // Detectar lengua bajando hacia el mentón
+    const labioSuperior = landmarks[13];
     const labioInferior = landmarks[14];
     const menton = landmarks[152]; // Punto del mentón
     
-    const aperturaBoca = landmarks[14].y - landmarks[13].y;
+    const aperturaBoca = labioInferior.y - labioSuperior.y;
     const distanciaMenton = Math.abs(labioInferior.y - menton.y);
     
-    // Boca abierta y lengua cerca del mentón
-    return aperturaBoca > 0.04 && distanciaMenton < 0.12;
+    // MÁS ESTRICTO: La lengua debe estar MUY cerca del mentón
+    // Boca debe estar bien abierta (>0.05) y la lengua MUY cerca del mentón (<0.08)
+    return aperturaBoca > 0.05 && distanciaMenton < 0.08;
   }
 
   detectarLenguaPaladar(landmarks: any[]): boolean {
@@ -449,8 +451,9 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     const labioInferior = landmarks[14];
     const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
     
-    // Apertura moderada (lengua arriba pero no sacada)
-    return aperturaBoca > 0.015 && aperturaBoca < 0.035;
+    // MÁS ESTRICTO: Apertura MUY específica (0.02 - 0.035)
+    // No muy cerrada (no es boca cerrada) pero tampoco muy abierta (no es sacar lengua)
+    return aperturaBoca > 0.02 && aperturaBoca < 0.035;
   }
 
   detectarBocaAbierta(landmarks: any[]): boolean {
@@ -547,11 +550,23 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   }
 
   detenerCamara(): void {
-    if (this.camera) {
-      this.camera.stop();
-    }
-    if (this.faceMesh) {
-      this.faceMesh.close();
+    try {
+      if (this.camera) {
+        this.camera.stop();
+        this.camera = null;
+      }
+      if (this.faceMesh) {
+        this.faceMesh.close();
+        this.faceMesh = null;
+      }
+      // Detener el stream de video también
+      if (this.videoElement && this.videoElement.nativeElement.srcObject) {
+        const stream = this.videoElement.nativeElement.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+        this.videoElement.nativeElement.srcObject = null;
+      }
+    } catch (error) {
+      console.error('Error al detener cámara:', error);
     }
   }
 
@@ -633,6 +648,12 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     event.dataTransfer!.effectAllowed = 'move';
     event.dataTransfer!.setData('movimientoId', movimiento.id.toString());
     movimiento.arrastrando = true;
+  }
+
+  onDragEnd(event: DragEvent, movimiento: MovimientoLingual): void {
+    // Resetear el estado de arrastrando cuando termina el drag
+    // (sin importar si se soltó en una zona válida o no)
+    movimiento.arrastrando = false;
   }
 
   onDragOver(event: DragEvent): void {
@@ -735,6 +756,12 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
         this.detenerTemporizador();
         this.faseJuego = 'completado';
         this.guardarEstadisticas();
+        
+        // Volver automáticamente al menú después de 5 segundos
+        setTimeout(() => {
+          console.log('Volviendo al menú automáticamente...');
+          this.volverAJuegos();
+        }, 5000);
       }
     }, 2000);
   }
@@ -826,6 +853,15 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     localStorage.setItem('puzzleMovimientosStats', JSON.stringify(stats));
   }
 
+  // Métodos helper para las fases
+  get estaJugando(): boolean {
+    return this.faseJuego === 'jugando' || this.faseJuego === 'verificando';
+  }
+
+  get estaCompletado(): boolean {
+    return this.faseJuego === 'completado';
+  }
+
   // ==================== NAVEGACIÓN ====================
 
   mostrarModalPersonalizado(titulo: string, mensaje: string, tipo: 'success' | 'error' | 'info', puntos: number): void {
@@ -841,6 +877,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   }
 
   reiniciarJuego(): void {
+    console.log('Reiniciando juego...');
     this.nivelActual = 1;
     this.intentos = 0;
     this.secuenciasCorrectas = 0;
@@ -851,14 +888,23 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     this.todosLosMovimientos.forEach((mov, index) => {
       mov.foto = null;
       mov.emoji = emojisOriginales[index];
+      mov.colocado = false;
+      mov.arrastrando = false;
     });
+    
+    // Resetear zonas de destino
+    this.zonasDestino = [];
+    this.movimientosArrastrable = [];
+    this.secuenciaActual = null;
   }
 
   siguienteJuego(): void {
+    console.log('Navegando a siguiente juego...');
     this.router.navigate(['/chat/juego/linguales/ritmo-silabas']);
   }
 
   volverAJuegos(): void {
+    console.log('Volviendo al menú de juegos...');
     this.router.navigate(['/chat/juegos-terapeuticos']);
   }
 }

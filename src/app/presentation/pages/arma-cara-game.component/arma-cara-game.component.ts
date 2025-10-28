@@ -1,358 +1,274 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
-interface ParteCara {
-  id: string;
-  emoji: string;
-  nombre: string;
-  zona: string;
-}
-
-interface Emocion {
-  nombre: string;
-  color: string;
-  partes: ParteCara[];
-  emoji: string;
-}
-
-interface Zona {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
 @Component({
   selector: 'app-arma-cara-game',
-  standalone: true,
-  imports: [CommonModule],
   templateUrl: './arma-cara-game.component.html',
   styleUrls: ['./arma-cara-game.component.css']
 })
+
+
 export class ArmaCaraGameComponent implements OnInit, OnDestroy {
-  // Estados de pantalla
+
+  // ========== ESTADOS DEL JUEGO ==========
   pantalla: 'inicio' | 'seleccion' | 'juego' | 'completado' = 'inicio';
-  
-  // Configuración del juego
-  modoJuego: 'practica' | 'contrarreloj' | 'desafio' = 'practica';
-  emocionObjetivo: string = 'feliz';
+  modoJuego: 'practica' | 'contrarreloj' | 'desafio' | '' = '';
+  emocionActual: string | null = null;
   nivel: number = 1;
-  
-  // Estadísticas
   puntaje: number = 0;
-  intentos: number = 0;
-  tiempo: number = 0;
+  tiempo: number = 60;
   juegoActivo: boolean = false;
-  
-  // Estado del juego
-  partesColocadas: Set<string> = new Set();
-  mensajeFeedback: string = '';
+  arrastrandoParte: any = null;
   mostrarPista: boolean = false;
+  racha: number = 0;
+  totalJugados: number = 0;
   
-  // Timer
-  intervaloTiempo: any;
-  
-  // Definición de emociones
-  emociones: { [key: string]: Emocion } = {
+  partesColocadas = {
+    cejas: null as any,
+    ojos: null as any,
+    boca: null as any
+  };
+
+  private timerInterval: any;
+
+  // ========== DEFINICIONES DE EMOCIONES ==========
+  emociones: any = {
     feliz: {
       nombre: 'Feliz',
       emoji: '😊',
-      color: '#10b981',
-      partes: [
-        { id: 'boca-feliz', emoji: '😊', nombre: 'Sonrisa', zona: 'boca' },
-        { id: 'cejas-feliz', emoji: '😄', nombre: 'Cejas Alegres', zona: 'cejas' },
-        { id: 'mejillas', emoji: '😊', nombre: 'Mejillas Rosadas', zona: 'mejillas' }
-      ]
+      color: '#FFD700',
+      cejas: { emoji: '︶', descripcion: 'Cejas relajadas' },
+      ojos: { emoji: '◡◡', descripcion: 'Ojos sonrientes' },
+      boca: { emoji: '‿', descripcion: 'Sonrisa grande' },
+      pista: 'Una gran sonrisa y ojos brillantes expresan felicidad'
     },
     triste: {
       nombre: 'Triste',
       emoji: '😢',
-      color: '#3b82f6',
-      partes: [
-        { id: 'boca-triste', emoji: '☹️', nombre: 'Boca Triste', zona: 'boca' },
-        { id: 'cejas-triste', emoji: '😔', nombre: 'Cejas Tristes', zona: 'cejas' },
-        { id: 'lagrimas', emoji: '💧', nombre: 'Lágrimas', zona: 'ojos' }
-      ]
+      color: '#87CEEB',
+      cejas: { emoji: '︵', descripcion: 'Cejas caídas' },
+      ojos: { emoji: '╥╥', descripcion: 'Ojos llorosos' },
+      boca: { emoji: '︵', descripcion: 'Boca hacia abajo' },
+      pista: 'Las comisuras caídas y cejas hacia abajo muestran tristeza'
     },
     sorprendido: {
       nombre: 'Sorprendido',
-      emoji: '😮',
-      color: '#f59e0b',
-      partes: [
-        { id: 'boca-O', emoji: '😮', nombre: 'Boca Abierta', zona: 'boca' },
-        { id: 'cejas-arriba', emoji: '😯', nombre: 'Cejas Levantadas', zona: 'cejas' },
-        { id: 'ojos-grandes', emoji: '👀', nombre: 'Ojos Grandes', zona: 'ojos' }
-      ]
+      emoji: '😲',
+      color: '#FFA500',
+      cejas: { emoji: '⌃', descripcion: 'Cejas levantadas' },
+      ojos: { emoji: '○○', descripcion: 'Ojos muy abiertos' },
+      boca: { emoji: 'O', descripcion: 'Boca abierta' },
+      pista: 'Cejas arriba y boca abierta expresan sorpresa'
     },
     enojado: {
       nombre: 'Enojado',
       emoji: '😠',
-      color: '#ef4444',
-      partes: [
-        { id: 'boca-enojo', emoji: '😠', nombre: 'Boca Enojada', zona: 'boca' },
-        { id: 'cejas-enojo', emoji: '😡', nombre: 'Cejas Fruncidas', zona: 'cejas' },
-        { id: 'vapor', emoji: '💢', nombre: 'Vapor', zona: 'cejas-extra' }
-      ]
+      color: '#FF6347',
+      cejas: { emoji: '︵︵', descripcion: 'Cejas fruncidas' },
+      ojos: { emoji: '◣◢', descripcion: 'Ojos entrecerrados' },
+      boca: { emoji: '⌢', descripcion: 'Boca tensa' },
+      pista: 'Cejas juntas y boca apretada muestran enojo'
+    },
+    asustado: {
+      nombre: 'Asustado',
+      emoji: '😨',
+      color: '#9370DB',
+      cejas: { emoji: '︿', descripcion: 'Cejas preocupadas' },
+      ojos: { emoji: '◉◉', descripcion: 'Ojos muy abiertos' },
+      boca: { emoji: '△', descripcion: 'Boca temblorosa' },
+      pista: 'Ojos muy abiertos y boca temblando expresan miedo'
+    },
+    amoroso: {
+      nombre: 'Amoroso',
+      emoji: '😍',
+      color: '#FF69B4',
+      cejas: { emoji: '︶', descripcion: 'Cejas relajadas' },
+      ojos: { emoji: '♥♥', descripcion: 'Ojos de corazón' },
+      boca: { emoji: '◡', descripcion: 'Sonrisa dulce' },
+      pista: 'Ojos de corazón y sonrisa suave muestran amor'
     }
   };
-  
-  // Zonas de la cara (alineadas a la nueva cabeza SVG 3:4)
-  zonas: { [key: string]: Zona } = {
-    'cejas-extra': { x: 50, y: 24, width: 32, height: 8 },  // muy arriba (vapor)
-    cejas:         { x: 50, y: 34, width: 46, height: 10 }, // cejas
-    ojos:          { x: 50, y: 44, width: 50, height: 12 }, // ojos / lágrimas
-    mejillas:      { x: 50, y: 58, width: 56, height: 14 }, // centro
-    boca:          { x: 50, y: 71, width: 38, height: 13 }  // boca
+
+  // ========== LISTA DE PARTES DISPONIBLES ==========
+  partesDisponibles = {
+    cejas: [
+      { id: 'cejas1', emoji: '︶', nombre: 'Relajadas' },
+      { id: 'cejas2', emoji: '︵', nombre: 'Caídas' },
+      { id: 'cejas3', emoji: '⌃', nombre: 'Levantadas' },
+      { id: 'cejas4', emoji: '︵︵', nombre: 'Fruncidas' },
+      { id: 'cejas5', emoji: '︿', nombre: 'Preocupadas' }
+    ],
+    ojos: [
+      { id: 'ojos1', emoji: '◡◡', nombre: 'Sonrientes' },
+      { id: 'ojos2', emoji: '╥╥', nombre: 'Llorosos' },
+      { id: 'ojos3', emoji: '○○', nombre: 'Abiertos' },
+      { id: 'ojos4', emoji: '◣◢', nombre: 'Entrecerrados' },
+      { id: 'ojos5', emoji: '◉◉', nombre: 'Muy abiertos' },
+      { id: 'ojos6', emoji: '♥♥', nombre: 'Corazones' }
+    ],
+    boca: [
+      { id: 'boca1', emoji: '‿', nombre: 'Sonrisa grande' },
+      { id: 'boca2', emoji: '︵', nombre: 'Hacia abajo' },
+      { id: 'boca3', emoji: 'O', nombre: 'Abierta' },
+      { id: 'boca4', emoji: '⌢', nombre: 'Tensa' },
+      { id: 'boca5', emoji: '△', nombre: 'Temblorosa' },
+      { id: 'boca6', emoji: '◡', nombre: 'Dulce' }
+    ]
   };
-  
-  // Elemento siendo arrastrado
-  parteArrastrada: string | null = null;
 
-  constructor(private router: Router) {}
-
-  ngOnInit() {
-    console.log('🎮 Juego Arma la Cara iniciado');
+  ngOnInit(): void {
+    // Cargar estadísticas del localStorage si existen
+    this.cargarEstadisticas();
   }
 
-  ngOnDestroy() {
-    this.detenerTemporizador();
+  ngOnDestroy(): void {
+    this.detenerTimer();
   }
 
-  // ========== NAVEGACIÓN DE PANTALLAS ==========
-  irASeleccion(modo: string) {
-    this.modoJuego = modo as 'practica' | 'contrarreloj' | 'desafio';
+  // ========== FUNCIONES DE NAVEGACIÓN ==========
+  irASeleccion(modo: 'practica' | 'contrarreloj' | 'desafio'): void {
+    this.modoJuego = modo;
     this.pantalla = 'seleccion';
   }
 
-  volverInicio() {
-    this.pantalla = 'inicio';
-    this.detenerTemporizador();
-  }
-
-  volverAJuegos() {
-    this.router.navigate(['/juegos-terapeuticos']);
-  }
-
-  // ========== INICIAR JUEGO ==========
-  iniciarJuego(emocion: string) {
-    this.emocionObjetivo = emocion;
-    this.pantalla = 'juego';
+  iniciarJuego(emocionKey: string): void {
+    this.emocionActual = emocionKey;
+    this.partesColocadas = { cejas: null, ojos: null, boca: null };
     this.juegoActivo = true;
-    this.puntaje = 0;
-    this.intentos = 0;
-    this.tiempo = 0;
-    this.partesColocadas = new Set();
-    this.mensajeFeedback = '';
+    this.pantalla = 'juego';
     this.mostrarPista = false;
     
     if (this.modoJuego === 'contrarreloj') {
-      this.iniciarTemporizador();
+      this.tiempo = 60;
+      this.iniciarTimer();
     }
-    console.log(`🎯 Iniciando juego - Emoción: ${emocion}, Modo: ${this.modoJuego}`);
   }
 
-  iniciarDesafioAleatorio() {
-    const emocionesKeys = Object.keys(this.emociones);
-    const emocionAleatoria = emocionesKeys[Math.floor(Math.random() * emocionesKeys.length)];
-    this.iniciarJuego(emocionAleatoria);
+  volverAlInicio(): void {
+    this.pantalla = 'inicio';
+    this.modoJuego = '';
+    this.emocionActual = null;
+    this.juegoActivo = false;
+    this.partesColocadas = { cejas: null, ojos: null, boca: null };
+    this.tiempo = 60;
+    this.mostrarPista = false;
+    this.detenerTimer();
   }
 
-  // ========== TEMPORIZADOR ==========
-  iniciarTemporizador() {
-    this.detenerTemporizador();
-    this.intervaloTiempo = setInterval(() => {
-      if (this.juegoActivo) {
-        this.tiempo++;
-        if (this.modoJuego === 'contrarreloj' && this.tiempo >= 60) {
-          this.completarJuego(false);
-        }
+  volverASeleccion(): void {
+    this.pantalla = 'seleccion';
+    this.emocionActual = null;
+    this.juegoActivo = false;
+    this.partesColocadas = { cejas: null, ojos: null, boca: null };
+    this.mostrarPista = false;
+    this.detenerTimer();
+  }
+
+  // ========== FUNCIONES DE DRAG & DROP ==========
+  handleDragStart(tipoParte: string, parte: any): void {
+    this.arrastrandoParte = { tipo: tipoParte, parte: parte };
+  }
+
+  handleDragOver(event: DragEvent): void {
+    event.preventDefault();
+  }
+
+  handleDrop(tipoParte: string): void {
+    if (this.arrastrandoParte && this.arrastrandoParte.tipo === tipoParte) {
+      this.partesColocadas[tipoParte as keyof typeof this.partesColocadas] = this.arrastrandoParte.parte;
+    }
+    this.arrastrandoParte = null;
+  }
+
+  quitarParte(tipoParte: string): void {
+    this.partesColocadas[tipoParte as keyof typeof this.partesColocadas] = null;
+  }
+
+  // ========== TIMER ==========
+  iniciarTimer(): void {
+    this.timerInterval = setInterval(() => {
+      this.tiempo--;
+      if (this.tiempo <= 0) {
+        this.detenerTimer();
+        this.finalizarJuego(false);
       }
     }, 1000);
   }
 
-  detenerTemporizador() {
-    if (this.intervaloTiempo) {
-      clearInterval(this.intervaloTiempo);
-      this.intervaloTiempo = null;
+  detenerTimer(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
     }
   }
 
-  getTiempoRestante(): number {
-    return Math.max(0, 60 - this.tiempo);
-  }
-
-  // ========== DRAG & DROP ==========
-  onDragStart(event: DragEvent, parteId: string) {
-    if (this.partesColocadas.has(parteId)) {
-      event.preventDefault();
-      return;
-    }
-    this.parteArrastrada = parteId;
-    if (event.dataTransfer) {
-      event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/plain', parteId);
-    }
-    console.log(`🎯 Arrastrando: ${parteId}`);
-  }
-
-  onDragOver(event: DragEvent) {
-    event.preventDefault();
-    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
-  }
-
-  // Hover “lindo” con efecto imán visual
-  onDragOverFancy(event: DragEvent, _zonaKey: string) {
-    this.onDragOver(event);
-    const el = event.currentTarget as HTMLElement;
-    el.classList.add('z-hover');
-
-    const r = el.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
-    const dx = (event.clientX ?? cx) - cx;
-    const dy = (event.clientY ?? cy) - cy;
-    const dist = Math.hypot(dx, dy);
-
-    if (dist < Math.min(r.width, r.height) * 0.45) {
-      el.style.transform = 'translate(-50%,-50%) scale(1.08)';
-    } else {
-      el.style.transform = 'translate(-50%,-50%) scale(1.02)';
-    }
-  }
-
-  onDragLeaveFancy(event: DragEvent) {
-    const el = event.currentTarget as HTMLElement;
-    el.classList.remove('z-hover');
-    el.style.transform = 'translate(-50%,-50%)';
-  }
-
-  onDrop(event: DragEvent, zona: string) {
-    event.preventDefault();
-    const parteId = event.dataTransfer?.getData('text/plain');
-    if (parteId) this.verificarColocacion(parteId, zona);
-    this.parteArrastrada = null;
-
-    // limpiar estilos hover si quedaron
-    const el = event.currentTarget as HTMLElement;
-    if (el) {
-      el.classList.remove('z-hover');
-      el.style.transform = 'translate(-50%,-50%)';
-    }
-  }
-
-  onDragEnd(_event: DragEvent) {
-    this.parteArrastrada = null;
-  }
-
-  // ========== LÓGICA DEL JUEGO ==========
-  verificarColocacion(parteId: string, zona: string) {
-    const emocion = this.emociones[this.emocionObjetivo];
-    const parte = emocion.partes.find(p => p.id === parteId);
-    this.intentos++;
+  // ========== VERIFICACIÓN Y FINALIZACIÓN ==========
+  verificarRespuesta(): void {
+    if (!this.emocionActual) return;
     
-    if (parte && parte.zona === zona) {
-      // ¡Correcto!
-      this.partesColocadas.add(parteId);
-      this.puntaje += 100;
-      this.mensajeFeedback = '¡Excelente! 🎉';
-
-      this.burstAt(zona); // chispa visual sobre la zona
-
-      console.log(`✅ Correcto! Parte ${parteId} colocada en ${zona}`);
-      setTimeout(() => (this.mensajeFeedback = ''), 2000);
-
-      if (this.partesColocadas.size === emocion.partes.length) {
-        setTimeout(() => this.completarJuego(true), 500);
-      }
+    const emocion = this.emociones[this.emocionActual];
+    const correcto = 
+      this.partesColocadas.cejas?.emoji === emocion.cejas.emoji &&
+      this.partesColocadas.ojos?.emoji === emocion.ojos.emoji &&
+      this.partesColocadas.boca?.emoji === emocion.boca.emoji;
+    
+    if (correcto) {
+      this.finalizarJuego(true);
     } else {
-      // Incorrecto
-      this.mensajeFeedback = 'Intenta otra zona 🤔';
-      console.log(`❌ Incorrecto! Parte ${parteId} en ${zona}`);
-      setTimeout(() => (this.mensajeFeedback = ''), 2000);
+      alert('¡Casi! Revisa las partes e intenta nuevamente.');
     }
   }
 
-  completarJuego(exito: boolean) {
+  finalizarJuego(exito: boolean): void {
     this.juegoActivo = false;
-    this.detenerTemporizador();
+    this.detenerTimer();
     
     if (exito) {
-      const bonusTiempo = this.modoJuego === 'contrarreloj' ? Math.max(0, (60 - this.tiempo) * 10) : 0;
-      const bonusIntentos = Math.max(0, (10 - this.intentos) * 20);
-      this.puntaje += bonusTiempo + bonusIntentos;
-      console.log(`🎉 Juego completado! Puntaje final: ${this.puntaje}`);
+      const puntos = this.modoJuego === 'contrarreloj' ? this.tiempo * 10 : 100;
+      this.puntaje += puntos;
+      this.racha++;
     } else {
-      console.log('⏱️ Se acabó el tiempo');
+      this.racha = 0;
     }
+    
+    this.totalJugados++;
+    this.guardarEstadisticas();
     this.pantalla = 'completado';
   }
 
+  juegoCompletado(): boolean {
+    return !!(this.partesColocadas.cejas && this.partesColocadas.ojos && this.partesColocadas.boca);
+  }
+
   // ========== UTILIDADES ==========
-  getEmocionActual(): Emocion {
-    return this.emociones[this.emocionObjetivo];
+  getEmocionesKeys(): string[] {
+    return Object.keys(this.emociones);
   }
 
-  getEmocionesList(): Array<{ key: string; emocion: Emocion }> {
-    return Object.entries(this.emociones).map(([key, emocion]) => ({ key, emocion }));
-  }
-
-  estaColocada(parteId: string): boolean {
-    return this.partesColocadas.has(parteId);
-  }
-
-  getParteEnZona(zona: string): ParteCara | undefined {
-    const emocion = this.getEmocionActual();
-    return emocion.partes.find(p => p.zona === zona && this.partesColocadas.has(p.id));
-  }
-
-  getProgreso(): number {
-    const emocion = this.getEmocionActual();
-    return (this.partesColocadas.size / emocion.partes.length) * 100;
-  }
-
-  getEstrellas(): number {
-    if (this.puntaje >= 400) return 3;
-    if (this.puntaje >= 250) return 2;
-    return 1;
-  }
-
-  togglePista() {
+  togglePista(): void {
     this.mostrarPista = !this.mostrarPista;
   }
 
-  reiniciarJuego() {
-    this.pantalla = 'seleccion';
+  getColorEmocion(emocionKey: string): string {
+    return this.emociones[emocionKey]?.color || '#667eea';
   }
 
-  formatearTiempo(segundos: number): string {
-    const mins = Math.floor(segundos / 60);
-    const segs = segundos % 60;
-    return `${mins}:${segs.toString().padStart(2, '0')}`;
+  // ========== PERSISTENCIA ==========
+  cargarEstadisticas(): void {
+    const stats = localStorage.getItem('armaCaraStats');
+    if (stats) {
+      const data = JSON.parse(stats);
+      this.puntaje = data.puntaje || 0;
+      this.racha = data.racha || 0;
+      this.totalJugados = data.totalJugados || 0;
+    }
   }
 
-  // ========== EFECTOS VISUALES ==========
-  /** Pequeño "burst" de brillo/emoji en la zona correcta */
-  private burstAt(zonaKey: string) {
-    const wrap = document.querySelector('.cara-container.pretty') as HTMLElement;
-    if (!wrap) return;
-
-    // Buscar el div.zona-drop correspondiente a la key
-    const zones = Array.from(wrap.querySelectorAll('.zona-drop')) as HTMLElement[];
-    const idx = Object.keys(this.zonas).indexOf(zonaKey);
-    const el = zones[idx];
-    if (!el) return;
-
-    const burst = document.createElement('div');
-    burst.style.position = 'absolute';
-    burst.style.left = el.style.left;
-    burst.style.top = el.style.top;
-    burst.style.transform = 'translate(-50%,-50%)';
-    burst.style.pointerEvents = 'none';
-    burst.textContent = '✨';
-    burst.style.fontSize = '28px';
-    burst.style.animation = 'dropPop .6s ease-out forwards';
-    wrap.appendChild(burst);
-    setTimeout(() => burst.remove(), 600);
+  guardarEstadisticas(): void {
+    const stats = {
+      puntaje: this.puntaje,
+      racha: this.racha,
+      totalJugados: this.totalJugados
+    };
+    localStorage.setItem('armaCaraStats', JSON.stringify(stats));
   }
 }

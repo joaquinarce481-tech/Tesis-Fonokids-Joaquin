@@ -145,7 +145,7 @@
   </div>
 
   <!-- ============ PANTALLA DE JUEGO ============ -->
-  <div *ngIf="faseJuego === 'jugando' || faseJuego === 'verificando'" class="game-screen">
+  <div *ngIf="estaJugando" class="game-screen">
     <!-- Información del nivel -->
     <div class="level-info">
       <div class="level-header">
@@ -174,9 +174,54 @@
       </div>
     </div>
 
-    <!-- Zona de construcción de secuencia -->
-    <div class="sequence-builder">
-      <h3>🎯 Construye la secuencia correcta con tus fotos:</h3>
+    <!-- LAYOUT DE 2 COLUMNAS -->
+    <div class="game-layout-columns">
+      <!-- COLUMNA IZQUIERDA: Banco de fotos -->
+      <div class="movements-bank movements-bank-vertical">
+        <!-- Indicador de cantidad de fotos -->
+        <div class="photos-counter">
+          📸 {{ movimientosArrastrable.length }} fotos disponibles
+        </div>
+        
+        <div class="movements-vertical-list">
+        <div 
+          *ngFor="let movimiento of movimientosArrastrable" 
+          class="movement-card movement-card-compact"
+          [ngClass]="{
+            'movement-placed': movimiento.colocado,
+            'movement-dragging': movimiento.arrastrando,
+            'movement-available': !movimiento.colocado
+          }"
+          [draggable]="!movimiento.colocado && faseJuego === 'jugando'"
+          (dragstart)="onDragStart($event, movimiento)"
+          (dragend)="onDragEnd($event, movimiento)">
+          
+          <!-- Mostrar foto si existe -->
+          <div class="movement-photo movement-photo-compact" *ngIf="movimiento.foto">
+            <img [src]="movimiento.foto" alt="Foto del movimiento">
+          </div>
+          
+          <!-- Mostrar emoji si no hay foto (fallback) -->
+          <div class="movement-emoji movement-emoji-compact" *ngIf="!movimiento.foto">
+            {{ movimiento.emoji }}
+          </div>
+          
+          <div class="movement-name movement-name-compact">{{ movimiento.nombre }}</div>
+          
+          <!-- Indicador si ya fue colocado -->
+          <div *ngIf="movimiento.colocado" class="placed-indicator placed-indicator-compact">
+            <span class="placed-icon">✓</span>
+          </div>
+        </div>
+        </div>
+      </div>
+      <!-- FIN COLUMNA IZQUIERDA -->
+
+      <!-- COLUMNA DERECHA: Zona de construcción -->
+      <div class="sequence-column">
+        <!-- Zona de construcción de secuencia - ABAJO -->
+        <div class="sequence-builder">
+          <h3>🎯 Construye la secuencia correcta:</h3>
       
       <div class="drop-zones" [style.grid-template-columns]="'repeat(' + zonasDestino.length + ', 1fr)'">
         <div 
@@ -237,44 +282,8 @@
         </button>
       </div>
     </div>
-
-    <!-- Banco de movimientos CON FOTOS -->
-    <div class="movements-bank">
-      <h3>🎪 Tus movimientos capturados:</h3>
-      
-      <div class="movements-grid">
-        <div 
-          *ngFor="let movimiento of movimientosArrastrable" 
-          class="movement-card"
-          [ngClass]="{
-            'movement-placed': movimiento.colocado,
-            'movement-dragging': movimiento.arrastrando,
-            'movement-available': !movimiento.colocado
-          }"
-          [draggable]="!movimiento.colocado && faseJuego === 'jugando'"
-          (dragstart)="onDragStart($event, movimiento)">
-          
-          <!-- Mostrar foto si existe -->
-          <div class="movement-photo" *ngIf="movimiento.foto">
-            <img [src]="movimiento.foto" alt="Foto del movimiento">
-          </div>
-          
-          <!-- Mostrar emoji si no hay foto (fallback) -->
-          <div class="movement-emoji" *ngIf="!movimiento.foto">
-            {{ movimiento.emoji }}
-          </div>
-          
-          <div class="movement-name">{{ movimiento.nombre }}</div>
-          <div class="movement-description">{{ movimiento.descripcion }}</div>
-          <div class="movement-instruction">{{ movimiento.instruccion }}</div>
-          
-          <div *ngIf="movimiento.colocado" class="placed-indicator">
-            <span class="placed-icon">✓</span>
-            <span class="placed-text">Colocado</span>
-          </div>
-        </div>
-      </div>
     </div>
+    <!-- FIN LAYOUT DE 2 COLUMNAS -->
 
     <!-- Panel de pistas -->
     <div *ngIf="mostrarPista" class="hints-panel">
@@ -300,7 +309,7 @@
   </div>
 
   <!-- ============ PANTALLA DE COMPLETADO ============ -->
-  <div *ngIf="faseJuego === 'completado'" class="completion-screen">
+  <div *ngIf="estaCompletado" class="completion-screen">
     <div class="completion-content">
       <div class="completion-header">
         <h2>🎉 ¡Felicitaciones!</h2>
