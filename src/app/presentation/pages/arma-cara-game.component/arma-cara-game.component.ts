@@ -1,12 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-arma-cara-game',
+  standalone: true,  // ← AGREGAR ESTO
+  imports: [CommonModule],  // ← AGREGAR ESTO
   templateUrl: './arma-cara-game.component.html',
   styleUrls: ['./arma-cara-game.component.css']
 })
-
-
 export class ArmaCaraGameComponent implements OnInit, OnDestroy {
 
   // ========== ESTADOS DEL JUEGO ==========
@@ -115,6 +117,8 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     ]
   };
 
+  constructor(private router: Router) {}
+
   ngOnInit(): void {
     // Cargar estadísticas del localStorage si existen
     this.cargarEstadisticas();
@@ -161,6 +165,10 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     this.partesColocadas = { cejas: null, ojos: null, boca: null };
     this.mostrarPista = false;
     this.detenerTimer();
+  }
+
+  volverAJuegos(): void {
+    this.router.navigate(['/juegos-terapeuticos']);
   }
 
   // ========== FUNCIONES DE DRAG & DROP ==========
@@ -250,6 +258,14 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
 
   getColorEmocion(emocionKey: string): string {
     return this.emociones[emocionKey]?.color || '#667eea';
+  }
+
+  getPartesColocadasCount(): number {
+    let count = 0;
+    if (this.partesColocadas.cejas) count++;
+    if (this.partesColocadas.ojos) count++;
+    if (this.partesColocadas.boca) count++;
+    return count;
   }
 
   // ========== PERSISTENCIA ==========
