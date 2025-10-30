@@ -4,6 +4,11 @@
   <div *ngIf="pantalla === 'inicio'" class="pantalla-inicio">
     <div class="contenido-inicio">
       
+      <!-- Botón Dashboard -->
+      <button class="btn-dashboard" (click)="volverADashboard()">
+        🏠 Dashboard
+      </button>
+
       <!-- Título principal -->
       <div class="titulo-principal">
         <h1 class="titulo-juego">🎭 Arma la Cara</h1>
@@ -21,39 +26,12 @@
         </div>
       </div>
 
-      <!-- Modos de juego -->
-      <div class="modos-grid">
-        
-        <!-- Modo Práctica -->
-        <div class="modo-card">
-          <div class="modo-emoji">🎯</div>
-          <h3 class="modo-titulo">Modo Práctica</h3>
-          <p class="modo-descripcion">Sin presión de tiempo. Aprende a tu ritmo</p>
-          <button class="btn-modo btn-verde" (click)="irASeleccion('practica')">
-            Jugar
-          </button>
-        </div>
-
-        <!-- Modo Contrarreloj -->
-        <div class="modo-card">
-          <div class="modo-emoji">⏱️</div>
-          <h3 class="modo-titulo">Contrarreloj</h3>
-          <p class="modo-descripcion">¡Completa antes de que termine el tiempo!</p>
-          <button class="btn-modo btn-naranja" (click)="irASeleccion('contrarreloj')">
-            Jugar
-          </button>
-        </div>
-
-        <!-- Modo Desafío -->
-        <div class="modo-card">
-          <div class="modo-emoji">🏆</div>
-          <h3 class="modo-titulo">Desafío</h3>
-          <p class="modo-descripcion">Múltiples emociones. ¡Pon a prueba tu memoria!</p>
-          <button class="btn-modo btn-morado" (click)="irASeleccion('desafio')">
-            Jugar
-          </button>
-        </div>
-
+      <!-- Botón Jugar -->
+      <div class="boton-jugar-container">
+        <button class="btn-jugar-grande" (click)="irASeleccion()">
+          <span class="jugar-icono">🎮</span>
+          <span class="jugar-texto">¡JUGAR AHORA!</span>
+        </button>
       </div>
 
       <!-- Estadísticas -->
@@ -64,14 +42,6 @@
             <span class="estad-valor">{{ totalJugados }}</span>
             <span class="estad-label">Jugados</span>
           </div>
-          <div class="estad-item">
-            <span class="estad-valor">{{ puntaje }}</span>
-            <span class="estad-label">Puntos</span>
-          </div>
-          <div class="estad-item">
-            <span class="estad-valor">{{ racha }}</span>
-            <span class="estad-label">Racha</span>
-          </div>
         </div>
       </div>
 
@@ -81,6 +51,17 @@
   <!-- ========== PANTALLA DE SELECCIÓN DE EMOCIÓN ========== -->
   <div *ngIf="pantalla === 'seleccion'" class="pantalla-seleccion">
     <div class="seleccion-contenido">
+      
+      <!-- Header con botones -->
+      <div class="seleccion-header">
+        <button class="btn-volver" (click)="volverAlInicio()">
+          ← Volver
+        </button>
+        <button class="btn-dashboard-small" (click)="volverADashboard()">
+          🏠 Dashboard
+        </button>
+      </div>
+
       <h2 class="seleccion-titulo">Elige una emoción para armar</h2>
       
       <div class="emociones-grid">
@@ -89,16 +70,24 @@
           class="emocion-card"
           [style.border-color]="emociones[key].color"
           (click)="iniciarJuego(key)">
-          <div class="emocion-emoji" [style.color]="emociones[key].color">
-            {{ emociones[key].emoji }}
+          
+          <!-- IMAGEN DE LA EMOCIÓN -->
+          <div class="emocion-imagen-container">
+            <img [src]="emociones[key].imagen" 
+                 [alt]="emociones[key].nombre" 
+                 class="emocion-imagen">
+            <!-- Emoji de respaldo si la imagen no carga -->
+            <div class="emocion-emoji" 
+                 [style.color]="emociones[key].color"
+                 [style.display]="'flex'">
+              {{ emociones[key].emoji }}
+            </div>
           </div>
+          
           <h3 class="emocion-nombre">{{ emociones[key].nombre }}</h3>
         </div>
       </div>
 
-      <button class="btn-volver" (click)="volverAlInicio()">
-        ← Volver
-      </button>
     </div>
   </div>
 
@@ -107,34 +96,15 @@
     
     <!-- Header del juego -->
     <div class="juego-header">
-      <div class="header-stats">
-        <button class="btn-volver" (click)="volverASeleccion()">
+      <div class="header-left">
+        <button class="btn-volver-juego" (click)="volverASeleccion()">
           ← Volver
         </button>
-
-        <div class="stats-grupo">
-          <div class="stat-item">
-            <div class="stat-label">Emoción</div>
-            <div class="stat-value-grande" [style.color]="getColorEmocion(emocionActual!)">
-              {{ emociones[emocionActual!].emoji }} {{ emociones[emocionActual!].nombre }}
-            </div>
-          </div>
-
-          <div class="stat-item" *ngIf="modoJuego === 'contrarreloj'">
-            <div class="stat-label">⏱️ Tiempo</div>
-            <div class="stat-value" [style.color]="tiempo < 20 ? '#ef4444' : '#10b981'">
-              {{ tiempo }}s
-            </div>
-          </div>
-
-          <div class="stat-item">
-            <div class="stat-label">⭐ Puntos</div>
-            <div class="stat-value" style="color: #8b5cf6;">{{ puntaje }}</div>
-          </div>
-        </div>
-
-        <button class="btn-pista" (click)="togglePista()">
-          💡 {{ mostrarPista ? 'Ocultar' : 'Ver' }} Pista
+      </div>
+      
+      <div class="header-right">
+        <button class="btn-dashboard-small" (click)="volverADashboard()">
+          🏠 Dashboard
         </button>
       </div>
     </div>
@@ -182,12 +152,13 @@
             [style.top.%]="28"
             (dragover)="handleDragOver($event)"
             (drop)="handleDrop('cejas')">
-            <span *ngIf="!partesColocadas.cejas && mostrarPista" class="zona-pista">
-              {{ emociones[emocionActual!].cejas.emoji }}
-            </span>
-            <span *ngIf="partesColocadas.cejas" class="parte-colocada">
-              {{ partesColocadas.cejas.emoji }}
-            </span>
+            
+            <img *ngIf="partesColocadas.cejas" 
+                 [src]="partesColocadas.cejas.imagen" 
+                 [alt]="partesColocadas.cejas.nombre"
+                 class="parte-imagen-colocada">
+            
+            <span *ngIf="!partesColocadas.cejas" class="zona-placeholder">Cejas</span>
           </div>
 
           <!-- Zona de Ojos -->
@@ -199,12 +170,13 @@
             [style.top.%]="43"
             (dragover)="handleDragOver($event)"
             (drop)="handleDrop('ojos')">
-            <span *ngIf="!partesColocadas.ojos && mostrarPista" class="zona-pista">
-              {{ emociones[emocionActual!].ojos.emoji }}
-            </span>
-            <span *ngIf="partesColocadas.ojos" class="parte-colocada">
-              {{ partesColocadas.ojos.emoji }}
-            </span>
+            
+            <img *ngIf="partesColocadas.ojos" 
+                 [src]="partesColocadas.ojos.imagen" 
+                 [alt]="partesColocadas.ojos.nombre"
+                 class="parte-imagen-colocada">
+            
+            <span *ngIf="!partesColocadas.ojos" class="zona-placeholder">Ojos</span>
           </div>
 
           <!-- Zona de Boca -->
@@ -216,18 +188,14 @@
             [style.top.%]="70"
             (dragover)="handleDragOver($event)"
             (drop)="handleDrop('boca')">
-            <span *ngIf="!partesColocadas.boca && mostrarPista" class="zona-pista">
-              {{ emociones[emocionActual!].boca.emoji }}
-            </span>
-            <span *ngIf="partesColocadas.boca" class="parte-colocada">
-              {{ partesColocadas.boca.emoji }}
-            </span>
+            
+            <img *ngIf="partesColocadas.boca" 
+                 [src]="partesColocadas.boca.imagen" 
+                 [alt]="partesColocadas.boca.nombre"
+                 class="parte-imagen-colocada">
+            
+            <span *ngIf="!partesColocadas.boca" class="zona-placeholder">Boca</span>
           </div>
-        </div>
-
-        <!-- Mensaje de feedback -->
-        <div *ngIf="mostrarPista" class="feedback-mensaje">
-          💡 {{ emociones[emocionActual!].pista }}
         </div>
       </div>
 
@@ -236,57 +204,78 @@
         <h3 class="columna-titulo">🧩 Partes Disponibles</h3>
         
         <!-- Cejas -->
-        <div class="partes-lista">
-          <div
-            *ngFor="let parte of partesDisponibles.cejas"
-            class="parte-card"
-            [ngClass]="{'parte-colocada-ya': partesColocadas.cejas?.id === parte.id}"
-            [style.border-color]="emociones[emocionActual!].color"
-            [attr.draggable]="partesColocadas.cejas?.id !== parte.id"
-            (dragstart)="handleDragStart('cejas', parte)">
-            <div class="parte-emoji-grande">{{ parte.emoji }}</div>
-            <div class="parte-info">
-              <div class="parte-nombre">Cejas: {{ parte.nombre }}</div>
-              <div class="parte-instruccion">
-                {{ partesColocadas.cejas?.id === parte.id ? '✓ Colocada' : 'Arrastra a la cara' }}
+        <div class="seccion-partes">
+          <h4 class="seccion-titulo">Cejas</h4>
+          <div class="partes-lista">
+            <div
+              *ngFor="let parte of partesDisponibles.cejas"
+              class="parte-card"
+              [ngClass]="{'parte-colocada-ya': partesColocadas.cejas?.id === parte.id}"
+              [style.border-color]="emociones[emocionActual!].color"
+              [attr.draggable]="partesColocadas.cejas?.id !== parte.id"
+              (dragstart)="handleDragStart('cejas', parte)">
+              
+              <div class="parte-imagen-container">
+                <img [src]="parte.imagen" [alt]="parte.nombre" class="parte-imagen">
+              </div>
+              
+              <div class="parte-info">
+                <div class="parte-nombre">{{ parte.nombre }}</div>
+                <div class="parte-instruccion">
+                  {{ partesColocadas.cejas?.id === parte.id ? '✓ Colocada' : 'Arrastra a la cara' }}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Ojos -->
-        <div class="partes-lista">
-          <div
-            *ngFor="let parte of partesDisponibles.ojos"
-            class="parte-card"
-            [ngClass]="{'parte-colocada-ya': partesColocadas.ojos?.id === parte.id}"
-            [style.border-color]="emociones[emocionActual!].color"
-            [attr.draggable]="partesColocadas.ojos?.id !== parte.id"
-            (dragstart)="handleDragStart('ojos', parte)">
-            <div class="parte-emoji-grande">{{ parte.emoji }}</div>
-            <div class="parte-info">
-              <div class="parte-nombre">Ojos: {{ parte.nombre }}</div>
-              <div class="parte-instruccion">
-                {{ partesColocadas.ojos?.id === parte.id ? '✓ Colocada' : 'Arrastra a la cara' }}
+        <div class="seccion-partes">
+          <h4 class="seccion-titulo">Ojos</h4>
+          <div class="partes-lista">
+            <div
+              *ngFor="let parte of partesDisponibles.ojos"
+              class="parte-card"
+              [ngClass]="{'parte-colocada-ya': partesColocadas.ojos?.id === parte.id}"
+              [style.border-color]="emociones[emocionActual!].color"
+              [attr.draggable]="partesColocadas.ojos?.id !== parte.id"
+              (dragstart)="handleDragStart('ojos', parte)">
+              
+              <div class="parte-imagen-container">
+                <img [src]="parte.imagen" [alt]="parte.nombre" class="parte-imagen">
+              </div>
+              
+              <div class="parte-info">
+                <div class="parte-nombre">{{ parte.nombre }}</div>
+                <div class="parte-instruccion">
+                  {{ partesColocadas.ojos?.id === parte.id ? '✓ Colocada' : 'Arrastra a la cara' }}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Bocas -->
-        <div class="partes-lista">
-          <div
-            *ngFor="let parte of partesDisponibles.boca"
-            class="parte-card"
-            [ngClass]="{'parte-colocada-ya': partesColocadas.boca?.id === parte.id}"
-            [style.border-color]="emociones[emocionActual!].color"
-            [attr.draggable]="partesColocadas.boca?.id !== parte.id"
-            (dragstart)="handleDragStart('boca', parte)">
-            <div class="parte-emoji-grande">{{ parte.emoji }}</div>
-            <div class="parte-info">
-              <div class="parte-nombre">Boca: {{ parte.nombre }}</div>
-              <div class="parte-instruccion">
-                {{ partesColocadas.boca?.id === parte.id ? '✓ Colocada' : 'Arrastra a la cara' }}
+        <div class="seccion-partes">
+          <h4 class="seccion-titulo">Boca</h4>
+          <div class="partes-lista">
+            <div
+              *ngFor="let parte of partesDisponibles.boca"
+              class="parte-card"
+              [ngClass]="{'parte-colocada-ya': partesColocadas.boca?.id === parte.id}"
+              [style.border-color]="emociones[emocionActual!].color"
+              [attr.draggable]="partesColocadas.boca?.id !== parte.id"
+              (dragstart)="handleDragStart('boca', parte)">
+              
+              <div class="parte-imagen-container">
+                <img [src]="parte.imagen" [alt]="parte.nombre" class="parte-imagen">
+              </div>
+              
+              <div class="parte-info">
+                <div class="parte-nombre">{{ parte.nombre }}</div>
+                <div class="parte-instruccion">
+                  {{ partesColocadas.boca?.id === parte.id ? '✓ Colocada' : 'Arrastra a la cara' }}
+                </div>
               </div>
             </div>
           </div>
@@ -309,8 +298,7 @@
         <!-- Botón Verificar -->
         <button 
           *ngIf="juegoCompletado()"
-          class="btn-modo btn-verde"
-          style="margin-top: 1.5rem;"
+          class="btn-verificar"
           (click)="verificarRespuesta()">
           ✓ Verificar Respuesta
         </button>
@@ -330,43 +318,21 @@
         <p class="celebracion-texto">Has completado la emoción correctamente</p>
       </div>
 
-      <!-- Estrellas -->
       <div class="estrellas-container">
         <span class="estrella estrella-llena">⭐</span>
         <span class="estrella estrella-llena">⭐</span>
         <span class="estrella estrella-llena">⭐</span>
       </div>
 
-      <div class="stats-finales">
-        <div class="stat-final">
-          <div class="stat-final-emoji">⭐</div>
-          <div class="stat-final-valor">{{ puntaje }}</div>
-          <div class="stat-final-label">Puntos Totales</div>
-        </div>
-        
-        <div *ngIf="modoJuego === 'contrarreloj'" class="stat-final">
-          <div class="stat-final-emoji">⏱️</div>
-          <div class="stat-final-valor">{{ tiempo }}s</div>
-          <div class="stat-final-label">Tiempo Restante</div>
-        </div>
-        
-        <div class="stat-final">
-          <div class="stat-final-emoji">🔥</div>
-          <div class="stat-final-valor">{{ racha }}</div>
-          <div class="stat-final-label">Racha Actual</div>
-        </div>
-      </div>
-
       <div class="botones-completado">
-        <button 
-          class="btn-completado btn-verde"
-          (click)="volverASeleccion()">
+        <button class="btn-completado btn-verde" (click)="volverASeleccion()">
           🎭 Otra Emoción
         </button>
-        <button 
-          class="btn-completado btn-azul"
-          (click)="volverAlInicio()">
+        <button class="btn-completado btn-azul" (click)="volverAlInicio()">
           🏠 Menú Principal
+        </button>
+        <button class="btn-completado btn-morado" (click)="volverADashboard()">
+          📊 Dashboard
         </button>
       </div>
 

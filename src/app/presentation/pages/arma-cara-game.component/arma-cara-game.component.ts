@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-arma-cara-game',
-  standalone: true,  // ← AGREGAR ESTO
-  imports: [CommonModule],  // ← AGREGAR ESTO
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './arma-cara-game.component.html',
   styleUrls: ['./arma-cara-game.component.css']
 })
@@ -13,15 +13,9 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
 
   // ========== ESTADOS DEL JUEGO ==========
   pantalla: 'inicio' | 'seleccion' | 'juego' | 'completado' = 'inicio';
-  modoJuego: 'practica' | 'contrarreloj' | 'desafio' | '' = '';
   emocionActual: string | null = null;
-  nivel: number = 1;
-  puntaje: number = 0;
-  tiempo: number = 60;
   juegoActivo: boolean = false;
   arrastrandoParte: any = null;
-  mostrarPista: boolean = false;
-  racha: number = 0;
   totalJugados: number = 0;
   
   partesColocadas = {
@@ -30,107 +24,173 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     boca: null as any
   };
 
-  private timerInterval: any;
-
   // ========== DEFINICIONES DE EMOCIONES ==========
   emociones: any = {
     feliz: {
       nombre: 'Feliz',
       emoji: '😊',
       color: '#FFD700',
-      cejas: { emoji: '︶', descripcion: 'Cejas relajadas' },
-      ojos: { emoji: '◡◡', descripcion: 'Ojos sonrientes' },
-      boca: { emoji: '‿', descripcion: 'Sonrisa grande' },
-      pista: 'Una gran sonrisa y ojos brillantes expresan felicidad'
+      imagen: 'assets/images/emociones/feliz.png', // ← IMAGEN DE LA EMOCIÓN
+      cejas: { 
+        emoji: '︶', 
+        descripcion: 'Cejas relajadas',
+        imagen: 'assets/images/partes/cejas-relajadas.png'
+      },
+      ojos: { 
+        emoji: '◡◡', 
+        descripcion: 'Ojos sonrientes',
+        imagen: 'assets/images/partes/ojos-sonrientes.png'
+      },
+      boca: { 
+        emoji: '‿', 
+        descripcion: 'Sonrisa grande',
+        imagen: 'assets/images/partes/boca-sonrisa.png'
+      }
     },
     triste: {
       nombre: 'Triste',
       emoji: '😢',
       color: '#87CEEB',
-      cejas: { emoji: '︵', descripcion: 'Cejas caídas' },
-      ojos: { emoji: '╥╥', descripcion: 'Ojos llorosos' },
-      boca: { emoji: '︵', descripcion: 'Boca hacia abajo' },
-      pista: 'Las comisuras caídas y cejas hacia abajo muestran tristeza'
+      imagen: 'assets/images/emociones/triste.png',
+      cejas: { 
+        emoji: '︵', 
+        descripcion: 'Cejas caídas',
+        imagen: 'assets/images/partes/cejas-caidas.png'
+      },
+      ojos: { 
+        emoji: '╥╥', 
+        descripcion: 'Ojos llorosos',
+        imagen: 'assets/images/partes/ojos-llorosos.png'
+      },
+      boca: { 
+        emoji: '︵', 
+        descripcion: 'Boca hacia abajo',
+        imagen: 'assets/images/partes/boca-triste.png'
+      }
     },
     sorprendido: {
       nombre: 'Sorprendido',
       emoji: '😲',
       color: '#FFA500',
-      cejas: { emoji: '⌃', descripcion: 'Cejas levantadas' },
-      ojos: { emoji: '○○', descripcion: 'Ojos muy abiertos' },
-      boca: { emoji: 'O', descripcion: 'Boca abierta' },
-      pista: 'Cejas arriba y boca abierta expresan sorpresa'
+      imagen: 'assets/images/emociones/sorprendido.png',
+      cejas: { 
+        emoji: '⌃', 
+        descripcion: 'Cejas levantadas',
+        imagen: 'assets/images/partes/cejas-levantadas.png'
+      },
+      ojos: { 
+        emoji: '○○', 
+        descripcion: 'Ojos muy abiertos',
+        imagen: 'assets/images/partes/ojos-abiertos.png'
+      },
+      boca: { 
+        emoji: 'O', 
+        descripcion: 'Boca abierta',
+        imagen: 'assets/images/partes/boca-abierta.png'
+      }
     },
     enojado: {
       nombre: 'Enojado',
       emoji: '😠',
       color: '#FF6347',
-      cejas: { emoji: '︵︵', descripcion: 'Cejas fruncidas' },
-      ojos: { emoji: '◣◢', descripcion: 'Ojos entrecerrados' },
-      boca: { emoji: '⌢', descripcion: 'Boca tensa' },
-      pista: 'Cejas juntas y boca apretada muestran enojo'
+      imagen: 'assets/images/emociones/enojado.png',
+      cejas: { 
+        emoji: '︵︵', 
+        descripcion: 'Cejas fruncidas',
+        imagen: 'assets/images/partes/cejas-fruncidas.png'
+      },
+      ojos: { 
+        emoji: '◣◢', 
+        descripcion: 'Ojos entrecerrados',
+        imagen: 'assets/images/partes/ojos-entrecerrados.png'
+      },
+      boca: { 
+        emoji: '⌢', 
+        descripcion: 'Boca tensa',
+        imagen: 'assets/images/partes/boca-tensa.png'
+      }
     },
     asustado: {
       nombre: 'Asustado',
       emoji: '😨',
       color: '#9370DB',
-      cejas: { emoji: '︿', descripcion: 'Cejas preocupadas' },
-      ojos: { emoji: '◉◉', descripcion: 'Ojos muy abiertos' },
-      boca: { emoji: '△', descripcion: 'Boca temblorosa' },
-      pista: 'Ojos muy abiertos y boca temblando expresan miedo'
+      imagen: 'assets/images/emociones/asustado.png',
+      cejas: { 
+        emoji: '︿', 
+        descripcion: 'Cejas preocupadas',
+        imagen: 'assets/images/partes/cejas-preocupadas.png'
+      },
+      ojos: { 
+        emoji: '◉◉', 
+        descripcion: 'Ojos muy abiertos',
+        imagen: 'assets/images/partes/ojos-muy-abiertos.png'
+      },
+      boca: { 
+        emoji: '△', 
+        descripcion: 'Boca temblorosa',
+        imagen: 'assets/images/partes/boca-temblorosa.png'
+      }
     },
     amoroso: {
       nombre: 'Amoroso',
       emoji: '😍',
       color: '#FF69B4',
-      cejas: { emoji: '︶', descripcion: 'Cejas relajadas' },
-      ojos: { emoji: '♥♥', descripcion: 'Ojos de corazón' },
-      boca: { emoji: '◡', descripcion: 'Sonrisa dulce' },
-      pista: 'Ojos de corazón y sonrisa suave muestran amor'
+      imagen: 'assets/images/emociones/amoroso.png',
+      cejas: { 
+        emoji: '︶', 
+        descripcion: 'Cejas relajadas',
+        imagen: 'assets/images/partes/cejas-relajadas.png'
+      },
+      ojos: { 
+        emoji: '♥♥', 
+        descripcion: 'Ojos de corazón',
+        imagen: 'assets/images/partes/ojos-corazon.png'
+      },
+      boca: { 
+        emoji: '◡', 
+        descripcion: 'Sonrisa dulce',
+        imagen: 'assets/images/partes/boca-dulce.png'
+      }
     }
   };
 
   // ========== LISTA DE PARTES DISPONIBLES ==========
   partesDisponibles = {
     cejas: [
-      { id: 'cejas1', emoji: '︶', nombre: 'Relajadas' },
-      { id: 'cejas2', emoji: '︵', nombre: 'Caídas' },
-      { id: 'cejas3', emoji: '⌃', nombre: 'Levantadas' },
-      { id: 'cejas4', emoji: '︵︵', nombre: 'Fruncidas' },
-      { id: 'cejas5', emoji: '︿', nombre: 'Preocupadas' }
+      { id: 'cejas1', emoji: '︶', nombre: 'Relajadas', imagen: 'assets/images/partes/cejas-relajadas.png' },
+      { id: 'cejas2', emoji: '︵', nombre: 'Caídas', imagen: 'assets/images/partes/cejas-caidas.png' },
+      { id: 'cejas3', emoji: '⌃', nombre: 'Levantadas', imagen: 'assets/images/partes/cejas-levantadas.png' },
+      { id: 'cejas4', emoji: '︵︵', nombre: 'Fruncidas', imagen: 'assets/images/partes/cejas-fruncidas.png' },
+      { id: 'cejas5', emoji: '︿', nombre: 'Preocupadas', imagen: 'assets/images/partes/cejas-preocupadas.png' }
     ],
     ojos: [
-      { id: 'ojos1', emoji: '◡◡', nombre: 'Sonrientes' },
-      { id: 'ojos2', emoji: '╥╥', nombre: 'Llorosos' },
-      { id: 'ojos3', emoji: '○○', nombre: 'Abiertos' },
-      { id: 'ojos4', emoji: '◣◢', nombre: 'Entrecerrados' },
-      { id: 'ojos5', emoji: '◉◉', nombre: 'Muy abiertos' },
-      { id: 'ojos6', emoji: '♥♥', nombre: 'Corazones' }
+      { id: 'ojos1', emoji: '◡◡', nombre: 'Sonrientes', imagen: 'assets/images/partes/ojos-sonrientes.png' },
+      { id: 'ojos2', emoji: '╥╥', nombre: 'Llorosos', imagen: 'assets/images/partes/ojos-llorosos.png' },
+      { id: 'ojos3', emoji: '○○', nombre: 'Abiertos', imagen: 'assets/images/partes/ojos-abiertos.png' },
+      { id: 'ojos4', emoji: '◣◢', nombre: 'Entrecerrados', imagen: 'assets/images/partes/ojos-entrecerrados.png' },
+      { id: 'ojos5', emoji: '◉◉', nombre: 'Muy abiertos', imagen: 'assets/images/partes/ojos-muy-abiertos.png' },
+      { id: 'ojos6', emoji: '♥♥', nombre: 'Corazones', imagen: 'assets/images/partes/ojos-corazon.png' }
     ],
     boca: [
-      { id: 'boca1', emoji: '‿', nombre: 'Sonrisa grande' },
-      { id: 'boca2', emoji: '︵', nombre: 'Hacia abajo' },
-      { id: 'boca3', emoji: 'O', nombre: 'Abierta' },
-      { id: 'boca4', emoji: '⌢', nombre: 'Tensa' },
-      { id: 'boca5', emoji: '△', nombre: 'Temblorosa' },
-      { id: 'boca6', emoji: '◡', nombre: 'Dulce' }
+      { id: 'boca1', emoji: '‿', nombre: 'Sonrisa grande', imagen: 'assets/images/partes/boca-sonrisa.png' },
+      { id: 'boca2', emoji: '︵', nombre: 'Hacia abajo', imagen: 'assets/images/partes/boca-triste.png' },
+      { id: 'boca3', emoji: 'O', nombre: 'Abierta', imagen: 'assets/images/partes/boca-abierta.png' },
+      { id: 'boca4', emoji: '⌢', nombre: 'Tensa', imagen: 'assets/images/partes/boca-tensa.png' },
+      { id: 'boca5', emoji: '△', nombre: 'Temblorosa', imagen: 'assets/images/partes/boca-temblorosa.png' },
+      { id: 'boca6', emoji: '◡', nombre: 'Dulce', imagen: 'assets/images/partes/boca-dulce.png' }
     ]
   };
 
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    // Cargar estadísticas del localStorage si existen
     this.cargarEstadisticas();
   }
 
-  ngOnDestroy(): void {
-    this.detenerTimer();
-  }
+  ngOnDestroy(): void {}
 
   // ========== FUNCIONES DE NAVEGACIÓN ==========
-  irASeleccion(modo: 'practica' | 'contrarreloj' | 'desafio'): void {
-    this.modoJuego = modo;
+  irASeleccion(): void {
     this.pantalla = 'seleccion';
   }
 
@@ -139,23 +199,13 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     this.partesColocadas = { cejas: null, ojos: null, boca: null };
     this.juegoActivo = true;
     this.pantalla = 'juego';
-    this.mostrarPista = false;
-    
-    if (this.modoJuego === 'contrarreloj') {
-      this.tiempo = 60;
-      this.iniciarTimer();
-    }
   }
 
   volverAlInicio(): void {
     this.pantalla = 'inicio';
-    this.modoJuego = '';
     this.emocionActual = null;
     this.juegoActivo = false;
     this.partesColocadas = { cejas: null, ojos: null, boca: null };
-    this.tiempo = 60;
-    this.mostrarPista = false;
-    this.detenerTimer();
   }
 
   volverASeleccion(): void {
@@ -163,11 +213,9 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     this.emocionActual = null;
     this.juegoActivo = false;
     this.partesColocadas = { cejas: null, ojos: null, boca: null };
-    this.mostrarPista = false;
-    this.detenerTimer();
   }
 
-  volverAJuegos(): void {
+  volverADashboard(): void {
     this.router.navigate(['/juegos-terapeuticos']);
   }
 
@@ -191,24 +239,6 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     this.partesColocadas[tipoParte as keyof typeof this.partesColocadas] = null;
   }
 
-  // ========== TIMER ==========
-  iniciarTimer(): void {
-    this.timerInterval = setInterval(() => {
-      this.tiempo--;
-      if (this.tiempo <= 0) {
-        this.detenerTimer();
-        this.finalizarJuego(false);
-      }
-    }, 1000);
-  }
-
-  detenerTimer(): void {
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-      this.timerInterval = null;
-    }
-  }
-
   // ========== VERIFICACIÓN Y FINALIZACIÓN ==========
   verificarRespuesta(): void {
     if (!this.emocionActual) return;
@@ -228,16 +258,6 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
 
   finalizarJuego(exito: boolean): void {
     this.juegoActivo = false;
-    this.detenerTimer();
-    
-    if (exito) {
-      const puntos = this.modoJuego === 'contrarreloj' ? this.tiempo * 10 : 100;
-      this.puntaje += puntos;
-      this.racha++;
-    } else {
-      this.racha = 0;
-    }
-    
     this.totalJugados++;
     this.guardarEstadisticas();
     this.pantalla = 'completado';
@@ -250,10 +270,6 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
   // ========== UTILIDADES ==========
   getEmocionesKeys(): string[] {
     return Object.keys(this.emociones);
-  }
-
-  togglePista(): void {
-    this.mostrarPista = !this.mostrarPista;
   }
 
   getColorEmocion(emocionKey: string): string {
@@ -273,16 +289,12 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     const stats = localStorage.getItem('armaCaraStats');
     if (stats) {
       const data = JSON.parse(stats);
-      this.puntaje = data.puntaje || 0;
-      this.racha = data.racha || 0;
       this.totalJugados = data.totalJugados || 0;
     }
   }
 
   guardarEstadisticas(): void {
     const stats = {
-      puntaje: this.puntaje,
-      racha: this.racha,
       totalJugados: this.totalJugados
     };
     localStorage.setItem('armaCaraStats', JSON.stringify(stats));
