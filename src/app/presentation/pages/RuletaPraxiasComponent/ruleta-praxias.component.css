@@ -9,40 +9,56 @@
 }
 
 /* ========================================
-   HEADER Y PUNTUACIÓN
+   TÍTULO PRINCIPAL
    ======================================== */
-.header {
+.main-header {
   text-align: center;
   margin-bottom: 30px;
+  animation: fadeInDown 0.6s ease-out;
 }
 
-.score-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(12px);
-  padding: 15px 40px;
-  border-radius: 50px;
-  border: 3px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.score-icon {
-  font-size: 2rem;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-}
-
-.score-value {
+.main-title {
+  font-size: 3.5rem;
+  font-weight: 900;
   color: white;
-  font-size: 1.5rem;
-  font-weight: 800;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  margin: 0 0 10px 0;
+  text-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.title-icon {
+  font-size: 3rem;
+  animation: rotate 3s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.main-subtitle {
+  font-size: 1.3rem;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* ========================================
@@ -55,6 +71,7 @@
   margin: 0 auto;
   align-items: flex-start;
   justify-content: center;
+  padding-top: 40px;
 }
 
 /* ========================================
@@ -67,31 +84,52 @@
   gap: 30px;
 }
 
-.arrow-indicator {
-  width: 0;
-  height: 0;
-  border-left: 25px solid transparent;
-  border-right: 25px solid transparent;
-  border-bottom: 35px solid #ff4757;
-  filter: drop-shadow(0 4px 12px rgba(255, 71, 87, 0.6));
-  animation: bounce 1.2s ease-in-out infinite;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
+.wheel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .ruleta-svg {
   background: white;
   border-radius: 50%;
   padding: 10px;
-  filter: drop-shadow(0 15px 45px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.4));
   transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 }
 
 .ruleta-svg.spinning {
   transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+}
+
+/* ========================================
+   FLECHA INDICADORA (NUEVA)
+   ======================================== */
+.arrow-pointer {
+  position: absolute;
+  right: -25px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 30px solid transparent;
+  border-bottom: 30px solid transparent;
+  border-right: 50px solid #ff4757;
+  filter: drop-shadow(0 4px 12px rgba(255, 71, 87, 0.6));
+  z-index: 10;
+  animation: pointPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pointPulse {
+  0%, 100% { 
+    transform: translateY(-50%) translateX(0); 
+    filter: drop-shadow(0 4px 12px rgba(255, 71, 87, 0.6));
+  }
+  50% { 
+    transform: translateY(-50%) translateX(8px); 
+    filter: drop-shadow(0 6px 18px rgba(255, 71, 87, 0.9));
+  }
 }
 
 /* ========================================
@@ -173,12 +211,19 @@
   text-align: center;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.big-emoji {
-  font-size: 6rem;
-  margin-bottom: 20px;
+.big-image {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 20px auto;
+  display: block;
+  object-fit: contain;
   animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
 }
 
 @keyframes float {
@@ -192,6 +237,8 @@
   color: #2c3e50;
   font-weight: 900;
   text-transform: uppercase;
+  width: 100%;
+  text-align: center;
 }
 
 .difficulty-stars {
@@ -199,6 +246,8 @@
   font-size: 1.6rem;
   letter-spacing: 6px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  text-align: center;
 }
 
 /* ========================================
@@ -546,19 +595,8 @@
 
 .success-box p {
   font-size: 1.3rem;
-  margin-bottom: 25px;
+  margin-bottom: 0;
   font-weight: 600;
-}
-
-.points-badge {
-  background: rgba(255, 255, 255, 0.35);
-  padding: 15px 35px;
-  border-radius: 30px;
-  font-size: 1.6rem;
-  font-weight: 900;
-  display: inline-block;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 /* ========================================
@@ -676,6 +714,20 @@
     width: 100%;
     max-width: 520px;
   }
+
+  .wheel-wrapper {
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .arrow-pointer {
+    position: static;
+    transform: rotate(90deg);
+    border-top: 30px solid transparent;
+    border-bottom: 30px solid transparent;
+    border-right: 50px solid #ff4757;
+    margin-top: -20px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -683,16 +735,22 @@
     padding: 15px;
   }
 
-  .score-badge {
-    padding: 12px 30px;
+  .main-title {
+    font-size: 2.2rem;
+    gap: 12px;
   }
 
-  .score-icon {
-    font-size: 1.5rem;
+  .title-icon {
+    font-size: 2rem;
   }
 
-  .score-value {
-    font-size: 1.2rem;
+  .main-subtitle {
+    font-size: 1rem;
+  }
+
+  .big-image {
+    width: 120px;
+    height: 120px;
   }
 
   .ruleta-svg {
@@ -756,22 +814,43 @@
   .camera-panel {
     padding: 20px;
   }
+
+  .arrow-pointer {
+    border-top: 25px solid transparent;
+    border-bottom: 25px solid transparent;
+    border-right: 40px solid #ff4757;
+  }
 }
 
 @media (max-width: 480px) {
+  .main-title {
+    font-size: 1.8rem;
+    gap: 8px;
+    flex-direction: column;
+  }
+
+  .title-icon {
+    font-size: 1.5rem;
+  }
+
+  .main-subtitle {
+    font-size: 0.9rem;
+  }
+
   .ruleta-svg {
     width: 260px;
     height: 260px;
   }
 
-  .arrow-indicator {
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-bottom: 28px solid #ff4757;
+  .arrow-pointer {
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-right: 35px solid #ff4757;
   }
 
-  .big-emoji {
-    font-size: 3.5rem;
+  .big-image {
+    width: 100px;
+    height: 100px;
   }
 
   .praxia-title {

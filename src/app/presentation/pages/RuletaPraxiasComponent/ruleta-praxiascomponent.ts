@@ -5,6 +5,7 @@ import * as faceapi from 'face-api.js';
 interface Praxia {
   id: number;
   emoji: string;
+  imageName: string; // Nuevo: nombre del archivo de imagen
   nombre: string;
   color: string;
   instruccion: string;
@@ -29,7 +30,6 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
   rotation = 0;
   selectedPraxia: Praxia | null = null;
   showInstructions = false;
-  puntos = 0;
 
   // Estado de la cámara y detección
   isCameraActive = false;
@@ -50,6 +50,7 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     {
       id: 1,
       emoji: '😗',
+      imageName: 'BesoPez.png',
       nombre: 'Beso',
       color: '#FF6B6B',
       instruccion: 'Frunce los labios formando un círculo, como si fueras a dar un beso. Mantén esta posición durante 10 segundos.',
@@ -60,6 +61,7 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     {
       id: 2,
       emoji: '😮',
+      imageName: 'cachetes.png',
       nombre: 'Inflar Cachetes',
       color: '#4ECDC4',
       instruccion: 'Infla tus mejillas llenándolas de aire, como un globo. Mantén el aire dentro por 10 segundos.',
@@ -70,6 +72,7 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     {
       id: 3,
       emoji: '😛',
+      imageName: 'lengua.png',
       nombre: 'Lengua Afuera',
       color: '#45B7D1',
       instruccion: 'Saca la lengua lo más lejos que puedas hacia afuera. Intenta mantenerla recta durante 10 segundos.',
@@ -80,6 +83,7 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     {
       id: 4,
       emoji: '😄',
+      imageName: 'sonrisa.png',
       nombre: 'Sonrisa Grande',
       color: '#96CEB4',
       instruccion: 'Sonríe lo más grande que puedas, mostrando todos tus dientes. ¡Mantén esa alegría por 10 segundos!',
@@ -90,6 +94,7 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     {
       id: 5,
       emoji: '💨',
+      imageName: 'soplar.png',
       nombre: 'Soplar',
       color: '#FF9FF3',
       instruccion: 'Frunce los labios y sopla fuerte, como si estuvieras apagando velas de cumpleaños. Hazlo durante 10 segundos.',
@@ -162,22 +167,25 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     
     // Después de 3 segundos, determinar qué praxia cayó
     setTimeout(() => {
-      const normalizedRotation = newRotation % 360;
+      // CORRECCIÓN: Invertir la rotación porque la ruleta gira en sentido horario
+      // pero las secciones se mueven en sentido antihorario respecto a la flecha
+      const invertedRotation = (360 - (newRotation % 360)) % 360;
       
       // Mapeo de ángulos a índices de praxias
-      // Considerando que la flecha apunta hacia arriba (270°)
+      // La flecha apunta hacia la derecha (0°)
       let selectedIndex = 0;
       
-      if (normalizedRotation >= 0 && normalizedRotation < 72) {
-        selectedIndex = 4; // SOPLAR (288° a 360°/0°)
-      } else if (normalizedRotation >= 72 && normalizedRotation < 144) {
+      // Buscar en qué sección cayó la flecha
+      if (invertedRotation >= 0 && invertedRotation < 72) {
         selectedIndex = 0; // BESO (0° a 72°)
-      } else if (normalizedRotation >= 144 && normalizedRotation < 216) {
+      } else if (invertedRotation >= 72 && invertedRotation < 144) {
         selectedIndex = 1; // CACHETES (72° a 144°)
-      } else if (normalizedRotation >= 216 && normalizedRotation < 288) {
+      } else if (invertedRotation >= 144 && invertedRotation < 216) {
         selectedIndex = 2; // LENGUA (144° a 216°)
-      } else {
+      } else if (invertedRotation >= 216 && invertedRotation < 288) {
         selectedIndex = 3; // SONRISA (216° a 288°)
+      } else {
+        selectedIndex = 4; // SOPLAR (288° a 360°)
       }
       
       this.selectedPraxia = this.praxias[selectedIndex];
@@ -185,7 +193,9 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
       this.showInstructions = true;
       
       console.log('✅ Praxia seleccionada:', this.selectedPraxia?.nombre);
-      console.log('📐 Rotación normalizada:', normalizedRotation.toFixed(1) + '°');
+      console.log('🔄 Rotación real:', (newRotation % 360).toFixed(1) + '°');
+      console.log('🔄 Rotación invertida (para flecha):', invertedRotation.toFixed(1) + '°');
+      console.log('📍 Índice seleccionado:', selectedIndex);
       
       // Todos los ejercicios duran 10 segundos
       this.requiredDuration = 10000;
@@ -602,10 +612,7 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     
     // Actualizar estado
     this.isExerciseCorrect = true;
-    this.isDetecting = false; // Añadido para evitar actualizaciones
-    this.puntos += 20;
-    
-    console.log('⭐ Puntos totales:', this.puntos);
+    this.isDetecting = false;
     
     // Forzar detección de cambios para evitar errores
     this.cdr.detectChanges();
