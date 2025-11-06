@@ -1,11 +1,32 @@
 <div class="ruleta-container">
   
+  <!-- 🎯 FASE 1: HEADER DE PROGRESO DIARIO -->
+  <div class="progress-header">
+    <button class="btn-back" (click)="goBackToGames()" title="Volver a Juegos Terapéuticos">
+      ← Volver
+    </button>
+    
+    <div class="daily-progress-card">
+      <div class="progress-info">
+        <span class="progress-icon">🎯</span>
+        <div class="progress-text">
+          <span class="progress-label">Progreso de Hoy</span>
+          <span class="progress-numbers">{{totalExercisesToday}} / {{maxExercisesPerDay}} ejercicios</span>
+        </div>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" [style.width.%]="getDailyProgressPercentage()"></div>
+      </div>
+      <span class="progress-percentage">{{getDailyProgressPercentage()}}%</span>
+    </div>
+  </div>
+
   <!-- TÍTULO PRINCIPAL -->
   <div class="main-header">
     <h1 class="main-title">
-      <span class="title-icon">🎯</span>
+      <span class="title-icon"></span>
       Ruleta de Praxias
-      <span class="title-icon">🎯</span>
+      <span class="title-icon"></span>
     </h1>
     <p class="main-subtitle">¡Gira la ruleta y practica tus ejercicios orofaciales!</p>
   </div>
@@ -69,7 +90,7 @@
                 stroke="#ffffff" 
                 stroke-width="2"/>
           <circle cx="168" cy="299" r="35" fill="white" opacity="0.95"/>
-          <image href="assets/images/cachetes.png" x="143" y="274" width="50" height="50"/>
+          <image href="assets/images/MejillaDeGlobo.png" x="143" y="274" width="50" height="50"/>
           
           <!-- SECCIÓN 3 - LENGUA: 144° a 216° -->
           <path d="M 200 200 L 70.56 294.05 A 160 160 0 0 1 70.56 105.95 Z" 
@@ -77,7 +98,7 @@
                 stroke="#ffffff" 
                 stroke-width="2"/>
           <circle cx="96" cy="200" r="35" fill="white" opacity="0.95"/>
-          <image href="assets/images/lengua.png" x="71" y="175" width="50" height="50"/>
+          <image href="assets/images/LenguaLateral.png" x="71" y="175" width="50" height="50"/>
           
           <!-- SECCIÓN 4 - SONRISA: 216° a 288° -->
           <path d="M 200 200 L 70.56 105.95 A 160 160 0 0 1 249.44 47.83 Z" 
@@ -93,7 +114,7 @@
                 stroke="#ffffff" 
                 stroke-width="2"/>
           <circle cx="284" cy="139" r="35" fill="white" opacity="0.95"/>
-          <image href="assets/images/soplar.png" x="259" y="114" width="50" height="50"/>
+          <image href="assets/images/Soplar.png" x="259" y="114" width="50" height="50"/>
           
           <!-- CÍRCULO CENTRO -->
           <circle cx="200" cy="200" r="65" fill="#333333" opacity="0.15"/>
@@ -125,7 +146,15 @@
       <div *ngIf="showInstructions && selectedPraxia && !isCameraActive && !isExerciseCorrect" class="praxia-display">
         <img [src]="'assets/images/' + selectedPraxia.imageName" alt="{{selectedPraxia.nombre}}" class="big-image">
         <h2 class="praxia-title">{{selectedPraxia?.nombre}}</h2>
-        <div class="difficulty-stars">★★★☆☆</div>
+        
+        <!-- 🎯 FASE 1: PROGRESO DE REPETICIONES DEL EJERCICIO -->
+        <div class="exercise-progress-badge" 
+             [class.complete]="isCurrentExerciseComplete()">
+          <span class="badge-icon">{{isCurrentExerciseComplete() ? '✅' : '🔄'}}</span>
+          <span class="badge-text">
+            {{isCurrentExerciseComplete() ? '¡Completado!' : getCurrentExerciseProgress() + ' completadas'}}
+          </span>
+        </div>
       </div>
 
       <div *ngIf="showInstructions && selectedPraxia && !isCameraActive && !isExerciseCorrect" class="instruction-panel">
@@ -152,7 +181,8 @@
           </div>
         </div>
         
-        <button class="btn-start" (click)="startCamera()">
+        <button class="btn-start" 
+                (click)="startCamera()">
           📹 ¡COMENZAR DESAFÍO!
         </button>
       </div>
@@ -164,25 +194,57 @@
           <button class="btn-close" (click)="stopCamera()">✕</button>
         </div>
         
+        <!-- 🎯 FASE 1: MINI CONTADOR EN CÁMARA -->
+        <div class="camera-exercise-counter">
+          <span class="counter-icon">🔄</span>
+          <span class="counter-text">{{getCurrentExerciseProgress()}}</span>
+        </div>
+        
+        <!-- VIDEO LIMPIO SIN OVERLAYS -->
         <div class="video-wrapper">
           <video #videoElement autoplay muted playsinline class="video-feed"></video>
           <canvas #canvasElement class="canvas-overlay"></canvas>
+        </div>
+
+        <!-- PANEL DE CONTROLES EXTERNOS -->
+        <div class="controls-panel">
           
-          <div class="progress-indicator">
+          <!-- Progreso Circular -->
+          <div class="control-item progress-item">
             <div class="progress-ring">
-              <svg width="90" height="90">
-                <circle cx="45" cy="45" r="35" stroke="#ddd" stroke-width="6" fill="none"></circle>
-                <circle cx="45" cy="45" r="35" stroke="#4CAF50" stroke-width="6" fill="none"
-                  [style.stroke-dasharray]="2 * Math.PI * 35"
-                  [style.stroke-dashoffset]="2 * Math.PI * 35 * (1 - exerciseProgress / 100)"
+              <svg width="100" height="100">
+                <circle cx="50" cy="50" r="40" stroke="#e0e0e0" stroke-width="8" fill="none"></circle>
+                <circle cx="50" cy="50" r="40" stroke="#4CAF50" stroke-width="8" fill="none"
+                  [style.stroke-dasharray]="2 * Math.PI * 40"
+                  [style.stroke-dashoffset]="2 * Math.PI * 40 * (1 - exerciseProgress / 100)"
                   class="progress-fill"></circle>
               </svg>
               <div class="progress-percent">{{exerciseProgress.toFixed(0)}}%</div>
             </div>
-            <div class="detection-badge" [class.active]="detectionScore > 70">
-              Precisión: {{detectionScore.toFixed(0)}}%
-            </div>
+            <p class="control-label">Progreso</p>
           </div>
+
+          <!-- Precisión -->
+          <div class="control-item precision-item">
+            <div class="precision-circle" [class.active]="detectionScore > 50">
+              <div class="precision-icon">🎯</div>
+              <div class="precision-value">{{detectionScore.toFixed(0)}}%</div>
+            </div>
+            <p class="control-label">Precisión</p>
+          </div>
+
+          <!-- Botón Toggle Marcas -->
+          <div class="control-item toggle-item">
+            <button class="btn-toggle-landmarks" 
+                    [class.active]="showFacialLandmarks"
+                    (click)="toggleFacialLandmarks()"
+                    title="Mostrar/Ocultar marcas faciales">
+              <span class="icon">{{showFacialLandmarks ? '👁️' : '🙈'}}</span>
+              <span class="text">{{showFacialLandmarks ? 'OCULTAR' : 'MOSTRAR'}}</span>
+            </button>
+            <p class="control-label">Marcas Faciales</p>
+          </div>
+
         </div>
         
         <div class="camera-status">
@@ -192,17 +254,42 @@
         </div>
         
         <div class="feedback-box">
-          <div *ngIf="detectionScore > 80" class="feedback success">¡PERFECTO!</div>
-          <div *ngIf="detectionScore > 50 && detectionScore <= 80" class="feedback good">¡Muy bien!</div>
-          <div *ngIf="detectionScore <= 50 && detectionScore > 0" class="feedback try">¡Inténtalo!</div>
+          <div *ngIf="detectionScore > 70" class="feedback success">¡PERFECTO!</div>
+          <div *ngIf="detectionScore > 45 && detectionScore <= 70" class="feedback good">¡Muy bien!</div>
+          <div *ngIf="detectionScore > 25 && detectionScore <= 45" class="feedback try">¡Sigue así!</div>
+          <div *ngIf="detectionScore > 0 && detectionScore <= 25" class="feedback try">¡Inténtalo!</div>
         </div>
       </div>
 
       <!-- Pantalla de éxito -->
       <div *ngIf="isExerciseCorrect" class="success-box">
-        <div class="success-emoji">🎉</div>
-        <h2>¡INCREÍBLE!</h2>
-        <p>¡Completaste el ejercicio perfectamente!</p>
+        <div class="success-emoji-container">
+          <div class="success-emoji">🎉</div>
+          <div class="success-stars">
+            <span class="star">⭐</span>
+            <span class="star">⭐</span>
+            <span class="star">⭐</span>
+          </div>
+        </div>
+        
+        <h2 class="success-title">¡INCREÍBLE!</h2>
+        <p class="success-message">¡Completaste el ejercicio perfectamente!</p>
+        
+        <div class="motivation-box">
+          <div class="motivation-icon">💪</div>
+          <div class="motivation-text">
+            <p class="motivation-main">{{currentMotivation.main}}</p>
+            <p class="motivation-sub">{{currentMotivation.sub}}</p>
+          </div>
+        </div>
+        
+        <!-- 🎯 FASE 1: MOSTRAR PROGRESO ACTUALIZADO -->
+        <div class="success-progress">
+          <span class="success-progress-icon">📊</span>
+          <span class="success-progress-text">
+            Progreso: {{totalExercisesToday}}/{{maxExercisesPerDay}} ejercicios hoy
+          </span>
+        </div>
       </div>
 
       <!-- Pantalla de espera inicial -->

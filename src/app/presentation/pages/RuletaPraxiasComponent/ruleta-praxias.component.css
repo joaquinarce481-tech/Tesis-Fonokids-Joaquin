@@ -1,10 +1,238 @@
 /* ========================================
+   🎯 FASE 1: HEADER DE PROGRESO DIARIO
+   ======================================== */
+.progress-header {
+  max-width: 1400px;
+  margin: 0 auto 40px auto;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 30px;
+  padding: 0 40px;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.btn-back {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  color: #667eea;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  padding: 16px 32px;
+  border-radius: 15px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  justify-self: start;
+  margin-left: 0;
+}
+
+.btn-back:hover {
+  background: white;
+  transform: translateX(-5px);
+  box-shadow: 0 6px 18px rgba(102, 126, 234, 0.3);
+}
+
+.btn-back:active {
+  transform: translateX(-3px);
+}
+
+.daily-progress-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 22px 35px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 30px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  justify-self: stretch;
+  width: 100%;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.progress-info {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.progress-icon {
+  font-size: 2.8rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.progress-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.progress-label {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-numbers {
+  font-size: 1.4rem;
+  color: #2c3e50;
+  font-weight: 900;
+}
+
+.progress-bar-container {
+  height: 20px;
+  background: rgba(102, 126, 234, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 220px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+  position: relative;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.progress-percentage {
+  font-size: 1.7rem;
+  color: #667eea;
+  font-weight: 900;
+  min-width: 75px;
+  text-align: right;
+}
+
+/* ========================================
+   🎯 FASE 1: BADGE DE PROGRESO EN EJERCICIO
+   ======================================== */
+.exercise-progress-badge {
+  margin-top: 15px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #FFA726 0%, #FFB74D 100%);
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(255, 167, 38, 0.3);
+  transition: all 0.3s ease;
+}
+
+.exercise-progress-badge.complete {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  box-shadow: 0 4px 12px rgba(67, 233, 123, 0.4);
+}
+
+.badge-icon {
+  font-size: 1.5rem;
+}
+
+.badge-text {
+  font-size: 1rem;
+  color: white;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   🎯 FASE 1: CONTADOR EN CÁMARA
+   ======================================== */
+.camera-exercise-counter {
+  background: rgba(102, 126, 234, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 10px 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.counter-icon {
+  font-size: 1.3rem;
+}
+
+.counter-text {
+  color: white;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   🎯 FASE 1: PROGRESO EN PANTALLA DE ÉXITO
+   ======================================== */
+.success-progress {
+  margin-top: 20px;
+  padding: 18px 30px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 1;
+  animation: slide-up 0.8s ease-out 0.6s backwards;
+}
+
+.success-progress-icon {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.success-progress-text {
+  color: white;
+  font-weight: 800;
+  font-size: 1.15rem;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
    CONTENEDOR PRINCIPAL
    ======================================== */
 .ruleta-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  padding: 25px 20px 40px 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -13,7 +241,8 @@
    ======================================== */
 .main-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 50px;
+  padding-bottom: 20px;
   animation: fadeInDown 0.6s ease-out;
 }
 
@@ -32,7 +261,7 @@
   font-size: 3.5rem;
   font-weight: 900;
   color: white;
-  margin: 0 0 10px 0;
+  margin: 0 0 15px 0;
   text-shadow: 
     0 4px 8px rgba(0, 0, 0, 0.3),
     0 2px 4px rgba(0, 0, 0, 0.2);
@@ -66,12 +295,12 @@
    ======================================== */
 .game-wrapper {
   display: flex;
-  gap: 40px;
-  max-width: 1200px;
+  gap: 50px;
+  max-width: 1300px;
   margin: 0 auto;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 40px;
+  padding-top: 20px;
 }
 
 /* ========================================
@@ -241,15 +470,6 @@
   text-align: center;
 }
 
-.difficulty-stars {
-  color: #FFD93D;
-  font-size: 1.6rem;
-  letter-spacing: 6px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  text-align: center;
-}
-
 /* ========================================
    PANEL DE INSTRUCCIONES
    ======================================== */
@@ -360,13 +580,20 @@
   letter-spacing: 1px;
 }
 
-.btn-start:hover {
+.btn-start:hover:not(:disabled) {
   transform: translateY(-4px);
   box-shadow: 0 12px 30px rgba(67, 233, 123, 0.5);
 }
 
-.btn-start:active {
+.btn-start:active:not(:disabled) {
   transform: translateY(-1px);
+}
+
+.btn-start:disabled {
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 12px rgba(127, 140, 141, 0.3);
 }
 
 /* ========================================
@@ -446,31 +673,51 @@
 }
 
 /* ========================================
-   INDICADOR DE PROGRESO
+   PANEL DE CONTROLES EXTERNOS (NUEVO)
    ======================================== */
-.progress-indicator {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+.controls-panel {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.control-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
 }
 
-.progress-ring {
+.control-label {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+/* Progreso Circular */
+.progress-item .progress-ring {
   position: relative;
-  width: 90px;
-  height: 90px;
-  background: rgba(0, 0, 0, 0.7);
+  width: 100px;
+  height: 100px;
+  background: rgba(102, 126, 234, 0.1);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
 }
 
-.progress-ring svg {
+.progress-item .progress-ring svg {
   transform: rotate(-90deg);
 }
 
@@ -478,29 +725,95 @@
   transition: stroke-dashoffset 0.3s ease;
 }
 
-.progress-percent {
+.progress-item .progress-percent {
   position: absolute;
-  color: white;
+  color: #667eea;
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+/* Precisión */
+.precision-circle {
+  width: 100px;
+  height: 100px;
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
+}
+
+.precision-circle.active {
+  background: rgba(76, 175, 80, 0.15);
+  box-shadow: 0 6px 18px rgba(76, 175, 80, 0.4);
+}
+
+.precision-icon {
+  font-size: 2rem;
+}
+
+.precision-value {
   font-size: 1.5rem;
   font-weight: 900;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  color: #F44336;
 }
 
-.detection-badge {
-  background: rgba(0, 0, 0, 0.75);
-  color: white;
-  padding: 10px 20px;
-  border-radius: 25px;
-  font-size: 0.95rem;
-  font-weight: 700;
+.precision-circle.active .precision-value {
+  color: #4CAF50;
+}
+
+/* Botón Toggle */
+.toggle-item .btn-toggle-landmarks {
+  width: 100px;
+  height: 100px;
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.detection-badge.active {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-  box-shadow: 0 6px 18px rgba(76, 175, 80, 0.6);
+.toggle-item .btn-toggle-landmarks:hover {
+  background: rgba(0, 0, 0, 0.95);
+  transform: scale(1.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+.toggle-item .btn-toggle-landmarks:active {
+  transform: scale(1.02);
+}
+
+.toggle-item .btn-toggle-landmarks.active {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  box-shadow: 0 6px 18px rgba(67, 233, 123, 0.6);
+}
+
+.toggle-item .btn-toggle-landmarks.active:hover {
+  background: linear-gradient(135deg, #3ad46c 0%, #30e8c9 100%);
+}
+
+.toggle-item .btn-toggle-landmarks .icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.toggle-item .btn-toggle-landmarks .text {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 800;
 }
 
 /* ========================================
@@ -552,7 +865,7 @@
 }
 
 .feedback.try {
-  background: linear-gradient(135deg, #F44336 0%, #FF5722 100%);
+  background: linear-gradient(135deg, #FFA726 0%, #FFB74D 100%);
   color: white;
 }
 
@@ -567,36 +880,166 @@
 .success-box {
   background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
   border-radius: 30px;
-  padding: 50px 35px;
+  padding: 45px 40px;
   text-align: center;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   color: white;
   border: 3px solid rgba(255, 255, 255, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.success-box::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.success-emoji-container {
+  position: relative;
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
 }
 
 .success-emoji {
-  font-size: 6rem;
-  animation: celebrate 0.6s ease-in-out infinite;
+  font-size: 7rem;
+  animation: celebrate 1s ease-in-out infinite, bounce-in 0.8s ease-out;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes celebrate {
   0%, 100% { transform: scale(1) rotate(0deg); }
-  25% { transform: scale(1.1) rotate(-10deg); }
-  75% { transform: scale(1.1) rotate(10deg); }
+  25% { transform: scale(1.15) rotate(-12deg); }
+  75% { transform: scale(1.15) rotate(12deg); }
 }
 
-.success-box h2 {
+@keyframes bounce-in {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.success-stars {
+  display: flex;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.success-stars .star {
   font-size: 2.5rem;
-  margin: 25px 0 15px 0;
+  animation: star-pop 0.6s ease-out;
+  filter: drop-shadow(0 4px 8px rgba(255, 215, 0, 0.5));
+}
+
+.success-stars .star:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.success-stars .star:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.success-stars .star:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes star-pop {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1.3) rotate(180deg); }
+  100% { transform: scale(1) rotate(360deg); opacity: 1; }
+}
+
+.success-title {
+  font-size: 2.8rem;
+  margin: 0 0 15px 0;
   font-weight: 900;
   text-transform: uppercase;
-  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  letter-spacing: 2px;
+  position: relative;
+  z-index: 1;
+  animation: slide-up 0.8s ease-out;
 }
 
-.success-box p {
-  font-size: 1.3rem;
-  margin-bottom: 0;
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.success-message {
+  font-size: 1.4rem;
+  margin-bottom: 25px;
   font-weight: 600;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
+  animation: slide-up 0.8s ease-out 0.2s backwards;
+}
+
+/* NUEVO: Caja de motivación */
+.motivation-box {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 20px 30px;
+  margin: 25px 0;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 1;
+  animation: slide-up 0.8s ease-out 0.4s backwards;
+}
+
+.motivation-icon {
+  font-size: 3.5rem;
+  animation: pump 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes pump {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.motivation-text {
+  text-align: left;
+  flex: 1;
+}
+
+.motivation-main {
+  font-size: 1.6rem;
+  font-weight: 900;
+  margin: 0 0 5px 0;
+  color: white;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+}
+
+.motivation-sub {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* ========================================
@@ -616,11 +1059,6 @@
   font-size: 5rem;
   margin-bottom: 25px;
   animation: rotate 3s linear infinite;
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 
 .waiting-box h3 {
@@ -708,6 +1146,7 @@
   .game-wrapper {
     flex-direction: column;
     align-items: center;
+    gap: 40px;
   }
   
   .side-panel {
@@ -728,11 +1167,57 @@
     border-right: 50px solid #ff4757;
     margin-top: -20px;
   }
+
+  /* 🎯 FASE 1: Responsive para progress header */
+  .progress-header {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0 20px;
+    margin-bottom: 35px;
+  }
+
+  .btn-back {
+    justify-self: stretch;
+    text-align: center;
+    margin-left: 0;
+  }
+
+  .daily-progress-card {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    justify-self: stretch;
+    max-width: 100%;
+    padding: 20px 25px;
+  }
+
+  .progress-info {
+    grid-column: 1 / -1;
+  }
+
+  .progress-bar-container {
+    grid-column: 1 / 2;
+    grid-row: 2;
+  }
+
+  .progress-percentage {
+    grid-column: 2 / 3;
+    grid-row: 2;
+    text-align: right;
+  }
+
+  .main-header {
+    margin-bottom: 40px;
+    padding-bottom: 15px;
+  }
+
+  .main-title {
+    font-size: 3rem;
+  }
 }
 
 @media (max-width: 768px) {
   .ruleta-container {
-    padding: 15px;
+    padding: 20px 15px 30px 15px;
   }
 
   .main-title {
@@ -746,6 +1231,11 @@
 
   .main-subtitle {
     font-size: 1rem;
+  }
+
+  .main-header {
+    margin-bottom: 35px;
+    padding-bottom: 10px;
   }
 
   .big-image {
@@ -820,9 +1310,126 @@
     border-bottom: 25px solid transparent;
     border-right: 40px solid #ff4757;
   }
+
+  /* Ajuste del panel de controles en tablets */
+  .controls-panel {
+    padding: 15px;
+    gap: 12px;
+  }
+
+  .progress-item .progress-ring,
+  .precision-circle,
+  .toggle-item .btn-toggle-landmarks {
+    width: 85px;
+    height: 85px;
+  }
+
+  .progress-item .progress-percent {
+    font-size: 1.5rem;
+  }
+
+  .precision-icon {
+    font-size: 1.8rem;
+  }
+
+  .precision-value {
+    font-size: 1.3rem;
+  }
+
+  .toggle-item .btn-toggle-landmarks .icon {
+    font-size: 2rem;
+  }
+
+  .toggle-item .btn-toggle-landmarks .text {
+    font-size: 0.65rem;
+  }
+
+  /* 🎯 FASE 1: Responsive para elementos nuevos */
+  .progress-header {
+    padding: 0 15px;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+
+  .btn-back {
+    padding: 12px 24px;
+    font-size: 0.95rem;
+  }
+
+  .daily-progress-card {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    padding: 18px 22px;
+    gap: 15px;
+  }
+
+  .progress-info {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .progress-bar-container {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+  }
+
+  .progress-percentage {
+    grid-column: 1;
+    grid-row: 3;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .game-wrapper {
+    gap: 35px;
+  }
+
+  /* Pantalla de éxito responsive */
+  .success-box {
+    padding: 40px 30px;
+  }
+
+  .success-emoji {
+    font-size: 6rem;
+  }
+
+  .success-stars .star {
+    font-size: 2.2rem;
+  }
+
+  .success-title {
+    font-size: 2.4rem;
+  }
+
+  .success-message {
+    font-size: 1.25rem;
+  }
+
+  .motivation-box {
+    padding: 18px 25px;
+    gap: 18px;
+  }
+
+  .motivation-icon {
+    font-size: 3rem;
+  }
+
+  .motivation-main {
+    font-size: 1.4rem;
+  }
+
+  .motivation-sub {
+    font-size: 1rem;
+  }
+}
 }
 
 @media (max-width: 480px) {
+  .ruleta-container {
+    padding: 15px 10px 25px 10px;
+  }
+
   .main-title {
     font-size: 1.8rem;
     gap: 8px;
@@ -835,6 +1442,11 @@
 
   .main-subtitle {
     font-size: 0.9rem;
+  }
+
+  .main-header {
+    margin-bottom: 30px;
+    padding-bottom: 8px;
   }
 
   .ruleta-svg {
@@ -861,22 +1473,166 @@
     height: 220px;
   }
 
-  .progress-ring {
+  /* Ajuste del panel de controles en móviles */
+  .controls-panel {
+    grid-template-columns: 1fr;
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .control-item {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 15px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 15px;
+  }
+
+  .progress-item .progress-ring,
+  .precision-circle,
+  .toggle-item .btn-toggle-landmarks {
     width: 70px;
     height: 70px;
   }
 
-  .progress-ring svg {
+  .progress-item .progress-ring svg {
     width: 70px;
     height: 70px;
   }
 
-  .progress-percent {
+  .progress-item .progress-percent {
+    font-size: 1.3rem;
+  }
+
+  .precision-icon {
+    font-size: 1.5rem;
+  }
+
+  .precision-value {
     font-size: 1.2rem;
   }
 
-  .detection-badge {
+  .toggle-item .btn-toggle-landmarks .icon {
+    font-size: 1.8rem;
+  }
+
+  .toggle-item .btn-toggle-landmarks .text {
+    font-size: 0.6rem;
+  }
+
+  .control-label {
     font-size: 0.8rem;
-    padding: 8px 15px;
+    flex: 1;
+    text-align: left;
+    padding-left: 10px;
+  }
+
+  /* 🎯 FASE 1: Responsive móvil para elementos nuevos */
+  .progress-header {
+    padding: 0 10px;
+    gap: 12px;
+    margin-bottom: 25px;
+  }
+
+  .btn-back {
+    padding: 10px 18px;
+    font-size: 0.85rem;
+  }
+
+  .daily-progress-card {
+    padding: 15px 18px;
+    gap: 12px;
+  }
+
+  .progress-icon {
+    font-size: 2rem;
+  }
+
+  .progress-numbers {
+    font-size: 1.1rem;
+  }
+
+  .progress-percentage {
+    font-size: 1.3rem;
+  }
+
+  .exercise-progress-badge {
+    padding: 10px 15px;
+  }
+
+  .badge-icon {
+    font-size: 1.3rem;
+  }
+
+  .badge-text {
+    font-size: 0.9rem;
+  }
+
+  .game-wrapper {
+    gap: 30px;
+  }
+
+  /* Pantalla de éxito responsive móvil */
+  .success-box {
+    padding: 35px 25px;
+  }
+
+  .success-emoji {
+    font-size: 5rem;
+  }
+
+  .success-stars {
+    gap: 10px;
+  }
+
+  .success-stars .star {
+    font-size: 2rem;
+  }
+
+  .success-title {
+    font-size: 2rem;
+    letter-spacing: 1px;
+  }
+
+  .success-message {
+    font-size: 1.15rem;
+  }
+
+  .motivation-box {
+    padding: 16px 20px;
+    gap: 15px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .motivation-icon {
+    font-size: 3rem;
+  }
+
+  .motivation-text {
+    text-align: center;
+  }
+
+  .motivation-main {
+    font-size: 1.3rem;
+  }
+
+  .motivation-sub {
+    font-size: 0.95rem;
+  }
+
+  .success-progress {
+    padding: 15px 20px;
+    gap: 10px;
+    flex-direction: column;
+  }
+
+  .success-progress-icon {
+    font-size: 1.6rem;
+  }
+
+  .success-progress-text {
+    font-size: 1rem;
+    text-align: center;
   }
 }
