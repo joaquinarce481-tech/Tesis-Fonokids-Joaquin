@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
   backendApi: 'http://localhost:3000',
-  backendLogin: 'http://localhost:3001'
+  backendLogin: 'https://api-fonokids.vercel.app/api'
 };
