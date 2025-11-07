@@ -28,11 +28,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
   faseJuego: 'instrucciones' | 'capturando-inicial' | 'mostrando' | 'esperando' | 'jugando' | 'completado' | 'error' = 'instrucciones';
   nivelActual: number = 1;
   maxNiveles: number = 8;
-  puntaje: number = 0;
-  vidas: number = 3;
-  tiempoInicio: number = 0;
-  tiempoTranscurrido: number = 0;
-  intervaloTiempo: any;
   
   // Gestos disponibles
   gestosDisponibles: GestoFacial[] = [
@@ -109,34 +104,19 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.intervaloTiempo) {
-      clearInterval(this.intervaloTiempo);
-    }
     this.detenerCamara();
   }
 
   iniciarJuego() {
-    this.tiempoInicio = Date.now();
-    this.puntaje = 0;
-    this.vidas = 3;
     this.nivelActual = 1;
     this.faseJuego = 'instrucciones';
     this.todasFotosTomadas = false;
     this.indiceCaptura = 0;
-    this.iniciarTemporizador();
     
     // Limpiar fotos previas
     this.gestosDisponibles.forEach(g => g.imagenCapturada = undefined);
     
     console.log('🧠 Juego "Memoria de Gestos" iniciado');
-  }
-
-  iniciarTemporizador() {
-    this.intervaloTiempo = setInterval(() => {
-      if (this.faseJuego !== 'completado') {
-        this.tiempoTranscurrido = Math.floor((Date.now() - this.tiempoInicio) / 1000);
-      }
-    }, 1000);
   }
 
   // === CAPTURA INICIAL DE GESTOS ===
@@ -472,21 +452,14 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
       }
     } else {
       console.log('❌ Incorrecto');
-      this.perderVida();
+      this.mostrarError();
     }
   }
 
   completarNivel() {
     this.faseJuego = 'esperando';
     
-    const puntosBase = 100;
-    const bonusNivel = this.nivelActual * 50;
-    const bonusVelocidad = Math.max(0, 10 - Math.floor(this.tiempoTranscurrido / 10)) * 10;
-    const puntosNivel = puntosBase + bonusNivel + bonusVelocidad;
-    
-    this.puntaje += puntosNivel;
-    
-    console.log(`✅ Nivel ${this.nivelActual} completado. Puntos: +${puntosNivel}`);
+    console.log(`✅ Nivel ${this.nivelActual} completado`);
     
     if (this.nivelActual >= this.maxNiveles) {
       setTimeout(() => {
@@ -500,54 +473,23 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     }
   }
 
-  perderVida() {
-    this.vidas--;
+  mostrarError() {
     this.faseJuego = 'error';
     
-    if (this.vidas <= 0) {
-      setTimeout(() => {
-        this.gameOver();
-      }, 1500);
-    } else {
-      setTimeout(() => {
-        this.empezarNivel();
-      }, 2000);
-    }
+    setTimeout(() => {
+      this.empezarNivel();
+    }, 2000);
   }
 
   completarJuego() {
     this.faseJuego = 'completado';
-    
-    const bonusVidas = this.vidas * 200;
-    const bonusTiempo = Math.max(0, 300 - this.tiempoTranscurrido) * 5;
-    this.puntaje += bonusVidas + bonusTiempo;
-    
     console.log('🎉 ¡Juego completado!');
-    console.log(`📊 Puntaje final: ${this.puntaje}`);
-  }
-
-  gameOver() {
-    this.faseJuego = 'completado';
-    console.log('💔 Game Over');
   }
 
   // === UTILIDADES ===
   
   esperar(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  formatearTiempo(segundos: number): string {
-    const minutos = Math.floor(segundos / 60);
-    const segs = segundos % 60;
-    return `${minutos}:${segs.toString().padStart(2, '0')}`;
-  }
-
-  getEstrellas(): number {
-    if (this.vidas === 3 && this.puntaje >= 2000) return 3;
-    if (this.vidas >= 2 && this.puntaje >= 1500) return 2;
-    if (this.puntaje >= 1000) return 1;
-    return 0;
   }
 
   getDificultadTexto(): string {

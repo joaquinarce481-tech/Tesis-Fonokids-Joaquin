@@ -104,17 +104,6 @@
   font-weight: bold;
 }
 
-.vida-icon {
-  font-size: 0.9rem;
-  margin: 0 1px;
-  transition: all 0.3s ease;
-}
-
-.vida-icon.perdida {
-  opacity: 0.3;
-  filter: grayscale(100%);
-}
-
 /* ===== PANTALLA DE INSTRUCCIONES ===== */
 .instructions-screen {
   min-height: calc(100vh - 120px);
@@ -388,6 +377,7 @@
   opacity: 0.5;
 }
 
+/* ===== NUEVO LAYOUT DE CAPTURA (2 COLUMNAS) ===== */
 .capture-active-panel {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
@@ -397,42 +387,18 @@
   animation: slideUp 0.5s ease-out;
 }
 
-.gesto-instruccion-card {
-  text-align: center;
-  padding: 2rem;
-  background: rgba(59, 130, 246, 0.2);
-  border: 2px solid rgba(59, 130, 246, 0.4);
-  border-radius: 16px;
-  margin-bottom: 2rem;
+.capture-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
 }
 
-.gesto-emoji-grande {
-  font-size: 4rem;
-  display: block;
-  margin-bottom: 1rem;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-.gesto-instruccion-card h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.8rem;
-  font-weight: bold;
-}
-
-.gesto-instruccion-card p {
-  margin: 0;
-  font-size: 1.1rem;
-  opacity: 0.95;
-}
-
-.video-capture-area {
-  max-width: 640px;
-  margin: 0 auto;
+/* 👈 COLUMNA IZQUIERDA: Video */
+.video-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .video-wrapper {
@@ -440,8 +406,8 @@
   width: 100%;
   border-radius: 16px;
   overflow: hidden;
-  margin-bottom: 1.5rem;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  border: 3px solid rgba(255, 255, 255, 0.3);
 }
 
 .video-wrapper video {
@@ -449,6 +415,15 @@
   height: auto;
   display: block;
   transform: scaleX(-1);
+}
+
+.canvas-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .resultado-overlay-video {
@@ -526,28 +501,114 @@
   cursor: not-allowed;
 }
 
-.camera-start-area {
+/* ===== 👉 MODAL DINÁMICO QUE CAMBIA DE COLOR ===== */
+.gesto-card-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.gesto-card-puzzle {
+  background: linear-gradient(135deg, #ff5e62 0%, #ff6b6b 100%);
+  border-radius: 20px;
+  padding: 3rem 2rem;
   text-align: center;
-  padding: 3rem 0;
+  width: 100%;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.5s ease;
 }
 
-.btn-start-camera {
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 1.5rem 3rem;
-  font-size: 1.3rem;
+/* ✅ VERDE cuando detecta correctamente */
+.gesto-card-puzzle.card-correcto {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  border-color: #10b981;
+  box-shadow: 0 20px 50px rgba(16, 185, 129, 0.5);
+  animation: card-pulse-green 1.5s ease-in-out infinite;
+}
+
+@keyframes card-pulse-green {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 15px 40px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 20px 50px rgba(16, 185, 129, 0.6);
+  }
+}
+
+/* ❌ ROJO cuando NO detecta */
+.gesto-card-puzzle.card-incorrecto {
+  background: linear-gradient(135deg, #ff5e62 0%, #ff6b6b 100%);
+  border-color: #ef4444;
+  box-shadow: 0 20px 50px rgba(239, 68, 68, 0.5);
+  animation: card-pulse-red 1.5s ease-in-out infinite;
+}
+
+@keyframes card-pulse-red {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 15px 40px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 20px 50px rgba(239, 68, 68, 0.6);
+  }
+}
+
+.gesto-icon-grande {
+  font-size: 8rem;
+  margin-bottom: 1.5rem;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.gesto-titulo {
+  margin: 0 0 1rem 0;
+  font-size: 2.5rem;
   font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+  color: white;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-.btn-start-camera:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+.gesto-instruccion-texto {
+  margin: 0;
+  font-size: 1.3rem;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  border-radius: 12px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.mensaje-validacion {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.mensaje-validacion p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.mensaje-validacion p.correcto {
+  color: #10b981;
+}
+
+.mensaje-validacion p.incorrecto {
+  color: #ef4444;
 }
 
 .captura-completa {
@@ -1010,7 +1071,30 @@
 }
 
 /* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .capture-layout {
+    gap: 1.5rem;
+  }
+  
+  .gesto-icon-grande {
+    font-size: 6rem;
+  }
+  
+  .gesto-titulo {
+    font-size: 2rem;
+  }
+  
+  .gesto-instruccion-texto {
+    font-size: 1.1rem;
+  }
+}
+
 @media (max-width: 768px) {
+  .capture-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
   .header-content {
     flex-direction: column;
     text-align: center;
@@ -1060,16 +1144,24 @@
     flex-direction: column;
   }
 
-  .gesto-emoji-grande {
-    font-size: 3rem;
+  .gesto-icon-grande {
+    font-size: 5rem;
   }
 
-  .gesto-instruccion-card h3 {
-    font-size: 1.5rem;
+  .gesto-titulo {
+    font-size: 1.8rem;
+  }
+
+  .gesto-instruccion-texto {
+    font-size: 1rem;
   }
 
   .capture-active-panel {
     padding: 1.5rem;
+  }
+  
+  .gesto-card-puzzle {
+    padding: 2rem 1.5rem;
   }
 }
 
@@ -1085,10 +1177,6 @@
   
   .stat-value {
     font-size: 0.9rem;
-  }
-  
-  .vida-icon {
-    font-size: 0.8rem;
   }
 
   .capture-progress h2 {
@@ -1114,6 +1202,19 @@
   .celebration h2 {
     font-size: 1.5rem;
   }
+  
+  .gesto-icon-grande {
+    font-size: 4rem;
+  }
+  
+  .gesto-titulo {
+    font-size: 1.5rem;
+  }
+  
+  .gesto-instruccion-texto {
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
 }
 
 /* ===== ACCESIBILIDAD ===== */
@@ -1123,35 +1224,4 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-/* Agregar al CSS */
-.canvas-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.mensaje-validacion {
-  text-align: center;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.mensaje-validacion p {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.mensaje-validacion p.correcto {
-  color: #10b981;
-}
-
-.mensaje-validacion p.incorrecto {
-  color: #ef4444;
 }

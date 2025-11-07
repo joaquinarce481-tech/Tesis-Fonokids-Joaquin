@@ -12,26 +12,11 @@
         <p>Recuerda y repite la secuencia de gestos faciales</p>
       </div>
       
+      <!-- ✅ SOLO NIVEL - Sin vidas, tiempo ni puntaje -->
       <div class="game-stats">
         <div class="stat">
           <span class="stat-label">Nivel</span>
           <span class="stat-value">{{ nivelActual }}/{{ maxNiveles }}</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Vidas</span>
-          <span class="stat-value">
-            <span *ngFor="let vida of [1,2,3]; let i = index" 
-                  class="vida-icon"
-                  [class.perdida]="i >= vidas">❤️</span>
-          </span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Puntaje</span>
-          <span class="stat-value">{{ puntaje }}</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Tiempo</span>
-          <span class="stat-value">{{ formatearTiempo(tiempoTranscurrido) }}</span>
         </div>
       </div>
     </div>
@@ -120,45 +105,55 @@
       </div>
     </div>
 
-    <!-- Panel de captura activo -->
+    <!-- Panel de captura activo con 2 columnas -->
     <div class="capture-active-panel" *ngIf="gestoCapturando && !todasFotosTomadas">
       
-      <!-- Instrucción del gesto actual -->
-      <div class="gesto-instruccion-card">
-        <span class="gesto-emoji-grande">{{ gestoCapturando.emoji }}</span>
-        <h3>{{ gestoCapturando.nombre }}</h3>
-        <p>{{ gestoCapturando.instruccion }}</p>
-      </div>
-
-      <!-- Mensaje de validación -->
-      <div class="mensaje-validacion" *ngIf="mensajeValidacion">
-        <p [class.correcto]="movimientoDetectado" [class.incorrecto]="!movimientoDetectado">
-          {{ mensajeValidacion }}
-        </p>
-      </div>
-
-      <!-- Video de la cámara con canvas superpuesto -->
-      <div class="video-capture-area">
-        <div class="video-wrapper">
-          <video #videoElement autoplay playsinline muted></video>
-          <canvas #canvasElement class="canvas-overlay"></canvas>
+      <div class="capture-layout">
+        
+        <!-- 👈 COLUMNA IZQUIERDA: Video -->
+        <div class="video-column">
           
-          <!-- Overlay de resultado después de captura -->
-          <div class="resultado-overlay-video" *ngIf="resultadoDeteccion">
-            <div class="resultado-icono-video" 
-                 [class.correcto]="resultadoDeteccion === 'correcto'"
-                 [class.incorrecto]="resultadoDeteccion === 'incorrecto'">
-              {{ resultadoDeteccion === 'correcto' ? '✅' : '❌' }}
+          <!-- Mensaje de validación arriba del video -->
+          <div class="mensaje-validacion" *ngIf="mensajeValidacion">
+            <p [class.correcto]="movimientoDetectado" [class.incorrecto]="!movimientoDetectado">
+              {{ mensajeValidacion }}
+            </p>
+          </div>
+
+          <!-- Video de la cámara con canvas superpuesto -->
+          <div class="video-wrapper">
+            <video #videoElement autoplay playsinline muted></video>
+            <canvas #canvasElement class="canvas-overlay"></canvas>
+            
+            <!-- Overlay de resultado después de captura -->
+            <div class="resultado-overlay-video" *ngIf="resultadoDeteccion">
+              <div class="resultado-icono-video" 
+                   [class.correcto]="resultadoDeteccion === 'correcto'"
+                   [class.incorrecto]="resultadoDeteccion === 'incorrecto'">
+                {{ resultadoDeteccion === 'correcto' ? '✅' : '❌' }}
+              </div>
+              <div class="resultado-texto-video">{{ mensajeDeteccion }}</div>
             </div>
-            <div class="resultado-texto-video">{{ mensajeDeteccion }}</div>
+          </div>
+
+          <button class="btn-capture-photo" 
+                  (click)="capturarFotoInicial()"
+                  [disabled]="!movimientoDetectado || resultadoDeteccion !== null">
+            📷 Capturar Foto
+          </button>
+        </div>
+
+        <!-- 👉 COLUMNA DERECHA: Tarjeta del gesto (cambia de color según detección) -->
+        <div class="gesto-card-column">
+          <div class="gesto-card-puzzle"
+               [class.card-correcto]="movimientoDetectado"
+               [class.card-incorrecto]="!movimientoDetectado">
+            <div class="gesto-icon-grande">{{ gestoCapturando.emoji }}</div>
+            <h3 class="gesto-titulo">{{ gestoCapturando.nombre }}</h3>
+            <p class="gesto-instruccion-texto">{{ gestoCapturando.instruccion }}</p>
           </div>
         </div>
 
-        <button class="btn-capture-photo" 
-                (click)="capturarFotoInicial()"
-                [disabled]="!movimientoDetectado || resultadoDeteccion !== null">
-          📷 Capturar Foto
-        </button>
       </div>
 
     </div>
@@ -247,19 +242,13 @@
     </div>
   </main>
 
-  <!-- Modal de juego completado -->
+  <!-- Modal de juego completado (sin stats de vidas/tiempo/puntaje) -->
   <div class="completion-modal" *ngIf="faseJuego === 'completado'">
     <div class="modal-content">
-      <div class="celebration" *ngIf="vidas > 0">
+      <div class="celebration">
         <div class="celebration-emoji">🎉</div>
         <h2>¡Increíble memoria!</h2>
-        <p>Has completado todos los niveles del juego</p>
-      </div>
-      
-      <div class="celebration" *ngIf="vidas <= 0">
-        <div class="celebration-emoji">💪</div>
-        <h2>¡Buen intento!</h2>
-        <p>Llegaste al nivel {{ nivelActual }}. ¡Sigue practicando!</p>
+        <p>Has completado el nivel {{ nivelActual }}</p>
       </div>
       
       <div class="final-stats">
@@ -267,26 +256,12 @@
           <span class="stat-icon">🎯</span>
           <span class="stat-text">Nivel alcanzado: {{ nivelActual }}/{{ maxNiveles }}</span>
         </div>
-        <div class="stat-final">
-          <span class="stat-icon">❤️</span>
-          <span class="stat-text">Vidas restantes: {{ vidas }}</span>
-        </div>
-        <div class="stat-final">
-          <span class="stat-icon">⏱️</span>
-          <span class="stat-text">Tiempo: {{ formatearTiempo(tiempoTranscurrido) }}</span>
-        </div>
-        <div class="stat-final">
-          <span class="stat-icon">⭐</span>
-          <span class="stat-text">Puntaje: {{ puntaje }}</span>
-        </div>
       </div>
       
-      <div class="stars-rating" *ngIf="vidas > 0">
-        <span *ngFor="let star of [1,2,3]; let i = index" 
-              class="star"
-              [class.filled]="i < getEstrellas()">
-          ⭐
-        </span>
+      <div class="stars-rating">
+        <span class="star filled">⭐</span>
+        <span class="star filled">⭐</span>
+        <span class="star filled">⭐</span>
       </div>
       
       <div class="modal-actions">
