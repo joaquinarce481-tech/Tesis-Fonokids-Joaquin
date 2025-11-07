@@ -753,15 +753,13 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
         this.preparaNivel();
         this.iniciarTemporizador();
       } else {
+        // Completó todos los niveles
         this.detenerTemporizador();
         this.faseJuego = 'completado';
         this.guardarEstadisticas();
         
-        // Volver automáticamente al menú después de 5 segundos
-        setTimeout(() => {
-          console.log('Volviendo al menú automáticamente...');
-          this.volverAJuegos();
-        }, 5000);
+        // NO redirigir automáticamente - dejar que el usuario elija
+        console.log('¡Juego completado! Mostrando pantalla de felicitaciones.');
       }
     }, 2000);
   }

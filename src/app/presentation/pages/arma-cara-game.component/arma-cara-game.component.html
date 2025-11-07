@@ -2,27 +2,38 @@
 
   <!-- ========== PANTALLA DE INICIO ========== -->
   <div *ngIf="pantalla === 'inicio'" class="pantalla-inicio">
-    <div class="contenido-inicio">
-      
-      <!-- Botón Dashboard -->
-      <button class="btn-dashboard" (click)="volverADashboard()">
-        🏠 Dashboard
-      </button>
-
-      <!-- Título principal -->
-      <div class="titulo-principal">
-        <h1 class="titulo-juego">🎭 Arma la Cara</h1>
-        <p class="subtitulo-juego">Juego de Reconocimiento de Emociones</p>
+    
+    <!-- Header estilo Memoria de Gestos -->
+    <div class="game-header-inicio">
+      <div class="header-left">
+        <button class="btn-volver-inicio" (click)="volverADashboard()">
+          ← Volver
+        </button>
       </div>
+      
+      <div class="header-center">
+        <div class="header-icon">🎭</div>
+        <div class="header-info">
+          <h1 class="header-titulo">Arma la Cara</h1>
+          <p class="header-subtitulo">Juego de Reconocimiento de Emociones</p>
+        </div>
+      </div>
+      
+      <div class="header-right">
+        <!-- Espacio vacío para balance -->
+      </div>
+    </div>
+
+    <div class="contenido-inicio">
 
       <!-- Contexto del juego -->
       <div class="contexto-card">
         <h2 class="contexto-titulo">📖 ¿Cómo jugar?</h2>
         <div class="contexto-lista">
           <p class="contexto-item">🎯 <strong>Objetivo:</strong> Arma caras expresando diferentes emociones</p>
+          <p class="contexto-item">🎲 <strong>Desafío:</strong> El sistema elegirá una emoción al azar para ti</p>
           <p class="contexto-item">🧩 <strong>Mecánica:</strong> Arrastra las partes faciales a las zonas correctas</p>
           <p class="contexto-item">🎨 <strong>Aprende:</strong> Identifica y construye expresiones emocionales</p>
-          <p class="contexto-item">⭐ <strong>Progresa:</strong> Completa desafíos y mejora tus habilidades</p>
         </div>
       </div>
 
@@ -40,51 +51,8 @@
         <div class="estadisticas-grid">
           <div class="estad-item">
             <span class="estad-valor">{{ totalJugados }}</span>
-            <span class="estad-label">Jugados</span>
+            <span class="estad-label">Emociones Completadas</span>
           </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ========== PANTALLA DE SELECCIÓN DE EMOCIÓN ========== -->
-  <div *ngIf="pantalla === 'seleccion'" class="pantalla-seleccion">
-    <div class="seleccion-contenido">
-      
-      <!-- Header con botones -->
-      <div class="seleccion-header">
-        <button class="btn-volver" (click)="volverAlInicio()">
-          ← Volver
-        </button>
-        <button class="btn-dashboard-small" (click)="volverADashboard()">
-          🏠 Dashboard
-        </button>
-      </div>
-
-      <h2 class="seleccion-titulo">Elige una emoción para armar</h2>
-      
-      <div class="emociones-grid">
-        <div 
-          *ngFor="let key of getEmocionesKeys()"
-          class="emocion-card"
-          [style.border-color]="emociones[key].color"
-          (click)="iniciarJuego(key)">
-          
-          <!-- IMAGEN DE LA EMOCIÓN -->
-          <div class="emocion-imagen-container">
-            <img [src]="emociones[key].imagen" 
-                 [alt]="emociones[key].nombre" 
-                 class="emocion-imagen">
-            <!-- Emoji de respaldo si la imagen no carga -->
-            <div class="emocion-emoji" 
-                 [style.color]="emociones[key].color"
-                 [style.display]="'flex'">
-              {{ emociones[key].emoji }}
-            </div>
-          </div>
-          
-          <h3 class="emocion-nombre">{{ emociones[key].nombre }}</h3>
         </div>
       </div>
 
@@ -97,8 +65,8 @@
     <!-- Header del juego -->
     <div class="juego-header">
       <div class="header-left">
-        <button class="btn-volver-juego" (click)="volverASeleccion()">
-          ← Volver
+        <button class="btn-volver-juego" (click)="volverAlInicio()">
+          ← Volver al Inicio
         </button>
       </div>
       
@@ -106,6 +74,24 @@
         <button class="btn-dashboard-small" (click)="volverADashboard()">
           🏠 Dashboard
         </button>
+      </div>
+    </div>
+
+    <!-- TARJETA DE EMOCIÓN OBJETIVO -->
+    <div class="emocion-objetivo-card">
+      <div class="objetivo-header">
+        <h3 class="objetivo-titulo">🎯 Tu Desafío:</h3>
+      </div>
+      <div class="objetivo-contenido">
+        <div class="objetivo-emoji" [style.color]="emociones[emocionActual!].color">
+          {{ emociones[emocionActual!].emoji }}
+        </div>
+        <h2 class="objetivo-nombre" [style.color]="emociones[emocionActual!].color">
+          Arma la cara {{ emociones[emocionActual!].nombre }}
+        </h2>
+        <p class="objetivo-instruccion">
+          Arrastra las partes correctas para crear esta emoción
+        </p>
       </div>
     </div>
 
@@ -326,7 +312,7 @@
 
       <div class="botones-completado">
         <button class="btn-completado btn-verde" (click)="volverASeleccion()">
-          🎭 Otra Emoción
+          🎲 Otra Emoción
         </button>
         <button class="btn-completado btn-azul" (click)="volverAlInicio()">
           🏠 Menú Principal
@@ -336,6 +322,26 @@
         </button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ========== MODAL DE ERROR ========== -->
+  <div *ngIf="mostrarModalError" class="modal-overlay" (click)="cerrarModalError()">
+    <div class="modal-error" (click)="$event.stopPropagation()">
+      
+      <div class="modal-error-icono">😅</div>
+      
+      <h2 class="modal-error-titulo">¡Casi lo tienes!</h2>
+      
+      <p class="modal-error-mensaje">
+        Revisa las partes de la cara e intenta nuevamente.<br>
+        ¡Tú puedes lograrlo! 💪
+      </p>
+      
+      <button class="btn-modal-error" (click)="cerrarModalError()">
+        ✨ Intentar de Nuevo
+      </button>
+      
     </div>
   </div>
 

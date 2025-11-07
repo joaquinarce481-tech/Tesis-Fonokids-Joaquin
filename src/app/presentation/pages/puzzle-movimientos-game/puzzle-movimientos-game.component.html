@@ -28,7 +28,6 @@
     <div class="instructions-content">
       <div class="instructions-header">
         <h2>🧩 ¿Cómo jugar?</h2>
-        <div class="game-icon">🎯</div>
       </div>
       
       <div class="instructions-list">
@@ -82,48 +81,56 @@
         <p>Tómate fotos haciendo cada ejercicio lingual</p>
       </div>
 
-      <!-- Movimiento actual -->
-      <div class="current-movement">
-        <div class="movement-info">
-          <div class="movement-icon">
-            {{ todosLosMovimientos[movimientoActualCaptura].emoji }}
-          </div>
-          <h3>{{ todosLosMovimientos[movimientoActualCaptura].nombre }}</h3>
-          <p class="movement-instruction">
-            {{ todosLosMovimientos[movimientoActualCaptura].instruccion }}
-          </p>
-        </div>
-      </div>
-
-      <!-- Cámara y Canvas -->
-      <div class="camera-container">
-        <div class="video-wrapper">
-          <video #videoElement autoplay playsinline class="camera-video"></video>
-          <canvas #canvasElement class="camera-canvas"></canvas>
-          
-          <!-- Overlay de validación -->
-          <div class="validation-overlay" 
-               [class.detected]="movimientoDetectado"
-               [class.not-detected]="!movimientoDetectado">
-            <div class="validation-message">
-              <p>{{ mensajeValidacion }}</p>
+      <!-- LAYOUT DE 2 COLUMNAS: Video + Ejercicio Actual -->
+      <div class="capture-main-layout">
+        <!-- COLUMNA IZQUIERDA: Cámara y Canvas -->
+        <div class="camera-container">
+          <div class="video-wrapper">
+            <video #videoElement autoplay playsinline class="camera-video"></video>
+            <canvas #canvasElement class="camera-canvas"></canvas>
+            
+            <!-- Overlay de validación -->
+            <div class="validation-overlay" 
+                 [class.detected]="movimientoDetectado"
+                 [class.not-detected]="!movimientoDetectado">
+              <div class="validation-message">
+                <p>{{ mensajeValidacion }}</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Botón de captura -->
-        <div class="capture-actions">
-          <button 
-            class="btn-capture"
-            [disabled]="!movimientoDetectado"
-            [class.ready]="movimientoDetectado"
-            (click)="capturarFoto()">
-            <span class="capture-icon">📸</span>
-            <span *ngIf="movimientoDetectado">¡Tomar Foto!</span>
-            <span *ngIf="!movimientoDetectado">Haz el movimiento primero</span>
-          </button>
+          <!-- Botón de captura -->
+          <div class="capture-actions">
+            <button 
+              class="btn-capture"
+              [disabled]="!movimientoDetectado"
+              [class.ready]="movimientoDetectado"
+              (click)="capturarFoto()">
+              <span class="capture-icon">📸</span>
+              <span *ngIf="movimientoDetectado">¡Tomar Foto!</span>
+              <span *ngIf="!movimientoDetectado">Haz el movimiento primero</span>
+            </button>
+          </div>
         </div>
+        <!-- FIN COLUMNA IZQUIERDA -->
+
+        <!-- COLUMNA DERECHA: Ejercicio Actual -->
+        <div class="current-movement">
+          <div class="movement-info"
+               [class.detected]="movimientoDetectado"
+               [class.not-detected]="!movimientoDetectado">
+            <div class="movement-icon">
+              {{ todosLosMovimientos[movimientoActualCaptura].emoji }}
+            </div>
+            <h3>{{ todosLosMovimientos[movimientoActualCaptura].nombre }}</h3>
+            <p class="movement-instruction">
+              {{ todosLosMovimientos[movimientoActualCaptura].instruccion }}
+            </p>
+          </div>
+        </div>
+        <!-- FIN COLUMNA DERECHA -->
       </div>
+      <!-- FIN LAYOUT DE 2 COLUMNAS -->
 
       <!-- Progreso de captura -->
       <div class="capture-progress">

@@ -1,5 +1,3 @@
-<!-- memoria-gestos-game.component.html -->
-
 <div class="game-container">
   <!-- Header del juego -->
   <header class="game-header">
@@ -52,16 +50,16 @@
           <div class="step">
             <div class="step-number">1</div>
             <div class="step-text">
-              <strong>Observa atentamente</strong>
-              <p>Mira la secuencia de gestos que aparece en pantalla</p>
+              <strong>Tómate fotos de cada gesto</strong>
+              <p>Primero capturarás una foto haciendo cada gesto facial</p>
             </div>
           </div>
           
           <div class="step">
             <div class="step-number">2</div>
             <div class="step-text">
-              <strong>Memoriza el orden</strong>
-              <p>Recuerda los gestos y el orden en que aparecieron</p>
+              <strong>Observa la secuencia</strong>
+              <p>Verás tus fotos en un orden específico - ¡memoriza el orden!</p>
             </div>
           </div>
           
@@ -69,13 +67,13 @@
             <div class="step-number">3</div>
             <div class="step-text">
               <strong>Repite la secuencia</strong>
-              <p>Toca los gestos en el mismo orden que los viste</p>
+              <p>Toca tus fotos en el mismo orden que las viste</p>
             </div>
           </div>
         </div>
         
         <div class="gestos-preview">
-          <h3>🎭 Gestos Disponibles</h3>
+          <h3>🎭 Gestos a Capturar</h3>
           <div class="gestos-grid">
             <div *ngFor="let gesto of gestosDisponibles" class="gesto-preview">
               <span class="gesto-emoji">{{ gesto.emoji }}</span>
@@ -85,14 +83,101 @@
         </div>
         
         <button class="btn-start" (click)="saltarInstrucciones()">
-          🚀 ¡Empezar a Jugar!
+          📸 ¡Empezar a Capturar!
         </button>
       </div>
     </div>
   </main>
 
-  <!-- Área principal del juego -->
-  <main class="game-main" *ngIf="faseJuego !== 'instrucciones'">
+  <!-- ========== FASE DE CAPTURA INICIAL ========== -->
+  <main class="game-main" *ngIf="faseJuego === 'capturando-inicial'">
+    
+    <!-- Progreso de captura -->
+    <div class="capture-progress" *ngIf="!todasFotosTomadas">
+      <h2>📸 Captura tus gestos</h2>
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" [style.width.%]="(getFotosCapturadas() / gestosDisponibles.length) * 100"></div>
+      </div>
+      <p class="progress-text">{{ getFotosCapturadas() }} de {{ gestosDisponibles.length }} gestos capturados</p>
+    </div>
+
+    <!-- Galería de fotos capturadas -->
+    <div class="fotos-capturadas-grid">
+      <div *ngFor="let gesto of gestosDisponibles" 
+           class="foto-capturada-item"
+           [class.capturada]="gesto.imagenCapturada">
+        <div class="foto-preview" *ngIf="gesto.imagenCapturada">
+          <img [src]="gesto.imagenCapturada" [alt]="gesto.nombre">
+        </div>
+        <div class="foto-placeholder" *ngIf="!gesto.imagenCapturada">
+          <span class="placeholder-emoji">{{ gesto.emoji }}</span>
+        </div>
+        <div class="foto-nombre">{{ gesto.nombre }}</div>
+        <div class="foto-status">
+          <span *ngIf="gesto.imagenCapturada" class="status-check">✓</span>
+          <span *ngIf="!gesto.imagenCapturada" class="status-pending">📷</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de captura activo -->
+    <div class="capture-active-panel" *ngIf="gestoCapturando && !todasFotosTomadas">
+      
+      <!-- Instrucción del gesto actual -->
+      <div class="gesto-instruccion-card">
+        <span class="gesto-emoji-grande">{{ gestoCapturando.emoji }}</span>
+        <h3>{{ gestoCapturando.nombre }}</h3>
+        <p>{{ gestoCapturando.instruccion }}</p>
+      </div>
+
+      <!-- Mensaje de validación -->
+      <div class="mensaje-validacion" *ngIf="mensajeValidacion">
+        <p [class.correcto]="movimientoDetectado" [class.incorrecto]="!movimientoDetectado">
+          {{ mensajeValidacion }}
+        </p>
+      </div>
+
+      <!-- Video de la cámara con canvas superpuesto -->
+      <div class="video-capture-area">
+        <div class="video-wrapper">
+          <video #videoElement autoplay playsinline muted></video>
+          <canvas #canvasElement class="canvas-overlay"></canvas>
+          
+          <!-- Overlay de resultado después de captura -->
+          <div class="resultado-overlay-video" *ngIf="resultadoDeteccion">
+            <div class="resultado-icono-video" 
+                 [class.correcto]="resultadoDeteccion === 'correcto'"
+                 [class.incorrecto]="resultadoDeteccion === 'incorrecto'">
+              {{ resultadoDeteccion === 'correcto' ? '✅' : '❌' }}
+            </div>
+            <div class="resultado-texto-video">{{ mensajeDeteccion }}</div>
+          </div>
+        </div>
+
+        <button class="btn-capture-photo" 
+                (click)="capturarFotoInicial()"
+                [disabled]="!movimientoDetectado || resultadoDeteccion !== null">
+          📷 Capturar Foto
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mensaje de finalización de captura -->
+    <div class="captura-completa" *ngIf="todasFotosTomadas">
+      <div class="completa-icono">✅</div>
+      <h2>¡Todas las fotos capturadas!</h2>
+      <p>Preparando el juego...</p>
+      <div class="loading-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========== ÁREA PRINCIPAL DEL JUEGO ========== -->
+  <main class="game-main" *ngIf="faseJuego !== 'instrucciones' && faseJuego !== 'capturando-inicial' && faseJuego !== 'completado'">
+    
     <!-- Área de demostración -->
     <div class="demo-area" *ngIf="mostrandoSecuencia">
       <div class="demo-header">
@@ -108,9 +193,11 @@
       
       <div class="demo-gesture" *ngIf="gestoMostrando">
         <div class="gesture-display">
-          <span class="gesture-emoji">{{ gestoMostrando.emoji }}</span>
+          <img *ngIf="gestoMostrando.imagenCapturada" 
+               [src]="gestoMostrando.imagenCapturada" 
+               [alt]="gestoMostrando.nombre"
+               class="gesture-image">
           <h4>{{ gestoMostrando.nombre }}</h4>
-          <p>{{ gestoMostrando.descripcion }}</p>
         </div>
       </div>
       
@@ -131,7 +218,7 @@
         
         <div *ngIf="faseJuego === 'jugando'">
           <h3>🤔 Tu turno</h3>
-          <p>Repite la secuencia tocando los gestos en orden</p>
+          <p>Toca tus fotos en el orden correcto</p>
           <div class="progress-indicator">
             Progreso: {{ respuestaJugador.length }} / {{ secuenciaActual.length }}
           </div>
@@ -139,20 +226,22 @@
         
         <div *ngIf="faseJuego === 'error'">
           <h3>❌ ¡Oops!</h3>
-          <p>Ese no era el gesto correcto. ¡Inténtalo de nuevo!</p>
+          <p>Ese no era el orden correcto. ¡Inténtalo de nuevo!</p>
         </div>
       </div>
     </div>
 
-    <!-- Controles de gestos -->
+    <!-- Controles de gestos con fotos -->
     <div class="gestos-container" *ngIf="faseJuego === 'jugando'">
       <div class="gestos-grid">
         <button *ngFor="let gesto of gestosDisponibles"
-                class="gesto-button"
-                [class.pulsado]="gestoPulsado === gesto.id"
+                class="gesto-button-foto"
                 (click)="seleccionarGesto(gesto)">
-          <span class="gesto-emoji">{{ gesto.emoji }}</span>
-          <span class="gesto-nombre">{{ gesto.nombre }}</span>
+          <img *ngIf="gesto.imagenCapturada" 
+               [src]="gesto.imagenCapturada" 
+               [alt]="gesto.nombre"
+               class="gesto-foto">
+          <span class="gesto-nombre-overlay">{{ gesto.nombre }}</span>
         </button>
       </div>
     </div>

@@ -12,11 +12,12 @@ import { Router } from '@angular/router';
 export class ArmaCaraGameComponent implements OnInit, OnDestroy {
 
   // ========== ESTADOS DEL JUEGO ==========
-  pantalla: 'inicio' | 'seleccion' | 'juego' | 'completado' = 'inicio';
+  pantalla: 'inicio' | 'juego' | 'completado' = 'inicio';
   emocionActual: string | null = null;
   juegoActivo: boolean = false;
   arrastrandoParte: any = null;
   totalJugados: number = 0;
+  mostrarModalError: boolean = false;
   
   partesColocadas = {
     cejas: null as any,
@@ -30,7 +31,7 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
       nombre: 'Feliz',
       emoji: '😊',
       color: '#FFD700',
-      imagen: 'assets/images/emociones/feliz.png', // ← IMAGEN DE LA EMOCIÓN
+      imagen: 'assets/images/emociones/feliz.png',
       cejas: { 
         emoji: '︶', 
         descripcion: 'Cejas relajadas',
@@ -191,7 +192,10 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
 
   // ========== FUNCIONES DE NAVEGACIÓN ==========
   irASeleccion(): void {
-    this.pantalla = 'seleccion';
+    // En lugar de ir a la pantalla de selección, elegir emoción al azar e iniciar juego
+    const emocionesKeys = this.getEmocionesKeys();
+    const emocionAleatoria = emocionesKeys[Math.floor(Math.random() * emocionesKeys.length)];
+    this.iniciarJuego(emocionAleatoria);
   }
 
   iniciarJuego(emocionKey: string): void {
@@ -209,10 +213,10 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
   }
 
   volverASeleccion(): void {
-    this.pantalla = 'seleccion';
-    this.emocionActual = null;
-    this.juegoActivo = false;
-    this.partesColocadas = { cejas: null, ojos: null, boca: null };
+    // Cambiar para que elija otra emoción al azar
+    const emocionesKeys = this.getEmocionesKeys();
+    const emocionAleatoria = emocionesKeys[Math.floor(Math.random() * emocionesKeys.length)];
+    this.iniciarJuego(emocionAleatoria);
   }
 
   volverADashboard(): void {
@@ -252,8 +256,12 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     if (correcto) {
       this.finalizarJuego(true);
     } else {
-      alert('¡Casi! Revisa las partes e intenta nuevamente.');
+      this.mostrarModalError = true;
     }
+  }
+
+  cerrarModalError(): void {
+    this.mostrarModalError = false;
   }
 
   finalizarJuego(exito: boolean): void {
