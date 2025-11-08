@@ -17,7 +17,7 @@
 
 .game-title {
   color: white;
-  font-size: 2.5rem;
+  font-size: 2rem;
   text-align: center;
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
   margin: 0;
@@ -64,10 +64,6 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.sonidos-restantes {
-  font-size: 1.1rem;
-}
-
 /* Barra de progreso */
 .progress-bar-container {
   background: rgba(255, 255, 255, 0.3);
@@ -85,22 +81,13 @@
   box-shadow: 0 2px 8px rgba(255, 235, 59, 0.5);
 }
 
-/* Contenido del juego */
+/* Contenido del juego - Layout en columna única */
 .game-content {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 60vh;
-}
-
-.sonido-card {
-  background: white;
-  border-radius: 30px;
-  padding: 50px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  max-width: 600px;
-  width: 100%;
-  text-align: center;
+  flex-direction: column;
+  gap: 30px;
+  max-width: 800px;
+  margin: 0 auto;
   animation: slideIn 0.5s ease;
 }
 
@@ -115,10 +102,98 @@
   }
 }
 
-.sonido-emoji {
-  font-size: 10rem;
-  margin-bottom: 20px;
-  animation: pulse 1.5s infinite;
+/* ========================================
+   SECCIÓN DE CÁMARA
+   ======================================== */
+
+.camera-section {
+  position: relative;
+  width: 100%;
+  min-height: 300px;
+}
+
+.camera-container {
+  position: relative;
+  width: 100%;
+  height: fit-content;
+}
+
+.camera-wrapper {
+  position: relative;
+  background: #000;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  aspect-ratio: 4/3;
+  max-height: 500px;
+}
+
+.video-hidden {
+  display: none;
+}
+
+.video-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.camera-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+  z-index: 10;
+}
+
+.animal-info {
+  text-align: center;
+  color: white;
+}
+
+.animal-nombre {
+  font-size: 2rem;
+  margin: 0;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+  font-weight: bold;
+}
+
+/* Estado del micrófono */
+.mic-status {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+.mic-indicator {
+  background: rgba(244, 67, 54, 0.95);
+  color: white;
+  padding: 12px 25px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 5px 20px rgba(244, 67, 54, 0.5);
+  animation: pulseRed 1.5s infinite;
+}
+
+@keyframes pulseRed {
+  0%, 100% {
+    box-shadow: 0 5px 20px rgba(244, 67, 54, 0.5);
+  }
+  50% {
+    box-shadow: 0 5px 30px rgba(244, 67, 54, 0.8);
+  }
+}
+
+.mic-icon {
+  font-size: 1.3rem;
+  animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
@@ -126,57 +201,248 @@
     transform: scale(1);
   }
   50% {
-    transform: scale(1.1);
+    transform: scale(1.2);
   }
 }
 
-.sonido-nombre {
-  color: #66bb6a;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+.mic-text {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* ========================================
+   ERROR DE CÁMARA
+   ======================================== */
+
+.camera-error {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.error-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.error-icon {
+  font-size: 4rem;
+}
+
+.error-message {
+  font-size: 1.2rem;
+  color: #d32f2f;
+  margin: 0;
+  font-weight: bold;
+}
+
+.btn-reintentar {
+  background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-reintentar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(66, 165, 245, 0.4);
+}
+
+/* ========================================
+   CARGANDO CÁMARA
+   ======================================== */
+
+.camera-loading {
+  background: white;
+  border-radius: 20px;
+  padding: 60px 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(102, 187, 106, 0.3);
+  border-top-color: #66bb6a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.camera-loading p {
+  font-size: 1.2rem;
+  color: #666;
+  margin: 0;
+  font-weight: bold;
+}
+
+/* ========================================
+   TARJETA DE INFORMACIÓN
+   ======================================== */
+
+.sonido-card {
+  background: white;
+  border-radius: 30px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sonido-emoji-large {
+  font-size: 6rem;
+  animation: pulse 1.5s infinite;
+}
+
+.instrucciones-box {
+  background: rgba(102, 187, 106, 0.1);
+  padding: 15px;
+  border-radius: 15px;
+  margin: 10px 0;
+}
+
+.instruccion-principal {
+  font-size: 1.4rem;
+  color: #2E7D32;
+  margin: 0;
   font-weight: bold;
 }
 
 .onomatopeya-container {
   background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
-  padding: 30px;
+  padding: 25px;
   border-radius: 20px;
-  margin: 30px 0;
   box-shadow: 0 5px 20px rgba(102, 187, 106, 0.4);
 }
 
 .onomatopeya {
   color: white;
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: bold;
   margin: 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  letter-spacing: 3px;
+  letter-spacing: 2px;
 }
 
-.instrucciones {
-  margin: 30px 0;
-  color: #555;
-}
+/* ========================================
+   TRANSCRIPCIÓN Y FEEDBACK
+   ======================================== */
 
-.instrucciones p {
-  font-size: 1.3rem;
+.transcripcion-box {
+  background: rgba(33, 150, 243, 0.1);
+  border: 2px solid #2196F3;
+  border-radius: 15px;
+  padding: 15px;
   margin: 10px 0;
 }
 
-/* Botones de acción */
-.action-buttons {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 30px;
+.transcripcion-label {
+  font-size: 0.9rem;
+  color: #1976D2;
+  margin: 0 0 5px 0;
+  font-weight: bold;
 }
 
-.btn-reproducir,
-.btn-siguiente {
-  padding: 20px 40px;
+.transcripcion-text {
   font-size: 1.3rem;
+  color: #1976D2;
+  margin: 0;
+  font-weight: bold;
+}
+
+.feedback-container {
+  margin: 15px 0;
+}
+
+.feedback-box {
+  padding: 20px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  animation: fadeInScale 0.3s ease;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.feedback-box.correcto {
+  background: rgba(76, 175, 80, 0.15);
+  border: 3px solid #4CAF50;
+}
+
+.feedback-box.incorrecto {
+  background: rgba(244, 67, 54, 0.15);
+  border: 3px solid #F44336;
+}
+
+.feedback-icon {
+  font-size: 2.5rem;
+}
+
+.feedback-mensaje {
+  font-size: 1.2rem;
+  margin: 0;
+  font-weight: bold;
+  flex: 1;
+  text-align: left;
+}
+
+.feedback-box.correcto .feedback-mensaje {
+  color: #2E7D32;
+}
+
+.feedback-box.incorrecto .feedback-mensaje {
+  color: #C62828;
+}
+
+/* ========================================
+   BOTONES DE ACCIÓN
+   ======================================== */
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.btn-escuchar,
+.btn-grabar,
+.btn-saltar {
+  padding: 18px 35px;
+  font-size: 1.2rem;
   font-weight: bold;
   border: none;
   border-radius: 25px;
@@ -186,33 +452,97 @@
   align-items: center;
   gap: 10px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  flex: 1;
+  min-width: 150px;
+  justify-content: center;
 }
 
-.btn-reproducir {
+.btn-escuchar {
   background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
   color: white;
 }
 
-.btn-reproducir:hover {
+.btn-escuchar:hover:not(:disabled) {
   transform: translateY(-5px);
   box-shadow: 0 8px 25px rgba(66, 165, 245, 0.4);
 }
 
-.btn-siguiente {
-  background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+.btn-grabar {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
   color: white;
 }
 
-.btn-siguiente:hover {
+.btn-grabar:hover:not(:disabled) {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(102, 187, 106, 0.4);
+  box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
+}
+
+.btn-grabar.grabando {
+  animation: pulseButton 1s infinite;
+}
+
+@keyframes pulseButton {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.btn-saltar {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: white;
+  flex: 0.5;
+}
+
+.btn-saltar:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
 }
 
 .icon {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
 }
 
-/* Celebración overlay */
+/* Warning box */
+.warning-box {
+  background: rgba(255, 152, 0, 0.1);
+  border: 2px solid #ff9800;
+  border-radius: 15px;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+.warning-box p {
+  margin: 0;
+  color: #e65100;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+/* Intentos */
+.intentos-info {
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+  margin-top: 10px;
+}
+
+.intentos-info p {
+  margin: 0;
+}
+
+/* ========================================
+   CELEBRACIÓN OVERLAY
+   ======================================== */
+
 .celebracion-overlay {
   position: fixed;
   top: 0;
@@ -277,7 +607,10 @@
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Pantalla de juego completado */
+/* ========================================
+   PANTALLA DE JUEGO COMPLETADO
+   ======================================== */
+
 .game-completed {
   display: flex;
   justify-content: center;
@@ -362,36 +695,40 @@
   box-shadow: 0 8px 25px rgba(66, 165, 245, 0.4);
 }
 
-/* Responsive */
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
 @media (max-width: 768px) {
   .game-title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+  }
+
+  .animal-nombre {
+    font-size: 1.5rem;
   }
 
   .sonido-card {
     padding: 30px 20px;
   }
 
-  .sonido-emoji {
-    font-size: 6rem;
-  }
-
-  .sonido-nombre {
-    font-size: 2rem;
+  .sonido-emoji-large {
+    font-size: 5rem;
   }
 
   .onomatopeya {
     font-size: 2rem;
   }
 
-  .instrucciones p {
-    font-size: 1.1rem;
+  .action-buttons {
+    flex-direction: column;
   }
 
-  .btn-reproducir,
-  .btn-siguiente {
-    padding: 15px 30px;
-    font-size: 1.1rem;
+  .btn-escuchar,
+  .btn-grabar,
+  .btn-saltar {
+    width: 100%;
+    min-width: unset;
   }
 
   .completion-card {
@@ -404,5 +741,21 @@
 
   .completion-card h2 {
     font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-header {
+    flex-direction: column;
+  }
+
+  .btn-back {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .progress-info {
+    width: 100%;
+    text-align: center;
   }
 }

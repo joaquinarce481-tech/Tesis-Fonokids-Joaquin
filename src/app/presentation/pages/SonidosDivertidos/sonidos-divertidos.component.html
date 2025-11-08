@@ -17,36 +17,115 @@
 
   <!-- Contenido del juego -->
   <div class="game-content" *ngIf="!juegoCompletado && sonidoActual">
+    
+    <!-- Video con filtro AR -->
+    <div class="camera-section">
+      <div class="camera-container" *ngIf="camaraActiva">
+        <div class="camera-wrapper">
+          <!-- Video oculto (fuente) -->
+          <video #videoElement autoplay playsinline muted class="video-hidden"></video>
+          
+          <!-- Canvas visible con filtro -->
+          <canvas #canvasElement class="video-canvas"></canvas>
+          
+          <!-- Overlay con info del animal -->
+          <div class="camera-overlay">
+            <div class="animal-info">
+              <h2 class="animal-nombre">{{ sonidoActual.nombre }}</h2>
+            </div>
+          </div>
+
+          <!-- Estado del micrófono -->
+          <div class="mic-status" *ngIf="escuchandoAhora">
+            <div class="mic-indicator">
+              <span class="mic-icon">🎤</span>
+              <span class="mic-text">Escuchando...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error de cámara -->
+      <div class="camera-error" *ngIf="camaraError && !camaraActiva">
+        <div class="error-box">
+          <span class="error-icon">📹</span>
+          <p class="error-message">{{ camaraError }}</p>
+          <button class="btn-reintentar" (click)="iniciarCamara()">
+            🔄 Reintentar
+          </button>
+        </div>
+      </div>
+
+      <!-- Cargando cámara -->
+      <div class="camera-loading" *ngIf="!camaraActiva && !camaraError">
+        <div class="loading-spinner"></div>
+        <p>Iniciando cámara...</p>
+      </div>
+    </div>
+
+    <!-- Tarjeta de información -->
     <div class="sonido-card">
       <!-- Emoji grande del sonido -->
-      <div class="sonido-emoji">
+      <div class="sonido-emoji-large">
         {{ sonidoActual.imagen }}
       </div>
 
-      <!-- Nombre del objeto/animal -->
-      <h2 class="sonido-nombre">{{ sonidoActual.nombre }}</h2>
+      <!-- Instrucciones claras -->
+      <div class="instrucciones-box">
+        <p class="instruccion-principal">👄 ¡Di el sonido que hace!</p>
+      </div>
 
       <!-- Onomatopeya -->
       <div class="onomatopeya-container">
         <p class="onomatopeya">{{ sonidoActual.onomatopeya }}</p>
       </div>
 
-      <!-- Instrucciones -->
-      <div class="instrucciones">
-        <p>👄 ¡Repite el sonido en voz alta!</p>
-        <p>🔊 Presiona el botón para escuchar</p>
+      <!-- Transcripción en tiempo real -->
+      <div class="transcripcion-box" *ngIf="transcripcion">
+        <p class="transcripcion-label">Escuché:</p>
+        <p class="transcripcion-text">"{{ transcripcion }}"</p>
+      </div>
+
+      <!-- Feedback de la respuesta -->
+      <div class="feedback-container" *ngIf="mostrarFeedback">
+        <div class="feedback-box" [ngClass]="feedbackTipo">
+          <span class="feedback-icon" *ngIf="feedbackTipo === 'correcto'">✅</span>
+          <span class="feedback-icon" *ngIf="feedbackTipo === 'incorrecto'">❌</span>
+          <p class="feedback-mensaje">{{ feedbackMensaje }}</p>
+        </div>
       </div>
 
       <!-- Botones de acción -->
       <div class="action-buttons">
-        <button class="btn-reproducir" (click)="reproducirSonido()">
+        <button class="btn-escuchar" (click)="reproducirSonido()" [disabled]="escuchandoAhora">
           <span class="icon">🔊</span>
-          Escuchar Sonido
+          Escuchar
         </button>
-        <button class="btn-siguiente" (click)="siguienteSonido()">
-          <span class="icon">✓</span>
-          ¡Ya lo hice!
+        
+        <button 
+          class="btn-grabar" 
+          (click)="iniciarDeteccion()" 
+          [disabled]="escuchandoAhora || !reconocimientoDisponible"
+          [ngClass]="{'grabando': escuchandoAhora}">
+          <span class="icon">🎤</span>
+          <span *ngIf="!escuchandoAhora">Grabar mi voz</span>
+          <span *ngIf="escuchandoAhora">Escuchando...</span>
         </button>
+        
+        <button class="btn-saltar" (click)="saltarSonido()" *ngIf="intentoActual >= 2">
+          <span class="icon">⏭️</span>
+          Saltar
+        </button>
+      </div>
+
+      <!-- Advertencia si no hay reconocimiento de voz -->
+      <div class="warning-box" *ngIf="!reconocimientoDisponible">
+        <p>⚠️ Reconocimiento de voz no disponible. Usa Chrome o Edge.</p>
+      </div>
+
+      <!-- Intentos -->
+      <div class="intentos-info" *ngIf="intentoActual > 0">
+        <p>Intento {{ intentoActual }} de {{ maxIntentos }}</p>
       </div>
     </div>
   </div>
