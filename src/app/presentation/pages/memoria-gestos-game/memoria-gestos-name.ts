@@ -11,6 +11,13 @@ interface GestoFacial {
   descripcion: string;
   instruccion: string;
   imagenCapturada?: string;
+  usado?: boolean;
+  uniqueId?: string; // ID único para cada instancia en el juego
+}
+
+interface Slot {
+  gesto: GestoFacial | null;
+  dragOver: boolean;
 }
 
 @Component({
@@ -36,35 +43,40 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
       nombre: 'Beso',
       emoji: '💋',
       descripcion: 'Hacer un beso con los labios',
-      instruccion: 'Junta tus labios como si fueras a dar un beso'
+      instruccion: 'Junta tus labios como si fueras a dar un beso',
+      usado: false
     },
     {
       id: 'sonrisa',
       nombre: 'Sonrisa',
       emoji: '😊',
       descripcion: 'Sonreír ampliamente',
-      instruccion: 'Sonríe mostrando tus dientes'
+      instruccion: 'Sonríe mostrando tus dientes',
+      usado: false
     },
     {
       id: 'lengua-afuera',
       nombre: 'Lengua Afuera',
       emoji: '😛',
       descripcion: 'Sacar la lengua',
-      instruccion: 'Saca tu lengua lo más que puedas hacia afuera'
+      instruccion: 'Saca tu lengua lo más que puedas hacia afuera',
+      usado: false
     },
     {
       id: 'soplo',
       nombre: 'Boca Abierta',
       emoji: '😮',
       descripcion: 'Abrir la boca grande',
-      instruccion: 'Abre tu boca lo más grande posible'
+      instruccion: 'Abre tu boca lo más grande posible',
+      usado: false
     },
     {
       id: 'mejillas-infladas',
       nombre: 'Lengua Arriba',
       emoji: '⬆️',
       descripcion: 'Tocar la nariz con la lengua',
-      instruccion: 'Toca tu nariz con la lengua hacia arriba'
+      instruccion: 'Toca tu nariz con la lengua hacia arriba',
+      usado: false
     }
   ];
   
@@ -75,9 +87,14 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
   
   // Secuencia actual
   secuenciaActual: GestoFacial[] = [];
-  respuestaJugador: GestoFacial[] = [];
+  respuestaJugador: (GestoFacial | null)[] = [];
   gestoMostrando: GestoFacial | null = null;
   indiceGestoActual: number = 0;
+  
+  // 🎯 Drag and Drop
+  slots: Slot[] = [];
+  fotosDisponibles: GestoFacial[] = [];
+  gestoDragging: GestoFacial | null = null;
   
   // MediaPipe
   faceMesh: FaceMesh | null = null;
@@ -114,7 +131,10 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     this.indiceCaptura = 0;
     
     // Limpiar fotos previas
-    this.gestosDisponibles.forEach(g => g.imagenCapturada = undefined);
+    this.gestosDisponibles.forEach(g => {
+      g.imagenCapturada = undefined;
+      g.usado = false;
+    });
     
     console.log('🧠 Juego "Memoria de Gestos" iniciado');
   }
@@ -434,24 +454,150 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     this.mostrandoSecuencia = false;
     this.faseJuego = 'jugando';
     this.gestoMostrando = null;
+    
+    // 🎯 Inicializar drag and drop
+    this.inicializarDragAndDrop();
   }
 
-  seleccionarGesto(gesto: GestoFacial) {
-    if (this.faseJuego !== 'jugando') return;
+  // ========== 🎯 DRAG AND DROP LOGIC - CORREGIDO ========== //
+
+  inicializarDragAndDrop() {
+    // Crear slots vacíos
+    this.slots = [];
+    for (let i = 0; i < this.secuenciaActual.length; i++) {
+      this.slots.push({ gesto: null, dragOver: false });
+    }
     
-    this.respuestaJugador.push(gesto);
+    // 🎯 CAMBIO IMPORTANTE: Crear copias únicas de cada foto
+    this.fotosDisponibles = this.secuenciaActual.map((gesto, index) => ({
+      ...gesto,
+      uniqueId: `${gesto.id}-${index}-${Date.now()}`, // ID único para cada instancia
+      usado: false
+    }));
     
-    const indiceActual = this.respuestaJugador.length - 1;
-    const gestoCorrecto = this.secuenciaActual[indiceActual];
+    // Desordenar las fotos disponibles
+    this.desordenarArray(this.fotosDisponibles);
     
-    if (gesto.id === gestoCorrecto.id) {
-      console.log('✅ Correcto!');
-      
-      if (this.respuestaJugador.length === this.secuenciaActual.length) {
-        this.completarNivel();
+    // Inicializar respuesta del jugador
+    this.respuestaJugador = new Array(this.secuenciaActual.length).fill(null);
+    
+    console.log('🎮 Drag and drop inicializado con IDs únicos');
+  }
+
+  desordenarArray(array: any[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  onDragStart(event: DragEvent, gesto: GestoFacial) {
+    if (gesto.usado) {
+      event.preventDefault();
+      return;
+    }
+    
+    // Guardar el ID único en el dataTransfer
+    event.dataTransfer!.setData('gestoUniqueId', gesto.uniqueId || '');
+    event.dataTransfer!.effectAllowed = 'move';
+    this.gestoDragging = gesto;
+    console.log('🎯 Dragging:', gesto.nombre, 'ID:', gesto.uniqueId);
+  }
+
+  onDragEnd(event: DragEvent) {
+    this.gestoDragging = null;
+  }
+
+  onDragOver(event: DragEvent, slotIndex: number) {
+    event.preventDefault();
+    event.dataTransfer!.dropEffect = 'move';
+    
+    this.slots[slotIndex].dragOver = true;
+  }
+
+  onDragLeave(event: DragEvent, slotIndex: number) {
+    this.slots[slotIndex].dragOver = false;
+  }
+
+  onDrop(event: DragEvent, slotIndex: number) {
+    event.preventDefault();
+    
+    const gestoUniqueId = event.dataTransfer!.getData('gestoUniqueId');
+    
+    // Buscar el gesto específico por su ID único
+    const gesto = this.fotosDisponibles.find(f => f.uniqueId === gestoUniqueId);
+    
+    if (!gesto || gesto.usado) {
+      this.slots[slotIndex].dragOver = false;
+      return;
+    }
+    
+    // Si el slot ya tiene un gesto, devolverlo a disponible
+    if (this.slots[slotIndex].gesto) {
+      const gestoAnterior = this.fotosDisponibles.find(
+        f => f.uniqueId === this.slots[slotIndex].gesto!.uniqueId
+      );
+      if (gestoAnterior) {
+        gestoAnterior.usado = false;
       }
+    }
+    
+    // Marcar SOLO este gesto específico como usado
+    gesto.usado = true;
+    
+    // Colocar en el slot
+    this.slots[slotIndex].gesto = gesto;
+    this.slots[slotIndex].dragOver = false;
+    
+    // Actualizar respuesta del jugador
+    this.respuestaJugador[slotIndex] = gesto;
+    
+    console.log('✅ Foto colocada en slot', slotIndex + 1, 'ID:', gesto.uniqueId);
+    console.log('📊 Progreso:', this.respuestaJugador.filter(r => r !== null).length, '/', this.secuenciaActual.length);
+    
+    this.gestoDragging = null;
+  }
+
+  removerFoto(slotIndex: number) {
+    const gesto = this.slots[slotIndex].gesto;
+    
+    if (gesto) {
+      // Buscar el gesto específico por su ID único
+      const gestoEnLista = this.fotosDisponibles.find(
+        f => f.uniqueId === gesto.uniqueId
+      );
+      
+      if (gestoEnLista) {
+        gestoEnLista.usado = false;
+      }
+      
+      // Remover del slot
+      this.slots[slotIndex].gesto = null;
+      this.respuestaJugador[slotIndex] = null;
+      
+      console.log('🗑️ Foto removida del slot', slotIndex + 1, 'ID:', gesto.uniqueId);
+    }
+  }
+
+  verificarOrden() {
+    console.log('🔍 Verificando orden...');
+    
+    // Comparar secuencia por el nombre del gesto (no por uniqueId)
+    let correcto = true;
+    
+    for (let i = 0; i < this.secuenciaActual.length; i++) {
+      if (!this.respuestaJugador[i] || 
+          this.respuestaJugador[i]!.id !== this.secuenciaActual[i].id) {
+        correcto = false;
+        break;
+      }
+    }
+    
+    if (correcto) {
+      console.log('✅ ¡Orden correcto!');
+      this.completarNivel();
     } else {
-      console.log('❌ Incorrecto');
+      console.log('❌ Orden incorrecto');
       this.mostrarError();
     }
   }
@@ -477,7 +623,21 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     this.faseJuego = 'error';
     
     setTimeout(() => {
-      this.empezarNivel();
+      // Limpiar slots y devolver todas las fotos a disponibles
+      this.slots.forEach(s => {
+        if (s.gesto) {
+          const gestoEnLista = this.fotosDisponibles.find(
+            f => f.uniqueId === s.gesto!.uniqueId
+          );
+          if (gestoEnLista) {
+            gestoEnLista.usado = false;
+          }
+          s.gesto = null;
+        }
+      });
+      
+      this.respuestaJugador = new Array(this.secuenciaActual.length).fill(null);
+      this.faseJuego = 'jugando';
     }, 2000);
   }
 
@@ -500,6 +660,11 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
 
   getFotosCapturadas(): number {
     return this.gestosDisponibles.filter(g => g.imagenCapturada).length;
+  }
+
+  // Función trackBy para mejor rendimiento
+  trackByGestoUniqueId(index: number, gesto: GestoFacial): string {
+    return gesto.uniqueId || gesto.id;
   }
 
   // === NAVEGACIÓN ===

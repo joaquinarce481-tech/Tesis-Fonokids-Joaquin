@@ -1,0 +1,86 @@
+<div class="game-container">
+  <!-- Header con título y progreso -->
+  <div class="game-header">
+    <button class="btn-back" (click)="volverAlMenu()">
+      <span class="icon">←</span> Volver
+    </button>
+    <h1 class="game-title">🎵 Sonidos Divertidos 🎵</h1>
+    <div class="progress-info">
+      <span class="sonidos-restantes">{{ sonidosRestantes }} sonidos más</span>
+    </div>
+  </div>
+
+  <!-- Barra de progreso -->
+  <div class="progress-bar-container">
+    <div class="progress-bar" [style.width.%]="progreso"></div>
+  </div>
+
+  <!-- Contenido del juego -->
+  <div class="game-content" *ngIf="!juegoCompletado && sonidoActual">
+    <div class="sonido-card">
+      <!-- Emoji grande del sonido -->
+      <div class="sonido-emoji">
+        {{ sonidoActual.imagen }}
+      </div>
+
+      <!-- Nombre del objeto/animal -->
+      <h2 class="sonido-nombre">{{ sonidoActual.nombre }}</h2>
+
+      <!-- Onomatopeya -->
+      <div class="onomatopeya-container">
+        <p class="onomatopeya">{{ sonidoActual.onomatopeya }}</p>
+      </div>
+
+      <!-- Instrucciones -->
+      <div class="instrucciones">
+        <p>👄 ¡Repite el sonido en voz alta!</p>
+        <p>🔊 Presiona el botón para escuchar</p>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="action-buttons">
+        <button class="btn-reproducir" (click)="reproducirSonido()">
+          <span class="icon">🔊</span>
+          Escuchar Sonido
+        </button>
+        <button class="btn-siguiente" (click)="siguienteSonido()">
+          <span class="icon">✓</span>
+          ¡Ya lo hice!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Celebración entre sonidos -->
+  <div class="celebracion-overlay" *ngIf="mostrarCelebracion && !juegoCompletado">
+    <div class="celebracion-content">
+      <div class="celebracion-emoji">🎉</div>
+      <h2>¡Muy bien!</h2>
+      <p>¡Excelente sonido!</p>
+    </div>
+  </div>
+
+  <!-- Pantalla de juego completado -->
+  <div class="game-completed" *ngIf="juegoCompletado">
+    <div class="completion-card">
+      <div class="completion-emoji">🏆</div>
+      <h2>¡Felicitaciones!</h2>
+      <p class="completion-message">
+        ¡Completaste todos los sonidos divertidos!
+      </p>
+      <p class="completion-submessage">
+        ¡Hiciste un trabajo increíble! 🌟
+      </p>
+      <div class="completion-buttons">
+        <button class="btn-reiniciar" (click)="reiniciarJuego()">
+          <span class="icon">🔄</span>
+          Jugar de nuevo
+        </button>
+        <button class="btn-menu" (click)="volverAlMenu()">
+          <span class="icon">🏠</span>
+          Menú principal
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

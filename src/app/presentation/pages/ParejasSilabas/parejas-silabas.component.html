@@ -1,0 +1,103 @@
+<div class="game-container">
+  <!-- Header con título y progreso -->
+  <div class="game-header">
+    <button class="btn-back" (click)="volverAlMenu()">
+      <span class="icon">←</span> Volver
+    </button>
+    <h1 class="game-title">🎯 Parejas de Sílabas 🎯</h1>
+    <div class="progress-info" *ngIf="nivelActual">
+      <span class="nivel-info">Nivel {{ nivelActualNumero }}/{{ totalNiveles }}</span>
+    </div>
+  </div>
+
+  <!-- Barra de progreso del nivel -->
+  <div class="progress-bar-container" *ngIf="nivelActual && !nivelCompletado">
+    <div class="progress-bar" [style.width.%]="progresoNivel"></div>
+  </div>
+
+  <!-- Título del nivel actual -->
+  <div class="nivel-titulo" *ngIf="nivelActual && !nivelCompletado && !juegoCompletado">
+    <h2>{{ nivelActual.titulo }}</h2>
+    <p class="palabras-restantes">{{ palabrasRestantes }} palabras más</p>
+  </div>
+
+  <!-- Contenido del juego -->
+  <div class="game-content" *ngIf="!nivelCompletado && !juegoCompletado && palabraActual">
+    <!-- Zona de la imagen (Drop Zone) -->
+    <div 
+      class="drop-zone"
+      (dragover)="onDragOver($event)"
+      (drop)="onDrop($event)">
+      <div class="palabra-container">
+        <div class="palabra-emoji">
+          {{ palabraActual.imagen }}
+        </div>
+        <h3 class="palabra-nombre">{{ palabraActual.nombre }}</h3>
+        <div class="instruccion">
+          <p>👆 ¡Arrastra la sílaba correcta!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sílabas disponibles -->
+    <div class="silabas-container">
+      <div 
+        *ngFor="let silaba of silabas"
+        class="silaba-card"
+        draggable="true"
+        (dragstart)="onDragStart(silaba, $event)">
+        {{ silaba }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Celebración entre palabras -->
+  <div class="celebracion-overlay" *ngIf="mostrarCelebracion && !nivelCompletado">
+    <div class="celebracion-content">
+      <div class="celebracion-emoji">🎉</div>
+      <h2>¡Excelente!</h2>
+      <p>¡Muy bien hecho!</p>
+    </div>
+  </div>
+
+  <!-- Pantalla de nivel completado -->
+  <div class="nivel-completed" *ngIf="nivelCompletado && !juegoCompletado">
+    <div class="completion-card">
+      <div class="completion-emoji">🌟</div>
+      <h2>¡Nivel Completado!</h2>
+      <p class="completion-message" *ngIf="nivelActual">
+        ¡Dominaste la familia de la {{ nivelActual.consonante }}!
+      </p>
+      <div class="completion-buttons">
+        <button class="btn-siguiente-nivel" (click)="siguienteNivel()">
+          <span class="icon">→</span>
+          Siguiente nivel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pantalla de juego completado -->
+  <div class="game-completed" *ngIf="juegoCompletado">
+    <div class="completion-card">
+      <div class="completion-emoji">🏆</div>
+      <h2>¡Felicitaciones!</h2>
+      <p class="completion-message">
+        ¡Completaste todas las familias de sílabas!
+      </p>
+      <p class="completion-submessage">
+        ¡Eres un campeón de las sílabas! 🌟
+      </p>
+      <div class="completion-buttons">
+        <button class="btn-reiniciar" (click)="reiniciarJuego()">
+          <span class="icon">🔄</span>
+          Jugar de nuevo
+        </button>
+        <button class="btn-menu" (click)="volverAlMenu()">
+          <span class="icon">🏠</span>
+          Menú principal
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

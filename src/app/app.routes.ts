@@ -18,6 +18,9 @@ import { AtrapaLenguaGameComponent } from './presentation/pages/atrapa-lengua-ga
 import { PuzzleMovimientosGameComponent } from './presentation/pages/puzzle-movimientos-game/puzzle-movimientos-game.component';
 import { RitmoSilabasGameComponent } from './presentation/pages/ritmo-silabas-game/ritmo-silabas-game.component';
 import { RuletaPraxiasComponent } from './presentation/pages/RuletaPraxiasComponent/ruleta-praxiascomponent';
+// ========== IMPORTS DE NUEVOS JUEGOS MANDIBULARES ==========
+import { SonidosDivertidosComponent } from './presentation/pages/SonidosDivertidos/sonidos-divertidos.component';
+import { ParejasSilabasComponent } from './presentation/pages/ParejasSilabas/parejas-silabas.component';
 
 export const routes: Routes = [
   // RUTAS PÚBLICAS (solo para usuarios NO logueados)
@@ -278,6 +281,27 @@ export const routes: Routes = [
       description: 'Ruleta interactiva con IA para ejercicios de praxias orofaciales',
     },
   },
+  
+  // ========== RUTAS DE NUEVOS JUEGOS MANDIBULARES ==========
+  {
+    path: 'sonidos-divertidos',
+    component: SonidosDivertidosComponent,
+    canActivate: [AuthGuard],
+    data: {
+      title: 'Sonidos Divertidos',
+      description: 'Practica onomatopeyas divertidas con animales y objetos'
+    },
+  },
+  {
+    path: 'parejas-silabas',
+    component: ParejasSilabasComponent,
+    canActivate: [AuthGuard],
+    data: {
+      title: 'Parejas de Sílabas',
+      description: 'Arrastra las sílabas correctas hacia sus imágenes'
+    },
+  },
+  
   // RUTA DE PERFIL DE USUARIO
   {
     path: 'mi-perfil',

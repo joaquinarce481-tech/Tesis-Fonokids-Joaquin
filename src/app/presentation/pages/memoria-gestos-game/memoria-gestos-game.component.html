@@ -12,7 +12,6 @@
         <p>Recuerda y repite la secuencia de gestos faciales</p>
       </div>
       
-      <!-- ✅ SOLO NIVEL - Sin vidas, tiempo ni puntaje -->
       <div class="game-stats">
         <div class="stat">
           <span class="stat-label">Nivel</span>
@@ -51,8 +50,8 @@
           <div class="step">
             <div class="step-number">3</div>
             <div class="step-text">
-              <strong>Repite la secuencia</strong>
-              <p>Toca tus fotos en el mismo orden que las viste</p>
+              <strong>Arrastra las fotos en orden</strong>
+              <p>Arrastra tus fotos a los espacios en el mismo orden que las viste</p>
             </div>
           </div>
         </div>
@@ -74,7 +73,7 @@
     </div>
   </main>
 
-  <!-- ========== FASE DE CAPTURA INICIAL ========== -->
+  <!-- FASE DE CAPTURA INICIAL -->
   <main class="game-main" *ngIf="faseJuego === 'capturando-inicial'">
     
     <!-- Progreso de captura -->
@@ -110,7 +109,7 @@
       
       <div class="capture-layout">
         
-        <!-- 👈 COLUMNA IZQUIERDA: Video -->
+        <!-- COLUMNA IZQUIERDA: Video -->
         <div class="video-column">
           
           <!-- Mensaje de validación arriba del video -->
@@ -143,7 +142,7 @@
           </button>
         </div>
 
-        <!-- 👉 COLUMNA DERECHA: Tarjeta del gesto (cambia de color según detección) -->
+        <!-- COLUMNA DERECHA: Tarjeta del gesto -->
         <div class="gesto-card-column">
           <div class="gesto-card-puzzle"
                [class.card-correcto]="movimientoDetectado"
@@ -170,7 +169,7 @@
 
   </main>
 
-  <!-- ========== ÁREA PRINCIPAL DEL JUEGO ========== -->
+  <!-- ÁREA PRINCIPAL DEL JUEGO -->
   <main class="game-main" *ngIf="faseJuego !== 'instrucciones' && faseJuego !== 'capturando-inicial' && faseJuego !== 'completado'">
     
     <!-- Área de demostración -->
@@ -204,45 +203,93 @@
     </div>
 
     <!-- Mensaje de fase -->
-    <div class="phase-message" *ngIf="!mostrandoSecuencia">
-      <div class="message-content" [ngClass]="faseJuego">
-        <div *ngIf="faseJuego === 'esperando'">
-          <h3>🎯 Nivel {{ nivelActual }}</h3>
-          <p>Prepárate para ver la secuencia...</p>
-        </div>
+    <div class="phase-message" *ngIf="!mostrandoSecuencia && faseJuego === 'esperando'">
+      <div class="message-content">
+        <h3>🎯 Nivel {{ nivelActual }}</h3>
+        <p>Prepárate para ver la secuencia...</p>
+      </div>
+    </div>
+
+    <!-- 🎯 ZONA DE DRAG AND DROP HORIZONTAL -->
+    <div class="drag-drop-horizontal" *ngIf="faseJuego === 'jugando'">
+      
+      <!-- Instrucciones compactas -->
+      <div class="drag-instructions-horizontal">
+        <h3>🤔 Arrastra las fotos en el orden correcto</h3>
+        <div class="progress-indicator">{{ respuestaJugador.length }} / {{ secuenciaActual.length }}</div>
+      </div>
+
+      <!-- LAYOUT HORIZONTAL -->
+      <div class="horizontal-game-layout">
         
-        <div *ngIf="faseJuego === 'jugando'">
-          <h3>🤔 Tu turno</h3>
-          <p>Toca tus fotos en el orden correcto</p>
-          <div class="progress-indicator">
-            Progreso: {{ respuestaJugador.length }} / {{ secuenciaActual.length }}
+        <!-- 📦 SLOTS A LA IZQUIERDA/ARRIBA -->
+        <div class="drop-zone-horizontal">
+          <div *ngFor="let slot of slots; let i = index"
+               class="drop-slot-horizontal"
+               [class.filled]="slot.gesto !== null"
+               [class.drag-over]="slot.dragOver"
+               (dragover)="onDragOver($event, i)"
+               (dragleave)="onDragLeave($event, i)"
+               (drop)="onDrop($event, i)">
+            
+            <!-- Número del slot -->
+            <div class="slot-number" *ngIf="!slot.gesto">{{ i + 1 }}</div>
+            
+            <!-- Foto si está colocada -->
+            <div class="slot-content" *ngIf="slot.gesto">
+              <img [src]="slot.gesto.imagenCapturada" [alt]="slot.gesto.nombre">
+              <button class="btn-remove-horizontal" (click)="removerFoto(i)">✕</button>
+            </div>
+            
+            <!-- Indicador de drop -->
+            <div class="drop-indicator" *ngIf="!slot.gesto && slot.dragOver">
+              Suelta aquí
+            </div>
           </div>
         </div>
-        
-        <div *ngIf="faseJuego === 'error'">
-          <h3>❌ ¡Oops!</h3>
-          <p>Ese no era el orden correcto. ¡Inténtalo de nuevo!</p>
+
+        <!-- SEPARADOR VISUAL -->
+        <div class="separator-arrow">➡️</div>
+
+        <!-- 🖼️ FOTOS DISPONIBLES A LA DERECHA -->
+        <div class="available-photos-horizontal">
+          <h4>📸 Tus fotos:</h4>
+          <div class="photos-horizontal">
+            <div *ngFor="let gesto of fotosDisponibles; trackBy: trackByGestoUniqueId"
+                 class="draggable-photo-horizontal"
+                 [class.disabled]="gesto.usado"
+                 draggable="true"
+                 (dragstart)="onDragStart($event, gesto)"
+                 (dragend)="onDragEnd($event)">
+              <img [src]="gesto.imagenCapturada" [alt]="gesto.nombre">
+              <span class="photo-name-horizontal">{{ gesto.nombre }}</span>
+              <div class="used-overlay" *ngIf="gesto.usado">✓</div>
+            </div>
+          </div>
         </div>
+
+      </div>
+
+      <!-- Botón de verificar -->
+      <button class="btn-verify-horizontal" 
+              (click)="verificarOrden()"
+              [disabled]="respuestaJugador.length !== secuenciaActual.length">
+        ✅ Verificar Orden
+      </button>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div class="error-message" *ngIf="faseJuego === 'error'">
+      <div class="error-content">
+        <div class="error-icon">❌</div>
+        <h3>¡Oops!</h3>
+        <p>Ese no era el orden correcto. ¡Inténtalo de nuevo!</p>
       </div>
     </div>
 
-    <!-- Controles de gestos con fotos -->
-    <div class="gestos-container" *ngIf="faseJuego === 'jugando'">
-      <div class="gestos-grid">
-        <button *ngFor="let gesto of gestosDisponibles"
-                class="gesto-button-foto"
-                (click)="seleccionarGesto(gesto)">
-          <img *ngIf="gesto.imagenCapturada" 
-               [src]="gesto.imagenCapturada" 
-               [alt]="gesto.nombre"
-               class="gesto-foto">
-          <span class="gesto-nombre-overlay">{{ gesto.nombre }}</span>
-        </button>
-      </div>
-    </div>
   </main>
 
-  <!-- Modal de juego completado (sin stats de vidas/tiempo/puntaje) -->
+  <!-- Modal de juego completado -->
   <div class="completion-modal" *ngIf="faseJuego === 'completado'">
     <div class="modal-content">
       <div class="celebration">

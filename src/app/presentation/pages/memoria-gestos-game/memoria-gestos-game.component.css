@@ -11,7 +11,7 @@
   background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(15px);
   border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-  padding: 1.5rem 2rem;
+  padding: 1rem 1.5rem;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -35,11 +35,11 @@
   background: rgba(255, 255, 255, 0.95);
   border: 2px solid rgba(102, 126, 234, 0.6);
   border-radius: 12px;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   color: #1f2937;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
@@ -63,15 +63,15 @@
 
 .game-info h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .game-info p {
-  margin: 0.5rem 0 0 0;
+  margin: 0.25rem 0 0 0;
   opacity: 0.95;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .game-stats {
@@ -82,31 +82,31 @@
 
 .stat {
   text-align: center;
-  padding: 0.5rem 0.75rem;
+  padding: 0.4rem 0.6rem;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   border-radius: 10px;
-  min-width: 70px;
+  min-width: 60px;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .stat-label {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   opacity: 0.9;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
   font-weight: 600;
 }
 
 .stat-value {
   display: block;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: bold;
 }
 
 /* ===== PANTALLA DE INSTRUCCIONES ===== */
 .instructions-screen {
-  min-height: calc(100vh - 120px);
+  min-height: calc(100vh - 100px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -263,10 +263,10 @@
 
 /* ===== ÁREA PRINCIPAL DEL JUEGO ===== */
 .game-main {
-  padding: 2rem 1.5rem;
-  max-width: 1400px;
+  padding: 1rem;
+  max-width: 1600px;
   margin: 0 auto;
-  min-height: calc(100vh - 140px);
+  min-height: calc(100vh - 100px);
 }
 
 /* ===== FASE DE CAPTURA INICIAL ===== */
@@ -377,7 +377,7 @@
   opacity: 0.5;
 }
 
-/* ===== NUEVO LAYOUT DE CAPTURA (2 COLUMNAS) ===== */
+/* ===== CAPTURA ACTIVA ===== */
 .capture-active-panel {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
@@ -394,7 +394,6 @@
   align-items: start;
 }
 
-/* 👈 COLUMNA IZQUIERDA: Video */
 .video-column {
   display: flex;
   flex-direction: column;
@@ -501,7 +500,6 @@
   cursor: not-allowed;
 }
 
-/* ===== 👉 MODAL DINÁMICO QUE CAMBIA DE COLOR ===== */
 .gesto-card-column {
   display: flex;
   align-items: center;
@@ -520,7 +518,6 @@
   transition: all 0.5s ease;
 }
 
-/* ✅ VERDE cuando detecta correctamente */
 .gesto-card-puzzle.card-correcto {
   background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
   border-color: #10b981;
@@ -539,7 +536,6 @@
   }
 }
 
-/* ❌ ROJO cuando NO detecta */
 .gesto-card-puzzle.card-incorrecto {
   background: linear-gradient(135deg, #ff5e62 0%, #ff6b6b 100%);
   border-color: #ef4444;
@@ -811,11 +807,6 @@
   }
 }
 
-.message-content.error {
-  border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.15);
-}
-
 .message-content h3 {
   margin: 0 0 0.5rem 0;
   font-size: 1.8rem;
@@ -828,57 +819,319 @@
   font-size: 1.1rem;
 }
 
+/* ========== 🎯 LAYOUT HORIZONTAL DE DRAG AND DROP ========== */
+
+.drag-drop-horizontal {
+  width: 100%;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.drag-instructions-horizontal {
+  text-align: center;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.drag-instructions-horizontal h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
 .progress-indicator {
-  margin-top: 1.5rem;
-  padding: 0.75rem;
+  padding: 0.5rem 1rem;
   background: rgba(16, 185, 129, 0.2);
   border-radius: 10px;
   font-weight: 600;
   color: #34d399;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
-/* ===== CONTROLES DE GESTOS CON FOTOS ===== */
-.gestos-container {
-  margin-top: 2rem;
+/* 📦 LAYOUT HORIZONTAL */
+.horizontal-game-layout {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1.5rem;
+  align-items: stretch;
+  margin-bottom: 1.5rem;
+  min-height: 280px;
 }
 
-.gesto-button-foto {
-  background: rgba(255, 255, 255, 0.95);
-  border: 3px solid rgba(255, 255, 255, 0.3);
+/* ZONA DE SLOTS */
+.drop-zone-horizontal {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  border: 3px dashed rgba(255, 255, 255, 0.3);
+  overflow-x: auto;
+  overflow-y: hidden;
+  align-items: center;
+  justify-content: center;
+}
+
+.drop-slot-horizontal {
+  flex-shrink: 0;
+  width: 140px;
+  height: 140px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 3px dashed rgba(255, 255, 255, 0.4);
   border-radius: 16px;
-  padding: 0.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-.gesto-button-foto:hover {
-  background: rgba(255, 255, 255, 1);
+.drop-slot-horizontal.drag-over {
+  background: rgba(16, 185, 129, 0.3);
   border-color: #10b981;
-  transform: translateY(-4px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+  border-style: solid;
+  transform: scale(1.08);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
 }
 
-.gesto-foto {
+.drop-slot-horizontal.filled {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  border-style: solid;
+}
+
+.slot-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.slot-content {
   width: 100%;
-  height: auto;
-  display: block;
+  height: 100%;
+  position: relative;
+}
+
+.slot-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   border-radius: 12px;
 }
 
-.gesto-nombre-overlay {
+.btn-remove-horizontal {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+
+.slot-content:hover .btn-remove-horizontal {
+  opacity: 1;
+}
+
+.btn-remove-horizontal:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.drop-indicator {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #10b981;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* SEPARADOR VISUAL */
+.separator-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.6);
+  animation: arrow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes arrow-pulse {
+  0%, 100% { transform: translateX(0); opacity: 0.6; }
+  50% { transform: translateX(5px); opacity: 1; }
+}
+
+/* 🖼️ FOTOS DISPONIBLES */
+.available-photos-horizontal {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.available-photos-horizontal h4 {
+  text-align: center;
+  font-size: 1.1rem;
+  margin: 0 0 1rem 0;
+  opacity: 0.9;
+}
+
+.photos-horizontal {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.draggable-photo-horizontal {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: grab;
+  transition: all 0.3s ease;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.draggable-photo-horizontal:not(.disabled):hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  border-color: #10b981;
+}
+
+.draggable-photo-horizontal:active {
+  cursor: grabbing;
+}
+
+.draggable-photo-horizontal.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(100%);
+}
+
+.draggable-photo-horizontal img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-name-horizontal {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
   color: white;
-  padding: 0.75rem 0.5rem 0.5rem;
-  font-size: 0.9rem;
+  padding: 0.5rem 0.3rem 0.3rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-align: center;
+}
+
+.used-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(16, 185, 129, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: white;
+}
+
+/* BOTÓN DE VERIFICAR */
+.btn-verify-horizontal {
+  width: 100%;
+  max-width: 300px;
+  display: block;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+.btn-verify-horizontal:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+}
+
+.btn-verify-horizontal:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* MENSAJE DE ERROR */
+.error-message {
+  text-align: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.error-content {
+  background: rgba(239, 68, 68, 0.2);
+  backdrop-filter: blur(10px);
+  border: 3px solid #ef4444;
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 500px;
+  margin: 0 auto;
+  animation: shake 0.5s ease-out;
+}
+
+.error-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.error-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.error-content p {
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
 }
 
 /* ===== MODAL DE COMPLETADO ===== */
@@ -1071,21 +1324,22 @@
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 1024px) {
-  .capture-layout {
-    gap: 1.5rem;
+@media (max-width: 1200px) {
+  .horizontal-game-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
   
-  .gesto-icon-grande {
-    font-size: 6rem;
+  .separator-arrow {
+    display: none;
   }
   
-  .gesto-titulo {
-    font-size: 2rem;
+  .drop-zone-horizontal {
+    justify-content: flex-start;
   }
   
-  .gesto-instruccion-texto {
-    font-size: 1.1rem;
+  .photos-horizontal {
+    justify-content: flex-start;
   }
 }
 
@@ -1098,121 +1352,82 @@
   .header-content {
     flex-direction: column;
     text-align: center;
-    padding: 0 1rem;
   }
   
   .game-info h1 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
   }
   
   .game-info p {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
   
-  .game-stats {
-    justify-content: center;
-    width: 100%;
-  }
-  
-  .instructions-card {
-    margin: 1rem;
-    padding: 1.5rem;
-  }
-  
-  .instructions-header {
+  .drag-instructions-horizontal {
     flex-direction: column;
-    gap: 1rem;
-    text-align: center;
+    gap: 0.5rem;
   }
   
-  .gestos-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  .drag-instructions-horizontal h3 {
+    font-size: 1.1rem;
   }
   
-  .fotos-capturadas-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
+  .drop-slot-horizontal {
+    width: 100px;
+    height: 100px;
   }
   
-  .modal-content {
-    min-width: 320px;
-    margin: 1rem;
-    padding: 1.5rem;
+  .draggable-photo-horizontal {
+    width: 90px;
+    height: 90px;
   }
   
-  .modal-actions {
-    flex-direction: column;
+  .slot-number {
+    font-size: 2rem;
   }
-
+  
   .gesto-icon-grande {
     font-size: 5rem;
   }
-
+  
   .gesto-titulo {
     font-size: 1.8rem;
   }
-
+  
   .gesto-instruccion-texto {
     font-size: 1rem;
-  }
-
-  .capture-active-panel {
-    padding: 1.5rem;
-  }
-  
-  .gesto-card-puzzle {
-    padding: 2rem 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
   .game-main {
-    padding: 1rem 0.5rem;
+    padding: 0.5rem;
   }
   
-  .stat {
-    min-width: 60px;
-    padding: 0.4rem 0.6rem;
+  .drop-slot-horizontal {
+    width: 80px;
+    height: 80px;
   }
   
-  .stat-value {
-    font-size: 0.9rem;
-  }
-
-  .capture-progress h2 {
-    font-size: 1.5rem;
-  }
-
-  .fotos-capturadas-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .resultado-icono-video {
-    font-size: 4rem;
-  }
-
-  .resultado-texto-video {
-    font-size: 1.3rem;
-  }
-
-  .celebration-emoji {
-    font-size: 3rem;
+  .draggable-photo-horizontal {
+    width: 75px;
+    height: 75px;
   }
   
-  .celebration h2 {
-    font-size: 1.5rem;
+  .photo-name-horizontal {
+    font-size: 0.65rem;
   }
   
-  .gesto-icon-grande {
-    font-size: 4rem;
+  .btn-verify-horizontal {
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
   }
   
-  .gesto-titulo {
-    font-size: 1.5rem;
+  .drop-zone-horizontal {
+    padding: 1rem;
+    gap: 0.5rem;
   }
   
-  .gesto-instruccion-texto {
-    font-size: 0.9rem;
+  .available-photos-horizontal {
     padding: 0.75rem;
   }
 }

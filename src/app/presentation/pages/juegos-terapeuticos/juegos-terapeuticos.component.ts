@@ -18,7 +18,7 @@ interface JuegoInfo {
   nombre: string;
   descripcion: string;
   dificultad: 'facil' | 'medio' | 'dificil';
-  tipo: 'drag-drop' | 'memoria' | 'reaccion' | 'puzzle' | 'audio' | 'ia-ruleta';
+  tipo: 'drag-drop' | 'memoria' | 'reaccion' | 'puzzle' | 'audio' | 'ia-ruleta' | 'silabas';
   emoji: string;
 }
 
@@ -127,6 +127,23 @@ export class JuegosTerapeuticosComponent implements OnInit {
           dificultad: 'dificil',
           tipo: 'puzzle',
           emoji: '📋'
+        },
+        // ========== NUEVOS JUEGOS MANDIBULARES ==========
+        {
+          id: 'sonidos-divertidos',
+          nombre: 'Sonidos Divertidos',
+          descripcion: 'Practica onomatopeyas divertidas con animales y objetos',
+          dificultad: 'facil',
+          tipo: 'audio',
+          emoji: '🎵'
+        },
+        {
+          id: 'parejas-silabas',
+          nombre: 'Parejas de Sílabas',
+          descripcion: 'Arrastra las sílabas correctas hacia sus imágenes',
+          dificultad: 'medio',
+          tipo: 'silabas',
+          emoji: '🎯'
         }
       ]
     },
@@ -169,11 +186,24 @@ export class JuegosTerapeuticosComponent implements OnInit {
   jugarJuego(juego: JuegoInfo, categoria: CategoriaJuego) {
     console.log(`🎮 Iniciando juego: ${juego.nombre} de ${categoria.titulo}`);
 
+    // Ruleta de Praxias con IA
     if (juego.id === 'ruleta-praxias-ia') {
       this.router.navigate(['/ruleta-praxias']);
       return;
     }
 
+    // ========== NAVEGACIÓN PARA NUEVOS JUEGOS MANDIBULARES ==========
+    if (juego.id === 'sonidos-divertidos') {
+      this.router.navigate(['/sonidos-divertidos']);
+      return;
+    }
+
+    if (juego.id === 'parejas-silabas') {
+      this.router.navigate(['/parejas-silabas']);
+      return;
+    }
+
+    // Navegación genérica para otros juegos
     this.router.navigate(['/juego', categoria.id, juego.id]);
   }
 
