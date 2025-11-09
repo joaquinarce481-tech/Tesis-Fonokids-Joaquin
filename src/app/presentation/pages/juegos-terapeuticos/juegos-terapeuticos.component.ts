@@ -106,7 +106,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
       juegos: [
         {
           id: 'clasifica-sonidos',
-          nombre: 'Clasifica Sonidos',
+          nombre: 'EN MANTENIMIENTO',
           descripcion: 'Agrupa sonidos en labiales, dentales y linguales',
           dificultad: 'medio',
           tipo: 'drag-drop',
@@ -114,7 +114,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
         },
         {
           id: 'memoria-silabas',
-          nombre: 'Memoria de Sílabas',
+          nombre: 'EN MANTENIMIENTO',
           descripcion: 'Empareja sílabas iguales (pa-pa, ta-ta)',
           dificultad: 'facil',
           tipo: 'memoria',
@@ -122,7 +122,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
         },
         {
           id: 'secuencia-ejercicios',
-          nombre: 'Secuencia de Ejercicios',
+          nombre: 'EN MANTENIMIENTO',
           descripcion: 'Ordena los pasos: inflar → soplar → sacar lengua',
           dificultad: 'dificil',
           tipo: 'puzzle',
