@@ -39,7 +39,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       imagen: '🐕',
       audio: 'guau',
       filtro: 'perro',
-      palabrasClave: ['guau', 'wau', 'wow', 'gua']
+      palabrasClave: ['guau', 'wau', 'wow', 'gua', 'guaú', 'wauf', 'gau', 'gua gua']
     },
     {
       id: 2,
@@ -48,7 +48,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       imagen: '🐱',
       audio: 'miau',
       filtro: 'gato',
-      palabrasClave: ['miau', 'mia', 'meow']
+      palabrasClave: ['miau', 'mia', 'meow', 'miau', 'miaú', 'mia mia']
     },
     {
       id: 3,
@@ -57,7 +57,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       imagen: '🐄',
       audio: 'muuu',
       filtro: 'vaca',
-      palabrasClave: ['mu', 'muu', 'muuu', 'moo']
+      palabrasClave: ['mu', 'muu', 'muuu', 'moo', 'muuuu']
     },
     {
       id: 4,
@@ -66,7 +66,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       imagen: '🐑',
       audio: 'beee',
       filtro: 'oveja',
-      palabrasClave: ['be', 'bee', 'beee', 'baa']
+      palabrasClave: ['be', 'bee', 'beee', 'baa', 'beeee', 've']
     },
     {
       id: 5,
@@ -75,7 +75,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       imagen: '🦆',
       audio: 'cuac',
       filtro: 'pato',
-      palabrasClave: ['cuac', 'cuak', 'quack', 'cua']
+      palabrasClave: ['cuac', 'cuak', 'quack', 'cua', 'cuac cuac', 'cuá']
     },
     {
       id: 6,
@@ -84,7 +84,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       imagen: '🐷',
       audio: 'oinc',
       filtro: 'cerdo',
-      palabrasClave: ['oinc', 'oink', 'oin']
+      palabrasClave: ['oinc', 'oink', 'oin', 'oinc oinc', 'oing']
     },
     {
       id: 7,
@@ -93,7 +93,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       imagen: '🦁',
       audio: 'roar',
       filtro: 'leon',
-      palabrasClave: ['roar', 'roaar', 'rugido', 'grrr', 'rawr']
+      palabrasClave: ['roar', 'roaar', 'rugido', 'grrr', 'rawr', 'ruar', 'roar']
     },
     {
       id: 8,
@@ -102,7 +102,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       imagen: '🐝',
       audio: 'bzzz',
       filtro: 'abeja',
-      palabrasClave: ['bzz', 'bzzz', 'buzz', 'zzzz']
+      palabrasClave: ['bzz', 'bzzz', 'buzz', 'zzzz', 'bz', 'bzzzz']
     },
     {
       id: 9,
@@ -111,7 +111,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       imagen: '🔔',
       audio: 'ding',
       filtro: 'campana',
-      palabrasClave: ['ding', 'dong', 'din', 'tan']
+      palabrasClave: ['ding', 'dong', 'din', 'tan', 'ding dong', 'din don']
     },
     {
       id: 10,
@@ -120,7 +120,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       imagen: '🚗',
       audio: 'bip',
       filtro: 'auto',
-      palabrasClave: ['bip', 'beep', 'pip']
+      palabrasClave: ['bip', 'beep', 'pip', 'bip bip', 'pi pi']
     },
     {
       id: 11,
@@ -129,7 +129,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       imagen: '⏰',
       audio: 'tic',
       filtro: 'reloj',
-      palabrasClave: ['tic', 'tac', 'tick', 'tock']
+      palabrasClave: ['tic', 'tac', 'tick', 'tock', 'tic tac', 'ti ta']
     },
     {
       id: 12,
@@ -138,7 +138,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       imagen: '👏',
       audio: 'clap',
       filtro: 'aplausos',
-      palabrasClave: ['clap', 'aplausos', 'palm']
+      palabrasClave: ['clap', 'aplausos', 'palm', 'aplauso', 'clap clap']
     }
   ];
 
@@ -151,8 +151,9 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
   camaraActiva: boolean = false;
   camaraError: string = '';
   stream: MediaStream | null = null;
-  videoWidth: number = 640;
-  videoHeight: number = 480;
+  renderizando: boolean = false;
+  intentosIniciarCamara: number = 0;
+  maxIntentosIniciarCamara: number = 10;
 
   // Speech Recognition
   recognition: any = null;
@@ -171,20 +172,25 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
   constructor(private router: Router) {}
 
   ngOnInit(): void {
+    console.log('🎮 Componente iniciado');
     this.verificarReconocimientoVoz();
     this.mostrarSonido();
   }
 
   ngAfterViewInit(): void {
-    // Iniciar cámara después de que la vista esté lista
+    console.log('👁️ Vista lista - ngAfterViewInit');
+    console.log('🔍 videoElement:', this.videoElement);
+    console.log('🔍 canvasElement:', this.canvasElement);
+    
+    // Esperar a que Angular termine de renderizar
     setTimeout(() => {
-      if (this.sonidoActual) {
-        this.iniciarCamara();
-      }
-    }, 500);
+      console.log('⏰ Timeout cumplido, iniciando cámara...');
+      this.intentarIniciarCamara();
+    }, 1500);
   }
 
   ngOnDestroy(): void {
+    console.log('🔚 Componente destruyéndose');
     this.detenerCamara();
     this.detenerReconocimientoVoz();
     if (this.timeoutEscucha) {
@@ -202,15 +208,15 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       this.intentoActual = 0;
       this.transcripcion = '';
       this.camaraError = '';
+      this.mostrarFeedback = false;
       
-      // Reiniciar cámara si estaba activa
-      if (this.camaraActiva) {
-        this.detenerCamara();
+      console.log('🎵 Mostrando sonido:', this.sonidoActual.nombre);
+      
+      // No reiniciar cámara si ya está activa, solo si cambia de sonido
+      if (!this.camaraActiva && this.indiceActual > 0) {
         setTimeout(() => {
-          this.iniciarCamara();
-        }, 300);
-      } else {
-        this.iniciarCamara();
+          this.intentarIniciarCamara();
+        }, 500);
       }
     } else {
       this.completarJuego();
@@ -225,7 +231,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
 
   iniciarDeteccion(): void {
     if (!this.sonidoActual) {
-      console.error('No hay sonido actual');
+      console.error('❌ No hay sonido actual');
       return;
     }
 
@@ -250,22 +256,21 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       try {
         this.recognition.start();
         
-        // Timeout de seguridad: si no detecta nada en 5 segundos, detener
         this.timeoutEscucha = setTimeout(() => {
           if (this.escuchandoAhora) {
             console.log('⏱️ Timeout: No se detectó voz');
             this.detenerEscucha();
             this.feedbackTipo = 'incorrecto';
-            this.feedbackMensaje = '¡No te escuché! Intenta hablar más fuerte';
+            this.feedbackMensaje = '¡No te escuché! Presiona el botón e intenta de nuevo';
             this.mostrarFeedback = true;
-            this.hablar('No te escuché, intenta de nuevo');
+            this.hablar('No te escuché, intenta de nuevo más fuerte');
             setTimeout(() => {
               this.mostrarFeedback = false;
-            }, 2000);
+            }, 3000);
           }
-        }, 5000);
+        }, 8000);
       } catch (error) {
-        console.error('Error al iniciar reconocimiento:', error);
+        console.error('❌ Error al iniciar reconocimiento:', error);
         this.detenerEscucha();
       }
     }
@@ -291,17 +296,53 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
 
     const textoLimpio = textoDetectado.toLowerCase().trim();
     console.log('🎤 Detectado:', textoLimpio);
+    console.log('🔍 Buscando en:', this.sonidoActual.palabrasClave);
 
-    // Verificar si alguna palabra clave coincide
-    const coincide = this.sonidoActual.palabrasClave.some(palabra => 
-      textoLimpio.includes(palabra.toLowerCase())
-    );
+    const coincide = this.sonidoActual.palabrasClave.some(palabra => {
+      const palabraLimpia = palabra.toLowerCase();
+      return textoLimpio.includes(palabraLimpia) || 
+             palabraLimpia.includes(textoLimpio) ||
+             this.similitudCadenas(textoLimpio, palabraLimpia) > 0.7;
+    });
 
     if (coincide) {
+      console.log('✅ ¡Coincidencia encontrada!');
       this.respuestaCorrecta();
     } else {
+      console.log('❌ No hay coincidencia');
       this.respuestaIncorrecta();
     }
+  }
+
+  similitudCadenas(str1: string, str2: string): number {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length === 0) return 1.0;
+    
+    const editDistance = this.calcularDistanciaEdicion(longer, shorter);
+    return (longer.length - editDistance) / longer.length;
+  }
+
+  calcularDistanciaEdicion(str1: string, str2: string): number {
+    const costs: number[] = [];
+    for (let i = 0; i <= str1.length; i++) {
+      let lastValue = i;
+      for (let j = 0; j <= str2.length; j++) {
+        if (i === 0) {
+          costs[j] = j;
+        } else if (j > 0) {
+          let newValue = costs[j - 1];
+          if (str1.charAt(i - 1) !== str2.charAt(j - 1)) {
+            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+          }
+          costs[j - 1] = lastValue;
+          lastValue = newValue;
+        }
+      }
+      if (i > 0) costs[str2.length] = lastValue;
+    }
+    return costs[str2.length];
   }
 
   respuestaCorrecta(): void {
@@ -319,7 +360,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
         this.mostrarCelebracion = false;
         this.indiceActual++;
         this.mostrarSonido();
-      }, 2000);
+      }, 2500);
     }, 2000);
   }
 
@@ -329,29 +370,30 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
     
     if (this.intentoActual >= this.maxIntentos) {
       this.feedbackTipo = 'incorrecto';
-      this.feedbackMensaje = `¡No te preocupes! El sonido es: ${this.sonidoActual?.onomatopeya}`;
+      this.feedbackMensaje = `¡No te preocupes! El sonido era: ${this.sonidoActual?.onomatopeya}`;
       this.mostrarFeedback = true;
-      this.hablar('No te preocupes, vamos al siguiente');
+      this.hablar(`No te preocupes. El sonido era ${this.sonidoActual?.onomatopeya}. Vamos al siguiente`);
       
       setTimeout(() => {
         this.mostrarFeedback = false;
         this.indiceActual++;
         this.mostrarSonido();
-      }, 3000);
+      }, 4000);
     } else {
       this.feedbackTipo = 'incorrecto';
-      this.feedbackMensaje = `¡Casi! Intenta de nuevo (${this.intentoActual}/${this.maxIntentos})`;
+      this.feedbackMensaje = `¡Casi! Escucha bien e intenta de nuevo (${this.intentoActual}/${this.maxIntentos})`;
       this.mostrarFeedback = true;
-      this.hablar('Intenta de nuevo');
+      this.hablar('Casi casi. Escucha de nuevo e intenta otra vez');
       
       setTimeout(() => {
         this.mostrarFeedback = false;
-      }, 2000);
+      }, 2500);
     }
   }
 
   saltarSonido(): void {
     this.detenerEscucha();
+    this.mostrarFeedback = false;
     this.indiceActual++;
     this.mostrarSonido();
   }
@@ -359,7 +401,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
   completarJuego(): void {
     this.juegoCompletado = true;
     this.detenerCamara();
-    this.hablar('¡Felicitaciones! ¡Completaste todos los sonidos!');
+    this.hablar('¡Felicitaciones! ¡Completaste todos los sonidos! ¡Eres increíble!');
   }
 
   reiniciarJuego(): void {
@@ -367,7 +409,12 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
     this.sonidoActual = null;
     this.mostrarCelebracion = false;
     this.juegoCompletado = false;
+    this.mostrarFeedback = false;
+    this.intentosIniciarCamara = 0;
     this.mostrarSonido();
+    setTimeout(() => {
+      this.intentarIniciarCamara();
+    }, 500);
   }
 
   volverAlMenu(): void {
@@ -377,134 +424,464 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
   }
 
   // ========================================
-  // CÁMARA Y VIDEO
+  // CÁMARA Y VIDEO - VERSIÓN CORREGIDA
   // ========================================
 
+  intentarIniciarCamara(): void {
+    this.intentosIniciarCamara++;
+    console.log(`🔄 Intento ${this.intentosIniciarCamara}/${this.maxIntentosIniciarCamara} de iniciar cámara`);
+
+    if (this.intentosIniciarCamara > this.maxIntentosIniciarCamara) {
+      console.error('❌ Máximo de intentos alcanzado');
+      this.camaraError = 'No se pudieron cargar los elementos de la cámara. Recarga la página.';
+      return;
+    }
+
+    // Verificar que los ViewChild existan Y tengan nativeElement
+    const videoExiste = this.videoElement && this.videoElement.nativeElement;
+    const canvasExiste = this.canvasElement && this.canvasElement.nativeElement;
+
+    console.log('🔍 Verificación de elementos:');
+    console.log('  - videoElement existe:', !!this.videoElement);
+    console.log('  - videoElement.nativeElement existe:', !!videoExiste);
+    console.log('  - canvasElement existe:', !!this.canvasElement);
+    console.log('  - canvasElement.nativeElement existe:', !!canvasExiste);
+
+    if (!videoExiste || !canvasExiste) {
+      console.log('⚠️ Elementos no disponibles, reintentando en 500ms...');
+      setTimeout(() => this.intentarIniciarCamara(), 500);
+      return;
+    }
+
+    // Si llegamos aquí, los elementos existen
+    console.log('✅ Elementos disponibles, procediendo a iniciar cámara');
+    this.iniciarCamara();
+  }
+
   async iniciarCamara(): Promise<void> {
+    console.log('📹 INICIANDO CÁMARA...');
+    
     try {
-      console.log('📹 Iniciando cámara...');
-      this.camaraError = '';
-      
+      const video = this.videoElement.nativeElement;
+      const canvas = this.canvasElement.nativeElement;
+
+      console.log('✅ Referencias obtenidas:', { video, canvas });
+
+      // Solicitar acceso a la cámara
+      console.log('📸 Solicitando acceso a getUserMedia...');
       this.stream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          width: { ideal: this.videoWidth }, 
-          height: { ideal: this.videoHeight },
+        video: {
+          width: { ideal: 640 },
+          height: { ideal: 480 },
           facingMode: 'user'
         },
         audio: false
       });
 
-      console.log('✅ Cámara obtenida');
+      console.log('✅ Stream obtenido:', this.stream);
 
-      if (this.videoElement?.nativeElement) {
-        this.videoElement.nativeElement.srcObject = this.stream;
-        
-        this.videoElement.nativeElement.onloadedmetadata = () => {
-          console.log('📹 Metadata cargada, reproduciendo...');
-          this.videoElement.nativeElement.play();
+      // Asignar stream al video
+      video.srcObject = this.stream;
+      video.muted = true;
+      video.playsInline = true;
+
+      // Esperar a que el video esté listo
+      video.onloadedmetadata = async () => {
+        console.log('📹 Metadata cargada');
+        console.log('📐 Video dimensions:', video.videoWidth, 'x', video.videoHeight);
+
+        try {
+          await video.play();
+          console.log('▶️ Video reproduciendo');
+
+          // Configurar canvas
+          canvas.width = video.videoWidth || 640;
+          canvas.height = video.videoHeight || 480;
+          console.log('🎨 Canvas configurado:', canvas.width, 'x', canvas.height);
+
+          // CRÍTICO: Marcar como activa ANTES de iniciar renderizado
           this.camaraActiva = true;
-          
-          // Iniciar renderizado después de que el video esté listo
-          setTimeout(() => {
-            this.renderizarFiltro();
-          }, 500);
-        };
-      }
+          this.camaraError = '';
+
+          console.log('✅ Cámara ACTIVA');
+
+          // Iniciar loop de renderizado
+          this.renderLoop();
+
+        } catch (playError) {
+          console.error('❌ Error al reproducir video:', playError);
+          this.camaraError = 'No se pudo reproducir el video. Recarga la página.';
+          this.camaraActiva = false;
+        }
+      };
+
+      video.onerror = (e) => {
+        console.error('❌ Error en video element:', e);
+        this.camaraError = 'Error al cargar el video';
+        this.camaraActiva = false;
+      };
+
     } catch (error: any) {
       console.error('❌ Error al acceder a la cámara:', error);
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
       this.camaraActiva = false;
-      
-      if (error.name === 'NotAllowedError') {
-        this.camaraError = 'Permiso de cámara denegado. Por favor, permite el acceso a la cámara.';
-      } else if (error.name === 'NotFoundError') {
-        this.camaraError = 'No se encontró ninguna cámara en el dispositivo.';
+
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        this.camaraError = '🚫 Permiso denegado. Por favor, permite el acceso a la cámara.';
+      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        this.camaraError = '📹 No se encontró ninguna cámara.';
+      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        this.camaraError = '⚠️ La cámara está siendo usada por otra aplicación.';
       } else {
-        this.camaraError = 'Error al iniciar la cámara. Intenta recargar la página.';
+        this.camaraError = '❌ Error al iniciar la cámara. Recarga la página.';
       }
     }
   }
 
-  detenerCamara(): void {
-    if (this.stream) {
-      this.stream.getTracks().forEach(track => {
-        track.stop();
-        console.log('🛑 Track de cámara detenido');
-      });
-      this.stream = null;
-      this.camaraActiva = false;
-    }
-  }
-
-  renderizarFiltro(): void {
-    if (!this.camaraActiva || !this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) {
-      console.log('⚠️ No se puede renderizar: cámara no activa o elementos no disponibles');
+  renderLoop(): void {
+    if (!this.camaraActiva) {
+      console.log('🛑 No se inicia renderLoop: cámara no activa');
       return;
     }
 
-    const video = this.videoElement.nativeElement;
-    const canvas = this.canvasElement.nativeElement;
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) {
-      console.error('❌ No se pudo obtener contexto del canvas');
+    if (this.renderizando) {
+      console.log('⚠️ RenderLoop ya está ejecutándose');
       return;
     }
 
-    // Ajustar tamaño del canvas al video
-    canvas.width = video.videoWidth || this.videoWidth;
-    canvas.height = video.videoHeight || this.videoHeight;
+    this.renderizando = true;
+    console.log('🎬 Iniciando loop de renderizado');
 
-    console.log(`🎨 Canvas configurado: ${canvas.width}x${canvas.height}`);
-
-    const renderFrame = () => {
+    const render = () => {
       if (!this.camaraActiva) {
-        console.log('🛑 Renderizado detenido');
+        console.log('🛑 Renderizado detenido: cámara inactiva');
+        this.renderizando = false;
         return;
       }
 
-      try {
-        // Dibujar video
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const video = this.videoElement?.nativeElement;
+      const canvas = this.canvasElement?.nativeElement;
 
-        // Aplicar filtro según el animal
-        if (this.sonidoActual) {
-          this.aplicarFiltro(ctx, canvas.width, canvas.height);
-        }
-
-        requestAnimationFrame(renderFrame);
-      } catch (error) {
-        console.error('Error al renderizar frame:', error);
+      if (!video || !canvas) {
+        console.log('⚠️ Video o canvas no disponibles en render');
+        this.renderizando = false;
+        return;
       }
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        console.error('❌ No se pudo obtener contexto 2d');
+        this.renderizando = false;
+        return;
+      }
+
+      // Dibujar video en el canvas (espejo)
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+      ctx.restore();
+
+      // Aplicar filtro
+      if (this.sonidoActual) {
+        this.dibujarFiltro(ctx, canvas.width, canvas.height);
+      }
+
+      // Continuar el loop
+      requestAnimationFrame(render);
     };
 
-    renderFrame();
+    render();
   }
 
-  aplicarFiltro(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+  dibujarFiltro(ctx: CanvasRenderingContext2D, width: number, height: number): void {
     if (!this.sonidoActual) return;
 
     const centerX = width / 2;
-    const centerY = height / 3;
+    const centerY = height / 2.3;
+    const time = Date.now() / 1000;
 
-    // Configurar estilo del emoji
-    ctx.font = 'bold 100px Arial';
+    // ===== RESPLANDOR EXTERIOR ANIMADO =====
+    const outerGlow = ctx.createRadialGradient(centerX, centerY, 140, centerX, centerY, 200);
+    outerGlow.addColorStop(0, 'rgba(102, 126, 234, 0.25)');
+    outerGlow.addColorStop(0.5, 'rgba(118, 75, 162, 0.15)');
+    outerGlow.addColorStop(1, 'rgba(240, 147, 251, 0.05)');
+    
+    ctx.fillStyle = outerGlow;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 200, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ===== CÍRCULO DE FONDO PRINCIPAL ANIMADO =====
+    const mainBgGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 160);
+    mainBgGradient.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+    mainBgGradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.5)');
+    mainBgGradient.addColorStop(0.7, 'rgba(102, 126, 234, 0.4)');
+    mainBgGradient.addColorStop(1, 'rgba(118, 75, 162, 0.3)');
+    
+    ctx.fillStyle = mainBgGradient;
+    ctx.beginPath();
+    const mainPulse = Math.sin(time * 2) * 12 + 150;
+    ctx.arc(centerX, centerY, mainPulse, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ===== ANILLO EXTERIOR DOBLE GIRATORIO =====
+    // Anillo externo
+    ctx.strokeStyle = 'rgba(102, 126, 234, 0.6)';
+    ctx.lineWidth = 6;
+    ctx.shadowColor = 'rgba(102, 126, 234, 0.5)';
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 155, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // Anillo medio
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.lineWidth = 4;
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 145, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // Resetear sombra
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+
+    // ===== PARTÍCULAS ORBITANDO (más cantidad y más lindas) =====
+    for (let i = 0; i < 12; i++) {
+      const angle = (time * 0.5 + i * (Math.PI * 2 / 12));
+      const distance = 135 + Math.sin(time * 2 + i) * 15;
+      const px = centerX + Math.cos(angle) * distance;
+      const py = centerY + Math.sin(angle) * distance;
+      
+      // Partícula con gradiente
+      const size = 4 + Math.sin(time * 3 + i) * 2;
+      const particleGradient = ctx.createRadialGradient(px, py, 0, px, py, size * 2);
+      particleGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      particleGradient.addColorStop(0.5, 'rgba(255, 215, 0, 0.8)');
+      particleGradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+      
+      ctx.fillStyle = particleGradient;
+      ctx.beginPath();
+      ctx.arc(px, py, size * 2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Núcleo blanco brillante
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.beginPath();
+      ctx.arc(px, py, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // ===== ESTRELLAS DECORATIVAS =====
+    for (let i = 0; i < 8; i++) {
+      const angle = (time * 0.8 + i * (Math.PI * 2 / 8));
+      const distance = 165 + Math.sin(time * 1.5 + i) * 10;
+      const sx = centerX + Math.cos(angle) * distance;
+      const sy = centerY + Math.sin(angle) * distance;
+      
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(angle + time);
+      
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
+      ctx.shadowColor = 'rgba(255, 215, 0, 0.6)';
+      ctx.shadowBlur = 8;
+      
+      // Dibujar estrella
+      ctx.beginPath();
+      for (let j = 0; j < 5; j++) {
+        const starAngle = (j * 4 * Math.PI) / 5;
+        const starRadius = j % 2 === 0 ? 6 : 3;
+        const starX = Math.cos(starAngle) * starRadius;
+        const starY = Math.sin(starAngle) * starRadius;
+        if (j === 0) {
+          ctx.moveTo(starX, starY);
+        } else {
+          ctx.lineTo(starX, starY);
+        }
+      }
+      ctx.closePath();
+      ctx.fill();
+      
+      ctx.restore();
+    }
+    
+    // Resetear sombra
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+
+    // ===== CÍRCULO BLANCO PRINCIPAL CON GRADIENTE MEJORADO =====
+    const whiteGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 135);
+    whiteGradient.addColorStop(0, 'rgba(255, 255, 255, 0.98)');
+    whiteGradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.92)');
+    whiteGradient.addColorStop(0.85, 'rgba(255, 255, 255, 0.8)');
+    whiteGradient.addColorStop(1, 'rgba(255, 255, 255, 0.5)');
+    
+    ctx.fillStyle = whiteGradient;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 130, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ===== BORDE DEL CÍRCULO PRINCIPAL (doble borde) =====
+    // Borde exterior
+    ctx.strokeStyle = 'rgba(102, 126, 234, 0.8)';
+    ctx.lineWidth = 7;
+    ctx.shadowColor = 'rgba(102, 126, 234, 0.6)';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 130, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // Borde interior
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.lineWidth = 4;
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.7)';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 125, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // Resetear sombra
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+
+    // ===== EMOJI DEL ANIMAL CON SOMBRA Y ANIMACIÓN MEJORADA =====
+    ctx.font = 'bold 140px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
-    // Sombra para el emoji
+    // Sombra externa profunda
     ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-    ctx.shadowBlur = 15;
-    ctx.shadowOffsetX = 4;
-    ctx.shadowOffsetY = 4;
+    ctx.shadowBlur = 30;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 10;
     
-    // Dibujar emoji del animal
-    ctx.fillText(this.sonidoActual.imagen, centerX, centerY);
+    // Animación de escala y rotación suave
+    const scale = 1 + Math.sin(time * 2.5) * 0.06;
+    const rotation = Math.sin(time * 1.5) * 0.05;
+    
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(rotation);
+    ctx.scale(scale, scale);
+    ctx.fillText(this.sonidoActual.imagen, 0, 0);
+    ctx.restore();
     
     // Resetear sombra
     ctx.shadowColor = 'transparent';
     ctx.shadowBlur = 0;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
+
+    // ===== BRILLO SUPERIOR MEJORADO (múltiples capas) =====
+    // Brillo principal
+    const mainHighlight = ctx.createRadialGradient(centerX - 35, centerY - 45, 0, centerX - 35, centerY - 45, 60);
+    mainHighlight.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+    mainHighlight.addColorStop(0.5, 'rgba(255, 255, 255, 0.3)');
+    mainHighlight.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    
+    ctx.fillStyle = mainHighlight;
+    ctx.beginPath();
+    ctx.arc(centerX - 35, centerY - 45, 60, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Brillo secundario
+    const secondHighlight = ctx.createRadialGradient(centerX + 30, centerY - 35, 0, centerX + 30, centerY - 35, 35);
+    secondHighlight.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+    secondHighlight.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    
+    ctx.fillStyle = secondHighlight;
+    ctx.beginPath();
+    ctx.arc(centerX + 30, centerY - 35, 35, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ===== BADGE CON NOMBRE DEL ANIMAL (mejorado con gradiente) =====
+    ctx.font = 'bold 36px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    
+    const textY = centerY + 95;
+    const textWidth = ctx.measureText(this.sonidoActual.nombre).width;
+    const badgePadding = 25;
+    const badgeWidth = textWidth + badgePadding * 2;
+    const badgeHeight = 52;
+    const badgeX = centerX - badgeWidth / 2;
+    
+    // Sombra del badge
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowBlur = 15;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 5;
+    
+    // Fondo del badge con gradiente
+    const badgeGradient = ctx.createLinearGradient(badgeX, textY, badgeX + badgeWidth, textY + badgeHeight);
+    badgeGradient.addColorStop(0, 'rgba(255, 255, 255, 0.98)');
+    badgeGradient.addColorStop(1, 'rgba(255, 255, 255, 0.95)');
+    
+    ctx.fillStyle = badgeGradient;
+    ctx.beginPath();
+    ctx.roundRect(badgeX, textY - 6, badgeWidth, badgeHeight, 30);
+    ctx.fill();
+    
+    // Borde del badge con gradiente
+    const badgeBorderGradient = ctx.createLinearGradient(badgeX, textY, badgeX + badgeWidth, textY + badgeHeight);
+    badgeBorderGradient.addColorStop(0, 'rgba(102, 126, 234, 0.8)');
+    badgeBorderGradient.addColorStop(0.5, 'rgba(118, 75, 162, 0.8)');
+    badgeBorderGradient.addColorStop(1, 'rgba(240, 147, 251, 0.8)');
+    
+    ctx.strokeStyle = badgeBorderGradient;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.roundRect(badgeX, textY - 6, badgeWidth, badgeHeight, 30);
+    ctx.stroke();
+    
+    // Resetear sombra antes del texto
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    
+    // Texto del nombre con gradiente
+    const textGradient = ctx.createLinearGradient(
+      centerX - textWidth/2, 
+      textY, 
+      centerX + textWidth/2, 
+      textY + badgeHeight
+    );
+    textGradient.addColorStop(0, '#667eea');
+    textGradient.addColorStop(0.5, '#764ba2');
+    textGradient.addColorStop(1, '#667eea');
+    
+    // Sombra del texto
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 2;
+    
+    ctx.fillStyle = textGradient;
+    ctx.fillText(this.sonidoActual.nombre, centerX, textY + 8);
+    
+    // Resetear sombra final
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+  }
+
+  detenerCamara(): void {
+    console.log('🛑 Deteniendo cámara...');
+    this.camaraActiva = false;
+    this.renderizando = false;
+    
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => {
+        track.stop();
+        console.log('🛑 Track detenido');
+      });
+      this.stream = null;
+    }
   }
 
   // ========================================
@@ -515,7 +892,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
-      console.warn('⚠️ Speech Recognition no soportado en este navegador');
+      console.warn('⚠️ Speech Recognition no soportado');
       this.reconocimientoDisponible = false;
       return;
     }
@@ -531,8 +908,8 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
     this.recognition = new SpeechRecognition();
     this.recognition.lang = 'es-ES';
     this.recognition.continuous = false;
-    this.recognition.interimResults = false;
-    this.recognition.maxAlternatives = 5;
+    this.recognition.interimResults = true;
+    this.recognition.maxAlternatives = 10;
 
     this.recognition.onstart = () => {
       console.log('🎤 Reconocimiento iniciado');
@@ -544,15 +921,46 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
         this.timeoutEscucha = null;
       }
 
-      const results = event.results[0];
+      const results = event.results[event.results.length - 1];
+      const alternatives: string[] = [];
+      
+      for (let i = 0; i < results.length; i++) {
+        alternatives.push(results[i].transcript);
+      }
+
       const transcript = results[0].transcript;
       this.transcripcion = transcript;
       console.log('🎤 Transcripción:', transcript);
-      this.verificarRespuesta(transcript);
+
+      if (results.isFinal) {
+        let coincidenciaEncontrada = false;
+        for (const alt of alternatives) {
+          if (!coincidenciaEncontrada) {
+            const textoLimpio = alt.toLowerCase().trim();
+            const coincide = this.sonidoActual?.palabrasClave.some(palabra => {
+              const palabraLimpia = palabra.toLowerCase();
+              return textoLimpio.includes(palabraLimpia) || 
+                     palabraLimpia.includes(textoLimpio) ||
+                     this.similitudCadenas(textoLimpio, palabraLimpia) > 0.65;
+            });
+            
+            if (coincide) {
+              console.log('✅ Coincidencia en alternativa:', alt);
+              coincidenciaEncontrada = true;
+              this.verificarRespuesta(alt);
+              break;
+            }
+          }
+        }
+        
+        if (!coincidenciaEncontrada) {
+          this.verificarRespuesta(transcript);
+        }
+      }
     };
 
     this.recognition.onerror = (event: any) => {
-      console.error('❌ Error en reconocimiento de voz:', event.error);
+      console.error('❌ Error en reconocimiento:', event.error);
       this.detenerEscucha();
       
       if (event.error === 'no-speech') {
@@ -562,9 +970,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
         this.hablar('No te escuché');
         setTimeout(() => {
           this.mostrarFeedback = false;
-        }, 2000);
-      } else if (event.error === 'aborted') {
-        console.log('Reconocimiento abortado');
+        }, 2500);
       } else if (event.error === 'not-allowed') {
         this.feedbackTipo = 'incorrecto';
         this.feedbackMensaje = 'Permiso de micrófono denegado';
@@ -602,8 +1008,9 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy, AfterViewI
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(texto);
       utterance.lang = 'es-ES';
-      utterance.rate = 0.9;
-      utterance.pitch = 1.2;
+      utterance.rate = 0.85;
+      utterance.pitch = 1.3;
+      utterance.volume = 1;
       window.speechSynthesis.speak(utterance);
     }
   }
