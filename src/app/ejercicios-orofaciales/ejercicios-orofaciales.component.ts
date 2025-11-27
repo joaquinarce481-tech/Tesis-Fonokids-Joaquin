@@ -32,6 +32,9 @@ interface ResultadoEjercicio {
   completado: boolean;
   tiempoRealizado: number;
   errores: number;
+  repeticionesHoy: number;      // Cuántas veces se hizo hoy
+  fechaUltimaRepeticion: string; // Fecha de la última vez que se hizo
+  repeticionesRequeridas: number; // Cuántas repeticiones se necesitan (3 por defecto)
 }
 
 @Component({
@@ -50,6 +53,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   private canvasCtx!: CanvasRenderingContext2D;
   private mediaPipeReady = false;
   private intervalTimer: any;
+  private animationFrame = 0; // Para animaciones de pulso
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -288,15 +292,14 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     },
     {
       id: 10,
-  
-  nombre: 'Inflar Globo',
-  descripcion: 'Sopla como si inflaras un globo',
-  instrucciones: '🎈 ¡Infla el globo! Sopla con fuerza hacia adelante',
-  duracion: 10,
-  icono: '🎈',
-  imagen: 'assets/images/InflarGlobo.png',
-  color: '#32CD32',
-  seccionId: 'mandibulares'
+      nombre: 'Inflar Globo',
+      descripcion: 'Sopla como si inflaras un globo',
+      instrucciones: '🎈 ¡Infla el globo! Sopla con fuerza hacia adelante',
+      duracion: 10,
+      icono: '🎈',
+      imagen: 'assets/images/InflarGlobo.png',
+      color: '#32CD32',
+      seccionId: 'mandibulares'
     }
   ];
 
@@ -357,8 +360,38 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
 
   volverASecciones() {
     console.log('🏠 Volviendo a vista de secciones');
+    this.cerrarModal(); // Cierra el modal primero
     this.seccionActiva = null;
     this.vistaActual = 'secciones';
+  }
+
+  // Función para cerrar el modal de resultados
+  cerrarModal() {
+    this.mostrarResultados = false;
+    this.vistaActual = this.seccionActiva ? 'ejercicios' : 'secciones';
+  }
+
+  // Función para ajustar el brillo de un color (usado en el badge)
+  ajustarBrillo(color: string, porcentaje: number): string {
+    // Extrae los valores RGB del color hex
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    // Ajusta cada componente
+    const ajustar = (valor: number) => {
+      const nuevo = valor + (valor * porcentaje / 100);
+      return Math.max(0, Math.min(255, Math.round(nuevo)));
+    };
+    
+    const rNuevo = ajustar(r);
+    const gNuevo = ajustar(g);
+    const bNuevo = ajustar(b);
+    
+    // Convierte de vuelta a hex
+    const toHex = (n: number) => n.toString(16).padStart(2, '0');
+    return `#${toHex(rNuevo)}${toHex(gNuevo)}${toHex(bNuevo)}`;
   }
 
   getEjerciciosPorSeccion(seccionId: string): Ejercicio[] {
@@ -378,6 +411,45 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     return ejerciciosSeccion.length > 0 ? Math.round((completados / ejerciciosSeccion.length) * 100) : 0;
   }
 
+  // 📅 FUNCIONES PARA MANEJO DE REPETICIONES DIARIAS
+  
+  // Obtiene la fecha de hoy en formato YYYY-MM-DD
+  private obtenerFechaHoy(): string {
+    const hoy = new Date();
+    return hoy.toISOString().split('T')[0];
+  }
+
+  // Verifica si una fecha es hoy
+  private esFechaHoy(fecha: string): boolean {
+    return fecha === this.obtenerFechaHoy();
+  }
+
+  // Obtiene las repeticiones del ejercicio para hoy
+  getRepeticionesHoy(ejercicioId: number): number {
+    const resultado = this.resultados[ejercicioId];
+    if (!resultado) return 0;
+    
+    // Si la última repetición fue hoy, retorna el contador
+    if (this.esFechaHoy(resultado.fechaUltimaRepeticion)) {
+      return resultado.repeticionesHoy;
+    }
+    
+    // Si fue otro día, el contador se reinicia
+    return 0;
+  }
+
+  // Verifica si el ejercicio está completado HOY (3 repeticiones)
+  isEjercicioCompletadoHoy(ejercicioId: number): boolean {
+    const repeticiones = this.getRepeticionesHoy(ejercicioId);
+    return repeticiones >= 3;
+  }
+
+  // Obtiene cuántas repeticiones faltan para completar hoy
+  getRepeticionesFaltantes(ejercicioId: number): number {
+    const repeticiones = this.getRepeticionesHoy(ejercicioId);
+    return Math.max(0, 3 - repeticiones);
+  }
+
   private async initializeMediaPipe() {
     try {
       console.log('🚀 Inicializando MediaPipe para ejercicios...');
@@ -395,11 +467,12 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
         }
       });
 
+      // ⚡ CONFIGURACIÓN OPTIMIZADA PARA MEJOR RENDIMIENTO Y CALIDAD
       this.faceMesh.setOptions({
         maxNumFaces: 1,
         refineLandmarks: true,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.3
+        minDetectionConfidence: 0.6,  // ⚡ Aumentado para mejor detección
+        minTrackingConfidence: 0.5    // ⚡ Aumentado para tracking más estable
       });
 
       this.faceMesh.onResults((results) => {
@@ -414,20 +487,36 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     }
   }
 
+  // ✨ Variable para rastrear detección en tiempo real
+  private ejercicioDetectadoAhora = false;
+  
+  // 👁️ Variable para mostrar/ocultar landmarks
+  mostrarLandmarks = true;
+
   private onResults(results: any) {
     if (!this.canvasCtx || !this.ejercicioActivo) return;
 
     const canvas = this.canvasElement.nativeElement;
+    
     this.canvasCtx.save();
     this.canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
     
+    // ⚡ Mantener calidad de imagen original
     this.canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
     if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
       const landmarks = results.multiFaceLandmarks[0];
       
-      // ✅ Dibujar solo puntos específicos del ejercicio
-      this.dibujarLandmarksEjercicio(landmarks);
+      // ✨ Incrementar frame de animación
+      this.animationFrame++;
+      
+      // ✅ Verificar detección ANTES de dibujar para usar el color correcto
+      this.ejercicioDetectadoAhora = this.verificarDeteccionEjercicio(landmarks);
+      
+      // ✅ Solo dibujar si el usuario quiere ver los landmarks
+      if (this.mostrarLandmarks) {
+        this.dibujarVisualizacionMinimalista(landmarks);
+      }
       
       this.analizarEjercicio(landmarks);
     }
@@ -435,190 +524,426 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     this.canvasCtx.restore();
   }
 
-  // ✅ Dibujar puntos específicos según el ejercicio activo
-  private dibujarLandmarksEjercicio(landmarks: any[]) {
+  // ✨ VERIFICAR DETECCIÓN DEL EJERCICIO (sin contar frames)
+  private verificarDeteccionEjercicio(landmarks: any[]): boolean {
+    if (!this.ejercicioActivo || !this.ejercicioIniciado) return false;
+
+    switch (this.ejercicioActivo.id) {
+      case 1: return this.detectarSonrisa(landmarks);
+      case 2: return this.detectarBesoPez(landmarks);
+      case 3: return this.detectarBocaAbierta(landmarks);
+      case 4: return this.detectarGuino(landmarks);
+      case 5: return this.detectarLenguaArriba(landmarks);
+      case 6: return this.detectarMejillasInfladas(landmarks);
+      case 7: return this.detectarSorpresa(landmarks);
+      case 8: return this.detectarMasticado(landmarks);
+      case 9: return this.detectarVibracionLabios(landmarks);
+      case 10: return this.detectarInflarGlobo(landmarks);
+      case 11: return this.detectarLenguaCircular(landmarks);
+      case 12: return this.detectarLenguaLateral(landmarks);
+      case 13: return this.detectarVibracionLingual(landmarks);
+      case 14: return this.detectarSostenerLapiz(landmarks);
+      case 15: return this.detectarBesitosAire(landmarks);
+      case 16: return this.detectarMandibularLateral(landmarks);
+      case 17: return this.detectarBostezo(landmarks);
+      default: return false;
+    }
+  }
+
+  // ✨ OBTENER COLOR DINÁMICO SEGÚN ESTADO
+  private getColorDinamico(): string {
+    if (!this.ejercicioActivo) return '#666';
+    
+    // Si el ejercicio se está detectando correctamente = VERDE SUAVE
+    if (this.ejercicioDetectadoAhora) {
+      return '#28a745'; // Verde suave (éxito)
+    }
+    
+    // Si no se detecta = Color original del ejercicio
+    return this.ejercicioActivo.color;
+  }
+
+  // ✨ NUEVO SISTEMA DE VISUALIZACIÓN MINIMALISTA
+  private dibujarVisualizacionMinimalista(landmarks: any[]) {
     if (!this.ejercicioActivo) return;
     
+    // ✅ Usar color dinámico en lugar de color fijo
+    const color = this.getColorDinamico();
+    
+    switch (this.ejercicioActivo.id) {
+      case 5: // Lengua Arriba
+        this.dibujarLenguaArribaMinimalista(landmarks, color);
+        break;
+      case 1: // Sonrisa Grande
+        this.dibujarSonrisaMinimalista(landmarks, color);
+        break;
+      case 2: // Beso de Pez
+        this.dibujarBesoPezMinimalista(landmarks, color);
+        break;
+      case 3: // Abrir la Boca
+        this.dibujarAperturaBocaMinimalista(landmarks, color);
+        break;
+      case 4: // Guiño Alternado
+        this.dibujarGuinoMinimalista(landmarks, color);
+        break;
+      case 6: // Mejillas de Globo
+        this.dibujarMejillasInfladasMinimalista(landmarks, color);
+        break;
+      case 7: // Cara de Sorpresa
+        this.dibujarSorpresaMinimalista(landmarks, color);
+        break;
+      case 8: // Masticar Chicle
+        this.dibujarMasticadoMinimalista(landmarks, color);
+        break;
+      case 9: // Vibrar Labios
+        this.dibujarVibracionLabiosMinimalista(landmarks, color);
+        break;
+      case 10: // Inflar Globo
+        this.dibujarInflarGloboMinimalista(landmarks, color);
+        break;
+      case 11: // Lengua Circular
+        this.dibujarLenguaCircularMinimalista(landmarks, color);
+        break;
+      case 12: // Lengua Lateral
+        this.dibujarLenguaLateralMinimalista(landmarks, color);
+        break;
+      case 13: // Vibración Lingual
+        this.dibujarVibracionLingualMinimalista(landmarks, color);
+        break;
+      case 14: // Sostener Lápiz
+        this.dibujarSostenerLapizMinimalista(landmarks, color);
+        break;
+      case 15: // Besitos al Aire
+        this.dibujarBesitosAireMinimalista(landmarks, color);
+        break;
+      case 16: // Mandíbula Lateral
+        this.dibujarMandibulaLateralMinimalista(landmarks, color);
+        break;
+      case 17: // Bostezo Grande
+        this.dibujarBostezoMinimalista(landmarks, color);
+        break;
+    }
+  }
+
+  // ✨ LENGUA ARRIBA - VISUALIZACIÓN MINIMALISTA CON FEEDBACK
+  private dibujarLenguaArribaMinimalista(landmarks: any[], color: string) {
     const canvas = this.canvasElement.nativeElement;
     const ctx = this.canvasCtx;
     
-    switch (this.ejercicioActivo.id) {
-      case 1: // Sonrisa Grande
-        this.dibujarPuntosLabios(landmarks, '#FFD700');
-        break;
-      case 2: // Beso de Pez
-        this.dibujarPuntosLabios(landmarks, '#FFD700');
-        this.dibujarLineasLabios(landmarks, '#FFD700');
-        break;
-      case 3: // Abrir la Boca
-        this.dibujarPuntosLabios(landmarks, '#32CD32');
-        this.dibujarAperturaBoca(landmarks, '#32CD32');
-        break;
-      case 4: // Guiño Alternado
-        this.dibujarPuntosOjos(landmarks, '#32CD32');
-        break;
-      case 5: // Lengua Arriba
-        this.dibujarPuntosLabios(landmarks, '#FF1493');
-        break;
-      case 6: // Mejillas de Globo
-        this.dibujarPuntosMejillas(landmarks, '#FFD700');
-        break;
-      case 7: // Cara de Sorpresa
-        this.dibujarPuntosOjos(landmarks, '#32CD32');
-        this.dibujarPuntosLabios(landmarks, '#32CD32');
-        break;
-      case 8: // Masticar Chicle
-        this.dibujarPuntosMandibula(landmarks, '#32CD32');
-        break;
-      case 9: // Vibrar Labios
-        this.dibujarPuntosLabios(landmarks, '#FFD700');
-        break;
-      case 10: // Inflar Globo
-        this.dibujarPuntosLabios(landmarks, '#32CD32');
-        this.dibujarPuntosMandibula(landmarks, '#32CD32');
-        break;
-      case 11: // Lengua Circular
-        this.dibujarPuntosLabios(landmarks, '#FF1493');
-        break;
-      case 12: // Lengua Lateral
-        this.dibujarPuntosLabios(landmarks, '#FF1493');
-        break;
-      case 13: // Vibración Lingual
-        this.dibujarPuntosLabios(landmarks, '#FF1493');
-        break;
-      case 14: // Sostener Lápiz
-        this.dibujarPuntosLabios(landmarks, '#FFD700');
-        this.dibujarLineasLabios(landmarks, '#FFD700');
-        break;
-      case 15: // Besitos al Aire
-        this.dibujarPuntosLabios(landmarks, '#FFD700');
-        break;
-      case 16: // Mandíbula Lateral
-        this.dibujarPuntosMandibula(landmarks, '#32CD32');
-        break;
-      case 17: // Bostezo Grande
-        this.dibujarPuntosLabios(landmarks, '#32CD32');
-        this.dibujarAperturaBoca(landmarks, '#32CD32');
-        break;
-    }
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    const nariz = landmarks[1];
+    
+    if (!labioSuperior || !labioInferior || !nariz) return;
+    
+    // Punto principal animado en el labio superior
+    const puntoX = labioSuperior.x * canvas.width;
+    const puntoY = labioSuperior.y * canvas.height;
+    
+    // Punto más pequeño cuando está correcto
+    const pulsoBase = this.ejercicioDetectadoAhora ? 4.5 : 5;
+    const pulsoVariacion = this.ejercicioDetectadoAhora ? 1 : 1.5;
+    const pulso = Math.sin(this.animationFrame * 0.15) * pulsoVariacion + pulsoBase;
+    
+    // Sombra moderada cuando está correcto
+    const shadowBlur = this.ejercicioDetectadoAhora ? 12 : 10;
+    
+    // Sombra del punto
+    ctx.shadowColor = color;
+    ctx.shadowBlur = shadowBlur;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(puntoX, puntoY, pulso, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // Punto interior más brillante
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.beginPath();
+    ctx.arc(puntoX, puntoY, pulso * 0.35, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // Línea guía vertical desde labio inferior hasta nariz
+    const lineaInicioX = labioInferior.x * canvas.width;
+    const lineaInicioY = labioInferior.y * canvas.height;
+    const lineaFinX = nariz.x * canvas.width;
+    const lineaFinY = nariz.y * canvas.height;
+    
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]);
+    ctx.shadowColor = color;
+    ctx.shadowBlur = this.ejercicioDetectadoAhora ? 10 : 8;
+    
+    ctx.beginPath();
+    ctx.moveTo(lineaInicioX, lineaInicioY);
+    ctx.lineTo(lineaFinX, lineaFinY);
+    ctx.stroke();
+    
+    ctx.setLineDash([]);
+    ctx.shadowBlur = 0;
   }
 
-  private dibujarPuntosLabios(landmarks: any[], color: string) {
-    const puntosLabios = [61, 291, 13, 14, 17, 18, 200, 199, 175, 0];
-    this.canvasCtx.fillStyle = color;
+  // ✨ SONRISA GRANDE - VISUALIZACIÓN MINIMALISTA CON FEEDBACK
+  private dibujarSonrisaMinimalista(landmarks: any[], color: string) {
+    const canvas = this.canvasElement.nativeElement;
+    const ctx = this.canvasCtx;
     
-    puntosLabios.forEach(index => {
-      if (landmarks[index]) {
-        const punto = landmarks[index];
-        this.canvasCtx.beginPath();
-        this.canvasCtx.arc(
-          punto.x * this.canvasElement.nativeElement.width,
-          punto.y * this.canvasElement.nativeElement.height,
-          2, 0, 2 * Math.PI
-        );
-        this.canvasCtx.fill();
-      }
-    });
-  }
-
-  private dibujarPuntosOjos(landmarks: any[], color: string) {
-    const puntosOjos = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246,
-                       362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398];
-    this.canvasCtx.fillStyle = color;
+    const comisuraIzq = landmarks[61];
+    const comisuraDer = landmarks[291];
     
-    puntosOjos.forEach(index => {
-      if (landmarks[index]) {
-        const punto = landmarks[index];
-        this.canvasCtx.beginPath();
-        this.canvasCtx.arc(
-          punto.x * this.canvasElement.nativeElement.width,
-          punto.y * this.canvasElement.nativeElement.height,
-          2, 0, 2 * Math.PI
-        );
-        this.canvasCtx.fill();
-      }
-    });
-  }
-
-  private dibujarPuntosMejillas(landmarks: any[], color: string) {
-    const puntosMejillas = [116, 117, 118, 119, 120, 121, 126, 142, 36, 205, 206, 207, 213, 192, 147, 
-                           345, 346, 347, 348, 349, 350, 451, 452, 453, 464, 435, 410, 454];
-    this.canvasCtx.fillStyle = color;
+    if (!comisuraIzq || !comisuraDer) return;
     
-    puntosMejillas.forEach(index => {
-      if (landmarks[index]) {
-        const punto = landmarks[index];
-        this.canvasCtx.beginPath();
-        this.canvasCtx.arc(
-          punto.x * this.canvasElement.nativeElement.width,
-          punto.y * this.canvasElement.nativeElement.height,
-          2, 0, 2 * Math.PI
-        );
-        this.canvasCtx.fill();
-      }
-    });
-  }
-
-  private dibujarPuntosMandibula(landmarks: any[], color: string) {
-    const puntosMandibula = [18, 175, 199, 200, 9, 10, 151, 152, 148, 176, 149, 150];
-    this.canvasCtx.fillStyle = color;
+    // Puntos más pequeños cuando está correcto
+    const pulsoBase = this.ejercicioDetectadoAhora ? 3.5 : 4;
+    const pulsoVariacion = this.ejercicioDetectadoAhora ? 1 : 1.5;
+    const pulso = Math.sin(this.animationFrame * 0.15) * pulsoVariacion + pulsoBase;
+    const shadowBlur = this.ejercicioDetectadoAhora ? 12 : 10;
     
-    puntosMandibula.forEach(index => {
-      if (landmarks[index]) {
-        const punto = landmarks[index];
-        this.canvasCtx.beginPath();
-        this.canvasCtx.arc(
-          punto.x * this.canvasElement.nativeElement.width,
-          punto.y * this.canvasElement.nativeElement.height,
-          2, 0, 2 * Math.PI
-        );
-        this.canvasCtx.fill();
-      }
-    });
-  }
-
-  private dibujarLineasLabios(landmarks: any[], color: string) {
-    const conexiones = [[61, 291], [13, 14], [17, 18]];
-    this.canvasCtx.strokeStyle = color;
-    this.canvasCtx.lineWidth = 1;
-    
-    conexiones.forEach(conexion => {
-      const inicio = landmarks[conexion[0]];
-      const fin = landmarks[conexion[1]];
+    [comisuraIzq, comisuraDer].forEach(punto => {
+      const x = punto.x * canvas.width;
+      const y = punto.y * canvas.height;
       
-      if (inicio && fin) {
-        this.canvasCtx.beginPath();
-        this.canvasCtx.moveTo(
-          inicio.x * this.canvasElement.nativeElement.width,
-          inicio.y * this.canvasElement.nativeElement.height
-        );
-        this.canvasCtx.lineTo(
-          fin.x * this.canvasElement.nativeElement.width,
-          fin.y * this.canvasElement.nativeElement.height
-        );
-        this.canvasCtx.stroke();
-      }
+      ctx.shadowColor = color;
+      ctx.shadowBlur = shadowBlur;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, pulso, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.beginPath();
+      ctx.arc(x, y, pulso * 0.35, 0, 2 * Math.PI);
+      ctx.fill();
     });
+    
+    // Línea suave conectando comisuras
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = this.ejercicioDetectadoAhora ? 10 : 8;
+    
+    ctx.beginPath();
+    ctx.moveTo(comisuraIzq.x * canvas.width, comisuraIzq.y * canvas.height);
+    ctx.lineTo(comisuraDer.x * canvas.width, comisuraDer.y * canvas.height);
+    ctx.stroke();
+    
+    ctx.shadowBlur = 0;
   }
 
-  private dibujarAperturaBoca(landmarks: any[], color: string) {
+  // ✨ BESO DE PEZ - VISUALIZACIÓN MINIMALISTA CON FEEDBACK
+  private dibujarBesoPezMinimalista(landmarks: any[], color: string) {
+    const canvas = this.canvasElement.nativeElement;
+    const ctx = this.canvasCtx;
+    
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    const comisuraIzq = landmarks[61];
+    const comisuraDer = landmarks[291];
+    
+    if (!labioSuperior || !labioInferior || !comisuraIzq || !comisuraDer) return;
+    
+    // Punto central más pequeño cuando está correcto
+    const centroX = (labioSuperior.x + labioInferior.x) / 2 * canvas.width;
+    const centroY = (labioSuperior.y + labioInferior.y) / 2 * canvas.height;
+    const pulsoBase = this.ejercicioDetectadoAhora ? 4.5 : 5;
+    const pulsoVariacion = this.ejercicioDetectadoAhora ? 1 : 1.5;
+    const pulso = Math.sin(this.animationFrame * 0.15) * pulsoVariacion + pulsoBase;
+    const shadowBlur = this.ejercicioDetectadoAhora ? 12 : 10;
+    
+    ctx.shadowColor = color;
+    ctx.shadowBlur = shadowBlur;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(centroX, centroY, pulso, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.beginPath();
+    ctx.arc(centroX, centroY, pulso * 0.35, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // Líneas horizontales mostrando fruncido
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 3]);
+    ctx.shadowColor = color;
+    ctx.shadowBlur = this.ejercicioDetectadoAhora ? 10 : 6;
+    
+    ctx.beginPath();
+    ctx.moveTo(comisuraIzq.x * canvas.width, comisuraIzq.y * canvas.height);
+    ctx.lineTo(comisuraDer.x * canvas.width, comisuraDer.y * canvas.height);
+    ctx.stroke();
+    
+    ctx.setLineDash([]);
+    ctx.shadowBlur = 0;
+  }
+
+  // ✨ ABRIR BOCA - VISUALIZACIÓN MINIMALISTA CON FEEDBACK
+  private dibujarAperturaBocaMinimalista(landmarks: any[], color: string) {
+    const canvas = this.canvasElement.nativeElement;
+    const ctx = this.canvasCtx;
+    
     const labioSup = landmarks[13];
     const labioInf = landmarks[14];
     
-    if (labioSup && labioInf) {
-      this.canvasCtx.strokeStyle = color;
-      this.canvasCtx.lineWidth = 2;
-      this.canvasCtx.beginPath();
-      this.canvasCtx.moveTo(
-        labioSup.x * this.canvasElement.nativeElement.width,
-        labioSup.y * this.canvasElement.nativeElement.height
-      );
-      this.canvasCtx.lineTo(
-        labioInf.x * this.canvasElement.nativeElement.width,
-        labioInf.y * this.canvasElement.nativeElement.height
-      );
-      this.canvasCtx.stroke();
-    }
+    if (!labioSup || !labioInf) return;
+    
+    // Línea vertical con grosor moderado
+    const x = (labioSup.x + labioInf.x) / 2 * canvas.width;
+    const yInicio = labioSup.y * canvas.height;
+    const yFin = labioInf.y * canvas.height;
+    
+    const lineWidth = this.ejercicioDetectadoAhora ? 3 : 3;
+    const shadowBlur = this.ejercicioDetectadoAhora ? 10 : 10;
+    
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = shadowBlur;
+    
+    ctx.beginPath();
+    ctx.moveTo(x, yInicio);
+    ctx.lineTo(x, yFin);
+    ctx.stroke();
+    
+    // Puntos en extremos más pequeños cuando está correcto
+    const pulsoBase = this.ejercicioDetectadoAhora ? 4.5 : 5;
+    const pulsoVariacion = this.ejercicioDetectadoAhora ? 1 : 1.5;
+    const pulso = Math.sin(this.animationFrame * 0.15) * pulsoVariacion + pulsoBase;
+    
+    [labioSup, labioInf].forEach(punto => {
+      const px = punto.x * canvas.width;
+      const py = punto.y * canvas.height;
+      
+      ctx.shadowBlur = this.ejercicioDetectadoAhora ? 12 : 10;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(px, py, pulso, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.beginPath();
+      ctx.arc(px, py, pulso * 0.35, 0, 2 * Math.PI);
+      ctx.fill();
+    });
+    
+    ctx.shadowBlur = 0;
+  }
+
+  // ✨ FUNCIONES MINIMALISTAS PARA OTROS EJERCICIOS
+  private dibujarGuinoMinimalista(landmarks: any[], color: string) {
+    const ojoIzqSuperior = landmarks[159];
+    const ojoIzqInferior = landmarks[145];
+    const ojoDerSuperior = landmarks[386];
+    const ojoDerInferior = landmarks[374];
+    
+    if (!ojoIzqSuperior || !ojoIzqInferior || !ojoDerSuperior || !ojoDerInferior) return;
+    
+    this.dibujarPuntoAnimado(ojoIzqSuperior, color);
+    this.dibujarPuntoAnimado(ojoDerSuperior, color);
+  }
+
+  private dibujarMejillasInfladasMinimalista(landmarks: any[], color: string) {
+    const mejillaIzq = landmarks[234];
+    const mejillaDer = landmarks[454];
+    
+    if (!mejillaIzq || !mejillaDer) return;
+    
+    this.dibujarPuntoAnimado(mejillaIzq, color, 6);
+    this.dibujarPuntoAnimado(mejillaDer, color, 6);
+  }
+
+  private dibujarSorpresaMinimalista(landmarks: any[], color: string) {
+    this.dibujarAperturaBocaMinimalista(landmarks, color);
+    this.dibujarGuinoMinimalista(landmarks, color);
+  }
+
+  private dibujarMasticadoMinimalista(landmarks: any[], color: string) {
+    const labioSup = landmarks[13];
+    const labioInf = landmarks[14];
+    
+    if (!labioSup || !labioInf) return;
+    
+    this.dibujarPuntoAnimado(labioSup, color);
+    this.dibujarPuntoAnimado(labioInf, color);
+  }
+
+  private dibujarVibracionLabiosMinimalista(landmarks: any[], color: string) {
+    this.dibujarSonrisaMinimalista(landmarks, color);
+  }
+
+  private dibujarInflarGloboMinimalista(landmarks: any[], color: string) {
+    this.dibujarBesoPezMinimalista(landmarks, color);
+  }
+
+  private dibujarLenguaCircularMinimalista(landmarks: any[], color: string) {
+    this.dibujarSonrisaMinimalista(landmarks, color);
+  }
+
+  private dibujarLenguaLateralMinimalista(landmarks: any[], color: string) {
+    const comisuraIzq = landmarks[61];
+    const comisuraDer = landmarks[291];
+    
+    if (!comisuraIzq || !comisuraDer) return;
+    
+    this.dibujarPuntoAnimado(comisuraIzq, color, 5);
+    this.dibujarPuntoAnimado(comisuraDer, color, 5);
+  }
+
+  private dibujarVibracionLingualMinimalista(landmarks: any[], color: string) {
+    this.dibujarLenguaArribaMinimalista(landmarks, color);
+  }
+
+  private dibujarSostenerLapizMinimalista(landmarks: any[], color: string) {
+    this.dibujarBesoPezMinimalista(landmarks, color);
+  }
+
+  private dibujarBesitosAireMinimalista(landmarks: any[], color: string) {
+    this.dibujarBesoPezMinimalista(landmarks, color);
+  }
+
+  private dibujarMandibulaLateralMinimalista(landmarks: any[], color: string) {
+    const barbilla = landmarks[152];
+    if (!barbilla) return;
+    this.dibujarPuntoAnimado(barbilla, color, 6);
+  }
+
+  private dibujarBostezoMinimalista(landmarks: any[], color: string) {
+    this.dibujarAperturaBocaMinimalista(landmarks, color);
+  }
+
+  // ✨ FUNCIÓN HELPER PARA DIBUJAR PUNTO ANIMADO CON FEEDBACK
+  private dibujarPuntoAnimado(landmark: any, color: string, tamañoBase: number = 5) {
+    const canvas = this.canvasElement.nativeElement;
+    const ctx = this.canvasCtx;
+    
+    const x = landmark.x * canvas.width;
+    const y = landmark.y * canvas.height;
+    
+    // Punto más pequeño y pulso más sutil cuando está correcto
+    const pulsoVariacion = this.ejercicioDetectadoAhora ? 1 : 1.5;
+    const pulsoBaseAjustado = this.ejercicioDetectadoAhora ? tamañoBase - 0.5 : tamañoBase;
+    const pulso = Math.sin(this.animationFrame * 0.15) * pulsoVariacion + pulsoBaseAjustado;
+    const shadowBlur = this.ejercicioDetectadoAhora ? 12 : 10;
+    
+    // Sombra y punto principal
+    ctx.shadowColor = color;
+    ctx.shadowBlur = shadowBlur;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, pulso, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // Punto interior brillante
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.beginPath();
+    ctx.arc(x, y, pulso * 0.35, 0, 2 * Math.PI);
+    ctx.fill();
   }
 
   private analizarEjercicio(landmarks: any[]) {
@@ -672,28 +997,28 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     return (alturaCentro > alturaComisuras) && (anchoLabios > 0.03);
   }
 
-private detectarBesoPez(landmarks: any[]): boolean {
-  const labioSuperior = landmarks[13];
-  const labioInferior = landmarks[14];
-  const comisuraIzq = landmarks[61];
-  const comisuraDer = landmarks[291];
-  const labioSupExt = landmarks[0];
-  const labioInfExt = landmarks[17];
-  
-  if (!labioSuperior || !labioInferior || !comisuraIzq || !comisuraDer || !labioSupExt || !labioInfExt) return false;
-  
-  const aperturaLabial = Math.abs(labioSuperior.y - labioInferior.y);
-  const labiosCerrados = aperturaLabial < 0.022;
-  
-  const anchoLabios = Math.abs(comisuraDer.x - comisuraIzq.x);
-  const labiosFruncidos = anchoLabios < 0.045;
-  
-  const proyeccionSuperior = Math.abs(labioSupExt.y - labioSuperior.y);
-  const proyeccionInferior = Math.abs(labioInfExt.y - labioInferior.y);
-  const labiosProyectados = (proyeccionSuperior + proyeccionInferior) > 0.015;
-  
-  return labiosCerrados && labiosFruncidos && labiosProyectados;
-}
+  private detectarBesoPez(landmarks: any[]): boolean {
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    const comisuraIzq = landmarks[61];
+    const comisuraDer = landmarks[291];
+    const labioSupExt = landmarks[0];
+    const labioInfExt = landmarks[17];
+    
+    if (!labioSuperior || !labioInferior || !comisuraIzq || !comisuraDer || !labioSupExt || !labioInfExt) return false;
+    
+    const aperturaLabial = Math.abs(labioSuperior.y - labioInferior.y);
+    const labiosCerrados = aperturaLabial < 0.022;
+    
+    const anchoLabios = Math.abs(comisuraDer.x - comisuraIzq.x);
+    const labiosFruncidos = anchoLabios < 0.045;
+    
+    const proyeccionSuperior = Math.abs(labioSupExt.y - labioSuperior.y);
+    const proyeccionInferior = Math.abs(labioInfExt.y - labioInferior.y);
+    const labiosProyectados = (proyeccionSuperior + proyeccionInferior) > 0.015;
+    
+    return labiosCerrados && labiosFruncidos && labiosProyectados;
+  }
 
   private detectarBocaAbierta(landmarks: any[]): boolean {
     const labioSuperior = landmarks[13];
@@ -705,50 +1030,50 @@ private detectarBesoPez(landmarks: any[]): boolean {
     return apertura > 0.04;
   }
 
- private detectarGuino(landmarks: any[]): boolean {
-  const ojoIzqSuperior = landmarks[159];
-  const ojoIzqInferior = landmarks[145];
-  const ojoDerSuperior = landmarks[386];
-  const ojoDerInferior = landmarks[374];
-  
-  if (!ojoIzqSuperior || !ojoIzqInferior || !ojoDerSuperior || !ojoDerInferior) return false;
-  
-  const aperturaIzq = Math.abs(ojoIzqSuperior.y - ojoIzqInferior.y);
-  const aperturaDer = Math.abs(ojoDerSuperior.y - ojoDerInferior.y);
-  
-  const diferencia = Math.abs(aperturaIzq - aperturaDer);
-  const hayGuino = diferencia > 0.006;
-  
-  const ojoIzqCerrado = aperturaIzq < 0.012;
-  const ojoDerCerrado = aperturaDer < 0.012;
-  const unOjoCerrado = ojoIzqCerrado || ojoDerCerrado;
-  
-  const ojoIzqAbierto = aperturaIzq > 0.015;
-  const ojoDerAbierto = aperturaDer > 0.015;
-  const unOjoAbierto = ojoIzqAbierto || ojoDerAbierto;
-  
-  return hayGuino && unOjoCerrado && unOjoAbierto;
-}
+  private detectarGuino(landmarks: any[]): boolean {
+    const ojoIzqSuperior = landmarks[159];
+    const ojoIzqInferior = landmarks[145];
+    const ojoDerSuperior = landmarks[386];
+    const ojoDerInferior = landmarks[374];
+    
+    if (!ojoIzqSuperior || !ojoIzqInferior || !ojoDerSuperior || !ojoDerInferior) return false;
+    
+    const aperturaIzq = Math.abs(ojoIzqSuperior.y - ojoIzqInferior.y);
+    const aperturaDer = Math.abs(ojoDerSuperior.y - ojoDerInferior.y);
+    
+    const diferencia = Math.abs(aperturaIzq - aperturaDer);
+    const hayGuino = diferencia > 0.006;
+    
+    const ojoIzqCerrado = aperturaIzq < 0.012;
+    const ojoDerCerrado = aperturaDer < 0.012;
+    const unOjoCerrado = ojoIzqCerrado || ojoDerCerrado;
+    
+    const ojoIzqAbierto = aperturaIzq > 0.015;
+    const ojoDerAbierto = aperturaDer > 0.015;
+    const unOjoAbierto = ojoIzqAbierto || ojoDerAbierto;
+    
+    return hayGuino && unOjoCerrado && unOjoAbierto;
+  }
 
   private detectarLenguaArriba(landmarks: any[]): boolean {
-  const labioSuperior = landmarks[13];
-  const labioInferior = landmarks[14];
-  const barbilla = landmarks[18];
-  const nariz = landmarks[1];
-  
-  if (!labioSuperior || !labioInferior || !barbilla || !nariz) return false;
-  
-  const aperturaBoca = Math.abs(labioSuperior.y - labioInferior.y);
-  const bocaAbierta = aperturaBoca > 0.025;
-  
-  const centroLabios = (labioSuperior.y + labioInferior.y) / 2;
-  const lenguaAlta = centroLabios < (labioSuperior.y + 0.010);
-  
-  const desplazamientoZ = Math.abs(labioInferior.z - labioSuperior.z);
-  const lenguaVisible = desplazamientoZ > 0.005;
-  
-  return bocaAbierta && (lenguaAlta || lenguaVisible);
-}
+    const labioSuperior = landmarks[13];
+    const labioInferior = landmarks[14];
+    const barbilla = landmarks[18];
+    const nariz = landmarks[1];
+    
+    if (!labioSuperior || !labioInferior || !barbilla || !nariz) return false;
+    
+    const aperturaBoca = Math.abs(labioSuperior.y - labioInferior.y);
+    const bocaAbierta = aperturaBoca > 0.025;
+    
+    const centroLabios = (labioSuperior.y + labioInferior.y) / 2;
+    const lenguaAlta = centroLabios < (labioSuperior.y + 0.010);
+    
+    const desplazamientoZ = Math.abs(labioInferior.z - labioSuperior.z);
+    const lenguaVisible = desplazamientoZ > 0.005;
+    
+    return bocaAbierta && (lenguaAlta || lenguaVisible);
+  }
 
   private detectarMejillasInfladas(landmarks: any[]): boolean {
     const mejillaIzq = landmarks[234];
@@ -909,7 +1234,6 @@ private detectarBesoPez(landmarks: any[]): boolean {
   private mostrarFeedback(mensaje: string, tipo: 'success' | 'warning' | 'error') {
     const ahora = Date.now();
     
-    // Solo actualizar el feedback cada 1 segundo (1000ms)
     if (ahora - this.ultimoTiempoFeedback < 1000) {
       return;
     }
@@ -918,12 +1242,10 @@ private detectarBesoPez(landmarks: any[]): boolean {
     this.mensajeFeedback = mensaje;
     this.feedbackTipo = tipo;
     
-    // Limpiar timeout anterior si existe
     if (this.feedbackTimeout) {
       clearTimeout(this.feedbackTimeout);
     }
     
-    // Mantener el mensaje visible por 3 segundos
     this.feedbackTimeout = setTimeout(() => {
       this.mensajeFeedback = '';
       this.feedbackTipo = '';
@@ -946,6 +1268,7 @@ private detectarBesoPez(landmarks: any[]): boolean {
     this.contadorFramesTotales = 0;
     this.ejercicioIniciado = false;
     this.ultimoTiempoFeedback = 0;
+    this.animationFrame = 0;
     
     this.cdr.detectChanges();
     
@@ -967,6 +1290,7 @@ private detectarBesoPez(landmarks: any[]): boolean {
       this.landmarksAnteriores = [];
       this.contadorFramesCorrectos = 0;
       this.contadorFramesTotales = 0;
+      this.animationFrame = 0;
       
       this.mediaPipeReady = false;
       
@@ -1064,19 +1388,43 @@ private detectarBesoPez(landmarks: any[]): boolean {
       console.log('📊 Frames totales:', this.contadorFramesTotales);
       console.log('📊 Puntuación final:', puntuacionCalculada + '%');
       
+      // 📅 SISTEMA DE REPETICIONES DIARIAS
+      const ejercicioId = this.ejercicioActivo.id;
+      const resultadoAnterior = this.resultados[ejercicioId];
+      const fechaHoy = this.obtenerFechaHoy();
+      
+      let repeticionesHoy = 1; // Esta es la primera repetición
+      
+      // Si ya existe un resultado anterior
+      if (resultadoAnterior) {
+        // Si la última repetición fue hoy, incrementa el contador
+        if (this.esFechaHoy(resultadoAnterior.fechaUltimaRepeticion)) {
+          repeticionesHoy = resultadoAnterior.repeticionesHoy + 1;
+        }
+        // Si fue otro día, reinicia el contador a 1
+      }
+      
+      // El ejercicio está completado si tiene 3 o más repeticiones HOY
+      const completadoHoy = repeticionesHoy >= 3;
+      
       const resultado: ResultadoEjercicio = {
-        ejercicioId: this.ejercicioActivo.id,
+        ejercicioId: ejercicioId,
         puntuacion: puntuacionCalculada,
-        completado: puntuacionCalculada >= 60,
+        completado: completadoHoy, // ✅ Ahora se basa en repeticiones, no en puntuación
         tiempoRealizado: this.ejercicioActivo.duracion,
-        errores: this.contadorFramesTotales - this.contadorFramesCorrectos
+        errores: this.contadorFramesTotales - this.contadorFramesCorrectos,
+        repeticionesHoy: repeticionesHoy,
+        fechaUltimaRepeticion: fechaHoy,
+        repeticionesRequeridas: 3
       };
       
-      this.resultados[this.ejercicioActivo.id] = resultado;
+      this.resultados[ejercicioId] = resultado;
       this.ultimoResultado = resultado;
       this.guardarResultados();
       
       console.log('📊 Resultado final:', resultado);
+      console.log('🔄 Repeticiones hoy:', repeticionesHoy);
+      console.log('✅ Completado hoy:', completadoHoy);
     }
     
     this.stopCamera();
@@ -1102,7 +1450,7 @@ private detectarBesoPez(landmarks: any[]): boolean {
   volverAlMenu() {
     console.log('🏠 Volviendo al menú de ejercicios...');
     this.ejercicioActivo = null;
-    this.mostrarResultados = false;
+    this.mostrarResultados = false; // Cierra el modal
     this.vistaActual = this.seccionActiva ? 'ejercicios' : 'secciones';
     this.stopCamera();
     
@@ -1119,6 +1467,7 @@ private detectarBesoPez(landmarks: any[]): boolean {
     this.contadorFramesTotales = 0;
     this.ejercicioIniciado = false;
     this.ultimoTiempoFeedback = 0;
+    this.animationFrame = 0;
   }
 
   repetirEjercicio() {
@@ -1142,6 +1491,7 @@ private detectarBesoPez(landmarks: any[]): boolean {
     this.isRecording = false;
     this.landmarksAnteriores = [];
     this.ultimoTiempoFeedback = 0;
+    this.animationFrame = 0;
     
     this.vistaActual = 'activo';
     this.cdr.detectChanges();
@@ -1193,6 +1543,8 @@ private detectarBesoPez(landmarks: any[]): boolean {
     this.isRecording = false;
     this.landmarksAnteriores = [];
     this.mediaPipeReady = false;
+    this.animationFrame = 0;
+    this.ejercicioDetectadoAhora = false;
     
     console.log('✅ Cámara detenida completamente');
   }
