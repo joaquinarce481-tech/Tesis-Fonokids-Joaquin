@@ -48,7 +48,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
           descripcion: 'Arrastra y coloca los labios en la posición correcta',
           dificultad: 'facil',
           tipo: 'drag-drop',
-          emoji: '🧩'
+          emoji: ''
         },
         {
           id: 'memoria-gestos-labiales',
@@ -56,15 +56,15 @@ export class JuegosTerapeuticosComponent implements OnInit {
           descripcion: 'Recuerda las secuencias de movimientos labiales',
           dificultad: 'medio',
           tipo: 'memoria',
-          emoji: '🧠'
+          emoji: ''
         },
         {
           id: 'soplo-virtual',
-          nombre: 'Soplo Virtual',
-          descripcion: 'Apaga las velas soplando fuerte',
-          dificultad: 'facil',
+          nombre: 'Reto de Pronunciación',
+          descripcion: 'Pronuncia correctamente las palabras que aparecen',
+          dificultad: 'medio',
           tipo: 'audio',
-          emoji: '🕯️'
+          emoji: ''
         }
       ]
     },
@@ -83,7 +83,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
           descripcion: 'Ordena la secuencia correcta de ejercicios linguales',
           dificultad: 'medio',
           tipo: 'puzzle',
-          emoji: '🧩'
+          emoji: ''
         },
         {
           id: 'ritmo-silabas',
@@ -213,10 +213,10 @@ export class JuegosTerapeuticosComponent implements OnInit {
 
   getDificultadColor(dificultad: string): string {
     switch (dificultad) {
-      case 'facil': return 'text-green-600';
-      case 'medio': return 'text-yellow-600';
-      case 'dificil': return 'text-red-600';
-      default: return 'text-gray-600';
+      case 'facil': return 'dificultad-facil';
+      case 'medio': return 'dificultad-medio';
+      case 'dificil': return 'dificultad-dificil';
+      default: return 'dificultad-normal';
     }
   }
 
@@ -226,6 +226,15 @@ export class JuegosTerapeuticosComponent implements OnInit {
       case 'medio': return 'Medio';
       case 'dificil': return 'Difícil';
       default: return 'Normal';
+    }
+  }
+
+  getDuracion(dificultad: string): string {
+    switch (dificultad) {
+      case 'facil': return '5s';
+      case 'medio': return '10s';
+      case 'dificil': return '15s';
+      default: return '8s';
     }
   }
 

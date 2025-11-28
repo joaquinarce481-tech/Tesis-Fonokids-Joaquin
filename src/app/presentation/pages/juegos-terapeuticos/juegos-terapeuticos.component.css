@@ -6,7 +6,6 @@
   min-height: 100vh;
   font-family: 'Arial', sans-serif;
   position: relative;
-  overflow-x: hidden;
 }
 
 /* ===== DECORACIONES DEL FONDO ===== */
@@ -120,32 +119,6 @@
   animation: fadeInDown 0.8s ease-out;
 }
 
-.btn-back-nuevo {
-  position: absolute;
-  top: 25px;
-  left: 25px;
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(15px);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  padding: 12px 28px;
-  border-radius: 30px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 800;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  z-index: 10;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.btn-back-nuevo:hover {
-  background: rgba(255, 255, 255, 0.35);
-  transform: translateX(-8px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  border-color: rgba(255, 255, 255, 0.6);
-}
-
 .header-background {
   position: relative;
   width: 100%;
@@ -154,9 +127,6 @@
   background-position: center;
   background-repeat: no-repeat;
   transition: transform 0.6s ease;
-  /* 👇 COMENTADA TEMPORALMENTE - DESCOMENTAR CUANDO TENGAS LA IMAGEN */
-  /* background-image: url('/assets/images/header-juegos.jpg'); */
-  /* 👇 GRADIENTE TEMPORAL */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
@@ -270,56 +240,31 @@
 }
 
 /* ===== IMAGEN DE CATEGORÍA ===== */
-.categoria-imagen {
+.categoria-imagen-container {
   width: 100%;
-  height: 220px;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  position: relative;
+  height: 300px;
   overflow: hidden;
-  flex-shrink: 0;
+  border-radius: 20px 20px 0 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
 }
 
-.categoria-imagen::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 100%);
-  transition: all 0.4s ease;
+.categoria-imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
 .categoria-card:hover .categoria-imagen {
-  transform: scale(1.08);
+  transform: scale(1.1);
 }
 
-.categoria-card:hover .categoria-imagen::after {
-  background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 100%);
-}
-
-/* 👇 IMÁGENES ESPECÍFICAS POR CATEGORÍA - COMENTADAS TEMPORALMENTE */
-/* DESCOMENTAR Y ACTUALIZAR RUTAS CUANDO TENGAS LAS IMÁGENES */
-.bg-imagen-labiales {
-  /* background-image: url('/assets/images/labiales.jpg'); */
-  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
-}
-
-.bg-imagen-linguales {
-  /* background-image: url('/assets/images/linguales.jpg'); */
-  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
-}
-
-.bg-imagen-mandibulares {
-  /* background-image: url('/assets/images/mandibulares.jpg'); */
-  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
-}
-
-.bg-imagen-ruleta {
-  /* background-image: url('/assets/images/ruleta.jpg'); */
-  background: linear-gradient(135deg, #a78bfa 0%, #9333ea 100%);
+/* Fallback si no hay imagen */
+.categoria-imagen-container.no-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 100px;
 }
 
 /* ===== CONTENIDO DE CATEGORÍA ===== */
@@ -476,172 +421,349 @@
   font-size: 1.2rem;
 }
 
-/* ===== ESTILOS PARA VISTA DE JUEGOS (cuando seleccionas una categoría) ===== */
+/* ===================================== */
+/* ===== VISTA MODERNA DE JUEGOS ===== */
+/* ===================================== */
+
 .main-content {
   max-width: 1400px;
   margin: 0 auto;
   padding: 40px 20px;
 }
 
-.categoria-header-selected {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 2rem;
-  margin-bottom: 3rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+/* ===== HEADER MODERNO DE CATEGORÍA ===== */
+.categoria-header-modern {
+  position: relative;
+  height: 300px;
+  border-radius: 25px;
+  overflow: hidden;
+  margin-bottom: 50px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: fadeInDown 0.8s ease-out;
 }
 
-.categoria-info {
+/* Fondos específicos por categoría */
+.header-labiales {
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+}
+
+.header-linguales {
+  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+}
+
+.header-mandibulares {
+  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+}
+
+.header-ruleta-praxias {
+  background: linear-gradient(135deg, #a78bfa 0%, #9333ea 100%);
+}
+
+.header-overlay-modern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(2px);
+}
+
+.header-content-modern {
+  position: relative;
+  z-index: 5;
+  height: 100%;
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  justify-content: center;
+  padding: 0 50px;
 }
 
-.categoria-emoji-large {
+.header-text-content {
+  text-align: center;
+  color: white;
+}
+
+.categoria-titulo-modern {
   font-size: 4rem;
+  font-weight: 900;
+  margin: 0 0 20px 0;
+  text-shadow: 4px 4px 12px rgba(0, 0, 0, 0.5);
+  letter-spacing: 2px;
+  animation: slideInUp 0.6s ease-out;
 }
 
-.categoria-info h2 {
-  margin: 0 0 0.5rem 0;
-  font-size: 2rem;
-  font-weight: bold;
-  color: white;
-}
-
-.categoria-info p {
+.categoria-descripcion-modern {
+  font-size: 1.3rem;
   margin: 0;
-  font-size: 1.1rem;
-  opacity: 0.9;
-  color: white;
+  opacity: 0.95;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+  font-weight: 600;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+  animation: slideInUp 0.6s ease-out 0.1s backwards;
 }
 
-.juegos-grid {
+/* ===== GRID MODERNO DE JUEGOS ===== */
+.juegos-grid-modern {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 35px;
+  position: relative;
 }
 
-.juego-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  padding: 1.5rem;
+/* ===== TARJETA MODERNA DE JUEGO ===== */
+.juego-card-modern {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-  color: #333;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 200px;
+  border: 3px solid transparent;
+  animation: cardAppear 0.5s ease-out;
 }
 
-.juego-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.juego-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+.juego-card-modern:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-.juego-emoji {
-  font-size: 2rem;
+/* Bordes de color según categoría */
+.card-labiales:hover {
+  border-color: #f472b6;
 }
 
-.juego-dificultad {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  background: rgba(0, 0, 0, 0.1);
+.card-linguales:hover {
+  border-color: #f87171;
 }
 
-.text-green-600 {
-  color: #16a34a;
-  background: rgba(22, 163, 74, 0.1);
+.card-mandibulares:hover {
+  border-color: #60a5fa;
 }
 
-.text-yellow-600 {
-  color: #ca8a04;
-  background: rgba(202, 138, 4, 0.1);
+.card-ruleta-praxias:hover {
+  border-color: #a78bfa;
 }
 
-.text-red-600 {
-  color: #dc2626;
-  background: rgba(220, 38, 38, 0.1);
+/* ===== IMAGEN DEL JUEGO ===== */
+.juego-imagen-container {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  position: relative;
 }
 
-.juego-content {
-  flex: 1;
-  margin-bottom: 1rem;
+.juego-imagen {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  transition: transform 0.3s ease;
 }
 
-.juego-content h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #1f2937;
+.juego-card-modern:hover .juego-imagen {
+  transform: scale(1.1);
 }
 
-.juego-content p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #6b7280;
-  line-height: 1.4;
-}
-
-.juego-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.juego-tipo {
-  padding: 0.25rem 0.75rem;
-  background: rgba(99, 102, 241, 0.1);
-  color: #6366f1;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.juego-tipo.ia-ruleta {
-  background: linear-gradient(135deg, #a78bfa 0%, #9333ea 100%);
-  color: white;
-  font-weight: bold;
-}
-
-.btn-jugar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  font-weight: 600;
+.imagen-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 100%);
   transition: all 0.3s ease;
-  font-size: 0.9rem;
 }
 
-.btn-jugar:hover {
-  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
-  transform: scale(1.05);
+.juego-card-modern:hover .imagen-overlay {
+  background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 100%);
 }
 
-.btn-jugar.ia-special {
+.imagen-emoji {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 80px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.juego-card-modern:hover .imagen-emoji {
+  transform: translate(-50%, -50%) scale(1.2) rotate(10deg);
+}
+
+/* ===== CONTENIDO DEL JUEGO ===== */
+.juego-contenido-modern {
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.juego-nombre {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 12px 0;
+  color: #2d3748;
+  line-height: 1.3;
+}
+
+.juego-descripcion-text {
+  font-size: 0.95rem;
+  color: #718096;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  flex: 1;
+}
+
+/* ===== FOOTER DEL JUEGO ===== */
+.juego-footer-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding-top: 15px;
+  border-top: 2px solid #f7fafc;
+}
+
+.juego-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.juego-dificultad-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dificultad-facil {
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.dificultad-medio {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.dificultad-dificil {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.juego-duracion {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+/* ===== BOTÓN JUGAR MODERNO ===== */
+.btn-jugar-modern {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 15px;
+  border: none;
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-jugar-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-jugar-modern:hover::before {
+  left: 100%;
+}
+
+.btn-jugar-modern:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Gradientes por categoría */
+.btn-labiales {
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+}
+
+.btn-labiales:hover {
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+}
+
+.btn-linguales {
+  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+}
+
+.btn-linguales:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.btn-mandibulares {
+  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+}
+
+.btn-mandibulares:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.btn-ruleta-praxias {
   background: linear-gradient(135deg, #a78bfa 0%, #9333ea 100%);
-  box-shadow: 0 4px 15px rgba(167, 139, 250, 0.4);
 }
 
-.btn-jugar.ia-special:hover {
-  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
-  box-shadow: 0 6px 20px rgba(167, 139, 250, 0.6);
+.btn-ruleta-praxias:hover {
+  background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
+}
+
+.play-icon-modern {
+  font-size: 1.1rem;
 }
 
 /* ===== ANIMACIONES ===== */
@@ -678,13 +800,6 @@
     height: 240px;
   }
   
-  .btn-back-nuevo {
-    top: 15px;
-    left: 15px;
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-  
   .header-content {
     padding: 70px 25px 30px 25px;
   }
@@ -701,13 +816,25 @@
     padding: 40px 15px;
   }
   
-  .categoria-info {
-    flex-direction: column;
-    text-align: center;
+  .categoria-header-modern {
+    height: 250px;
   }
   
-  .juegos-grid {
+  .categoria-titulo-modern {
+    font-size: 2.8rem;
+  }
+  
+  .categoria-descripcion-modern {
+    font-size: 1.1rem;
+  }
+  
+  .juegos-grid-modern {
     grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  
+  .main-content {
+    padding: 40px 15px;
   }
 }
 
@@ -744,31 +871,108 @@
   .count-numero {
     font-size: 2.5rem;
   }
-}
-/* Contenedor de imagen de categoría */
-.categoria-imagen-container {
-  width: 100%;
-  height: 300px;
-  overflow: hidden;
-  border-radius: 20px 20px 0 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  
+  .categoria-header-modern {
+    height: 220px;
+  }
+  
+  .categoria-titulo-modern {
+    font-size: 2.2rem;
+  }
+  
+  .categoria-descripcion-modern {
+    font-size: 1rem;
+  }
+  
+  .juego-imagen-container {
+    height: 180px;
+  }
+  
+  .imagen-emoji {
+    font-size: 60px;
+  }
+  
+  .juego-footer-modern {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .btn-jugar-modern {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
-.categoria-imagen {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
+/* ============================================ */
+/* ===== IMÁGENES DE FONDO PARA JUEGOS ===== */
+/* ============================================ */
+
+/* ===== JUEGOS LABIALES ===== */
+.bg-labiales-arma-cara-labiales {
+  background-image: url('/assets/images/arma-cara-labiales.png');
+  background-size: cover;
+  background-position: center;
 }
 
-.categoria-card:hover .categoria-imagen {
-  transform: scale(1.1);
+.bg-labiales-memoria-gestos-labiales {
+  background-image: url('/assets/images/memoria-gestos-labiales.png');
+  background-size: cover;
+  background-position: center;
 }
 
-/* Fallback si no hay imagen */
-.categoria-imagen-container.no-image {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 100px;
+.bg-labiales-soplo-virtual {
+  background-image: url('/assets/images/reto-pronunciacion.png');
+  background-size: cover;
+  background-position: center;
+}
+
+/* ===== JUEGOS LINGUALES ===== */
+.bg-linguales-puzzle-movimientos {
+  background-image: url('/assets/images/puzzle-movimientos.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.bg-linguales-ritmo-silabas {
+  background-image: url('/assets/images/ritmo-silabas.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+/* ===== JUEGOS MANDIBULARES ===== */
+.bg-mandibulares-clasifica-sonidos {
+  background-image: url('/assets/images/clasifica-sonidos.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.bg-mandibulares-memoria-silabas {
+  background-image: url('/assets/images/memoria-silabas.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.bg-mandibulares-secuencia-ejercicios {
+  background-image: url('/assets/images/secuencia-ejercicios.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.bg-mandibulares-sonidos-divertidos {
+  background-image: url('/assets/images/sonidos-divertidos.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.bg-mandibulares-parejas-silabas {
+  background-image: url('/assets/images/parejas-silabas.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+/* ===== RULETA DE PRAXIAS ===== */
+.bg-ruleta-praxias-ruleta-praxias-ia {
+  background-image: url('/assets/images/ruleta-ia.jpg');
+  background-size: cover;
+  background-position: center;
 }

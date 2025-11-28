@@ -76,42 +76,54 @@
          *ngFor="let categoria of categorias" 
          [ngStyle]="categoria.id === categoriaSeleccionada ? {} : {display: 'none'}">
       
-      <div class="categoria-header-selected">
-        <div class="categoria-info">
-          <span class="categoria-emoji-large">{{ categoria.emoji }}</span>
-          <div>
-            <h2>{{ categoria.titulo }}</h2>
-            <p>{{ categoria.descripcion }}</p>
+      <!-- Header mejorado con fondo y overlay -->
+      <div class="categoria-header-modern" [ngClass]="'header-' + categoria.id">
+        <div class="header-overlay-modern"></div>
+        <div class="header-content-modern">
+          <div class="header-text-content">
+            <h1 class="categoria-titulo-modern">{{ categoria.titulo.toUpperCase() }}</h1>
+            <p class="categoria-descripcion-modern">{{ categoria.descripcion }}</p>
           </div>
         </div>
       </div>
 
-      <div class="juegos-grid">
+      <!-- Grid de juegos mejorado -->
+      <div class="juegos-grid-modern">
         <div 
           *ngFor="let juego of categoria.juegos"
-          class="juego-card"
+          class="juego-card-modern"
+          [ngClass]="'card-' + categoria.id"
           (click)="jugarJuego(juego, categoria)">
           
-          <div class="juego-header">
-            <span class="juego-emoji">{{ juego.emoji }}</span>
-            <div class="juego-dificultad" [ngClass]="getDificultadColor(juego.dificultad)">
-              {{ getDificultadTexto(juego.dificultad) }}
+          <!-- Imagen del juego -->
+          <div class="juego-imagen-container">
+            <div class="juego-imagen" [ngClass]="'bg-' + categoria.id + '-' + juego.id">
+              <div class="imagen-overlay"></div>
+              <div class="imagen-emoji">{{ juego.emoji }}</div>
             </div>
           </div>
           
-          <div class="juego-content">
-            <h4>{{ juego.nombre }}</h4>
-            <p>{{ juego.descripcion }}</p>
-          </div>
-          
-          <div class="juego-footer">
-            <div class="juego-tipo" [ngClass]="juego.tipo === 'ia-ruleta' ? 'ia-ruleta' : ''">
-              {{ juego.tipo }}
+          <!-- Contenido del juego -->
+          <div class="juego-contenido-modern">
+            <h3 class="juego-nombre">{{ juego.nombre }}</h3>
+            <p class="juego-descripcion-text">{{ juego.descripcion }}</p>
+            
+            <!-- Footer con info y botón -->
+            <div class="juego-footer-modern">
+              <div class="juego-meta">
+                <span class="juego-dificultad-badge" [ngClass]="getDificultadColor(juego.dificultad)">
+                  {{ getDificultadTexto(juego.dificultad) }}
+                </span>
+                <span class="juego-duracion">
+                  <i class="fas fa-clock"></i> {{ getDuracion(juego.dificultad) }}
+                </span>
+              </div>
+              
+              <button class="btn-jugar-modern" [ngClass]="'btn-' + categoria.id">
+                <span class="play-icon-modern">▶</span>
+                <span class="btn-text">Jugar</span>
+              </button>
             </div>
-            <button class="btn-jugar" [ngClass]="juego.tipo === 'ia-ruleta' ? 'ia-special' : ''">
-              <span class="play-icon">▶</span>
-              Jugar
-            </button>
           </div>
         </div>
       </div>
