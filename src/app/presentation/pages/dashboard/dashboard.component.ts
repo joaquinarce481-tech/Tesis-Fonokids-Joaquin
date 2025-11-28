@@ -1,10 +1,10 @@
 import { Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Subject, interval } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FaqModalComponent } from '../../components/faq-modal/faq-modal.component';
-import { LogoutModalComponent } from '../../../presentation/components/logout-modal/logout-modal.component';
+import { LogoutModalComponent } from '../../components/logout-modal/logout-modal.component';
 import { AuthService } from '../../services/auth.service';
 
 interface MenuItem {
@@ -162,7 +162,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   startAutoPlay(): void {
     this.autoPlayInterval = setInterval(() => {
       this.nextSlide();
-    }, 5000); // Cambiar slide cada 5 segundos
+    }, 5000);
   }
 
   stopAutoPlay(): void {
@@ -201,7 +201,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.isTransitioning = true;
     this.currentSlide = index;
     
-    // Reiniciar autoplay cuando el usuario interactúa
     this.stopAutoPlay();
     this.startAutoPlay();
     
@@ -257,18 +256,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.selectedItem = item.id;
     console.log(`Navegando a: ${item.title}`);
     
-    // Detener el autoplay del carousel cuando navegamos
     this.stopAutoPlay();
     
     switch(item.id) {
       case 'contacto':
         console.log('Función de contacto aún no implementada');
-        // this.router.navigate(['/contacto']);
         break;
       
       case 'agenda':
         console.log('Función de agenda aún no implementada');
-        // this.router.navigate(['/agenda']);
         break;
       
       case 'juegos':
@@ -281,7 +277,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         break;
       
       case 'practicas':
-        this.router.navigate(['/chat/assistant']);
+        // ✅ Navegar a FonoBot (assistant-page) en lugar de assistant
+        this.router.navigate(['/chat/assistant-page']);
+        console.log('🤖 Navegando a FonoBot...');
         break;
     }
     
@@ -322,7 +320,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   goToSettings() {
     this.closeUserMenu();
     console.log('Navegando a configuración...');
-    // this.router.navigate(['/configuracion']);
   }
 
   goToHelp() {
@@ -357,9 +354,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
+  // ✅ MÉTODO PARA NAVEGAR AL CHATBOT DE FONOBOT
+  goToFonoBot() {
+    console.log('🤖 Navegando al chatbot FonoBot...');
+    // Navegar directamente a la sección de FonoBot con replaceUrl
+    this.router.navigate(['/chat/assistant-page'], { 
+      replaceUrl: true,
+      skipLocationChange: false 
+    });
+  }
+
   @HostListener('document:click', ['$event'])
-  onDocumentClick(event: any) {
-    const target = event.target;
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
     const userMenuContainer = document.querySelector('.user-menu-container');
     const themeToggle = document.querySelector('.theme-toggle');
     
@@ -368,26 +375,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  @HostListener('document:keydown.escape', ['$event'])
+  @HostListener('document:keydown', ['$event'])
   onEscapeKey(event: KeyboardEvent) {
-    if (this.showUserMenu) {
-      this.closeUserMenu();
-    }
-    
-    if (this.showFaqModal) {
-      this.closeFaqModal();
-    }
-    
-    if (this.showLogoutModal) {
-      this.onLogoutCancel();
-    }
-  }
-
-  @HostListener('window:matchMedia', ['(prefers-color-scheme: dark)'])
-  onSystemThemeChange(event: MediaQueryListEvent) {
-    const savedPreference = localStorage.getItem('darkMode');
-    if (savedPreference === null) {
-      this.isDarkMode = event.matches;
+    if (event.key === 'Escape') {
+      if (this.showUserMenu) {
+        this.closeUserMenu();
+      }
+      
+      if (this.showFaqModal) {
+        this.closeFaqModal();
+      }
+      
+      if (this.showLogoutModal) {
+        this.onLogoutCancel();
+      }
     }
   }
 }

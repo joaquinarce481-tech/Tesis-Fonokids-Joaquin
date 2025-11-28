@@ -10,8 +10,8 @@
       </button>
       
       <div class="game-info">
-        <h1>🌬️ Soplo Virtual</h1>
-        <p>Sopla fuerte para apagar todas las velas</p>
+        <h1>🎤 Reto de Pronunciación</h1>
+        <p>Pronuncia correctamente las palabras que aparecen</p>
       </div>
       
       <div class="game-stats" *ngIf="faseJuego === 'jugando'">
@@ -20,8 +20,8 @@
           <span class="stat-value">{{ nivelActual }}/{{ maxNiveles }}</span>
         </div>
         <div class="stat">
-          <span class="stat-label">Velas</span>
-          <span class="stat-value">{{ velasApagadas }}/{{ totalVelas }}</span>
+          <span class="stat-label">Palabras</span>
+          <span class="stat-value">{{ palabrasCompletadas }}/{{ totalPalabras }}</span>
         </div>
         <div class="stat">
           <span class="stat-label">Tiempo</span>
@@ -40,8 +40,8 @@
     <div class="instructions-screen">
       <div class="instructions-card">
         <div class="instructions-header">
-          <h2>🕯️ Cómo Jugar</h2>
-          <div class="difficulty-badge">Soplo</div>
+          <h2>📚 Cómo Jugar</h2>
+          <div class="difficulty-badge">Pronunciación</div>
         </div>
         
         <div class="instructions-content">
@@ -49,23 +49,31 @@
             <div class="step-number">1</div>
             <div class="step-text">
               <strong>Permite el micrófono</strong>
-              <p>Necesitamos acceso al micrófono para detectar tu soplo</p>
+              <p>Necesitamos acceso al micrófono para escuchar tu voz</p>
             </div>
           </div>
           
           <div class="step">
             <div class="step-number">2</div>
             <div class="step-text">
-              <strong>Sopla fuerte</strong>
-              <p>Sopla hacia el micrófono para apagar las velas encendidas</p>
+              <strong>Escucha el ejemplo</strong>
+              <p>Presiona el botón "Escuchar" para oír cómo se pronuncia</p>
             </div>
           </div>
           
           <div class="step">
             <div class="step-number">3</div>
             <div class="step-text">
-              <strong>Apaga todas las velas</strong>
-              <p>Completa cada nivel antes de que se acabe el tiempo</p>
+              <strong>Pronuncia la palabra</strong>
+              <p>Presiona "Hablar" y di la palabra claramente</p>
+            </div>
+          </div>
+          
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-text">
+              <strong>Completa todos los niveles</strong>
+              <p>Cada nivel tiene palabras más difíciles</p>
             </div>
           </div>
         </div>
@@ -73,10 +81,10 @@
         <div class="tips-section">
           <h3>💡 Consejos</h3>
           <ul>
-            <li>🔊 Ajusta el volumen de tu dispositivo</li>
-            <li>🎤 Sopla directamente al micrófono</li>
-            <li>💨 Un soplo fuerte y constante es más efectivo</li>
-            <li>⚡ Cada nivel tiene más velas que apagar</li>
+            <li>🎧 Busca un lugar tranquilo sin ruido</li>
+            <li>🎤 Habla claro y despacio</li>
+            <li>🔊 Escucha el ejemplo varias veces si lo necesitas</li>
+            <li>⭐ Intenta pronunciar correctamente a la primera</li>
           </ul>
         </div>
         
@@ -99,13 +107,7 @@
         
         <div class="microphone-test" *ngIf="permisoMicrofono">
           <h3>✅ Micrófono conectado</h3>
-          <div class="sound-meter">
-            <div class="sound-bar" 
-                 [style.height.%]="getIntensidadSoplo()"
-                 [class.active]="getIntensidadSoplo() > 20">
-            </div>
-          </div>
-          <p>Prueba soplando para ver si funciona</p>
+          <p>Iniciando nivel {{ nivelActual }}...</p>
         </div>
       </div>
     </div>
@@ -124,7 +126,7 @@
           <ul>
             <li>🔄 Recarga la página y permite el micrófono</li>
             <li>🔧 Verifica que tu micrófono esté conectado</li>
-            <li>🌐 Asegúrate de usar un navegador compatible</li>
+            <li>🌐 Usa Chrome o Edge (navegadores compatibles)</li>
             <li>⚙️ Revisa la configuración de permisos del navegador</li>
           </ul>
         </div>
@@ -143,70 +145,88 @@
 
   <!-- Área principal del juego -->
   <main class="game-main" *ngIf="faseJuego === 'jugando'">
-    <!-- Indicador de soplo -->
-    <div class="breath-indicator">
-      <div class="breath-meter">
-        <div class="breath-label">Intensidad del soplo:</div>
-        <div class="breath-bar-container">
-          <div class="breath-bar" 
-               [style.width.%]="getIntensidadSoplo()"
-               [class.breathing]="getIntensidadSoplo() > 20">
-          </div>
-        </div>
-        <div class="breath-value">{{ getIntensidadSoplo().toFixed(0) }}%</div>
-      </div>
-    </div>
-
-    <!-- Área de velas -->
-    <div class="candles-area">
-      <div *ngFor="let vela of velas" 
-           class="candle-container"
-           [style.left.px]="vela.x"
-           [style.top.px]="vela.y">
-        
-        <!-- Vela encendida -->
-        <div class="candle" *ngIf="!vela.apagada">
-          <div class="flame" 
-               [style.opacity]="vela.intensidadLlama"
-               [class.flickering]="vela.intensidadLlama < 0.5">
-            🔥
-          </div>
-          <div class="candle-body">🕯️</div>
-        </div>
-        
-        <!-- Vela apagada -->
-        <div class="candle extinguished" *ngIf="vela.apagada">
-          <div class="smoke">💨</div>
-          <div class="candle-body">🕯️</div>
+    <!-- Información del nivel actual -->
+    <div class="nivel-info">
+      <div class="nivel-badge" [style.background]="getNivelActualData().color">
+        <span class="nivel-icono">{{ getNivelActualData().icono }}</span>
+        <div class="nivel-detalles">
+          <div class="nivel-nombre">{{ getNivelActualData().nombre }}</div>
+          <div class="nivel-dificultad">{{ getNivelActualData().dificultad }}</div>
         </div>
       </div>
     </div>
 
-    <!-- Partículas de soplo -->
-    <div class="particles-container">
-      <div *ngFor="let particula of particulas" 
-           class="particle"
-           [style.left.px]="particula.x"
-           [style.top.px]="particula.y">
-        💨
+    <!-- Palabra actual -->
+    <div class="palabra-display">
+      <div class="palabra-card">
+        <div class="palabra-titulo">Pronuncia esta palabra:</div>
+        <div class="palabra-actual">{{ palabraActual }}</div>
+        
+        <div class="palabra-acciones">
+          <button class="btn-escuchar" 
+                  (click)="escucharEjemplo()"
+                  [disabled]="escuchandoAudio || esperandoPronunciacion">
+            <span class="btn-icon">🔊</span>
+            <span>{{ escuchandoAudio ? 'Escuchando...' : 'Escuchar Ejemplo' }}</span>
+          </button>
+          
+          <button class="btn-hablar" 
+                  (click)="empezarGrabacion()"
+                  [disabled]="esperandoPronunciacion || escuchandoAudio"
+                  [class.recording]="esperandoPronunciacion">
+            <span class="btn-icon">🎤</span>
+            <span>{{ esperandoPronunciacion ? 'Escuchando...' : 'Hablar Ahora' }}</span>
+          </button>
+        </div>
+        
+        <!-- Indicador de grabación -->
+        <div class="recording-indicator" *ngIf="esperandoPronunciacion">
+          <div class="pulse-circle"></div>
+          <span class="recording-text">Estoy escuchando...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback visual -->
+    <div class="feedback-container" *ngIf="mostrandoFeedback">
+      <div class="feedback-message" 
+           [class.correcto]="tipoFeedback === 'correcto'"
+           [class.incorrecto]="tipoFeedback === 'incorrecto'"
+           [class.cerca]="tipoFeedback === 'cerca'">
+        <div class="feedback-icon">
+          <span *ngIf="tipoFeedback === 'correcto'">✅</span>
+          <span *ngIf="tipoFeedback === 'incorrecto'">❌</span>
+          <span *ngIf="tipoFeedback === 'cerca'">🟡</span>
+        </div>
+        <div class="feedback-texto">{{ mensajeFeedback }}</div>
       </div>
     </div>
 
     <!-- Progreso del nivel -->
     <div class="level-progress">
       <div class="progress-header">
-        <h3>Nivel {{ nivelActual }} - Apaga todas las velas</h3>
+        <h3>Progreso del Nivel {{ nivelActual }}</h3>
         <div class="progress-stats">
-          {{ velasApagadas }}/{{ totalVelas }} velas apagadas
+          {{ palabrasCompletadas }}/{{ totalPalabras }} palabras completadas
         </div>
       </div>
       
       <div class="progress-bar-container">
         <div class="progress-bar" 
-             [style.width.%]="(velasApagadas / totalVelas) * 100">
+             [style.width.%]="getProgresoPorcentaje()">
         </div>
       </div>
     </div>
+
+    <!-- Historial de intentos (opcional, para debug) -->
+    <!-- <div class="intentos-historial" *ngIf="intentos.length > 0">
+      <h4>Últimos intentos:</h4>
+      <div class="intento-item" *ngFor="let intento of intentos.slice(-3)">
+        <span [class.correcto]="intento.correcto">
+          {{ intento.palabra }} → {{ intento.escuchado }}
+        </span>
+      </div>
+    </div> -->
   </main>
 
   <!-- Modal de juego completado -->
@@ -214,14 +234,14 @@
     <div class="modal-content">
       <div class="celebration" *ngIf="nivelActual >= maxNiveles">
         <div class="celebration-emoji">🎉</div>
-        <h2>¡Excelente soplo!</h2>
-        <p>Has apagado todas las velas en todos los niveles</p>
+        <h2>¡Excelente pronunciación!</h2>
+        <p>Has completado todos los niveles del reto</p>
       </div>
       
       <div class="celebration" *ngIf="nivelActual < maxNiveles">
         <div class="celebration-emoji">⏰</div>
         <h2>¡Buen intento!</h2>
-        <p>Llegaste al nivel {{ nivelActual }}. ¡Sigue practicando tu soplo!</p>
+        <p>Llegaste al nivel {{ nivelActual }}. ¡Sigue practicando!</p>
       </div>
       
       <div class="final-stats">
@@ -230,8 +250,8 @@
           <span class="stat-text">Nivel alcanzado: {{ nivelActual }}/{{ maxNiveles }}</span>
         </div>
         <div class="stat-final">
-          <span class="stat-icon">🕯️</span>
-          <span class="stat-text">Velas apagadas: {{ velasApagadas }}</span>
+          <span class="stat-icon">📝</span>
+          <span class="stat-text">Palabras correctas: {{ getPalabrasCorrectas() }}</span>
         </div>
         <div class="stat-final">
           <span class="stat-icon">⏱️</span>

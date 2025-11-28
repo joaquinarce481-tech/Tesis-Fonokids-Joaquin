@@ -33,10 +33,10 @@ export class DashboardLayoutComponent implements OnInit {
     // Verificar múltiples condiciones posibles
     const currentUrl = this.router.url;
     
+    // ✅ EXCLUIR assistant-page (FonoBot) de la redirección automática
     if (currentUrl === '/chat' || 
         currentUrl === '/chat/' || 
-        currentUrl === '/chat/assistant' ||
-        currentUrl.includes('/chat') && !currentUrl.includes('orthography')) {
+        currentUrl === '/chat/assistant') {
       
       console.log('Redirigiendo a ortografía...');
       
@@ -45,5 +45,6 @@ export class DashboardLayoutComponent implements OnInit {
         this.router.navigate(['/chat/orthography']);
       }, 0);
     }
+    // ✅ Si está en assistant-page, orthography, u otra ruta válida, NO redirigir
   }
 }

@@ -5,7 +5,6 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  overflow-x: hidden;
 }
 
 /* ===== HEADER DEL JUEGO ===== */
@@ -303,34 +302,6 @@
   color: #34d399;
 }
 
-.sound-meter {
-  width: 200px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  margin: 1rem auto;
-  overflow: hidden;
-  position: relative;
-}
-
-.sound-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #34d399 0%, #10b981 50%, #059669 100%);
-  border-radius: 10px;
-  transition: height 0.1s ease-out, width 0.1s ease-out;
-  width: 0%;
-}
-
-.sound-bar.active {
-  animation: sound-pulse 0.3s ease-out;
-}
-
-@keyframes sound-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(52, 211, 153, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
-}
-
 /* ===== PANTALLA DE ERROR ===== */
 .error-screen {
   min-height: calc(100vh - 100px);
@@ -438,92 +409,229 @@
   min-height: calc(100vh - 120px);
 }
 
-/* ===== INDICADOR DE SOPLO ===== */
-.breath-indicator {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 1.5rem;
+/* ===== INFORMACIÓN DEL NIVEL ===== */
+.nivel-info {
   margin-bottom: 2rem;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  justify-content: center;
 }
 
-.breath-meter {
+.nivel-badge {
   display: flex;
   align-items: center;
   gap: 1rem;
+  padding: 1rem 2rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+  animation: badge-appear 0.5s ease-out;
 }
 
-.breath-label {
-  font-weight: 600;
-  font-size: 1rem;
-  min-width: 150px;
-}
-
-.breath-bar-container {
-  flex: 1;
-  height: 30px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  overflow: hidden;
-  position: relative;
-}
-
-.breath-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%);
-  border-radius: 15px;
-  transition: width 0.1s ease-out;
-  width: 0%;
-  position: relative;
-}
-
-.breath-bar.breathing {
-  animation: breathing-pulse 0.5s ease-in-out infinite alternate;
-}
-
-@keyframes breathing-pulse {
-  0% { 
-    box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7);
-    filter: brightness(1);
-  }
-  100% { 
-    box-shadow: 0 0 0 15px rgba(6, 182, 212, 0);
-    filter: brightness(1.2);
-  }
-}
-
-.breath-value {
-  font-weight: bold;
-  font-size: 1.1rem;
-  min-width: 50px;
-  text-align: center;
-  color: #67e8f9;
-}
-
-/* ===== ÁREA DE VELAS ===== */
-.candles-area {
-  position: relative;
-  min-height: 400px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 2rem;
-  overflow: hidden;
-}
-
-.candle-container {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: candle-appear 0.6s ease-out;
-}
-
-@keyframes candle-appear {
+@keyframes badge-appear {
   from {
     opacity: 0;
-    transform: scale(0.8) translateY(20px);
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nivel-icono {
+  font-size: 2.5rem;
+}
+
+.nivel-detalles {
+  text-align: left;
+}
+
+.nivel-nombre {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.nivel-dificultad {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  text-transform: capitalize;
+}
+
+/* ===== PALABRA ACTUAL ===== */
+.palabra-display {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.palabra-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 3rem 2rem;
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+  animation: word-appear 0.6s ease-out;
+}
+
+@keyframes word-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.palabra-titulo {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 1rem;
+}
+
+.palabra-actual {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  letter-spacing: 0.05em;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  animation: pulse-word 2s ease-in-out infinite;
+}
+
+@keyframes pulse-word {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.palabra-acciones {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-escuchar, .btn-hablar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-escuchar {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.btn-escuchar:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.btn-hablar {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  color: white;
+}
+
+.btn-hablar:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-hablar.recording {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  animation: recording-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes recording-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% { 
+    box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
+  }
+}
+
+.btn-escuchar:disabled, .btn-hablar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-icon {
+  font-size: 1.5rem;
+}
+
+/* ===== INDICADOR DE GRABACIÓN ===== */
+.recording-indicator {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  animation: indicator-appear 0.3s ease-out;
+}
+
+@keyframes indicator-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pulse-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: pulse-recording 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-recording {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+}
+
+.recording-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fca5a5;
+}
+
+/* ===== FEEDBACK VISUAL ===== */
+.feedback-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  animation: feedback-appear 0.3s ease-out;
+}
+
+@keyframes feedback-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
   }
   to {
     opacity: 1;
@@ -531,83 +639,45 @@
   }
 }
 
-.candle {
-  text-align: center;
+.feedback-message {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  animation: feedback-shake 0.5s ease-out;
 }
 
-.flame {
-  font-size: 2rem;
-  animation: flame-flicker 2s ease-in-out infinite alternate;
-  transition: opacity 0.3s ease;
+@keyframes feedback-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
 }
 
-.flame.flickering {
-  animation: flame-dying 0.5s ease-in-out infinite alternate;
+.feedback-message.correcto {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-@keyframes flame-flicker {
-  0% { transform: rotate(-1deg) scale(1); }
-  50% { transform: rotate(1deg) scale(1.1); }
-  100% { transform: rotate(-0.5deg) scale(0.95); }
+.feedback-message.incorrecto {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-@keyframes flame-dying {
-  0% { transform: rotate(-5deg) scale(0.8); opacity: 0.6; }
-  100% { transform: rotate(5deg) scale(0.6); opacity: 0.3; }
+.feedback-message.cerca {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-.candle-body {
-  font-size: 1.5rem;
-  margin-top: -0.5rem;
+.feedback-icon {
+  font-size: 2.5rem;
 }
 
-.candle.extinguished .smoke {
-  font-size: 1.5rem;
-  animation: smoke-rise 2s ease-out;
-}
-
-@keyframes smoke-rise {
-  0% { 
-    opacity: 1;
-    transform: translateY(0) scale(0.5);
-  }
-  100% { 
-    opacity: 0;
-    transform: translateY(-50px) scale(1.5);
-  }
-}
-
-/* ===== PARTÍCULAS ===== */
-.particles-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.particle {
-  position: absolute;
-  font-size: 1rem;
-  animation: particle-float 1s ease-out forwards;
-  opacity: 0.7;
-}
-
-@keyframes particle-float {
-  0% {
-    opacity: 0.7;
-    transform: scale(0.5);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1) translateX(20px);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.5) translateX(50px) translateY(-20px);
-  }
+.feedback-texto {
+  flex: 1;
 }
 
 /* ===== PROGRESO DEL NIVEL ===== */
@@ -617,6 +687,7 @@
   border-radius: 16px;
   padding: 1.5rem;
   border: 2px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 2rem;
 }
 
 .progress-header {
@@ -624,6 +695,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .progress-header h3 {
@@ -864,12 +937,6 @@
     text-align: center;
   }
   
-  .breath-meter {
-    flex-direction: column;
-    gap: 0.75rem;
-    text-align: center;
-  }
-  
   .progress-header {
     flex-direction: column;
     gap: 0.5rem;
@@ -886,23 +953,22 @@
     flex-direction: column;
   }
   
-  .candles-area {
-    min-height: 300px;
+  .palabra-actual {
+    font-size: 2.5rem;
   }
   
-  .candle-container {
-    position: absolute;
-    transform: scale(0.8);
+  .palabra-acciones {
+    flex-direction: column;
+  }
+  
+  .btn-escuchar, .btn-hablar {
+    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
   .game-main {
     padding: 1rem 0.5rem;
-  }
-  
-  .breath-indicator {
-    padding: 1rem;
   }
   
   .level-progress {
@@ -913,19 +979,19 @@
     flex-direction: column;
   }
   
-  .flame {
-    font-size: 1.5rem;
-  }
-  
-  .candle-body {
-    font-size: 1.2rem;
-  }
-  
   .celebration-emoji {
     font-size: 3rem;
   }
   
   .celebration h2 {
     font-size: 1.5rem;
+  }
+  
+  .palabra-actual {
+    font-size: 2rem;
+  }
+  
+  .nivel-icono {
+    font-size: 2rem;
   }
 }

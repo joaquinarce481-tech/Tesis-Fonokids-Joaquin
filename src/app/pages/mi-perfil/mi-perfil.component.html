@@ -1,24 +1,29 @@
 <div class="profile-container">
   
-  <!-- Header del perfil -->
+  <!-- Header del perfil simplificado -->
   <div class="profile-header">
-    <div class="avatar-section">
-      <div class="avatar">
-        <i class="fas fa-user"></i>
-      </div>
-    </div>
+    <button class="back-btn" (click)="volverAlDashboard()">
+      <i class="fas fa-arrow-left"></i>
+      <span>Volver</span>
+    </button>
     
-    <div class="header-info">
-      <h1>{{ currentPatient?.datosPersonales?.nombreCompleto || 'Mi Perfil' }}</h1>
-      <p class="patient-role">Paciente</p>
-      <div class="progress-badge">
-        <i class="fas fa-chart-line"></i>
-        Progreso: {{ currentPatient?.informacionFonoaudiologica?.progresoActual || 0 }}%
+    <div class="header-content">
+      <div class="avatar-section">
+        <div class="avatar">
+          <i class="fas fa-user"></i>
+        </div>
       </div>
-      <!-- Mostrar edad calculada -->
-      <div class="age-badge" *ngIf="edadCalculada > 0">
-        <i class="fas fa-birthday-cake"></i>
-        Edad: {{ edadCalculada }} años
+      
+      <div class="header-info">
+        <h1>{{ currentPatient?.datosPersonales?.nombreCompleto || 'Mi Perfil' }}</h1>
+        <p class="patient-role">
+          <i class="fas fa-user-circle"></i>
+          Paciente de FonoKids
+        </p>
+        <div class="age-badge" *ngIf="edadCalculada > 0">
+          <i class="fas fa-birthday-cake"></i>
+          {{ edadCalculada }} años
+        </div>
       </div>
     </div>
     
@@ -29,321 +34,162 @@
         (click)="saveProfile()"
         [disabled]="!profileForm.dirty || isSaving">
         <i class="fas fa-save"></i>
-        {{ isSaving ? 'Guardando...' : 'Guardar' }}
+        {{ isSaving ? 'Guardando...' : 'Guardar Cambios' }}
       </button>
     </div>
   </div>
 
   <!-- Formulario de perfil -->
-  <form [formGroup]="profileForm" class="profile-form">
-    
-    <!-- Información Personal -->
-    <div class="form-section">
-      <h3><i class="fas fa-user-circle"></i> Información Personal</h3>
+  <div class="profile-content">
+    <form [formGroup]="profileForm" class="profile-form">
       
-      <div class="form-row">
-        <div class="form-group">
-          <label>Nombre Completo *</label>
-          <input 
-            type="text" 
-            formControlName="nombreCompleto"
-            class="form-control"
-            [class.error]="hasFieldError('nombreCompleto')"
-            placeholder="Tu nombre completo">
-          <div class="error-message" *ngIf="hasFieldError('nombreCompleto')">
-            {{ getFieldError('nombreCompleto') }}
+      <!-- ÚNICA SECCIÓN: Información Personal -->
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fas fa-user-circle"></i>
           </div>
-        </div>
-        
-        <div class="form-group">
-          <label>Email</label>
-          <input 
-            type="email" 
-            formControlName="email"
-            class="form-control"
-            [class.error]="hasFieldError('email')"
-            placeholder="tu@email.com">
-          <div class="error-message" *ngIf="hasFieldError('email')">
-            {{ getFieldError('email') }}
-          </div>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Fecha de Nacimiento *</label>
-          <input 
-            type="date" 
-            formControlName="fechaNacimiento"
-            class="form-control"
-            [class.error]="hasFieldError('fechaNacimiento')"
-            (change)="calculateAge()">
-          <div class="error-message" *ngIf="hasFieldError('fechaNacimiento')">
-            {{ getFieldError('fechaNacimiento') }}
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label>Sexo</label>
-          <select formControlName="sexo" class="form-control">
-            <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option>
-            <option value="Otro">Otro</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Teléfono Principal</label>
-          <input 
-            type="tel" 
-            formControlName="telefonoPrincipal"
-            class="form-control"
-            placeholder="+595 981 123456">
-        </div>
-        
-        <div class="form-group">
-          <label>Teléfono Secundario</label>
-          <input 
-            type="tel" 
-            formControlName="telefonoSecundario"
-            class="form-control"
-            placeholder="+595 981 654321">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Dirección</label>
-          <input 
-            type="text" 
-            formControlName="direccion"
-            class="form-control"
-            placeholder="Tu dirección">
-        </div>
-        
-        <div class="form-group">
-          <label>Número de Documento</label>
-          <input 
-            type="text" 
-            formControlName="numeroDocumento"
-            class="form-control"
-            placeholder="Cédula de identidad">
-        </div>
-      </div>
-    </div>
-
-    <!-- SECCIÓN DE CONTACTO DE EMERGENCIA (Adaptada) -->
-    <div class="form-section">
-      <h3><i class="fas fa-phone-alt"></i> Información de Contacto</h3>
-      <div class="contact-info">
-        <p class="contact-description">
-          <i class="fas fa-info-circle"></i>
-          Para agregar información de contacto de tutores o familiares, 
-          contacta a tu fonoaudiólogo.
-        </p>
-        
-        <!-- Mostrar teléfonos disponibles como contactos -->
-        <div class="contact-display" *ngIf="profileForm.get('telefonoPrincipal')?.value || profileForm.get('telefonoSecundario')?.value">
-          <h4>Contactos disponibles:</h4>
-          <div class="contact-item" *ngIf="profileForm.get('telefonoPrincipal')?.value">
-            <i class="fas fa-phone"></i>
-            <span>Principal: {{ profileForm.get('telefonoPrincipal')?.value }}</span>
-          </div>
-          <div class="contact-item" *ngIf="profileForm.get('telefonoSecundario')?.value">
-            <i class="fas fa-mobile-alt"></i>
-            <span>Secundario: {{ profileForm.get('telefonoSecundario')?.value }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Información Fonoaudiológica -->
-    <div class="form-section">
-      <h3><i class="fas fa-stethoscope"></i> Información Fonoaudiológica</h3>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label>Diagnóstico</label>
-          <textarea 
-            formControlName="diagnostico"
-            class="form-control textarea"
-            rows="3"
-            placeholder="Diagnóstico fonoaudiológico..."
-            readonly></textarea>
-          <small class="form-text">Solo tu fonoaudiólogo puede editar este campo</small>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Nivel de Lenguaje</label>
-          <select formControlName="nivelLenguaje" class="form-control" [disabled]="true">
-            <option value="Inicial">Inicial</option>
-            <option value="Intermedio">Intermedio</option>
-            <option value="Avanzado">Avanzado</option>
-          </select>
-          <small class="form-text">Tu fonoaudiólogo actualiza este nivel</small>
+          <h2>Información Personal</h2>
         </div>
 
-        <div class="form-group">
-          <label>Sesiones Completadas</label>
-          <input 
-            type="number" 
-            formControlName="sesionesCompletadas"
-            class="form-control"
-            readonly>
-        </div>
-      </div>
-
-      <!-- Mostrar campos adicionales si existen -->
-      <div class="form-row" *ngIf="currentPatient?.informacionFonoaudiologica">
-        <div class="form-group" *ngIf="currentPatient?.informacionFonoaudiologica?.logrosAlcanzados">
-          <label>Logros Alcanzados</label>
-          <div class="logros-display">
-            {{ currentPatient?.informacionFonoaudiologica?.logrosAlcanzados }}
-          </div>
-        </div>
-        
-        <div class="form-group" *ngIf="currentPatient?.informacionFonoaudiologica?.observacionesTerapeuta">
-          <label>Observaciones del Terapeuta</label>
-          <div class="observaciones-display">
-            {{ currentPatient?.informacionFonoaudiologica?.observacionesTerapeuta }}
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Objetivos de Terapia</label>
-        <div class="goals-list" *ngIf="objetivosTerapia && objetivosTerapia.length > 0">
-          <div 
-            *ngFor="let goal of objetivosTerapia; let i = index" 
-            class="goal-tag">
-            {{ goal }}
-          </div>
-        </div>
-        <div *ngIf="!objetivosTerapia || objetivosTerapia.length === 0" class="empty-state">
-          <i class="fas fa-clipboard-list"></i>
-          No hay objetivos definidos aún
-        </div>
-        <small class="form-text">Los objetivos son definidos por tu fonoaudiólogo</small>
-      </div>
-
-      <div class="form-group">
-        <label>Dificultades del Habla</label>
-        <div class="goals-list" *ngIf="dificultadesHabla && dificultadesHabla.length > 0">
-          <div 
-            *ngFor="let dificultad of dificultadesHabla" 
-            class="difficulty-tag">
-            {{ dificultad }}
-          </div>
-        </div>
-        <div *ngIf="!dificultadesHabla || dificultadesHabla.length === 0" class="empty-state">
-          <i class="fas fa-user-check"></i>
-          No hay dificultades registradas
-        </div>
-      </div>
-    </div>
-
-    <!-- Estadísticas (Solo lectura) -->
-    <div class="form-section" *ngIf="currentPatient">
-      <h3><i class="fas fa-chart-bar"></i> Mis Estadísticas</h3>
-      
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-clock"></i>
-          </div>
-          <div class="stat-content">
-            <h4>{{ currentPatient.estadisticasPracticas?.tiempoTotalMinutos || 0 }} min</h4>
-            <p>Tiempo total</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-tasks"></i>
-          </div>
-          <div class="stat-content">
-            <h4>{{ currentPatient.estadisticasPracticas?.ejerciciosCompletados || 0 }}</h4>
-            <p>Ejercicios completados</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-fire"></i>
-          </div>
-          <div class="stat-content">
-            <h4>{{ currentPatient.estadisticasPracticas?.diasConsecutivos || 0 }}</h4>
-            <p>Días seguidos</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-trophy"></i>
-          </div>
-          <div class="stat-content">
-            <h4>{{ currentPatient.estadisticasPracticas?.puntuacionTotal || 0 }}</h4>
-            <p>Puntuación total</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Progreso visual -->
-      <div class="progress-section">
-        <h4>Progreso General</h4>
-        <div class="progress-bar">
-          <div class="progress-fill" 
-               [style.width.%]="currentPatient.informacionFonoaudiologica?.progresoActual || 0">
-          </div>
-        </div>
-        <span class="progress-text">
-          {{ currentPatient.informacionFonoaudiologica?.progresoActual || 0 }}% completado
-        </span>
-      </div>
-    </div>
-
-    <!-- Configuraciones - Solo Frontend -->
-    <div class="form-section">
-      <h3><i class="fas fa-cog"></i> Configuraciones</h3>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label>Tema de la aplicación</label>
-          <select formControlName="theme" class="form-control" (change)="updateTheme()">
-            <option value="auto">Automático</option>
-            <option value="light">Claro</option>
-            <option value="dark">Oscuro</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
-          <label class="checkbox-label">
+        <div class="form-grid">
+          <!-- Nombre Completo -->
+          <div class="form-group full-width">
+            <label>
+              <i class="fas fa-user"></i>
+              Nombre Completo *
+            </label>
             <input 
-              type="checkbox" 
-              formControlName="notificationsEnabled"
-              class="checkbox"
-              (change)="updateNotifications()">
-            Recibir notificaciones
-          </label>
+              type="text" 
+              formControlName="nombreCompleto"
+              class="form-control"
+              [class.error]="hasFieldError('nombreCompleto')"
+              placeholder="Ingresa tu nombre completo">
+            <div class="error-message" *ngIf="hasFieldError('nombreCompleto')">
+              <i class="fas fa-exclamation-circle"></i>
+              {{ getFieldError('nombreCompleto') }}
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label>
+              <i class="fas fa-envelope"></i>
+              Correo Electrónico
+            </label>
+            <input 
+              type="email" 
+              formControlName="email"
+              class="form-control"
+              [class.error]="hasFieldError('email')"
+              placeholder="correo@ejemplo.com">
+            <div class="error-message" *ngIf="hasFieldError('email')">
+              <i class="fas fa-exclamation-circle"></i>
+              {{ getFieldError('email') }}
+            </div>
+          </div>
+
+          <!-- Fecha de Nacimiento -->
+          <div class="form-group">
+            <label>
+              <i class="fas fa-calendar-alt"></i>
+              Fecha de Nacimiento *
+            </label>
+            <input 
+              type="date" 
+              formControlName="fechaNacimiento"
+              class="form-control"
+              [class.error]="hasFieldError('fechaNacimiento')"
+              (change)="calculateAge()">
+            <div class="error-message" *ngIf="hasFieldError('fechaNacimiento')">
+              <i class="fas fa-exclamation-circle"></i>
+              {{ getFieldError('fechaNacimiento') }}
+            </div>
+          </div>
+
+          <!-- Sexo -->
+          <div class="form-group">
+            <label>
+              <i class="fas fa-venus-mars"></i>
+              Sexo
+            </label>
+            <select formControlName="sexo" class="form-control">
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+
+          <!-- Número de Documento -->
+          <div class="form-group">
+            <label>
+              <i class="fas fa-id-card"></i>
+              Número de Documento
+            </label>
+            <input 
+              type="text" 
+              formControlName="numeroDocumento"
+              class="form-control"
+              placeholder="Cédula de identidad">
+          </div>
+
+          <!-- Teléfono Principal -->
+          <div class="form-group">
+            <label>
+              <i class="fas fa-phone"></i>
+              Teléfono Principal
+            </label>
+            <input 
+              type="tel" 
+              formControlName="telefonoPrincipal"
+              class="form-control"
+              placeholder="+595 981 123456">
+          </div>
+
+          <!-- Teléfono Secundario -->
+          <div class="form-group">
+            <label>
+              <i class="fas fa-mobile-alt"></i>
+              Teléfono Secundario
+            </label>
+            <input 
+              type="tel" 
+              formControlName="telefonoSecundario"
+              class="form-control"
+              placeholder="+595 981 654321">
+          </div>
+
+          <!-- Dirección -->
+          <div class="form-group full-width">
+            <label>
+              <i class="fas fa-map-marker-alt"></i>
+              Dirección
+            </label>
+            <input 
+              type="text" 
+              formControlName="direccion"
+              class="form-control"
+              placeholder="Tu dirección completa">
+          </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="info-box">
+          <i class="fas fa-info-circle"></i>
+          <div class="info-content">
+            <strong>Recuerda:</strong> Los campos marcados con (*) son obligatorios. 
+            Mantén tu información actualizada para una mejor experiencia.
+          </div>
         </div>
       </div>
-      
-      <div class="config-note">
-        <i class="fas fa-info-circle"></i>
-        <small>Estas configuraciones se guardan en tu dispositivo</small>
-      </div>
-    </div>
 
-  </form>
+    </form>
+  </div>
 
   <!-- Mensaje de estado -->
   <div *ngIf="statusMessage" class="status-message" [ngClass]="statusType">
     <i [class]="statusType === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'"></i>
-    {{ statusMessage }}
+    <span>{{ statusMessage }}</span>
   </div>
 
 </div>

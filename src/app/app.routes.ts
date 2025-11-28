@@ -70,6 +70,17 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     canActivateChild: [AuthGuard],
     children: [
+      // ========== ✅ FONOBOT AHORA ES LA PRIMERA OPCIÓN ==========
+      {
+        path: 'assistant-page',
+        loadComponent: () =>
+          import('./presentation/pages/assistantPage/assistantPage.component'),
+        data: {
+          icon: 'fa-solid fa-robot',
+          title: 'FonoBot',
+          description: 'Asistente de Fonoaudiología',
+        },
+      },
       {
         path: 'orthography',
         loadComponent: () =>
@@ -149,20 +160,10 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./presentation/pages/assistantPage/assistantPage.component'),
       },
-      {
-        path: 'assistant-page',
-        loadComponent: () =>
-          import('./presentation/pages/assistantPage/assistantPage.component'),
-        data: {
-          icon: 'fa-solid fa-robot',
-          title: 'FonoBot',
-          description: 'Asistente de Fonoaudiología',
-        },
-      },
       // Ruta por defecto cuando entras a /chat
       {
         path: '',
-        redirectTo: 'orthography',
+        redirectTo: 'assistant-page',
         pathMatch: 'full'
       }
     ]
