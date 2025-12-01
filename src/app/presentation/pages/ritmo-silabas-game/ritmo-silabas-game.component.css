@@ -1,17 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
-
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .game-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: 'Fredoka', 'Comic Sans MS', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   color: white;
   overflow: hidden;
   position: relative;
 }
 
 * {
-  font-family: 'Fredoka', 'Comic Sans MS', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* ===== HEADER DEL JUEGO ===== */
@@ -37,28 +35,30 @@
 }
 
 .btn-back {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  padding: 0.65rem 1.25rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
   color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 0.9rem;
-  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn-back:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateX(-2px);
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .back-icon {
-  font-size: 1.2rem;
-  font-weight: bold;
+  font-size: 1.1rem;
 }
 
 .game-info {
@@ -1277,7 +1277,6 @@
   justify-content: center;
   gap: 0.5rem;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-  font-family: 'Fredoka', sans-serif;
 }
 
 .btn-continuar {

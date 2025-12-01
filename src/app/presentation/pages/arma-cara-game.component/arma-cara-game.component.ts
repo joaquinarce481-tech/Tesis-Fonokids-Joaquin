@@ -45,7 +45,7 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
       boca: { 
         emoji: '‿', 
         descripcion: 'Sonrisa grande',
-        imagen: 'assets/images/partes/boca-sonrisa.png'
+        imagen: 'assets/images/partes/boca-abierta.png'
       }
     },
     triste: {
@@ -66,7 +66,7 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
       boca: { 
         emoji: '︵', 
         descripcion: 'Boca hacia abajo',
-        imagen: 'assets/images/partes/boca-triste.png'
+        imagen: 'assets/images/partes/abajo.png'
       }
     },
     sorprendido: {
@@ -87,7 +87,7 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
       boca: { 
         emoji: 'O', 
         descripcion: 'Boca abierta',
-        imagen: 'assets/images/partes/boca-abierta.png'
+        imagen: 'assets/images/partes/boca-sonrisa.png'
       }
     },
     enojado: {
@@ -124,7 +124,7 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
       ojos: { 
         emoji: '◉◉', 
         descripcion: 'Ojos muy abiertos',
-        imagen: 'assets/images/partes/ojos-muy-abiertos.png'
+        imagen: 'assets/images/partes/ojos-abiertos.png'
       },
       boca: { 
         emoji: '△', 
@@ -169,12 +169,12 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
       { id: 'ojos2', emoji: '╥╥', nombre: 'Llorosos', imagen: 'assets/images/partes/ojos-llorosos.png' },
       { id: 'ojos3', emoji: '○○', nombre: 'Abiertos', imagen: 'assets/images/partes/ojos-abiertos.png' },
       { id: 'ojos4', emoji: '◣◢', nombre: 'Entrecerrados', imagen: 'assets/images/partes/ojos-entrecerrados.png' },
-      { id: 'ojos5', emoji: '◉◉', nombre: 'Muy abiertos', imagen: 'assets/images/partes/ojos-muy-abiertos.png' },
-      { id: 'ojos6', emoji: '♥♥', nombre: 'Corazones', imagen: 'assets/images/partes/ojos-corazon.png' }
+      { id: 'ojos5', emoji: '◉◉', nombre: 'Muy abiertos', imagen: 'assets/images/partes/ojos-abiertos.png' },
+      { id: 'ojos6', emoji: '♥♥', nombre: 'Corazones', imagen: 'assets/images/partes/amoroso.png' }
     ],
     boca: [
       { id: 'boca1', emoji: '‿', nombre: 'Sonrisa grande', imagen: 'assets/images/partes/boca-sonrisa.png' },
-      { id: 'boca2', emoji: '︵', nombre: 'Hacia abajo', imagen: 'assets/images/partes/boca-triste.png' },
+      { id: 'boca2', emoji: '︵', nombre: 'Hacia abajo', imagen: 'assets/images/partes/abajo.png' },
       { id: 'boca3', emoji: 'O', nombre: 'Abierta', imagen: 'assets/images/partes/boca-abierta.png' },
       { id: 'boca4', emoji: '⌢', nombre: 'Tensa', imagen: 'assets/images/partes/boca-tensa.png' },
       { id: 'boca5', emoji: '△', nombre: 'Temblorosa', imagen: 'assets/images/partes/boca-temblorosa.png' },

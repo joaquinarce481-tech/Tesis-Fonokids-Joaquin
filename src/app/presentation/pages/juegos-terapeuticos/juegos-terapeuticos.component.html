@@ -35,22 +35,11 @@
         <h3 class="juego-nombre">{{ juego.nombre }}</h3>
         <p class="juego-descripcion-text">{{ juego.descripcion }}</p>
         
-        <!-- Footer con info y botón -->
-        <div class="juego-footer-modern">
-          <div class="juego-meta">
-            <span class="juego-dificultad-badge" [ngClass]="getDificultadColor(juego.dificultad)">
-              {{ getDificultadTexto(juego.dificultad) }}
-            </span>
-            <span class="juego-duracion">
-              ⏰ {{ getDuracion(juego.dificultad) }}
-            </span>
-          </div>
-          
-          <button class="btn-jugar-modern" [ngClass]="'btn-gradient-' + juego.color" (click)="jugarJuego(juego); $event.stopPropagation()">
-            <span class="play-icon-modern">▶</span>
-            <span class="btn-text">Jugar</span>
-          </button>
-        </div>
+        <!-- Solo botón de jugar -->
+        <button class="btn-jugar-modern" [ngClass]="'btn-gradient-' + juego.color" (click)="jugarJuego(juego); $event.stopPropagation()">
+          <span class="play-icon-modern">▶</span>
+          <span class="btn-text">Jugar</span>
+        </button>
       </div>
     </div>
   </div>

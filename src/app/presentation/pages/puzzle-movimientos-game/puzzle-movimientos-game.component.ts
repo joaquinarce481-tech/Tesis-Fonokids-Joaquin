@@ -898,11 +898,11 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
 
   siguienteJuego(): void {
     console.log('Navegando a siguiente juego...');
-    this.router.navigate(['/chat/juego/linguales/ritmo-silabas']);
+    this.router.navigate(['/juego/linguales/ritmo-silabas']);
   }
 
   volverAJuegos(): void {
     console.log('Volviendo al menú de juegos...');
-    this.router.navigate(['/chat/juegos-terapeuticos']);
+    this.router.navigate(['/juegos-terapeuticos']);
   }
 }

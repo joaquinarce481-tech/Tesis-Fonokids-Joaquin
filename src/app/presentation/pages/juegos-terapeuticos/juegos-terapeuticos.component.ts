@@ -32,7 +32,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
       tipo: 'ia-ruleta',
       emoji: '🤖',
       ruta: '/ruleta-praxias',
-      color: 'from-purple-400 to-purple-600',
+      color: 'from-orange-400 to-orange-600',
       imagen: 'PraxiaNiño.png'
     },
     {
@@ -43,7 +43,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
       tipo: 'drag-drop',
       emoji: '💋',
       ruta: '/juego/labiales/arma-cara-labiales',
-      color: 'from-pink-400 to-pink-600',
+      color: 'from-red-400 to-red-600',
       imagen: 'arma-cara-labiales.png'
     },
     {
@@ -54,7 +54,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
       tipo: 'memoria',
       emoji: '🧠',
       ruta: '/juego/labiales/memoria-gestos-labiales',
-      color: 'from-pink-400 to-pink-600',
+      color: 'from-red-400 to-red-600',
       imagen: 'memoria-gestos-labiales.png'
     },
     {
@@ -65,7 +65,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
       tipo: 'audio',
       emoji: '🗣️',
       ruta: '/juego/labiales/soplo-virtual',
-      color: 'from-pink-400 to-pink-600',
+      color: 'from-red-400 to-red-600',
       imagen: 'reto-pronunciacion.png'
     },
     {
@@ -98,7 +98,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
       tipo: 'audio',
       emoji: '🎵',
       ruta: '/sonidos-divertidos',
-      color: 'from-blue-400 to-blue-600',
+      color: 'from-red-400 to-red-600',
       imagen: 'SonidosAnimales.png'
     },
     {
@@ -109,7 +109,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
       tipo: 'silabas',
       emoji: '🎯',
       ruta: '/parejas-silabas',
-      color: 'from-blue-400 to-blue-600',
+      color: 'from-red-400 to-red-600',
       imagen: 'pareja-silabas.png'
     }
   ];
@@ -142,32 +142,5 @@ export class JuegosTerapeuticosComponent implements OnInit {
 
   volverAlDashboard() {
     this.router.navigate(['/dashboard']);
-  }
-
-  getDificultadColor(dificultad: string): string {
-    switch (dificultad) {
-      case 'facil': return 'dificultad-facil';
-      case 'medio': return 'dificultad-medio';
-      case 'dificil': return 'dificultad-dificil';
-      default: return 'dificultad-normal';
-    }
-  }
-
-  getDificultadTexto(dificultad: string): string {
-    switch (dificultad) {
-      case 'facil': return 'Fácil';
-      case 'medio': return 'Medio';
-      case 'dificil': return 'Difícil';
-      default: return 'Normal';
-    }
-  }
-
-  getDuracion(dificultad: string): string {
-    switch (dificultad) {
-      case 'facil': return '5-10 min';
-      case 'medio': return '10-15 min';
-      case 'dificil': return '15-20 min';
-      default: return '10 min';
-    }
   }
 }

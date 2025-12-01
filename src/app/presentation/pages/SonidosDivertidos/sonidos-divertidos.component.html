@@ -1,178 +1,98 @@
 <div class="game-container">
-  <!-- Header con título y progreso -->
+  <!-- Header compacto -->
   <div class="game-header">
     <button class="btn-back" (click)="volverAlMenu()">
-      <span class="icon">🏠</span> 
+      <span class="icon">🏠</span>
       <span class="btn-text">Volver</span>
     </button>
     <h1 class="game-title">
-      <span class="title-emoji">🎵</span>
-      <span class="title-text">Sonidos Divertidos</span>
-      <span class="title-emoji">🎵</span>
+      <span class="title-emoji"></span>
+      <span class="title-text">Sonidos Onomatopéyicos </span>
+      <span class="title-emoji"></span>
     </h1>
-    <div class="progress-info">
-      <span class="progress-icon">🎯</span>
-      <span class="progress-text">{{ sonidosRestantes }} de {{ sonidos.length }}</span>
-    </div>
   </div>
 
-  <!-- Barra de progreso mejorada -->
-  <div class="progress-bar-wrapper">
-    <div class="progress-bar-container">
-      <div class="progress-bar" [style.width.%]="progreso">
-        <span class="progress-shine"></span>
-      </div>
-    </div>
-    <span class="progress-percentage">{{ progreso | number:'1.0-0' }}%</span>
+  <!-- Barra de progreso -->
+  <div class="progress-bar-container">
+    <div class="progress-bar" [style.width.%]="progreso"></div>
   </div>
 
-  <!-- ============================================
-       CONTENIDO DEL JUEGO - LAYOUT REORGANIZADO
-       ============================================ -->
-  <div class="game-content" *ngIf="!juegoCompletado && sonidoActual">
+  <!-- Contenido principal -->
+  <div class="main-content" *ngIf="!juegoCompletado && !mostrarCelebracion && sonidoActual">
     
-    <!-- ===== SECCIÓN 1: INFORMACIÓN DEL SONIDO (arriba) ===== -->
-    <div class="info-section">
+    <!-- Tarjeta del animal con emoji gigante -->
+    <div class="animal-display-card">
+      <div class="animal-emoji-huge">{{ sonidoActual.imagen }}</div>
+      <h2 class="animal-name-big">{{ sonidoActual.nombre }}</h2>
       
-      <!-- Tarjeta de presentación del sonido -->
-      <div class="animal-card">
-        <div class="animal-card-header">
-          <div class="animal-emoji-display">{{ sonidoActual.imagen }}</div>
-          <h2 class="animal-name">{{ sonidoActual.nombre }}</h2>
-        </div>
-        
-        <!-- Onomatopeya destacada -->
-        <div class="onomatopeya-display">
-          <div class="sound-bubble">
-            <span class="sound-icon">💬</span>
-            <p class="onomatopeya-text">{{ sonidoActual.onomatopeya }}</p>
-          </div>
-        </div>
+      <div class="sound-bubble">
+        <span class="sound-icon">💬</span>
+        <p class="onomatopeya-text">{{ sonidoActual.onomatopeya }}</p>
+      </div>
 
-        <!-- Instrucción principal -->
-        <div class="instruction-box">
-          <span class="instruction-icon">👄</span>
-          <p class="instruction-text">¡Mira la cámara y haz el sonido!</p>
-        </div>
+      <div class="instruction-compact">
+        <span class="instruction-icon">👄</span>
+        <p class="instruction-text">¡Haz el sonido del {{ sonidoActual.nombre.toLowerCase() }}!</p>
       </div>
     </div>
 
-    <!-- ===== SECCIÓN 2: CÁMARA CON FILTRO AR (centro) ===== -->
-    <div class="camera-section">
-      <!-- CRÍTICO: SIN *ngIf="camaraActiva" para que los elementos se rendericen -->
-      <div class="camera-container">
-        <div class="camera-wrapper" [class.hidden]="!camaraActiva && !camaraError">
-          <!-- Video oculto (fuente) - SIEMPRE renderizado -->
-          <video #videoElement autoplay playsinline muted class="video-hidden"></video>
-          
-          <!-- Canvas visible con filtro - SIEMPRE renderizado -->
-          <canvas #canvasElement class="video-canvas" [class.hidden]="!camaraActiva"></canvas>
-
-          <!-- Estado del micrófono -->
-          <div class="mic-status" *ngIf="escuchandoAhora && camaraActiva">
-            <div class="mic-indicator">
-              <span class="mic-icon-animated">🎤</span>
-              <div class="mic-waves">
-                <span class="wave"></span>
-                <span class="wave"></span>
-                <span class="wave"></span>
-              </div>
-              <span class="mic-text">¡Escuchando!</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Error de cámara -->
-      <div class="camera-error" *ngIf="camaraError && !camaraActiva">
-        <div class="error-box">
-          <span class="error-icon">📹</span>
-          <p class="error-message">{{ camaraError }}</p>
-          <button class="btn-reintentar" (click)="intentarIniciarCamara()">
-            <span class="icon">🔄</span> Reintentar
-          </button>
-        </div>
-      </div>
-
-      <!-- Cargando cámara -->
-      <div class="camera-loading" *ngIf="!camaraActiva && !camaraError">
-        <div class="loading-content">
-          <div class="loading-spinner"></div>
-          <p class="loading-text">Preparando cámara...</p>
-          <p class="loading-subtext">Un momento por favor</p>
-        </div>
+    <!-- Transcripción (si existe) -->
+    <div class="transcription-card" *ngIf="transcripcion && escuchandoAhora">
+      <span class="transcription-icon">👂</span>
+      <div class="transcription-content">
+        <p class="transcription-label">Escuché:</p>
+        <p class="transcription-text">"{{ transcripcion }}"</p>
       </div>
     </div>
 
-    <!-- ===== SECCIÓN 3: CONTROLES E INTERACCIÓN (abajo) ===== -->
-    <div class="controls-section">
-      
-      <!-- Transcripción en tiempo real -->
-      <div class="transcription-area" *ngIf="transcripcion && escuchandoAhora">
-        <div class="transcription-card">
-          <span class="transcription-icon">👂</span>
-          <div class="transcription-content">
-            <p class="transcription-label">Escuché:</p>
-            <p class="transcription-text">"{{ transcripcion }}"</p>
-          </div>
-        </div>
-      </div>
+    <!-- Feedback -->
+    <div class="feedback-card" *ngIf="mostrarFeedback" [ngClass]="feedbackTipo">
+      <span class="feedback-icon" *ngIf="feedbackTipo === 'correcto'">✅</span>
+      <span class="feedback-icon" *ngIf="feedbackTipo === 'incorrecto'">💭</span>
+      <p class="feedback-message">{{ feedbackMensaje }}</p>
+    </div>
 
-      <!-- Feedback de la respuesta -->
-      <div class="feedback-area" *ngIf="mostrarFeedback">
-        <div class="feedback-card" [ngClass]="feedbackTipo">
-          <div class="feedback-icon-wrapper">
-            <span class="feedback-icon" *ngIf="feedbackTipo === 'correcto'">✅</span>
-            <span class="feedback-icon" *ngIf="feedbackTipo === 'incorrecto'">💭</span>
-          </div>
-          <p class="feedback-message">{{ feedbackMensaje }}</p>
-        </div>
-      </div>
-
-      <!-- Botones de acción principales -->
-      <div class="action-buttons-grid">
-        <button class="btn-action btn-listen" (click)="reproducirSonido()" [disabled]="escuchandoAhora">
-          <span class="btn-icon">🔊</span>
-          <span class="btn-label">Escuchar sonido</span>
-        </button>
-        
-        <button 
-          class="btn-action btn-record" 
-          (click)="iniciarDeteccion()" 
-          [disabled]="escuchandoAhora || !reconocimientoDisponible"
-          [ngClass]="{'recording': escuchandoAhora}">
-          <span class="btn-icon">🎤</span>
-          <span class="btn-label" *ngIf="!escuchandoAhora">Grabar mi voz</span>
-          <span class="btn-label" *ngIf="escuchandoAhora">Escuchando...</span>
-          <span class="recording-pulse" *ngIf="escuchandoAhora"></span>
-        </button>
-      </div>
-
-      <!-- Botón saltar (solo después de 2 intentos) -->
-      <button class="btn-skip" (click)="saltarSonido()" *ngIf="intentoActual >= 2">
-        <span class="btn-icon">⏭️</span>
-        <span class="btn-label">Saltar este sonido</span>
+    <!-- Botones de acción -->
+    <div class="action-buttons">
+      <button class="btn-action btn-listen" (click)="reproducirSonido()" [disabled]="escuchandoAhora">
+        <span class="btn-icon">🔊</span>
+        <span class="btn-label">Escuchar</span>
       </button>
+      
+      <button 
+        class="btn-action btn-record" 
+        (click)="iniciarDeteccion()" 
+        [disabled]="escuchandoAhora || !reconocimientoDisponible"
+        [ngClass]="{'recording': escuchandoAhora}">
+        <span class="btn-icon">🎤</span>
+        <span class="btn-label" *ngIf="!escuchandoAhora">Grabar</span>
+        <span class="btn-label" *ngIf="escuchandoAhora">Escuchando...</span>
+        <span class="recording-pulse" *ngIf="escuchandoAhora"></span>
+      </button>
+    </div>
 
-      <!-- Advertencia de reconocimiento no disponible -->
-      <div class="warning-banner" *ngIf="!reconocimientoDisponible">
-        <span class="warning-icon">⚠️</span>
-        <p>Reconocimiento de voz no disponible. Usa Chrome o Edge.</p>
-      </div>
+    <!-- Botón saltar (solo después de 2 intentos) -->
+    <button class="btn-skip" (click)="saltarSonido()" *ngIf="intentoActual >= 2">
+      <span class="btn-icon">⏭️</span>
+      <span class="btn-label">Saltar</span>
+    </button>
 
-      <!-- Indicador de intentos -->
-      <div class="attempts-indicator" *ngIf="intentoActual > 0 && intentoActual < maxIntentos">
-        <div class="attempts-dots">
-          <span class="dot" [class.active]="i < intentoActual" *ngFor="let i of [0, 1, 2]"></span>
-        </div>
-        <p class="attempts-text">Intento {{ intentoActual }} de {{ maxIntentos }}</p>
+    <!-- Warning reconocimiento -->
+    <div class="warning-banner" *ngIf="!reconocimientoDisponible">
+      <span class="warning-icon">⚠️</span>
+      <p>Reconocimiento de voz no disponible. Usa Chrome o Edge.</p>
+    </div>
+
+    <!-- Indicador de intentos -->
+    <div class="attempts-indicator" *ngIf="intentoActual > 0 && intentoActual < maxIntentos">
+      <div class="attempts-dots">
+        <span class="dot" [class.active]="i < intentoActual" *ngFor="let i of [0, 1, 2]"></span>
       </div>
+      <p class="attempts-text">Intento {{ intentoActual }} de {{ maxIntentos }}</p>
     </div>
   </div>
 
-  <!-- ============================================
-       CELEBRACIÓN ENTRE SONIDOS
-       ============================================ -->
+  <!-- Celebración -->
   <div class="celebration-overlay" *ngIf="mostrarCelebracion && !juegoCompletado">
     <div class="celebration-content">
       <div class="celebration-emoji">🎉</div>
@@ -186,9 +106,7 @@
     </div>
   </div>
 
-  <!-- ============================================
-       PANTALLA DE JUEGO COMPLETADO
-       ============================================ -->
+  <!-- Pantalla completada -->
   <div class="game-completed" *ngIf="juegoCompletado">
     <div class="completion-card">
       <div class="completion-fireworks">

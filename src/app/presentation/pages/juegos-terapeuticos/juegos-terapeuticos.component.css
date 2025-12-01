@@ -196,6 +196,10 @@
   border-color: #a78bfa;
 }
 
+.card-from-orange-400:hover {
+  border-color: #fb923c;
+}
+
 /* ===== IMAGEN DEL JUEGO ===== */
 .juego-imagen-container {
   width: 100%;
@@ -257,70 +261,18 @@
   flex: 1;
 }
 
-/* ===== FOOTER DEL JUEGO ===== */
-.juego-footer-modern {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-  padding-top: 15px;
-  border-top: 2px solid #f7fafc;
-}
-
-.juego-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.juego-dificultad-badge {
-  display: inline-block;
-  padding: 5px 12px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.dificultad-facil {
-  background: rgba(16, 185, 129, 0.15);
-  color: #059669;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.dificultad-medio {
-  background: rgba(245, 158, 11, 0.15);
-  color: #d97706;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-}
-
-.dificultad-dificil {
-  background: rgba(239, 68, 68, 0.15);
-  color: #dc2626;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.juego-duracion {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.85rem;
-  color: #6b7280;
-  font-weight: 600;
-}
-
 /* ===== BOTÓN JUGAR MODERNO ===== */
 .btn-jugar-modern {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
   border-radius: 15px;
   border: none;
   color: white;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 800;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -328,6 +280,8 @@
   overflow: hidden;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  width: 100%;
+  margin-top: auto;
 }
 
 .btn-jugar-modern::before {
@@ -346,7 +300,7 @@
 }
 
 .btn-jugar-modern:hover {
-  transform: scale(1.08) translateY(-2px);
+  transform: scale(1.05) translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
@@ -383,8 +337,16 @@
   background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
 }
 
+.btn-gradient-from-orange-400 {
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+}
+
+.btn-gradient-from-orange-400:hover {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+}
+
 .play-icon-modern {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
 }
 
 /* ===== ANIMACIONES ===== */
@@ -451,11 +413,6 @@
   
   .juego-imagen-container {
     height: 180px;
-  }
-  
-  .juego-footer-modern {
-    flex-direction: column;
-    align-items: stretch;
   }
   
   .btn-jugar-modern {
