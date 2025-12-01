@@ -23,14 +23,6 @@
           <span class="stat-label">Palabras</span>
           <span class="stat-value">{{ palabrasCompletadas }}/{{ totalPalabras }}</span>
         </div>
-        <div class="stat">
-          <span class="stat-label">Tiempo</span>
-          <span class="stat-value">{{ formatearTiempo(getTiempoRestante()) }}</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Puntaje</span>
-          <span class="stat-value">{{ puntaje }}</span>
-        </div>
       </div>
     </div>
   </header>
@@ -48,8 +40,8 @@
           <div class="step">
             <div class="step-number">1</div>
             <div class="step-text">
-              <strong>Permite el micrófono</strong>
-              <p>Necesitamos acceso al micrófono para escuchar tu voz</p>
+              <strong>Elige tu nivel</strong>
+              <p>Puedes jugar un nivel específico o todos en orden</p>
             </div>
           </div>
           
@@ -57,7 +49,7 @@
             <div class="step-number">2</div>
             <div class="step-text">
               <strong>Escucha el ejemplo</strong>
-              <p>Presiona el botón "Escuchar" para oír cómo se pronuncia</p>
+              <p>Presiona "Escuchar" para oír cómo se pronuncia</p>
             </div>
           </div>
           
@@ -72,8 +64,8 @@
           <div class="step">
             <div class="step-number">4</div>
             <div class="step-text">
-              <strong>Completa todos los niveles</strong>
-              <p>Cada nivel tiene palabras más difíciles</p>
+              <strong>Completa el nivel</strong>
+              <p>Pronuncia todas las palabras correctamente</p>
             </div>
           </div>
         </div>
@@ -84,14 +76,66 @@
             <li>🎧 Busca un lugar tranquilo sin ruido</li>
             <li>🎤 Habla claro y despacio</li>
             <li>🔊 Escucha el ejemplo varias veces si lo necesitas</li>
-            <li>⭐ Intenta pronunciar correctamente a la primera</li>
+            <li>⭐ ¡Diviértete practicando!</li>
           </ul>
         </div>
         
         <button class="btn-start" (click)="saltarInstrucciones()">
-          🎤 Permitir Micrófono y Jugar
+          🎯 Elegir Nivel
         </button>
       </div>
+    </div>
+  </main>
+
+  <!-- Pantalla de selección de nivel -->
+  <main class="game-main" *ngIf="faseJuego === 'seleccion-nivel'">
+    <div class="level-selection-screen">
+      <div class="selection-header">
+        <h2>🎯 Selecciona un Nivel</h2>
+        <p>Elige el nivel que quieres jugar o practica todos en orden</p>
+      </div>
+
+      <!-- Opción de jugar todos los niveles -->
+      <div class="play-all-section">
+        <button class="btn-play-all" (click)="jugarTodosLosNiveles()">
+          <span class="play-all-icon">🎮</span>
+          <div class="play-all-content">
+            <h3>Jugar Todos los Niveles</h3>
+            <p>Completa los 7 niveles en orden, desde vocales hasta trabalenguas</p>
+          </div>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+
+      <!-- Grid de niveles individuales -->
+      <div class="levels-grid">
+        <div class="level-card" 
+             *ngFor="let nivel of niveles"
+             [style.background]="nivel.color"
+             (click)="seleccionarNivel(nivel.numero)">
+          <div class="level-card-header">
+            <span class="level-icon">{{ nivel.icono }}</span>
+            <span class="level-number">Nivel {{ nivel.numero }}</span>
+          </div>
+          
+          <h3 class="level-name">{{ nivel.nombre }}</h3>
+          <p class="level-description">{{ nivel.descripcion }}</p>
+          
+          <div class="level-footer">
+            <span class="level-difficulty" 
+                  [class.facil]="nivel.dificultad === 'facil'"
+                  [class.media]="nivel.dificultad === 'media'"
+                  [class.dificil]="nivel.dificultad === 'dificil'">
+              {{ nivel.dificultad }}
+            </span>
+            <span class="level-words">{{ nivel.palabras.length }} palabras</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-back-selection" (click)="volverAlDashboard()">
+        🏠 Volver a Juegos
+      </button>
     </div>
   </main>
 
@@ -135,7 +179,7 @@
           <button class="btn-retry" (click)="solicitarPermisoMicrofono()">
             🔄 Reintentar
           </button>
-          <button class="btn-back-error" (click)="volverAJuegos()">
+          <button class="btn-back-error" (click)="volverAlDashboard()">
             🏠 Volver a Juegos
           </button>
         </div>
@@ -178,6 +222,20 @@
             <span>{{ esperandoPronunciacion ? 'Escuchando...' : 'Hablar Ahora' }}</span>
           </button>
         </div>
+
+        <!-- Botón de reseteo de emergencia (solo visible si hay problema) -->
+        <div class="debug-reset" *ngIf="escuchandoAudio || esperandoPronunciacion">
+          <button class="btn-reset" (click)="resetearEstadosBotones()">
+            🔄 Resetear Botones
+          </button>
+        </div>
+        
+        <!-- Mostrar lo que escuchó -->
+        <div class="escuchado-display" *ngIf="ultimoEscuchado && !mostrandoFeedback">
+          <div class="escuchado-label">Escuché:</div>
+          <div class="escuchado-texto">"{{ ultimoEscuchado }}"</div>
+          <div class="escuchado-hint">💡 Vuelve a intentarlo pronunciando más claro</div>
+        </div>
         
         <!-- Indicador de grabación -->
         <div class="recording-indicator" *ngIf="esperandoPronunciacion">
@@ -217,70 +275,55 @@
         </div>
       </div>
     </div>
-
-    <!-- Historial de intentos (opcional, para debug) -->
-    <!-- <div class="intentos-historial" *ngIf="intentos.length > 0">
-      <h4>Últimos intentos:</h4>
-      <div class="intento-item" *ngFor="let intento of intentos.slice(-3)">
-        <span [class.correcto]="intento.correcto">
-          {{ intento.palabra }} → {{ intento.escuchado }}
-        </span>
-      </div>
-    </div> -->
   </main>
 
   <!-- Modal de juego completado -->
   <div class="completion-modal" *ngIf="faseJuego === 'completado'">
     <div class="modal-content">
-      <div class="celebration" *ngIf="nivelActual >= maxNiveles">
+      <div class="celebration">
         <div class="celebration-emoji">🎉</div>
-        <h2>¡Excelente pronunciación!</h2>
-        <p>Has completado todos los niveles del reto</p>
-      </div>
-      
-      <div class="celebration" *ngIf="nivelActual < maxNiveles">
-        <div class="celebration-emoji">⏰</div>
-        <h2>¡Buen intento!</h2>
-        <p>Llegaste al nivel {{ nivelActual }}. ¡Sigue practicando!</p>
+        <h2 *ngIf="modoJuego === 'todos' && nivelActual >= maxNiveles">¡Completaste todos los niveles!</h2>
+        <h2 *ngIf="modoJuego === 'individual' || nivelActual < maxNiveles">¡Nivel completado!</h2>
+        <p *ngIf="modoJuego === 'todos' && nivelActual >= maxNiveles">
+          Has practicado desde vocales hasta trabalenguas. ¡Excelente pronunciación!
+        </p>
+        <p *ngIf="modoJuego === 'individual'">
+          Has completado el nivel {{ nivelActual }}: {{ getNivelActualData().nombre }}
+        </p>
+        <p *ngIf="modoJuego === 'todos' && nivelActual < maxNiveles">
+          Llegaste hasta el nivel {{ nivelActual }}. ¡Sigue practicando!
+        </p>
       </div>
       
       <div class="final-stats">
         <div class="stat-final">
           <span class="stat-icon">🎯</span>
-          <span class="stat-text">Nivel alcanzado: {{ nivelActual }}/{{ maxNiveles }}</span>
+          <span class="stat-text">Nivel: {{ getNivelActualData().nombre }}</span>
         </div>
         <div class="stat-final">
           <span class="stat-icon">📝</span>
-          <span class="stat-text">Palabras correctas: {{ getPalabrasCorrectas() }}</span>
+          <span class="stat-text">Palabras correctas: {{ getPalabrasCorrectas() }}/{{ getTotalIntentos() }}</span>
         </div>
         <div class="stat-final">
-          <span class="stat-icon">⏱️</span>
-          <span class="stat-text">Tiempo: {{ formatearTiempo(tiempoTranscurrido) }}</span>
+          <span class="stat-icon">✨</span>
+          <span class="stat-text">¡Excelente trabajo!</span>
         </div>
-        <div class="stat-final">
-          <span class="stat-icon">⭐</span>
-          <span class="stat-text">Puntaje: {{ puntaje }}</span>
-        </div>
-      </div>
-      
-      <div class="stars-rating" *ngIf="nivelActual >= maxNiveles">
-        <span *ngFor="let star of [1,2,3]; let i = index" 
-              class="star"
-              [class.filled]="i < getEstrellas()">
-          ⭐
-        </span>
       </div>
       
       <div class="modal-actions">
-        <button class="btn-secondary" (click)="reiniciarJuego()">
-          🔄 Jugar de Nuevo
+        <button class="btn-secondary" (click)="reiniciarNivel()">
+          🔄 Repetir este nivel
+        </button>
+        
+        <button class="btn-secondary" (click)="volverASeleccionNivel()">
+          🎯 Elegir otro nivel
         </button>
         
         <button class="btn-primary" (click)="siguienteJuego()">
           ➡️ Siguiente Juego
         </button>
         
-        <button class="btn-outline" (click)="volverAJuegos()">
+        <button class="btn-outline" (click)="volverAlDashboard()">
           🏠 Volver a Juegos
         </button>
       </div>
@@ -288,5 +331,5 @@
   </div>
 
   <!-- Overlay del modal -->
-  <div class="modal-overlay" *ngIf="faseJuego === 'completado'" (click)="volverAJuegos()"></div>
+  <div class="modal-overlay" *ngIf="faseJuego === 'completado'"></div>
 </div>

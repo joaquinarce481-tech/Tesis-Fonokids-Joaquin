@@ -1,8 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+
 .game-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
   padding: 20px;
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', sans-serif;
+  font-family: 'Fredoka', 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header */
@@ -10,14 +14,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   flex-wrap: wrap;
   gap: 15px;
 }
 
 .game-title {
   color: white;
-  font-size: 2.5rem;
+  font-size: 2.2rem;
+  font-weight: 600;
   text-align: center;
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
   margin: 0;
@@ -41,7 +46,7 @@
   padding: 12px 24px;
   border-radius: 25px;
   font-size: 1.1rem;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
@@ -60,7 +65,7 @@
   color: #66bb6a;
   padding: 10px 20px;
   border-radius: 25px;
-  font-weight: bold;
+  font-weight: 600;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
@@ -71,10 +76,10 @@
 /* Barra de progreso */
 .progress-bar-container {
   background: rgba(255, 255, 255, 0.3);
-  height: 20px;
+  height: 15px;
   border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -88,50 +93,78 @@
 /* Título del nivel */
 .nivel-titulo {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .nivel-titulo h2 {
   color: white;
-  font-size: 2.5rem;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .palabras-restantes {
   color: white;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
+  font-weight: 500;
   background: rgba(0, 0, 0, 0.2);
   display: inline-block;
-  padding: 10px 20px;
+  padding: 8px 16px;
   border-radius: 20px;
 }
 
-/* Contenido del juego */
+/* Contenido del juego - Layout mejorado */
 .game-content {
-  max-width: 1200px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
 }
 
-/* Drop Zone */
+.game-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+  height: 100%;
+  max-height: calc(100vh - 280px);
+}
+
+/* Sección superior - Drop Zone */
+.top-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .drop-zone {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border-radius: 30px;
-  padding: 50px;
-  margin-bottom: 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  border: 5px dashed transparent;
+  padding: 40px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15),
+              0 5px 15px rgba(0, 0, 0, 0.1);
+  border: 3px dashed #e0e0e0;
   transition: all 0.3s ease;
-  min-height: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 280px;
+  width: 100%;
+  max-width: 600px;
 }
 
 .drop-zone.dragover {
   border-color: #66bb6a;
-  background: #e8f5e9;
+  background: rgba(232, 245, 233, 0.95);
   transform: scale(1.02);
+  box-shadow: 0 20px 60px rgba(102, 187, 106, 0.3),
+              0 10px 20px rgba(102, 187, 106, 0.2);
 }
 
 .palabra-container {
@@ -140,9 +173,10 @@
 }
 
 .palabra-emoji {
-  font-size: 10rem;
+  font-size: 8rem;
   margin-bottom: 20px;
   animation: pulse 1.5s infinite;
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
 }
 
 @keyframes pulse {
@@ -154,48 +188,57 @@
   }
 }
 
-.palabra-nombre {
-  color: #66bb6a;
-  font-size: 3rem;
-  margin-bottom: 20px;
-  font-weight: bold;
-}
-
 .instruccion {
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .instruccion p {
   color: #555;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin: 0;
 }
 
-/* Sílabas Container */
+/* Sección inferior - Sílabas */
+.bottom-section {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 150px;
+}
+
 .silabas-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   gap: 20px;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 900px;
+  padding: 0 20px;
 }
 
 .silaba-card {
-  background: linear-gradient(135deg, #fff176 0%, #ffd54f 100%);
+  background: linear-gradient(135deg, #fff9c4 0%, #fff176 50%, #ffd54f 100%);
   color: #333;
-  font-size: 3rem;
-  font-weight: bold;
-  padding: 30px 50px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  padding: 25px 45px;
   border-radius: 20px;
   cursor: grab;
-  box-shadow: 0 5px 20px rgba(255, 235, 59, 0.4);
+  box-shadow: 0 8px 25px rgba(255, 235, 59, 0.3),
+              0 3px 10px rgba(255, 193, 7, 0.2);
   transition: all 0.3s ease;
   user-select: none;
+  min-width: 120px;
+  text-align: center;
+  border: 3px solid rgba(255, 193, 7, 0.3);
 }
 
 .silaba-card:hover {
-  transform: translateY(-10px) scale(1.05);
-  box-shadow: 0 10px 30px rgba(255, 235, 59, 0.6);
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(255, 235, 59, 0.5),
+              0 8px 20px rgba(255, 193, 7, 0.3);
+  border-color: rgba(255, 193, 7, 0.5);
 }
 
 .silaba-card:active {
@@ -213,21 +256,25 @@
 .shake {
   animation: shake 0.5s;
   border-color: #f44336 !important;
+  background: rgba(255, 235, 238, 0.95) !important;
 }
 
-/* Celebración overlay */
+/* ================================ */
+/* MODAL DE CELEBRACIÓN MEJORADO */
+/* ================================ */
 .celebracion-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(102, 187, 106, 0.95);
+  background: linear-gradient(135deg, rgba(102, 187, 106, 0.95) 0%, rgba(76, 175, 80, 0.95) 100%);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(5px);
 }
 
 @keyframes fadeIn {
@@ -242,42 +289,109 @@
 .celebracion-content {
   text-align: center;
   color: white;
-  animation: zoomIn 0.5s ease;
+  animation: zoomInBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
 }
 
-@keyframes zoomIn {
-  from {
-    transform: scale(0);
+@keyframes zoomInBounce {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
   }
-  to {
-    transform: scale(1);
+  50% {
+    transform: scale(1.1) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
   }
 }
 
 .celebracion-emoji {
-  font-size: 10rem;
+  font-size: 12rem;
   margin-bottom: 20px;
-  animation: rotate 1s ease;
+  animation: rotateAndFloat 1s ease infinite;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
 }
 
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
+@keyframes rotateAndFloat {
+  0%, 100% {
+    transform: rotate(-10deg) translateY(0px);
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    transform: rotate(10deg) translateY(-20px);
   }
 }
 
 .celebracion-content h2 {
-  font-size: 4rem;
-  margin-bottom: 20px;
-  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+  font-size: 5rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+  animation: textPop 0.5s ease 0.3s backwards;
+  background: linear-gradient(45deg, #fff, #ffeb3b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes textPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .celebracion-content p {
-  font-size: 2rem;
+  font-size: 2.2rem;
+  font-weight: 500;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.5s ease 0.5s backwards;
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Confeti decorativo */
+.celebracion-content::before,
+.celebracion-content::after {
+  content: '✨';
+  position: absolute;
+  font-size: 4rem;
+  animation: float 2s ease-in-out infinite;
+}
+
+.celebracion-content::before {
+  top: -50px;
+  left: -80px;
+  animation-delay: 0s;
+}
+
+.celebracion-content::after {
+  top: -50px;
+  right: -80px;
+  animation-delay: 0.5s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-30px) rotate(180deg);
+  }
 }
 
 /* Pantallas de completado */
@@ -290,13 +404,16 @@
 }
 
 .completion-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border-radius: 30px;
   padding: 60px;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2),
+              0 10px 30px rgba(0, 0, 0, 0.15);
   text-align: center;
   max-width: 600px;
   animation: slideIn 0.5s ease;
+  border: 3px solid rgba(255, 255, 255, 0.5);
 }
 
 @keyframes slideIn {
@@ -313,17 +430,30 @@
 .completion-emoji {
   font-size: 10rem;
   margin-bottom: 30px;
-  animation: bounce 1s infinite;
+  animation: bounceRotate 1s infinite;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes bounceRotate {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(15deg);
+  }
 }
 
 .completion-card h2 {
   color: #66bb6a;
   font-size: 3.5rem;
+  font-weight: 700;
   margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .completion-message {
   font-size: 1.8rem;
+  font-weight: 500;
   color: #555;
   margin-bottom: 15px;
   line-height: 1.5;
@@ -331,6 +461,7 @@
 
 .completion-submessage {
   font-size: 1.5rem;
+  font-weight: 400;
   color: #777;
   margin-bottom: 40px;
 }
@@ -347,7 +478,7 @@
 .btn-menu {
   padding: 20px 40px;
   font-size: 1.3rem;
-  font-weight: bold;
+  font-weight: 600;
   border: none;
   border-radius: 25px;
   cursor: pointer;
@@ -355,7 +486,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15),
+              0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .btn-siguiente-nivel,
@@ -367,7 +499,8 @@
 .btn-siguiente-nivel:hover,
 .btn-reiniciar:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(102, 187, 106, 0.4);
+  box-shadow: 0 12px 35px rgba(102, 187, 106, 0.4),
+              0 6px 15px rgba(102, 187, 106, 0.3);
 }
 
 .btn-menu {
@@ -377,7 +510,8 @@
 
 .btn-menu:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(66, 165, 245, 0.4);
+  box-shadow: 0 12px 35px rgba(66, 165, 245, 0.4),
+              0 6px 15px rgba(66, 165, 245, 0.3);
 }
 
 .icon {
@@ -387,33 +521,47 @@
 /* Responsive */
 @media (max-width: 768px) {
   .game-title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
 
   .nivel-titulo h2 {
-    font-size: 2rem;
+    font-size: 1.6rem;
+  }
+
+  .game-layout {
+    max-height: calc(100vh - 250px);
+    gap: 20px;
   }
 
   .drop-zone {
-    padding: 30px 20px;
-    min-height: 250px;
+    padding: 25px 15px;
+    min-height: 220px;
   }
 
   .palabra-emoji {
     font-size: 6rem;
   }
 
-  .palabra-nombre {
-    font-size: 2rem;
-  }
-
   .instruccion p {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 
   .silaba-card {
     font-size: 2rem;
     padding: 20px 35px;
+    min-width: 100px;
+  }
+
+  .celebracion-emoji {
+    font-size: 8rem;
+  }
+
+  .celebracion-content h2 {
+    font-size: 3.5rem;
+  }
+
+  .celebracion-content p {
+    font-size: 1.8rem;
   }
 
   .completion-card {
@@ -433,5 +581,49 @@
   .btn-menu {
     padding: 15px 30px;
     font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .game-title {
+    font-size: 1.4rem;
+    order: -1;
+  }
+
+  .btn-back {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .progress-info {
+    width: 100%;
+    text-align: center;
+  }
+
+  .silabas-container {
+    gap: 15px;
+  }
+
+  .silaba-card {
+    font-size: 1.8rem;
+    padding: 18px 30px;
+    min-width: 90px;
+  }
+
+  .celebracion-emoji {
+    font-size: 6rem;
+  }
+
+  .celebracion-content h2 {
+    font-size: 2.8rem;
+  }
+
+  .celebracion-content p {
+    font-size: 1.5rem;
   }
 }

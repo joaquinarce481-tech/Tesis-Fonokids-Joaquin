@@ -1,32 +1,24 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
-interface Silaba {
+interface Obstaculo {
   id: string;
-  texto: string;
-  sonido: string;
-  tecla: string;
-  color: string;
+  silaba: string;
+  posicionX: number;
+  superado: boolean;
+  activo: boolean;
   emoji: string;
 }
 
-interface SilabaCayendo {
+interface Particula {
   id: string;
-  silaba: Silaba;
-  carril: number;
-  posicionY: number;
-  velocidad: number;
-  activa: boolean;
-  golpeada: boolean;
-  tiempoCreacion: number;
-}
-
-interface NotaGolpeada {
-  precision: 'perfecto' | 'bueno' | 'regular' | 'fallo';
-  puntos: number;
-  tiempo: number;
-  posicion: { x: number; y: number };
+  x: number;
+  y: number;
+  velocidadX: number;
+  velocidadY: number;
+  vida: number;
+  color: string;
 }
 
 @Component({
@@ -38,493 +30,573 @@ interface NotaGolpeada {
 })
 export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   // Estados del juego
-  readonly Math = Math;
-  faseJuego: 'instrucciones' | 'countdown' | 'jugando' | 'pausado' | 'completado' = 'instrucciones';
-  nivelActual: number = 1;
-  maxNiveles: number = 6;
-  puntaje: number = 0;
-  multiplicador: number = 1;
-  combo: number = 0;
-  maxCombo: number = 0;
-  vidas: number = 3;
-  precision: number = 100;
+  faseJuego: 'instrucciones' | 'jugando' | 'pausado' | 'felicitacion' = 'instrucciones';
+  mostrarModalFelicitacion: boolean = false;
+  metaParaFelicitacion: number = 25;
   
-  // Tiempo y duración
-  tiempoInicio: number = 0;
-  tiempoTranscurrido: number = 0;
-  duracionCancion: number = 60000; // 60 segundos por nivel
-  tiempoRestante: number = 0;
+  // Jugador
+  jugadorY: number = 300; // Posición Y del jugador
+  jugadorSaltando: boolean = false;
+  velocidadSalto: number = 0;
+  gravedad: number = 0.6;
+  fuerzaSalto: number = -15;
+  suelo: number = 300;
+  
+  // Obstáculos
+  obstaculos: Obstaculo[] = [];
+  velocidadJuego: number = 5;
+  distanciaEntreObstaculos: number = 600;
+  ultimaPosicionObstaculo: number = 800;
   
   // Sílabas disponibles
-  silabasDisponibles: Silaba[] = [
-    {
-      id: 'pa',
-      texto: 'PA',
-      sonido: 'pa',
-      tecla: 'A',
-      color: '#ef4444',
-      emoji: '🔴'
-    },
-    {
-      id: 'ta',
-      texto: 'TA',
-      sonido: 'ta',
-      tecla: 'S',
-      color: '#3b82f6',
-      emoji: '🔵'
-    },
-    {
-      id: 'ma',
-      texto: 'MA',
-      sonido: 'ma',
-      tecla: 'D',
-      color: '#10b981',
-      emoji: '🟢'
-    },
-    {
-      id: 'la',
-      texto: 'LA',
-      sonido: 'la',
-      tecla: 'F',
-      color: '#f59e0b',
-      emoji: '🟡'
-    }
-  ];
+  silabasDisponibles: string[] = ['PA', 'PE', 'PI', 'PO', 'PU', 'MA', 'ME', 'MI', 'MO', 'MU', 'TA', 'TE', 'TI', 'TO', 'TU', 'LA', 'LE', 'LI', 'LO', 'LU', 'SA', 'SE', 'SI', 'SO', 'SU'];
+  emojisPorSilaba: { [key: string]: string } = {
+    'PA': '🦆', 'PE': '⚽', 'PI': '🔋', 'PO': '🐔', 'PU': '🚪',
+    'MA': '✋', 'ME': '🪑', 'MI': '🍯', 'MO': '🐵', 'MU': '🪆',
+    'TA': '☕', 'TE': '📺', 'TI': '✂️', 'TO': '🍅', 'TU': '🌷',
+    'LA': '🧶', 'LE': '🦁', 'LI': '📚', 'LO': '🦜', 'LU': '🌙',
+    'SA': '🐸', 'SE': '🚦', 'SI': '🪑', 'SO': '☀️', 'SU': '➕'
+  };
   
-  // Carriles del juego
-  carriles: number = 4;
-  silabasCayendo: SilabaCayendo[] = [];
-  notasGolpeadas: NotaGolpeada[] = [];
+  // Partículas de efectos
+  particulas: Particula[] = [];
   
-  // Configuración del juego
-  velocidadBase: number = 2;
-  lineaGolpe: number = 580; // Posición Y donde se deben golpear las sílabas
-  zonaMargen: number = 50; // Margen de error para golpear
+  // Puntuación y progreso
+  obstaculosSuperados: number = 0;
+  palabrasCorrectas: number = 0;
+  distanciaRecorrida: number = 0;
   
-  // Intervalos y animación
+  // Reconocimiento de voz
+  recognition: any = null;
+  escuchandoVoz: boolean = false;
+  ultimaPalabraDetectada: string = '';
+  
+  // Control del juego
   intervaloJuego: any;
-  intervaloGeneracion: any;
-  intervaloCuenta: any;
-  cuentaRegresiva: number = 3;
+  frameRate: number = 60;
   
-  // Estadísticas
-  silabasGolpeadas: number = 0;
-  silabasPerfectas: number = 0;
-  silabasBuenas: number = 0;
-  silabasRegulares: number = 0;
-  silabasFalladas: number = 0;
-  notasPerdidas: number = 0;
+  // Animaciones
+  animacionPersonaje: string = 'corriendo';
   
-  // Audio y efectos
-  sonidosHabilitados: boolean = true;
-  efectosVisuales: boolean = true;
-  
-  // Teclas activas
-  teclasPresionadas: Set<string> = new Set();
-
   constructor(
     private router: Router,
-    private route: ActivatedRoute
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
-    this.iniciarJuego();
+    this.inicializarReconocimientoVoz();
   }
 
   ngOnDestroy() {
-    this.limpiarIntervalos();
+    this.detenerJuego();
+    if (this.recognition) {
+      this.recognition.stop();
+    }
   }
 
-  // === CONTROL DE TECLAS ===
+  // ===== RECONOCIMIENTO DE VOZ =====
+  
+  inicializarReconocimientoVoz() {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      this.recognition = new SpeechRecognition();
+      this.recognition.lang = 'es-ES';
+      this.recognition.continuous = true;
+      this.recognition.interimResults = true; // Cambiar a true para captar más rápido
+      this.recognition.maxAlternatives = 5; // Más alternativas
+
+      this.recognition.onresult = (event: any) => {
+        // Procesar todos los resultados, incluidos los interinos
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          const palabra = transcript.toUpperCase().trim();
+          
+          if (palabra.length > 0) {
+            this.ultimaPalabraDetectada = palabra;
+            this.procesarPalabraDetectada(palabra);
+          }
+        }
+      };
+
+      this.recognition.onerror = (event: any) => {
+        console.error('Error en reconocimiento de voz:', event.error);
+        if (event.error === 'no-speech' || event.error === 'aborted') {
+          // Reintentar automáticamente
+          if (this.escuchandoVoz && this.faseJuego === 'jugando') {
+            setTimeout(() => {
+              if (this.recognition && this.escuchandoVoz) {
+                try {
+                  this.recognition.start();
+                } catch (e) {
+                  console.log('Recognition already started');
+                }
+              }
+            }, 100);
+          }
+        }
+      };
+
+      this.recognition.onend = () => {
+        if (this.escuchandoVoz && this.faseJuego === 'jugando') {
+          try {
+            this.recognition.start();
+          } catch (e) {
+            console.log('Recognition restart failed:', e);
+          }
+        }
+      };
+
+      console.log('✅ Reconocimiento de voz inicializado');
+    } else {
+      console.warn('⚠️ Reconocimiento de voz no disponible');
+    }
+  }
+
+  procesarPalabraDetectada(palabra: string) {
+    if (this.faseJuego !== 'jugando') return;
+
+    // Normalizar la palabra detectada
+    const palabraNormalizada = this.normalizarTexto(palabra);
+    
+    console.log(`🎤 Detectado: "${palabra}" → Normalizado: "${palabraNormalizada}"`);
+
+    // Buscar obstáculo próximo que coincida
+    const obstaculoProximo = this.obstaculos.find(obs => 
+      !obs.superado && 
+      obs.activo && 
+      obs.posicionX > 100 &&
+      obs.posicionX < 700  // Ventana MUY amplia
+    );
+
+    if (!obstaculoProximo) {
+      console.log('❌ No hay obstáculos próximos');
+      return;
+    }
+
+    // Verificar si la palabra contiene la sílaba
+    const silabaNormalizada = this.normalizarTexto(obstaculoProximo.silaba);
+    
+    if (this.contieneSilaba(palabraNormalizada, silabaNormalizada)) {
+      // ¡CORRECTO!
+      obstaculoProximo.superado = true;
+      this.saltar();
+      this.palabrasCorrectas++;
+      this.obstaculosSuperados++;
+      this.ultimaPalabraDetectada = `✅ ${obstaculoProximo.silaba}`;
+      this.reproducirSonidoAcierto();
+      this.crearParticulas(obstaculoProximo.posicionX, this.suelo, '#10b981');
+      console.log(`✅ ¡CORRECTO! Palabra: "${palabra}" contiene sílaba: "${obstaculoProximo.silaba}"`);
+      console.log(`📊 Palabras correctas: ${this.palabrasCorrectas}/25`);
+      
+      // Verificar si alcanzó la meta
+      if (this.palabrasCorrectas >= this.metaParaFelicitacion) {
+        console.log('🎯 ¡META ALCANZADA! Mostrando felicitación...');
+        this.mostrarFelicitacion();
+      }
+    } else {
+      // Mostrar qué se esperaba
+      this.ultimaPalabraDetectada = `❌ ${palabra.substring(0, 15)}`;
+      console.log(`❌ Esperaba: "${obstaculoProximo.silaba}" pero detectó: "${palabra}"`);
+    }
+  }
+
+  // Normalizar texto para mejor comparación
+  normalizarTexto(texto: string): string {
+    return texto
+      .toUpperCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+      .replace(/[^A-Z]/g, ''); // Solo letras
+  }
+
+  // Verificar si una palabra contiene la sílaba
+  contieneSilaba(palabra: string, silaba: string): boolean {
+    // Búsqueda directa
+    if (palabra.includes(silaba)) {
+      return true;
+    }
+    
+    // Búsqueda con vocales flexibles (ej: "TO" puede coincidir con "TORO", "TOMATE")
+    if (silaba.length === 2) {
+      const consonante = silaba[0];
+      const vocal = silaba[1];
+      
+      // Buscar la consonante seguida de la vocal
+      const regex = new RegExp(`${consonante}${vocal}`, 'g');
+      if (regex.test(palabra)) {
+        return true;
+      }
+    }
+    
+    // Coincidencia parcial (para casos como "T" + "O" separados)
+    if (silaba.length === 2 && palabra.length >= 2) {
+      for (let i = 0; i < palabra.length - 1; i++) {
+        if (palabra[i] === silaba[0] && palabra[i + 1] === silaba[1]) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+
+  iniciarEscuchaVoz() {
+    if (this.recognition && !this.escuchandoVoz) {
+      try {
+        this.recognition.start();
+        this.escuchandoVoz = true;
+        console.log('🎤 Escuchando voz...');
+      } catch (e) {
+        console.log('Recognition already started');
+      }
+    }
+  }
+
+  detenerEscuchaVoz() {
+    if (this.recognition && this.escuchandoVoz) {
+      this.recognition.stop();
+      this.escuchandoVoz = false;
+      console.log('🔇 Voz detenida');
+    }
+  }
+
+  // ===== CONTROL DE TECLADO (Alternativa) =====
   
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-    if (this.faseJuego !== 'jugando') return;
-    
-    const tecla = event.key.toLowerCase();
-    
-    // Prevenir múltiples eventos de la misma tecla
-    if (this.teclasPresionadas.has(tecla)) return;
-    this.teclasPresionadas.add(tecla);
-    
-    const silaba = this.silabasDisponibles.find(s => s.tecla.toLowerCase() === tecla);
-    if (silaba) {
-      this.golpearSilaba(silaba);
+    if (this.faseJuego === 'jugando' && event.code === 'Space') {
+      this.saltar();
       event.preventDefault();
     }
   }
-  
-  @HostListener('window:keyup', ['$event'])
-  onKeyUp(event: KeyboardEvent) {
-    const tecla = event.key.toLowerCase();
-    this.teclasPresionadas.delete(tecla);
-  }
 
-  // === INICIALIZACIÓN DEL JUEGO ===
+  // ===== INICIALIZACIÓN DEL JUEGO =====
   
   iniciarJuego() {
     this.faseJuego = 'instrucciones';
-    this.nivelActual = 1;
-    this.puntaje = 0;
-    this.vidas = 3;
     this.reiniciarEstadisticas();
-    
-    console.log('🎵 Iniciando Ritmo de Sílabas...');
   }
 
-  empezarNivel() {
-    this.faseJuego = 'countdown';
-    this.cuentaRegresiva = 3;
-    this.configurarNivel();
-    
-    this.intervaloCuenta = setInterval(() => {
-      this.cuentaRegresiva--;
-      if (this.cuentaRegresiva <= 0) {
-        clearInterval(this.intervaloCuenta);
-        this.iniciarRitmo();
-      }
-    }, 1000);
-  }
-
-  configurarNivel() {
-    // Ajustar dificultad según el nivel
-    this.velocidadBase = 2 + (this.nivelActual - 1) * 0.5;
-    this.duracionCancion = Math.max(45000, 75000 - (this.nivelActual - 1) * 5000);
-    
-    // Limpiar arrays
-    this.silabasCayendo = [];
-    this.notasGolpeadas = [];
-    this.teclasPresionadas.clear();
-    
-    console.log(`🎼 Configurando nivel ${this.nivelActual} - Velocidad: ${this.velocidadBase}`);
-  }
-
-  iniciarRitmo() {
+  empezarJuego() {
     this.faseJuego = 'jugando';
-    this.tiempoInicio = Date.now();
-    this.tiempoRestante = this.duracionCancion;
+    this.reiniciarEstadisticas();
+    this.iniciarEscuchaVoz();
     
-    // Intervalo principal del juego
     this.intervaloJuego = setInterval(() => {
       this.actualizarJuego();
-    }, 16); // ~60 FPS
+    }, 1000 / this.frameRate);
     
-    // Generación de sílabas
-    this.intervaloGeneracion = setInterval(() => {
-      this.generarSilaba();
-    }, this.obtenerIntervaloGeneracion());
-    
-    console.log(`▶️ Iniciando ritmo - Nivel ${this.nivelActual}`);
+    console.log('🏃 ¡Carrera iniciada!');
   }
 
-  // === LÓGICA PRINCIPAL ===
+  reiniciarEstadisticas() {
+    this.obstaculosSuperados = 0;
+    this.palabrasCorrectas = 0;
+    this.distanciaRecorrida = 0;
+    this.jugadorY = this.suelo;
+    this.jugadorSaltando = false;
+    this.velocidadSalto = 0;
+    this.obstaculos = [];
+    this.particulas = [];
+    this.velocidadJuego = 5;
+    this.ultimaPosicionObstaculo = 800;
+    this.animacionPersonaje = 'corriendo';
+    this.ultimaPalabraDetectada = '';
+  }
+
+  // ===== LÓGICA PRINCIPAL DEL JUEGO =====
   
   actualizarJuego() {
-    const tiempoActual = Date.now();
-    this.tiempoTranscurrido = tiempoActual - this.tiempoInicio;
-    this.tiempoRestante = Math.max(0, this.duracionCancion - this.tiempoTranscurrido);
+    // Actualizar física del jugador
+    this.actualizarJugador();
     
-    // Actualizar posiciones de sílabas
-    this.silabasCayendo = this.silabasCayendo.filter(silaba => {
-      silaba.posicionY += silaba.velocidad;
+    // Actualizar obstáculos
+    this.actualizarObstaculos();
+    
+    // Generar nuevos obstáculos
+    this.generarObstaculos();
+    
+    // Actualizar partículas
+    this.actualizarParticulas();
+    
+    // Detectar colisiones (solo visual, sin penalización)
+    this.detectarColisiones();
+    
+    // Actualizar progreso
+    this.distanciaRecorrida += this.velocidadJuego * 0.1;
+  }
+
+  actualizarJugador() {
+    if (this.jugadorSaltando) {
+      this.velocidadSalto += this.gravedad;
+      this.jugadorY += this.velocidadSalto;
       
-      // Eliminar sílabas que pasaron de la pantalla
-      if (silaba.posicionY > 700) {
-        if (!silaba.golpeada) {
-          this.silabaFallada(silaba);
-        }
-        return false;
+      // Verificar si tocó el suelo
+      if (this.jugadorY >= this.suelo) {
+        this.jugadorY = this.suelo;
+        this.jugadorSaltando = false;
+        this.velocidadSalto = 0;
+        this.animacionPersonaje = 'corriendo';
+      }
+    }
+  }
+
+  saltar() {
+    if (!this.jugadorSaltando && this.faseJuego === 'jugando') {
+      this.jugadorSaltando = true;
+      this.velocidadSalto = this.fuerzaSalto;
+      this.animacionPersonaje = 'saltando';
+      this.reproducirSonidoSalto();
+      console.log('⬆️ ¡Salto!');
+    }
+  }
+
+  actualizarObstaculos() {
+    this.obstaculos = this.obstaculos.filter(obs => {
+      obs.posicionX -= this.velocidadJuego;
+      
+      // Marcar como superado si pasó al jugador (solo si no fue detectado por voz)
+      if (!obs.superado && obs.posicionX < 50) {
+        // No hacer nada, solo dejarlo pasar sin marcar
+        // Ya no sumamos obstáculo superado automáticamente
       }
       
-      return true;
+      // Eliminar si salió de la pantalla
+      return obs.posicionX > -100;
     });
+  }
+
+  generarObstaculos() {
+    const anchoVentana = 800;
     
-    // Limpiar notas golpeadas antiguas
-    this.notasGolpeadas = this.notasGolpeadas.filter(nota => 
-      tiempoActual - nota.tiempo < 1000
-    );
-    
-    // Verificar fin del nivel
-    if (this.tiempoRestante <= 0) {
-      this.completarNivel();
-    }
-    
-    // Verificar game over
-    if (this.vidas <= 0) {
-      this.juegoTerminado();
+    if (this.obstaculos.length === 0 || 
+        (anchoVentana - this.ultimaPosicionObstaculo) > this.distanciaEntreObstaculos) {
+      
+      const silabaAleatoria = this.silabasDisponibles[
+        Math.floor(Math.random() * this.silabasDisponibles.length)
+      ];
+      
+      const nuevoObstaculo: Obstaculo = {
+        id: `obs-${Date.now()}-${Math.random()}`,
+        silaba: silabaAleatoria,
+        posicionX: anchoVentana + 50,
+        superado: false,
+        activo: true,
+        emoji: this.emojisPorSilaba[silabaAleatoria] || '❓'
+      };
+      
+      this.obstaculos.push(nuevoObstaculo);
+      this.ultimaPosicionObstaculo = nuevoObstaculo.posicionX;
     }
   }
 
-  generarSilaba() {
-    if (this.faseJuego !== 'jugando') return;
+  detectarColisiones() {
+    const jugadorX = 100;
+    const jugadorAncho = 60;
+    const jugadorAlto = 80;
     
-    const silabaAleatoria = this.silabasDisponibles[
-      Math.floor(Math.random() * this.silabasDisponibles.length)
-    ];
-    
-    const carrilAleatorio = Math.floor(Math.random() * this.carriles);
-    
-    const nuevaSilaba: SilabaCayendo = {
-      id: `silaba-${Date.now()}-${Math.random()}`,
-      silaba: silabaAleatoria,
-      carril: carrilAleatorio,
-      posicionY: -100,
-      velocidad: this.velocidadBase + Math.random() * 1,
-      activa: true,
-      golpeada: false,
-      tiempoCreacion: Date.now()
-    };
-    
-    this.silabasCayendo.push(nuevaSilaba);
-  }
-
-  golpearSilaba(silabaObjetivo: Silaba) {
-    // Buscar la sílaba más cercana a la línea de golpe
-    const silabasCandidatas = this.silabasCayendo.filter(s => 
-      s.silaba.id === silabaObjetivo.id && 
-      !s.golpeada && 
-      s.activa
-    );
-    
-    if (silabasCandidatas.length === 0) {
-      this.falloSinNota();
-      return;
-    }
-    
-    // Encontrar la más cercana a la línea de golpe
-    let silabaMasCercana = silabasCandidatas[0];
-    let menorDistancia = Math.abs(silabaMasCercana.posicionY - this.lineaGolpe);
-    
-    for (const silaba of silabasCandidatas) {
-      const distancia = Math.abs(silaba.posicionY - this.lineaGolpe);
-      if (distancia < menorDistancia) {
-        menorDistancia = distancia;
-        silabaMasCercana = silaba;
+    for (const obs of this.obstaculos) {
+      if (obs.activo && !obs.superado) {
+        const obstaculoAncho = 60;
+        const obstaculoAlto = 80;
+        
+        // Verificar colisión AABB
+        if (jugadorX < obs.posicionX + obstaculoAncho &&
+            jugadorX + jugadorAncho > obs.posicionX &&
+            this.jugadorY < this.suelo + obstaculoAlto &&
+            this.jugadorY + jugadorAlto > this.suelo) {
+          
+          this.colision(obs);
+        }
       }
     }
-    
-    // Verificar si está dentro del margen
-    if (menorDistancia <= this.zonaMargen) {
-      this.golpeExitoso(silabaMasCercana, menorDistancia);
-    } else {
-      this.falloSinNota();
+  }
+
+  colision(obstaculo: Obstaculo) {
+    obstaculo.activo = false;
+    this.crearExplosion(obstaculo.posicionX, this.suelo);
+    this.reproducirSonidoColision();
+    console.log(`💥 Choque con ${obstaculo.silaba} - ¡Intenta pronunciarla antes!`);
+  }
+
+  obstaculoSuperado(obstaculo: Obstaculo) {
+    this.obstaculosSuperados++;
+    this.palabrasCorrectas++;
+    this.crearParticulas(obstaculo.posicionX, this.suelo, '#10b981');
+    console.log(`✅ Obstáculo superado correctamente!`);
+  }
+
+  // ===== PARTÍCULAS Y EFECTOS =====
+  
+  actualizarParticulas() {
+    this.particulas = this.particulas.filter(p => {
+      p.x += p.velocidadX;
+      p.y += p.velocidadY;
+      p.velocidadY += 0.3; // Gravedad
+      p.vida--;
+      return p.vida > 0;
+    });
+  }
+
+  crearParticulas(x: number, y: number, color: string) {
+    for (let i = 0; i < 10; i++) {
+      this.particulas.push({
+        id: `part-${Date.now()}-${i}`,
+        x,
+        y,
+        velocidadX: (Math.random() - 0.5) * 8,
+        velocidadY: (Math.random() - 0.5) * 8 - 5,
+        vida: 30,
+        color
+      });
     }
   }
 
-  golpeExitoso(silaba: SilabaCayendo, distancia: number) {
-    silaba.golpeada = true;
-    silaba.activa = false;
-    
-    let precision: 'perfecto' | 'bueno' | 'regular' | 'fallo';
-    let puntos: number;
-    
-    if (distancia <= 10) {
-      precision = 'perfecto';
-      puntos = 100;
-      this.silabasPerfectas++;
-    } else if (distancia <= 25) {
-      precision = 'bueno';
-      puntos = 75;
-      this.silabasBuenas++;
-    } else {
-      precision = 'regular';
-      puntos = 50;
-      this.silabasRegulares++;
-    }
-    
-    // Aplicar multiplicador de combo
-    puntos *= this.multiplicador;
-    this.puntaje += puntos;
-    this.silabasGolpeadas++;
-    
-    // Incrementar combo
-    this.combo++;
-    this.maxCombo = Math.max(this.maxCombo, this.combo);
-    
-    // Actualizar multiplicador
-    if (this.combo >= 10) {
-      this.multiplicador = Math.min(4, Math.floor(this.combo / 10) + 1);
-    }
-    
-    // Crear efecto visual
-    const carrilPosX = this.obtenerPosicionCarril(silaba.carril);
-    this.crearNotaGolpeada(precision, puntos, carrilPosX, this.lineaGolpe);
-    
-    // Reproducir sonido
-    this.reproducirSonido(silaba.silaba.sonido);
-    
-    console.log(`✨ ${precision.toUpperCase()} +${puntos} pts (Combo: ${this.combo}x)`);
+  crearExplosion(x: number, y: number) {
+    this.crearParticulas(x, y, '#ef4444');
   }
 
-  silabaFallada(silaba: SilabaCayendo) {
-    this.silabasFalladas++;
-    this.notasPerdidas++;
-    this.combo = 0;
-    this.multiplicador = 1;
-    this.vidas--;
-    
-    console.log(`❌ Sílaba perdida: ${silaba.silaba.texto} (Vidas: ${this.vidas})`);
-  }
-
-  falloSinNota() {
-    this.combo = 0;
-    this.multiplicador = 1;
-    
-    console.log('❌ Tecla presionada sin sílaba');
-  }
-
-  // === UTILIDADES ===
+  // ===== AUDIO =====
   
-  obtenerIntervaloGeneracion(): number {
-    // Frecuencia aumenta con el nivel
-    return Math.max(800, 2000 - (this.nivelActual - 1) * 200);
+  reproducirSonidoSalto() {
+    // Sonido de salto (opcional)
   }
 
-  obtenerPosicionCarril(carril: number): number {
-    const anchoCarril = 150;
-    const inicioCarriles = 200;
-    return inicioCarriles + (carril * anchoCarril) + (anchoCarril / 2);
+  reproducirSonidoAcierto() {
+    this.hablar('¡Bien!');
   }
 
-  crearNotaGolpeada(precision: string, puntos: number, x: number, y: number) {
-    const nota: NotaGolpeada = {
-      precision: precision as 'perfecto' | 'bueno' | 'regular' | 'fallo',
-      puntos,
-      tiempo: Date.now(),
-      posicion: { x, y }
-    };
-    
-    this.notasGolpeadas.push(nota);
+  reproducirSonidoColision() {
+    this.hablar('¡Intenta de nuevo!');
   }
 
-  calcularPrecision(): number {
-    const total = this.silabasGolpeadas + this.silabasFalladas;
-    return total > 0 ? Math.round((this.silabasGolpeadas / total) * 100) : 100;
-  }
-
-  formatearTiempo(milisegundos: number): string {
-    const segundos = Math.floor(milisegundos / 1000);
-    const minutos = Math.floor(segundos / 60);
-    const segs = segundos % 60;
-    return `${minutos}:${segs.toString().padStart(2, '0')}`;
-  }
-
-  // === PROGRESIÓN DE NIVELES ===
-  
-  completarNivel() {
-    this.limpiarIntervalos();
-    this.precision = this.calcularPrecision();
-    
-    if (this.nivelActual >= this.maxNiveles) {
-      this.juegoCompletado();
-    } else {
-      this.siguienteNivel();
+  private hablar(texto: string) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = 'es-ES';
+      utterance.rate = 1.2;
+      utterance.pitch = 1.3;
+      utterance.volume = 0.3;
+      window.speechSynthesis.speak(utterance);
     }
   }
 
-  siguienteNivel() {
-    this.nivelActual++;
-    
-    setTimeout(() => {
-      this.empezarNivel();
-    }, 2000);
-    
-    console.log(`🆙 Avanzando al nivel ${this.nivelActual}`);
-  }
-
-  juegoCompletado() {
-    this.faseJuego = 'completado';
-    this.limpiarIntervalos();
-    
-    console.log(`🎉 ¡Juego completado! Puntaje final: ${this.puntaje}`);
-  }
-
-  juegoTerminado() {
-    this.faseJuego = 'completado';
-    this.limpiarIntervalos();
-    
-    console.log(`💀 Juego terminado. Puntaje final: ${this.puntaje}`);
-  }
-
-  // === AUDIO ===
-  
-  reproducirSonido(sonido: string) {
-    if (!this.sonidosHabilitados) return;
-    
-    // Aquí se reproduciría el sonido de la sílaba
-    console.log(`🔊 Reproduciendo: ${sonido.toUpperCase()}`);
-  }
-
-  // === UTILIDADES ADICIONALES ===
-  
-  reiniciarEstadisticas() {
-    this.combo = 0;
-    this.maxCombo = 0;
-    this.multiplicador = 1;
-    this.silabasGolpeadas = 0;
-    this.silabasPerfectas = 0;
-    this.silabasBuenas = 0;
-    this.silabasRegulares = 0;
-    this.silabasFalladas = 0;
-    this.notasPerdidas = 0;
-  }
-
-  limpiarIntervalos() {
+  detenerJuego() {
     if (this.intervaloJuego) {
       clearInterval(this.intervaloJuego);
     }
-    if (this.intervaloGeneracion) {
-      clearInterval(this.intervaloGeneracion);
-    }
-    if (this.intervaloCuenta) {
-      clearInterval(this.intervaloCuenta);
-    }
+    this.detenerEscuchaVoz();
   }
 
-  obtenerEstrellas(): number {
-    if (this.precision >= 95 && this.vidas >= 3 && this.nivelActual >= this.maxNiveles) return 3;
-    if (this.precision >= 85 && this.vidas >= 2 && this.nivelActual >= 4) return 2;
-    if (this.precision >= 70 && this.puntaje >= 5000) return 1;
-    return 0;
+  // ===== FELICITACIÓN =====
+  
+  mostrarFelicitacion() {
+    console.log('🎉 ¡MOSTRANDO MODAL DE FELICITACIÓN!');
+    
+    // Detener el juego primero
+    this.detenerEscuchaVoz();
+    if (this.intervaloJuego) {
+      clearInterval(this.intervaloJuego);
+      this.intervaloJuego = null;
+    }
+    
+    // Actualizar estados
+    this.faseJuego = 'felicitacion';
+    this.mostrarModalFelicitacion = true;
+    
+    // Forzar detección de cambios de Angular
+    this.cdr.detectChanges();
+    
+    console.log('Estado del modal:', this.mostrarModalFelicitacion);
+    console.log('Fase del juego:', this.faseJuego);
   }
 
-  // === NAVEGACIÓN ===
+  continuarJugando() {
+    this.mostrarModalFelicitacion = false;
+    this.palabrasCorrectas = 0; // Reiniciar contador
+    this.faseJuego = 'jugando';
+    this.cdr.detectChanges(); // Forzar actualización
+    
+    this.iniciarEscuchaVoz();
+    this.intervaloJuego = setInterval(() => {
+      this.actualizarJuego();
+    }, 1000 / this.frameRate);
+  }
+
+  terminarJuego() {
+    this.detenerJuego();
+    this.router.navigate(['/juegos-terapeuticos']);
+  }
+
+  // ===== CONTROLES DEL JUEGO =====
   
   pausarJuego() {
     if (this.faseJuego === 'jugando') {
       this.faseJuego = 'pausado';
-      this.limpiarIntervalos();
+      this.detenerEscuchaVoz();
+      if (this.intervaloJuego) {
+        clearInterval(this.intervaloJuego);
+      }
     }
   }
 
   reanudarJuego() {
     if (this.faseJuego === 'pausado') {
       this.faseJuego = 'jugando';
-      this.tiempoInicio = Date.now() - this.tiempoTranscurrido;
-      
+      this.iniciarEscuchaVoz();
       this.intervaloJuego = setInterval(() => {
         this.actualizarJuego();
-      }, 16);
+      }, 1000 / this.frameRate);
     }
   }
 
   reiniciarJuego() {
-    this.limpiarIntervalos();
-    this.iniciarJuego();
+    this.detenerJuego();
+    this.empezarJuego();
   }
 
   volverAJuegos() {
-    this.limpiarIntervalos();
+    this.detenerJuego();
     this.router.navigate(['/juegos-terapeuticos']);
   }
 
-  siguienteJuego() {
-    this.limpiarIntervalos();
-    // Aquí iría la navegación al próximo juego (Mandibulares)
-    this.router.navigate(['/juego', 'mandibulares', 'clasifica-sonidos']);
+  // ===== UTILIDADES =====
+  
+  obtenerEjemplos(silaba: string): string {
+    const ejemplos: { [key: string]: string } = {
+      'PA': 'pato, papá, pan',
+      'PE': 'pelota, perro, pez',
+      'PI': 'pila, piña, pico',
+      'PO': 'pollo, polo, pomo',
+      'PU': 'puerta, puma, pulpo',
+      'MA': 'mamá, mano, masa',
+      'ME': 'mesa, melón, metro',
+      'MI': 'miel, mimo, mira',
+      'MO': 'mono, moto, moño',
+      'MU': 'muñeca, mula, museo',
+      'TA': 'taza, tapa, taco',
+      'TE': 'tele, tela, tema',
+      'TI': 'tijera, tía, tinta',
+      'TO': 'tomate, toro, topo',
+      'TU': 'tulipán, tubo, tuna',
+      'LA': 'lana, lago, lata',
+      'LE': 'león, leche, leer',
+      'LI': 'libro, lima, lirio',
+      'LO': 'loro, lobo, lomo',
+      'LU': 'luna, lupa, luz',
+      'SA': 'sapo, sala, salsa',
+      'SE': 'semáforo, seis, sello',
+      'SI': 'silla, sí, sirena',
+      'SO': 'sol, sopa, sofa',
+      'SU': 'suma, sur, suelo'
+    };
+    
+    return ejemplos[silaba] || silaba;
   }
-
-  saltarInstrucciones() {
-    this.empezarNivel();
+  
+  formatearDistancia(): string {
+    return Math.floor(this.distanciaRecorrida).toString() + 'm';
   }
 }

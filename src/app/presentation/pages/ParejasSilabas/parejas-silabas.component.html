@@ -21,34 +21,41 @@
     <p class="palabras-restantes">{{ palabrasRestantes }} palabras más</p>
   </div>
 
-  <!-- Contenido del juego -->
+  <!-- Contenido del juego - Layout mejorado -->
   <div class="game-content" *ngIf="!nivelCompletado && !juegoCompletado && palabraActual">
-    <!-- Zona de la imagen (Drop Zone) -->
-    <div 
-      class="drop-zone"
-      (dragover)="onDragOver($event)"
-      (drop)="onDrop($event)">
-      <div class="palabra-container">
-        <div class="palabra-emoji">
-          {{ palabraActual.imagen }}
+    
+    <div class="game-layout">
+      <!-- Zona superior: Drop Zone con el emoji -->
+      <div class="top-section">
+        <div 
+          class="drop-zone"
+          (dragover)="onDragOver($event)"
+          (drop)="onDrop($event)">
+          <div class="palabra-container">
+            <div class="palabra-emoji">
+              {{ palabraActual.imagen }}
+            </div>
+            <div class="instruccion">
+              <p>👆 ¡Arrastra la sílaba correcta!</p>
+            </div>
+          </div>
         </div>
-        <h3 class="palabra-nombre">{{ palabraActual.nombre }}</h3>
-        <div class="instruccion">
-          <p>👆 ¡Arrastra la sílaba correcta!</p>
+      </div>
+
+      <!-- Zona inferior: Sílabas disponibles -->
+      <div class="bottom-section">
+        <div class="silabas-container">
+          <div 
+            *ngFor="let silaba of silabas"
+            class="silaba-card"
+            draggable="true"
+            (dragstart)="onDragStart(silaba, $event)">
+            {{ silaba }}
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Sílabas disponibles -->
-    <div class="silabas-container">
-      <div 
-        *ngFor="let silaba of silabas"
-        class="silaba-card"
-        draggable="true"
-        (dragstart)="onDragStart(silaba, $event)">
-        {{ silaba }}
-      </div>
-    </div>
   </div>
 
   <!-- Celebración entre palabras -->

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -41,6 +41,7 @@ declare global {
 interface Nivel {
   numero: number;
   nombre: string;
+  descripcion: string;
   palabras: string[];
   dificultad: 'facil' | 'media' | 'dificil';
   icono: string;
@@ -64,14 +65,10 @@ interface IntentoPalabra {
 })
 export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   // Estados del juego
-  faseJuego: 'instrucciones' | 'preparando' | 'jugando' | 'completado' | 'error' = 'instrucciones';
+  faseJuego: 'instrucciones' | 'seleccion-nivel' | 'preparando' | 'jugando' | 'completado' | 'error' = 'instrucciones';
   nivelActual: number = 1;
   maxNiveles: number = 7;
-  puntaje: number = 0;
-  tiempoInicio: number = 0;
-  tiempoTranscurrido: number = 0;
-  tiempoLimite: number = 120; // 2 minutos por nivel
-  intervaloTiempo: any;
+  modoJuego: 'todos' | 'individual' = 'todos'; // Nuevo: modo de juego
   
   // Reconocimiento de voz
   recognition: any = null;
@@ -90,6 +87,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     {
       numero: 1,
       nombre: 'Vocales',
+      descripcion: 'Aprende a pronunciar las 5 vocales claramente',
       palabras: ['A', 'E', 'I', 'O', 'U'],
       dificultad: 'facil',
       icono: '🅰️',
@@ -98,6 +96,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     {
       numero: 2,
       nombre: 'Sílabas Simples',
+      descripcion: 'Combina consonantes con vocales para formar sílabas',
       palabras: ['MA', 'PA', 'TA', 'LA', 'SA', 'ME', 'PE', 'TE'],
       dificultad: 'facil',
       icono: '🔤',
@@ -106,6 +105,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     {
       numero: 3,
       nombre: 'Sílabas Complejas',
+      descripcion: 'Practica sílabas trabadas con BR, PL, TR, CR, GR',
       palabras: ['BRA', 'PLA', 'TRA', 'CRA', 'GRA', 'FRE', 'PRI'],
       dificultad: 'media',
       icono: '🔠',
@@ -114,6 +114,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     {
       numero: 4,
       nombre: 'Palabras Cortas',
+      descripcion: 'Pronuncia palabras completas de uso cotidiano',
       palabras: ['CASA', 'MESA', 'SOPA', 'PATO', 'GATO', 'LUNA', 'SOL'],
       dificultad: 'media',
       icono: '📝',
@@ -122,6 +123,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     {
       numero: 5,
       nombre: 'Palabras Medias',
+      descripcion: 'Palabras de 3 sílabas con diferentes sonidos',
       palabras: ['PELOTA', 'CABALLO', 'MANZANA', 'VENTANA', 'TORTUGA'],
       dificultad: 'media',
       icono: '📖',
@@ -130,6 +132,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     {
       numero: 6,
       nombre: 'Palabras Difíciles',
+      descripcion: 'Desafía tu pronunciación con palabras más largas',
       palabras: ['REFRIGERADOR', 'BICICLETA', 'MARIPOSA', 'DINOSAURIO', 'ELEFANTE'],
       dificultad: 'dificil',
       icono: '🎯',
@@ -138,6 +141,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     {
       numero: 7,
       nombre: 'Trabalenguas',
+      descripcion: 'El desafío final: frases completas difíciles de pronunciar',
       palabras: ['TRES TRISTES TIGRES', 'PABLITO CLAVO UN CLAVITO', 'EL PERRO DE SAN ROQUE'],
       dificultad: 'dificil',
       icono: '🌪️',
@@ -149,6 +153,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   mostrandoFeedback: boolean = false;
   mensajeFeedback: string = '';
   tipoFeedback: 'correcto' | 'incorrecto' | 'cerca' = 'correcto';
+  ultimoEscuchado: string = ''; // Nuevo: para mostrar lo que escuchó
   
   // Text-to-Speech
   synth: SpeechSynthesis | null = null;
@@ -159,10 +164,14 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
 
   // Audio de celebración
   escuchandoAudio: boolean = false;
+  timeoutEscucha: any = null;
+  timeoutGrabacion: any = null;
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {
     this.synth = window.speechSynthesis;
   }
@@ -176,24 +185,26 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   }
 
   iniciarJuego() {
-    this.tiempoInicio = Date.now();
-    this.puntaje = 0;
     this.nivelActual = 1;
+    this.modoJuego = 'todos';
     this.faseJuego = 'instrucciones';
-    this.iniciarTemporizador();
     console.log('🎤 Juego "Reto de Pronunciación" iniciado');
   }
 
-  iniciarTemporizador() {
-    this.intervaloTiempo = setInterval(() => {
-      if (this.faseJuego === 'jugando') {
-        this.tiempoTranscurrido = Math.floor((Date.now() - this.tiempoInicio) / 1000);
-        
-        if (this.tiempoTranscurrido >= this.tiempoLimite) {
-          this.tiempoAgotado();
-        }
-      }
-    }, 1000);
+  saltarInstrucciones() {
+    this.faseJuego = 'seleccion-nivel';
+  }
+
+  seleccionarNivel(nivel: number) {
+    this.nivelActual = nivel;
+    this.modoJuego = 'individual';
+    this.solicitarPermisoMicrofono();
+  }
+
+  jugarTodosLosNiveles() {
+    this.nivelActual = 1;
+    this.modoJuego = 'todos';
+    this.solicitarPermisoMicrofono();
   }
 
   async solicitarPermisoMicrofono() {
@@ -207,33 +218,97 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       }
       
       // Solicitar acceso al micrófono
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('✅ Permiso de micrófono concedido, stream:', stream);
       
       // Configurar reconocimiento de voz
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       this.recognition = new SpeechRecognition();
       
-      this.recognition.lang = 'es-ES'; // Español
-      this.recognition.continuous = false;
-      this.recognition.interimResults = false;
-      this.recognition.maxAlternatives = 3;
+      this.recognition.lang = 'es-ES'; // Español de España
+      this.recognition.continuous = false; // Solo una frase
+      this.recognition.interimResults = false; // ✅ FALSE - Solo resultados finales
+      this.recognition.maxAlternatives = 10; // Más alternativas para analizar
+      
+      console.log('🎤 Reconocimiento configurado:', {
+        lang: this.recognition.lang,
+        continuous: this.recognition.continuous,
+        interimResults: this.recognition.interimResults,
+        maxAlternatives: this.recognition.maxAlternatives
+      });
+      
+      this.recognition.onstart = () => {
+        this.ngZone.run(() => {
+          console.log('🎤 Evento onstart - Reconocimiento iniciado');
+        });
+      };
       
       this.recognition.onresult = (event: SpeechRecognitionEvent) => {
-        this.procesarResultado(event);
+        console.log('🎤 Evento onresult disparado!', event);
+        this.ngZone.run(() => {
+          this.procesarResultado(event);
+        });
+      };
+      
+      this.recognition.onspeechstart = () => {
+        console.log('🗣️ Detectado inicio de voz');
+      };
+      
+      this.recognition.onspeechend = () => {
+        console.log('🗣️ Detectado fin de voz');
+      };
+      
+      this.recognition.onaudiostart = () => {
+        console.log('🔊 Audio iniciado en reconocimiento');
+      };
+      
+      this.recognition.onaudioend = () => {
+        console.log('🔊 Audio finalizado en reconocimiento');
       };
       
       this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.error('❌ Error en reconocimiento:', event.error);
-        if (event.error === 'no-speech') {
-          this.mostrarFeedbackTemporal('No escuché nada. Intenta de nuevo.', 'incorrecto');
+        this.ngZone.run(() => {
+          console.error('❌ Error en reconocimiento:', event.error);
+          console.error('❌ Mensaje de error:', event.message);
+          
+          // Limpiar timeout de grabación
+          if (this.timeoutGrabacion) {
+            clearTimeout(this.timeoutGrabacion);
+            this.timeoutGrabacion = null;
+          }
+          
           this.esperandoPronunciacion = false;
           this.recognitionActiva = false;
-        }
+          this.cdr.detectChanges(); // FORZAR actualización de vista
+          
+          if (event.error === 'no-speech') {
+            this.mostrarFeedbackTemporal('No escuché nada. Intenta de nuevo.', 'incorrecto');
+          } else if (event.error === 'aborted') {
+            console.log('🎤 Reconocimiento cancelado');
+          } else if (event.error === 'audio-capture') {
+            this.mostrarFeedbackTemporal('Error de audio. Verifica tu micrófono.', 'incorrecto');
+          } else if (event.error === 'not-allowed') {
+            this.mostrarFeedbackTemporal('Permiso de micrófono denegado.', 'incorrecto');
+          } else {
+            this.mostrarFeedbackTemporal('Error al escuchar. Intenta de nuevo.', 'incorrecto');
+          }
+        });
       };
       
       this.recognition.onend = () => {
-        this.recognitionActiva = false;
-        console.log('🎤 Reconocimiento finalizado');
+        this.ngZone.run(() => {
+          console.log('🎤 Evento onend - Reconocimiento finalizado');
+          
+          // Limpiar timeout de grabación
+          if (this.timeoutGrabacion) {
+            clearTimeout(this.timeoutGrabacion);
+            this.timeoutGrabacion = null;
+          }
+          
+          this.recognitionActiva = false;
+          this.esperandoPronunciacion = false;
+          this.cdr.detectChanges(); // FORZAR actualización de vista
+        });
       };
       
       this.permisoMicrofono = true;
@@ -252,8 +327,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
 
   empezarNivel() {
     this.faseJuego = 'jugando';
-    this.tiempoInicio = Date.now();
-    this.tiempoTranscurrido = 0;
     this.palabrasCompletadas = 0;
     this.indicePalabra = 0;
     this.intentos = [];
@@ -276,109 +349,320 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     
     this.palabraActual = nivelData.palabras[this.indicePalabra];
     this.esperandoPronunciacion = false;
+    this.recognitionActiva = false;
+    this.ultimoEscuchado = ''; // Limpiar lo que escuchó anteriormente
     
     console.log(`🎯 Palabra actual: ${this.palabraActual}`);
   }
 
   escucharEjemplo() {
-    if (!this.synth || this.escuchandoAudio) return;
+    if (!this.synth) {
+      console.error('❌ Speech synthesis no disponible');
+      return;
+    }
     
-    this.escuchandoAudio = true;
+    if (this.escuchandoAudio) {
+      console.log('⚠️ Ya se está reproduciendo audio');
+      return;
+    }
+    
+    console.log('🔊 Iniciando ejemplo de audio para:', this.palabraActual);
     
     // Cancelar cualquier síntesis anterior
     this.synth.cancel();
     
+    // Establecer estado ANTES de hablar
+    this.escuchandoAudio = true;
+    this.cdr.detectChanges(); // FORZAR actualización de vista
+    
+    // Timeout de seguridad
+    this.timeoutEscucha = setTimeout(() => {
+      this.ngZone.run(() => {
+        console.log('⏰ Timeout de escucha - reseteando estado');
+        this.escuchandoAudio = false;
+        this.cdr.detectChanges();
+        if (this.synth) {
+          this.synth.cancel();
+        }
+      });
+    }, 10000);
+    
     const utterance = new SpeechSynthesisUtterance(this.palabraActual);
     utterance.lang = 'es-ES';
-    utterance.rate = 0.8; // Más lento para niños
+    utterance.rate = 0.8;
     utterance.pitch = 1.1;
     utterance.volume = 1;
     
+    utterance.onstart = () => {
+      this.ngZone.run(() => {
+        console.log('🔊 Audio iniciado');
+        this.escuchandoAudio = true;
+        this.cdr.detectChanges();
+      });
+    };
+    
     utterance.onend = () => {
-      this.escuchandoAudio = false;
-      console.log('🔊 Ejemplo reproducido');
+      this.ngZone.run(() => {
+        console.log('✅ Audio terminado - RESETEANDO ESTADO');
+        if (this.timeoutEscucha) {
+          clearTimeout(this.timeoutEscucha);
+          this.timeoutEscucha = null;
+        }
+        this.escuchandoAudio = false;
+        this.cdr.detectChanges(); // FORZAR actualización de vista
+      });
     };
     
-    utterance.onerror = () => {
-      this.escuchandoAudio = false;
-      console.error('❌ Error al reproducir ejemplo');
+    utterance.onerror = (error) => {
+      this.ngZone.run(() => {
+        console.error('❌ Error en síntesis de voz:', error);
+        if (this.timeoutEscucha) {
+          clearTimeout(this.timeoutEscucha);
+          this.timeoutEscucha = null;
+        }
+        this.escuchandoAudio = false;
+        this.cdr.detectChanges(); // FORZAR actualización de vista
+      });
     };
     
-    this.synth.speak(utterance);
+    try {
+      this.synth.speak(utterance);
+      console.log('🎤 Utterance agregado a la cola');
+    } catch (error) {
+      console.error('❌ Error al iniciar síntesis:', error);
+      if (this.timeoutEscucha) {
+        clearTimeout(this.timeoutEscucha);
+      }
+      this.escuchandoAudio = false;
+      this.cdr.detectChanges();
+    }
   }
 
   empezarGrabacion() {
-    if (!this.recognition || this.recognitionActiva || this.esperandoPronunciacion) {
+    if (!this.recognition) {
+      console.error('❌ Reconocimiento no disponible');
       return;
     }
     
+    if (this.recognitionActiva || this.esperandoPronunciacion) {
+      console.log('⚠️ Ya hay una grabación en curso');
+      return;
+    }
+    
+    console.log('🎤 Iniciando grabación para:', this.palabraActual);
+    
     this.esperandoPronunciacion = true;
     this.recognitionActiva = true;
+    this.cdr.detectChanges(); // FORZAR actualización de vista
+    
+    // Timeout de seguridad - aumentado a 15 segundos
+    this.timeoutGrabacion = setTimeout(() => {
+      this.ngZone.run(() => {
+        console.log('⏰ Timeout de grabación (15s) - reseteando estado');
+        this.esperandoPronunciacion = false;
+        this.recognitionActiva = false;
+        this.cdr.detectChanges();
+        if (this.recognition) {
+          try {
+            this.recognition.stop();
+          } catch (e) {
+            console.log('No se pudo detener el reconocimiento');
+          }
+        }
+        this.mostrarFeedbackTemporal('Tiempo agotado. Intenta de nuevo.', 'incorrecto');
+      });
+    }, 15000); // Aumentado a 15 segundos
     
     try {
       this.recognition.start();
-      console.log('🎤 Grabación iniciada - Esperando pronunciación de:', this.palabraActual);
+      console.log('🎤 Reconocimiento iniciado exitosamente');
+      console.log('🎤 Esperando que pronuncies:', this.palabraActual);
     } catch (error) {
       console.error('❌ Error al iniciar grabación:', error);
+      if (this.timeoutGrabacion) {
+        clearTimeout(this.timeoutGrabacion);
+        this.timeoutGrabacion = null;
+      }
       this.recognitionActiva = false;
       this.esperandoPronunciacion = false;
+      this.cdr.detectChanges();
     }
   }
 
   procesarResultado(event: SpeechRecognitionEvent) {
+    console.log('📊 ========== PROCESANDO RESULTADO ==========');
+    
+    // Limpiar timeout de grabación
+    if (this.timeoutGrabacion) {
+      clearTimeout(this.timeoutGrabacion);
+      this.timeoutGrabacion = null;
+    }
+    
     const results = event.results;
+    console.log('📊 Results length:', results.length);
+    
+    if (results.length === 0) {
+      console.error('❌ No hay resultados');
+      this.esperandoPronunciacion = false;
+      this.recognitionActiva = false;
+      this.cdr.detectChanges();
+      return;
+    }
+    
+    // Con interimResults = false, siempre usamos results[0] que es el resultado final
     const resultado = results[0];
-    const transcript = resultado[0].transcript.toUpperCase().trim();
-    const confidence = resultado[0].confidence;
     
-    console.log('🎤 Escuchado:', transcript, '- Confianza:', (confidence * 100).toFixed(0) + '%');
-    console.log('🎯 Esperado:', this.palabraActual);
+    console.log('✅ Procesando resultado final');
+    console.log('📊 isFinal:', resultado.isFinal);
     
-    // Normalizar para comparación
-    const transcriptNormalizado = this.normalizarTexto(transcript);
+    if (resultado.length === 0) {
+      console.error('❌ Resultado vacío');
+      this.esperandoPronunciacion = false;
+      this.recognitionActiva = false;
+      this.cdr.detectChanges();
+      return;
+    }
+    
+    // Detener reconocimiento inmediatamente
+    this.esperandoPronunciacion = false;
+    this.recognitionActiva = false;
+    this.cdr.detectChanges();
+    
+    // Normalizar la palabra esperada
     const palabraEsperadaNormalizada = this.normalizarTexto(this.palabraActual);
+    console.log('🎯 Palabra esperada (normalizada):', palabraEsperadaNormalizada);
     
-    const esCorrecto = transcriptNormalizado === palabraEsperadaNormalizada;
-    const similitud = this.calcularSimilitud(transcriptNormalizado, palabraEsperadaNormalizada);
+    // Analizar TODAS las alternativas
+    console.log('📝 Analizando', resultado.length, 'alternativas:');
+    
+    let mejorCoincidencia = {
+      transcript: '',
+      confidence: 0,
+      similitud: 0,
+      esCorrecto: false,
+      normalizado: ''
+    };
+    
+    for (let i = 0; i < resultado.length; i++) {
+      const alt = resultado[i];
+      const transcriptNormalizado = this.normalizarTexto(alt.transcript);
+      const similitud = this.calcularSimilitud(transcriptNormalizado, palabraEsperadaNormalizada);
+      const esCorrecto = transcriptNormalizado === palabraEsperadaNormalizada;
+      
+      console.log(`  ${i + 1}. "${alt.transcript}" → "${transcriptNormalizado}"`);
+      console.log(`     Confianza: ${(alt.confidence * 100).toFixed(0)}% | Similitud: ${(similitud * 100).toFixed(0)}% | Correcto: ${esCorrecto}`);
+      
+      // Buscar la mejor coincidencia (priorizar corrección, luego similitud, luego confianza)
+      if (esCorrecto) {
+        mejorCoincidencia = {
+          transcript: alt.transcript,
+          confidence: alt.confidence,
+          similitud: 1.0,
+          esCorrecto: true,
+          normalizado: transcriptNormalizado
+        };
+        console.log('     ✅ ¡COINCIDENCIA EXACTA!');
+        break; // Si encontramos coincidencia exacta, no seguir buscando
+      } else if (similitud > mejorCoincidencia.similitud) {
+        mejorCoincidencia = {
+          transcript: alt.transcript,
+          confidence: alt.confidence,
+          similitud: similitud,
+          esCorrecto: false,
+          normalizado: transcriptNormalizado
+        };
+      }
+    }
+    
+    console.log('🏆 MEJOR COINCIDENCIA:');
+    console.log('   Original:', mejorCoincidencia.transcript);
+    console.log('   Normalizado:', mejorCoincidencia.normalizado);
+    console.log('   Esperado:', palabraEsperadaNormalizada);
+    console.log('   Correcto:', mejorCoincidencia.esCorrecto);
+    console.log('   Similitud:', (mejorCoincidencia.similitud * 100).toFixed(0) + '%');
+    console.log('   Confianza:', (mejorCoincidencia.confidence * 100).toFixed(0) + '%');
+    console.log('=====================================');
     
     // Guardar intento
     const intento: IntentoPalabra = {
       palabra: this.palabraActual,
-      escuchado: transcript,
-      correcto: esCorrecto,
-      confianza: confidence,
+      escuchado: mejorCoincidencia.transcript,
+      correcto: mejorCoincidencia.esCorrecto,
+      confianza: mejorCoincidencia.confidence,
       timestamp: Date.now()
     };
     this.intentos.push(intento);
     
-    if (esCorrecto) {
-      this.palabraCorrecta(confidence);
-    } else if (similitud > 0.6) {
-      this.palabraCerca(transcript, similitud);
+    // Decidir resultado basado en la mejor coincidencia
+    if (mejorCoincidencia.esCorrecto) {
+      console.log('✅ Llamando a palabraCorrecta()');
+      this.palabraCorrecta(mejorCoincidencia.confidence);
+    } else if (mejorCoincidencia.similitud >= 0.7) {
+      // Umbral de similitud 70% para ser más permisivo
+      console.log('🟡 Llamando a palabraCerca()');
+      this.palabraCerca(mejorCoincidencia.transcript, mejorCoincidencia.similitud);
     } else {
-      this.palabraIncorrecta(transcript);
+      console.log('❌ Llamando a palabraIncorrecta()');
+      this.palabraIncorrecta(mejorCoincidencia.transcript);
     }
-    
-    this.esperandoPronunciacion = false;
   }
 
   normalizarTexto(texto: string): string {
-    return texto
-      .toUpperCase()
-      .trim()
-      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
-      .replace(/\s+/g, ' ');
+    // Eliminar acentos y tildes
+    const sinAcentos = texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+    
+    // Convertir a mayúsculas
+    const mayusculas = sinAcentos.toUpperCase();
+    
+    // Eliminar TODA puntuación y caracteres especiales
+    const sinPuntuacion = mayusculas
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()¿?¡!"""''´`]/g, '');
+    
+    // Normalizar espacios múltiples a un solo espacio
+    const espaciosNormalizados = sinPuntuacion
+      .replace(/\s+/g, ' ')
+      .trim();
+    
+    console.log('🔍 Normalización:', {
+      original: texto,
+      sinAcentos: sinAcentos,
+      resultado: espaciosNormalizados
+    });
+    
+    return espaciosNormalizados;
   }
 
   calcularSimilitud(str1: string, str2: string): number {
-    // Algoritmo de Levenshtein simplificado
+    // Algoritmo de Levenshtein mejorado
     const longer = str1.length > str2.length ? str1 : str2;
     const shorter = str1.length > str2.length ? str2 : str1;
     
     if (longer.length === 0) return 1.0;
     
     const editDistance = this.levenshteinDistance(longer, shorter);
-    return (longer.length - editDistance) / longer.length;
+    const similitud = (longer.length - editDistance) / longer.length;
+    
+    // BONUS: Dar puntos extra si contiene todas las letras importantes
+    const letrasEsperadas = new Set(str2.split(''));
+    const letrasEncontradas = str1.split('').filter(letra => letrasEsperadas.has(letra));
+    const porcentajeLetras = letrasEncontradas.length / str2.length;
+    
+    // Similitud ponderada (70% Levenshtein + 30% letras coincidentes)
+    const similitudFinal = (similitud * 0.7) + (porcentajeLetras * 0.3);
+    
+    console.log('📊 Cálculo de similitud:', {
+      str1,
+      str2,
+      editDistance,
+      similitudLevenshtein: (similitud * 100).toFixed(0) + '%',
+      letrasCoincidentes: letrasEncontradas.length + '/' + str2.length,
+      porcentajeLetras: (porcentajeLetras * 100).toFixed(0) + '%',
+      similitudFinal: (similitudFinal * 100).toFixed(0) + '%'
+    });
+    
+    return similitudFinal;
   }
 
   levenshteinDistance(str1: string, str2: string): number {
@@ -410,16 +694,19 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   }
 
   palabraCorrecta(confianza: number) {
-    console.log('✅ ¡Palabra correcta!');
+    console.log('✅✅✅ ¡PALABRA CORRECTA! ✅✅✅');
     
+    this.ultimoEscuchado = ''; // Limpiar ya que fue correcto
     this.mostrarFeedbackTemporal('¡Excelente! 🎉', 'correcto');
-    
-    // Puntuación basada en confianza
-    const puntos = Math.floor(100 * confianza) + (this.nivelActual * 50);
-    this.puntaje += puntos;
     
     this.palabrasCompletadas++;
     this.indicePalabra++;
+    
+    console.log('📊 Progreso actualizado:', {
+      palabrasCompletadas: this.palabrasCompletadas,
+      totalPalabras: this.totalPalabras,
+      indicePalabra: this.indicePalabra
+    });
     
     // Vibración de éxito
     if ('vibrate' in navigator) {
@@ -427,52 +714,66 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     }
     
     setTimeout(() => {
-      this.cargarSiguientePalabra();
+      this.ngZone.run(() => {
+        console.log('➡️ Cargando siguiente palabra...');
+        this.cargarSiguientePalabra();
+      });
     }, 1500);
   }
 
   palabraCerca(escuchado: string, similitud: number) {
-    console.log('🟡 Palabra casi correcta');
+    console.log('🟡🟡🟡 PALABRA CASI CORRECTA 🟡🟡🟡');
+    console.log('🟡 Similitud:', (similitud * 100).toFixed(0) + '%');
     
-    this.mostrarFeedbackTemporal(`Casi lo logras! Escuché: "${escuchado}"`, 'cerca');
-    
-    // Dar puntos parciales
-    this.puntaje += Math.floor(50 * similitud);
+    this.ultimoEscuchado = escuchado;
+    this.mostrarFeedbackTemporal('¡Casi! Inténtalo de nuevo 💪', 'cerca');
   }
 
   palabraIncorrecta(escuchado: string) {
-    console.log('❌ Palabra incorrecta');
+    console.log('❌❌❌ PALABRA INCORRECTA ❌❌❌');
     
-    this.mostrarFeedbackTemporal(`Intenta de nuevo. Escuché: "${escuchado}"`, 'incorrecto');
+    this.ultimoEscuchado = escuchado;
+    this.mostrarFeedbackTemporal('Intenta de nuevo 🔄', 'incorrecto');
   }
 
   mostrarFeedbackTemporal(mensaje: string, tipo: 'correcto' | 'incorrecto' | 'cerca') {
+    console.log('💬 Mostrando feedback:', tipo, '-', mensaje);
+    
     this.mensajeFeedback = mensaje;
     this.tipoFeedback = tipo;
     this.mostrandoFeedback = true;
+    this.cdr.detectChanges(); // FORZAR actualización
+    
+    console.log('💬 Estado de feedback:', {
+      mostrandoFeedback: this.mostrandoFeedback,
+      mensajeFeedback: this.mensajeFeedback,
+      tipoFeedback: this.tipoFeedback
+    });
     
     setTimeout(() => {
-      this.mostrandoFeedback = false;
-    }, 2000);
+      this.ngZone.run(() => {
+        console.log('💬 Ocultando feedback');
+        this.mostrandoFeedback = false;
+        this.cdr.detectChanges();
+      });
+    }, 2500);
   }
 
   completarNivel() {
     this.faseJuego = 'preparando';
     
-    const bonusTiempo = Math.max(0, this.tiempoLimite - this.tiempoTranscurrido) * 10;
-    const bonusNivel = this.nivelActual * 200;
-    this.puntaje += bonusTiempo + bonusNivel;
+    console.log(`✅ Nivel ${this.nivelActual} completado`);
     
-    console.log(`✅ Nivel ${this.nivelActual} completado. Bonus: +${bonusTiempo + bonusNivel}`);
-    
-    if (this.nivelActual >= this.maxNiveles) {
-      setTimeout(() => {
-        this.completarJuego();
-      }, 2000);
-    } else {
+    // Si está en modo "todos los niveles" y no es el último nivel
+    if (this.modoJuego === 'todos' && this.nivelActual < this.maxNiveles) {
       setTimeout(() => {
         this.nivelActual++;
         this.empezarNivel();
+      }, 2000);
+    } else {
+      // Modo individual o último nivel de "todos"
+      setTimeout(() => {
+        this.completarJuego();
       }, 2000);
     }
   }
@@ -480,26 +781,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   completarJuego() {
     this.faseJuego = 'completado';
     
-    const bonusCompletado = 2000;
-    this.puntaje += bonusCompletado;
-    
     console.log('🎉 ¡Juego completado!');
-    console.log(`📊 Puntaje final: ${this.puntaje}`);
-  }
-
-  tiempoAgotado() {
-    this.faseJuego = 'completado';
-    console.log('⏰ Tiempo agotado');
-  }
-
-  formatearTiempo(segundos: number): string {
-    const minutos = Math.floor(segundos / 60);
-    const segs = segundos % 60;
-    return `${minutos}:${segs.toString().padStart(2, '0')}`;
-  }
-
-  getTiempoRestante(): number {
-    return Math.max(0, this.tiempoLimite - this.tiempoTranscurrido);
   }
 
   getNivelActualData(): Nivel {
@@ -515,22 +797,70 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     return this.intentos.filter(intento => intento.correcto).length;
   }
 
-  getEstrellas(): number {
-    const precision = this.intentos.filter(i => i.correcto).length / Math.max(1, this.intentos.length);
-    
-    if (this.nivelActual >= this.maxNiveles && precision >= 0.9) return 3;
-    if (this.nivelActual >= 4 && precision >= 0.7) return 2;
-    if (precision >= 0.5) return 1;
-    return 0;
+  getTotalIntentos(): number {
+    return this.intentos.length;
   }
 
   reiniciarJuego() {
     this.limpiarRecursos();
     this.iniciarJuego();
+  }
+
+  reiniciarNivel() {
+    this.limpiarRecursos();
     this.solicitarPermisoMicrofono();
   }
 
+  resetearEstadosBotones() {
+    console.log('🔄 Reseteando estados manualmente...');
+    this.escuchandoAudio = false;
+    this.esperandoPronunciacion = false;
+    this.recognitionActiva = false;
+    
+    if (this.timeoutEscucha) {
+      clearTimeout(this.timeoutEscucha);
+      this.timeoutEscucha = null;
+    }
+    
+    if (this.timeoutGrabacion) {
+      clearTimeout(this.timeoutGrabacion);
+      this.timeoutGrabacion = null;
+    }
+    
+    if (this.synth) {
+      this.synth.cancel();
+    }
+    
+    if (this.recognition && this.recognitionActiva) {
+      try {
+        this.recognition.stop();
+      } catch (e) {
+        console.log('No se pudo detener reconocimiento');
+      }
+    }
+    
+    this.cdr.detectChanges();
+    console.log('✅ Estados reseteados');
+  }
+
+  volverASeleccionNivel() {
+    this.limpiarRecursos();
+    this.faseJuego = 'seleccion-nivel';
+  }
+
   volverAJuegos() {
+    // Si está jugando o en pantalla de completado, ir a selección de niveles
+    if (this.faseJuego === 'jugando' || this.faseJuego === 'completado') {
+      this.limpiarRecursos();
+      this.faseJuego = 'seleccion-nivel';
+    } else {
+      // Si está en instrucciones, error, o selección de nivel, ir al dashboard
+      this.limpiarRecursos();
+      this.router.navigate(['/juegos-terapeuticos']);
+    }
+  }
+
+  volverAlDashboard() {
     this.limpiarRecursos();
     this.router.navigate(['/juegos-terapeuticos']);
   }
@@ -541,8 +871,15 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   }
 
   limpiarRecursos() {
-    if (this.intervaloTiempo) {
-      clearInterval(this.intervaloTiempo);
+    // Limpiar timeouts
+    if (this.timeoutEscucha) {
+      clearTimeout(this.timeoutEscucha);
+      this.timeoutEscucha = null;
+    }
+    
+    if (this.timeoutGrabacion) {
+      clearTimeout(this.timeoutGrabacion);
+      this.timeoutGrabacion = null;
     }
     
     if (this.recognition) {
@@ -559,12 +896,10 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     }
     
     this.recognitionActiva = false;
+    this.esperandoPronunciacion = false;
+    this.escuchandoAudio = false;
     this.permisoMicrofono = false;
     
     console.log('🧹 Recursos limpiados');
-  }
-
-  saltarInstrucciones() {
-    this.solicitarPermisoMicrofono();
   }
 }

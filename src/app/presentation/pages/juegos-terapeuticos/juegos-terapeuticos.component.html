@@ -1,132 +1,59 @@
 <!-- juegos-terapeuticos.component.html -->
 
 <div class="juegos-container">
+  <div class="secciones-menu">
   
-  <!-- Vista principal: Selección de categorías -->
-  <main class="juegos-seccion-menu" *ngIf="!categoriaSeleccionada">
-    
-    <!-- Botón volver al dashboard -->
-    <button class="btn-volver-dashboard" (click)="volverAlDashboard()">
-      <span class="icono-flecha">←</span>
-      <span class="texto-btn">Volver al Dashboard</span>
-    </button>
+  <!-- Botón volver al menú principal -->
+  <button class="btn-volver-menu-principal" (click)="volverAlDashboard()">
+    <span class="arrow">←</span>
+    Volver al Menú Principal
+  </button>
 
-    <!-- Header con imagen de fondo -->
-    <div class="header-juegos-nuevo">
-      <div class="header-background">
-        <div class="header-overlay"></div>
-        <div class="header-content">
-          <h1 class="seccion-titulo-nuevo">🎮 Juegos Terapéuticos</h1>
-          <p class="seccion-descripcion-nuevo">Selecciona una categoría para comenzar a jugar</p>
+  <!-- Header con estilo igual a Ejercicios de Fonoaudiología -->
+  <div class="header-secciones">
+    <h2>JUEGOS TERAPÉUTICOS</h2>
+    <p class="subtitulo">Selecciona un juego para comenzar a practicar</p>
+  </div>
+
+  <!-- Grid unificado de TODOS los juegos -->
+  <div class="juegos-grid-unificado">
+    <div 
+      *ngFor="let juego of juegos"
+      class="juego-card-modern"
+      [ngClass]="'card-' + juego.color"
+      (click)="jugarJuego(juego); $event.stopPropagation()">
+      
+      <!-- Imagen del juego -->
+      <div class="juego-imagen-container">
+        <div class="juego-imagen" [style.background-image]="'url(assets/images/' + juego.imagen + ')'">
+          <div class="imagen-overlay"></div>
         </div>
       </div>
-    </div>
-
-    <!-- Grid de categorías -->
-    <div class="categorias-grid">
-      <div 
-        *ngFor="let categoria of categorias"
-        class="categoria-card"
-        [ngClass]="'bg-gradient-' + categoria.color"
-        (click)="seleccionarCategoria(categoria)">
+      
+      <!-- Contenido del juego -->
+      <div class="juego-contenido-modern">
+        <h3 class="juego-nombre">{{ juego.nombre }}</h3>
+        <p class="juego-descripcion-text">{{ juego.descripcion }}</p>
         
-        <!-- Imagen de la categoría -->
-        <div class="categoria-imagen-container">
-          <img 
-            [src]="'assets/images/' + categoria.imagen" 
-            [alt]="categoria.titulo"
-            class="categoria-imagen"
-            (error)="onImageError($event, categoria)">
-        </div>
-        
-        <!-- Contenido -->
-        <div class="categoria-contenido">
-          <h3>{{ categoria.titulo }}</h3>
-          <p class="categoria-subtitulo">{{ categoria.subtitulo }}</p>
-          <p class="categoria-descripcion">{{ categoria.descripcion }}</p>
-          
-          <!-- Contador de juegos -->
-          <div class="categoria-juegos-count">
-            <div class="count-badge">
-              <div class="count-numero">{{ categoria.juegos.length }}</div>
-              <div class="count-texto">Juegos</div>
-            </div>
+        <!-- Footer con info y botón -->
+        <div class="juego-footer-modern">
+          <div class="juego-meta">
+            <span class="juego-dificultad-badge" [ngClass]="getDificultadColor(juego.dificultad)">
+              {{ getDificultadTexto(juego.dificultad) }}
+            </span>
+            <span class="juego-duracion">
+              ⏰ {{ getDuracion(juego.dificultad) }}
+            </span>
           </div>
           
-          <!-- Botón jugar -->
-          <button class="play-button">
-            <span class="play-icon">▶</span>
-            <span>Jugar</span>
+          <button class="btn-jugar-modern" [ngClass]="'btn-gradient-' + juego.color" (click)="jugarJuego(juego); $event.stopPropagation()">
+            <span class="play-icon-modern">▶</span>
+            <span class="btn-text">Jugar</span>
           </button>
         </div>
       </div>
     </div>
+  </div>
 
-  </main>
-
-  <!-- Vista de juegos por categoría -->
-  <main class="main-content" *ngIf="categoriaSeleccionada">
-    <!-- Botón volver a categorías -->
-    <button class="btn-volver-dashboard" (click)="volverACategorias()">
-      <span class="icono-flecha">←</span>
-      <span class="texto-btn">Volver a Categorías</span>
-    </button>
-
-    <div class="categoria-selected" 
-         *ngFor="let categoria of categorias" 
-         [ngStyle]="categoria.id === categoriaSeleccionada ? {} : {display: 'none'}">
-      
-      <!-- Header mejorado con fondo y overlay -->
-      <div class="categoria-header-modern" [ngClass]="'header-' + categoria.id">
-        <div class="header-overlay-modern"></div>
-        <div class="header-content-modern">
-          <div class="header-text-content">
-            <h1 class="categoria-titulo-modern">{{ categoria.titulo.toUpperCase() }}</h1>
-            <p class="categoria-descripcion-modern">{{ categoria.descripcion }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Grid de juegos mejorado -->
-      <div class="juegos-grid-modern">
-        <div 
-          *ngFor="let juego of categoria.juegos"
-          class="juego-card-modern"
-          [ngClass]="'card-' + categoria.id"
-          (click)="jugarJuego(juego, categoria)">
-          
-          <!-- Imagen del juego -->
-          <div class="juego-imagen-container">
-            <div class="juego-imagen" [ngClass]="'bg-' + categoria.id + '-' + juego.id">
-              <div class="imagen-overlay"></div>
-              <div class="imagen-emoji">{{ juego.emoji }}</div>
-            </div>
-          </div>
-          
-          <!-- Contenido del juego -->
-          <div class="juego-contenido-modern">
-            <h3 class="juego-nombre">{{ juego.nombre }}</h3>
-            <p class="juego-descripcion-text">{{ juego.descripcion }}</p>
-            
-            <!-- Footer con info y botón -->
-            <div class="juego-footer-modern">
-              <div class="juego-meta">
-                <span class="juego-dificultad-badge" [ngClass]="getDificultadColor(juego.dificultad)">
-                  {{ getDificultadTexto(juego.dificultad) }}
-                </span>
-                <span class="juego-duracion">
-                  <i class="fas fa-clock"></i> {{ getDuracion(juego.dificultad) }}
-                </span>
-              </div>
-              
-              <button class="btn-jugar-modern" [ngClass]="'btn-' + categoria.id">
-                <span class="play-icon-modern">▶</span>
-                <span class="btn-text">Jugar</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
+  </div>
 </div>

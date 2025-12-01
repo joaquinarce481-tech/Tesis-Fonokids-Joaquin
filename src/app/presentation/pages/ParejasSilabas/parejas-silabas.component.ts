@@ -221,7 +221,8 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
   }
 
   volverAlMenu(): void {
-    this.router.navigate(['/ejercicios']);
+    // Navegar correctamente al dashboard de juegos terapéuticos
+    this.router.navigate(['/juegos-terapeuticos']);
   }
 
   private hablar(texto: string): void {
