@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment'; // ⭐ CORREGIDO: ajustar según tu estructura de carpetas
+import { environment } from '../../../../environments/environment';
 
 interface Actividad {
   id_actividad: number;
@@ -64,8 +64,11 @@ export class MiAgendaComponent implements OnInit {
       return;
     }
 
-    // Llamar al endpoint del backend
-    this.http.get<any>(`${environment.backendApi}/historial-actividades/paciente/${idPaciente}`)
+    // ✅ CORREGIDO: Agregado /api/ en la URL
+    console.log('🔍 Cargando historial del paciente:', idPaciente);
+    console.log('🔗 URL:', `${environment.backendApi}/api/historial-actividades/paciente/${idPaciente}`);
+    
+    this.http.get<any>(`${environment.backendApi}/api/historial-actividades/paciente/${idPaciente}`)
       .subscribe({
         next: (response) => {
           console.log('✅ Actividades cargadas:', response);

@@ -13,10 +13,12 @@ export interface RegistrarActividadDto {
   providedIn: 'root'
 })
 export class HistorialActividadesService {
-  // 🔧 CORREGIDO: Agregado /api/ a la ruta
+  // ✅ CORREGIDO: Agregado /api/ antes de /historial-actividades
   private apiUrl = `${environment.backendApi}/api/historial-actividades`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    console.log('🔧 HistorialActividadesService configurado:', this.apiUrl);
+  }
 
   /**
    * Registra una nueva actividad en el historial
