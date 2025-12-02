@@ -1,0 +1,102 @@
+<div class="agenda-container">
+  <!-- Header -->
+  <div class="agenda-header">
+    <button class="btn-back" (click)="volverAlDashboard()">
+      <span class="icon">🏠</span>
+      <span class="btn-text">Volver</span>
+    </button>
+    <div class="header-info">
+      <h1>📅 Mis Actividades</h1>
+      <p>Registro de todas tus actividades</p>
+    </div>
+    <div class="header-stats">
+      <div class="stat-badge">
+        <span class="stat-number">{{ totalActividades }}</span>
+        <span class="stat-label">actividades</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estadísticas Resumen -->
+  <div class="stats-section" *ngIf="!cargando && !error && actividadesPorFecha.length > 0">
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ totalActividades }}</div>
+        <div class="stat-title">Total de Actividades</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ diasRegistrados }}</div>
+        <div class="stat-title">Días Registrados</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="cargando">
+    <div class="spinner"></div>
+    <p>Cargando tu historial...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !cargando">
+    <div class="error-icon">⚠️</div>
+    <h2>¡Ups! Algo salió mal</h2>
+    <p>{{ error }}</p>
+    <button class="btn-retry" (click)="cargarHistorial()">
+      <span class="icon">🔄</span>
+      Intentar de nuevo
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-container" *ngIf="!cargando && !error && actividadesPorFecha.length === 0">
+    <div class="empty-icon">📭</div>
+    <h2>¡Aún no hay actividades!</h2>
+    <p>Cuando empieces a practicar, aquí verás todo lo que has hecho cada día.</p>
+    <button class="btn-start" (click)="volverAlDashboard()">
+      <span class="icon">🚀</span>
+      Comenzar a Practicar
+    </button>
+  </div>
+
+  <!-- Historial de Actividades -->
+  <div class="historial-container" *ngIf="!cargando && !error && actividadesPorFecha.length > 0">
+    <div class="fecha-grupo" *ngFor="let grupo of actividadesPorFecha">
+      <!-- Fecha del día -->
+      <div class="fecha-header">
+        <h2>{{ grupo.fechaFormateada }}</h2>
+        <div class="fecha-badge">{{ grupo.actividades.length }} actividades</div>
+      </div>
+
+      <!-- Timeline de actividades -->
+      <div class="actividades-timeline">
+        <div 
+          class="actividad-card" 
+          *ngFor="let actividad of grupo.actividades"
+          [ngClass]="getColorTipo(actividad.tipo_actividad)">
+          
+          <div class="actividad-icono">
+            {{ getIconoActividad(actividad.tipo_actividad) }}
+          </div>
+          
+          <div class="actividad-content">
+            <div class="actividad-tipo">
+              {{ getTituloTipo(actividad.tipo_actividad) }}
+            </div>
+            <div class="actividad-nombre">
+              {{ actividad.nombre_actividad }}
+            </div>
+          </div>
+
+          <div class="actividad-check">
+            ✅
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

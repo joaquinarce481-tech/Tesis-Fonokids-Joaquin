@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { HistorialActividadesService } from '../..//services/historial-actividades.service'; // 📝 NUEVO
 
 interface Obstaculo {
   id: string;
@@ -35,7 +36,7 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   metaParaFelicitacion: number = 25;
   
   // Jugador
-  jugadorY: number = 300; // Posición Y del jugador
+  jugadorY: number = 300;
   jugadorSaltando: boolean = false;
   velocidadSalto: number = 0;
   gravedad: number = 0.6;
@@ -80,7 +81,8 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   
   constructor(
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private historialService: HistorialActividadesService // 📝 NUEVO: Inyectar servicio
   ) {}
 
   ngOnInit() {
@@ -94,19 +96,18 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ===== RECONOCIMIENTO DE VOZ =====
-  
+  // ... [RESTO DEL CÓDIGO SIN CAMBIOS HASTA mostrarFelicitacion()] ...
+
   inicializarReconocimientoVoz() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
       this.recognition = new SpeechRecognition();
       this.recognition.lang = 'es-ES';
       this.recognition.continuous = true;
-      this.recognition.interimResults = true; // Cambiar a true para captar más rápido
-      this.recognition.maxAlternatives = 5; // Más alternativas
+      this.recognition.interimResults = true;
+      this.recognition.maxAlternatives = 5;
 
       this.recognition.onresult = (event: any) => {
-        // Procesar todos los resultados, incluidos los interinos
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
           const palabra = transcript.toUpperCase().trim();
@@ -121,7 +122,6 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
       this.recognition.onerror = (event: any) => {
         console.error('Error en reconocimiento de voz:', event.error);
         if (event.error === 'no-speech' || event.error === 'aborted') {
-          // Reintentar automáticamente
           if (this.escuchandoVoz && this.faseJuego === 'jugando') {
             setTimeout(() => {
               if (this.recognition && this.escuchandoVoz) {
@@ -155,17 +155,15 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   procesarPalabraDetectada(palabra: string) {
     if (this.faseJuego !== 'jugando') return;
 
-    // Normalizar la palabra detectada
     const palabraNormalizada = this.normalizarTexto(palabra);
     
     console.log(`🎤 Detectado: "${palabra}" → Normalizado: "${palabraNormalizada}"`);
 
-    // Buscar obstáculo próximo que coincida
     const obstaculoProximo = this.obstaculos.find(obs => 
       !obs.superado && 
       obs.activo && 
       obs.posicionX > 100 &&
-      obs.posicionX < 700  // Ventana MUY amplia
+      obs.posicionX < 700
     );
 
     if (!obstaculoProximo) {
@@ -173,11 +171,9 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Verificar si la palabra contiene la sílaba
     const silabaNormalizada = this.normalizarTexto(obstaculoProximo.silaba);
     
     if (this.contieneSilaba(palabraNormalizada, silabaNormalizada)) {
-      // ¡CORRECTO!
       obstaculoProximo.superado = true;
       this.saltar();
       this.palabrasCorrectas++;
@@ -188,48 +184,40 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
       console.log(`✅ ¡CORRECTO! Palabra: "${palabra}" contiene sílaba: "${obstaculoProximo.silaba}"`);
       console.log(`📊 Palabras correctas: ${this.palabrasCorrectas}/25`);
       
-      // Verificar si alcanzó la meta
       if (this.palabrasCorrectas >= this.metaParaFelicitacion) {
         console.log('🎯 ¡META ALCANZADA! Mostrando felicitación...');
         this.mostrarFelicitacion();
       }
     } else {
-      // Mostrar qué se esperaba
       this.ultimaPalabraDetectada = `❌ ${palabra.substring(0, 15)}`;
       console.log(`❌ Esperaba: "${obstaculoProximo.silaba}" pero detectó: "${palabra}"`);
     }
   }
 
-  // Normalizar texto para mejor comparación
   normalizarTexto(texto: string): string {
     return texto
       .toUpperCase()
       .trim()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
-      .replace(/[^A-Z]/g, ''); // Solo letras
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^A-Z]/g, '');
   }
 
-  // Verificar si una palabra contiene la sílaba
   contieneSilaba(palabra: string, silaba: string): boolean {
-    // Búsqueda directa
     if (palabra.includes(silaba)) {
       return true;
     }
     
-    // Búsqueda con vocales flexibles (ej: "TO" puede coincidir con "TORO", "TOMATE")
     if (silaba.length === 2) {
       const consonante = silaba[0];
       const vocal = silaba[1];
       
-      // Buscar la consonante seguida de la vocal
       const regex = new RegExp(`${consonante}${vocal}`, 'g');
       if (regex.test(palabra)) {
         return true;
       }
     }
     
-    // Coincidencia parcial (para casos como "T" + "O" separados)
     if (silaba.length === 2 && palabra.length >= 2) {
       for (let i = 0; i < palabra.length - 1; i++) {
         if (palabra[i] === silaba[0] && palabra[i + 1] === silaba[1]) {
@@ -261,8 +249,6 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ===== CONTROL DE TECLADO (Alternativa) =====
-  
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
     if (this.faseJuego === 'jugando' && event.code === 'Space') {
@@ -271,8 +257,6 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ===== INICIALIZACIÓN DEL JUEGO =====
-  
   iniciarJuego() {
     this.faseJuego = 'instrucciones';
     this.reiniciarEstadisticas();
@@ -305,25 +289,12 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     this.ultimaPalabraDetectada = '';
   }
 
-  // ===== LÓGICA PRINCIPAL DEL JUEGO =====
-  
   actualizarJuego() {
-    // Actualizar física del jugador
     this.actualizarJugador();
-    
-    // Actualizar obstáculos
     this.actualizarObstaculos();
-    
-    // Generar nuevos obstáculos
     this.generarObstaculos();
-    
-    // Actualizar partículas
     this.actualizarParticulas();
-    
-    // Detectar colisiones (solo visual, sin penalización)
     this.detectarColisiones();
-    
-    // Actualizar progreso
     this.distanciaRecorrida += this.velocidadJuego * 0.1;
   }
 
@@ -332,7 +303,6 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
       this.velocidadSalto += this.gravedad;
       this.jugadorY += this.velocidadSalto;
       
-      // Verificar si tocó el suelo
       if (this.jugadorY >= this.suelo) {
         this.jugadorY = this.suelo;
         this.jugadorSaltando = false;
@@ -355,14 +325,6 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   actualizarObstaculos() {
     this.obstaculos = this.obstaculos.filter(obs => {
       obs.posicionX -= this.velocidadJuego;
-      
-      // Marcar como superado si pasó al jugador (solo si no fue detectado por voz)
-      if (!obs.superado && obs.posicionX < 50) {
-        // No hacer nada, solo dejarlo pasar sin marcar
-        // Ya no sumamos obstáculo superado automáticamente
-      }
-      
-      // Eliminar si salió de la pantalla
       return obs.posicionX > -100;
     });
   }
@@ -401,7 +363,6 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
         const obstaculoAncho = 60;
         const obstaculoAlto = 80;
         
-        // Verificar colisión AABB
         if (jugadorX < obs.posicionX + obstaculoAncho &&
             jugadorX + jugadorAncho > obs.posicionX &&
             this.jugadorY < this.suelo + obstaculoAlto &&
@@ -427,13 +388,11 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     console.log(`✅ Obstáculo superado correctamente!`);
   }
 
-  // ===== PARTÍCULAS Y EFECTOS =====
-  
   actualizarParticulas() {
     this.particulas = this.particulas.filter(p => {
       p.x += p.velocidadX;
       p.y += p.velocidadY;
-      p.velocidadY += 0.3; // Gravedad
+      p.velocidadY += 0.3;
       p.vida--;
       return p.vida > 0;
     });
@@ -457,11 +416,7 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     this.crearParticulas(x, y, '#ef4444');
   }
 
-  // ===== AUDIO =====
-  
-  reproducirSonidoSalto() {
-    // Sonido de salto (opcional)
-  }
+  reproducirSonidoSalto() {}
 
   reproducirSonidoAcierto() {
     this.hablar('¡Bien!');
@@ -490,24 +445,26 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     this.detenerEscuchaVoz();
   }
 
-  // ===== FELICITACIÓN =====
-  
+  // 📝 ACTUALIZADO: Registrar actividad al completar
   mostrarFelicitacion() {
     console.log('🎉 ¡MOSTRANDO MODAL DE FELICITACIÓN!');
     
-    // Detener el juego primero
     this.detenerEscuchaVoz();
     if (this.intervaloJuego) {
       clearInterval(this.intervaloJuego);
       this.intervaloJuego = null;
     }
     
-    // Actualizar estados
     this.faseJuego = 'felicitacion';
     this.mostrarModalFelicitacion = true;
     
-    // Forzar detección de cambios de Angular
     this.cdr.detectChanges();
+    
+    // 📝 REGISTRAR EN EL HISTORIAL
+    this.historialService.registrarJuego('Carrera de Sílabas').subscribe({
+      next: () => console.log('✅ Carrera de Sílabas registrada en historial'),
+      error: (error: any) => console.error('❌ Error registrando actividad:', error)
+    });
     
     console.log('Estado del modal:', this.mostrarModalFelicitacion);
     console.log('Fase del juego:', this.faseJuego);
@@ -515,9 +472,9 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
 
   continuarJugando() {
     this.mostrarModalFelicitacion = false;
-    this.palabrasCorrectas = 0; // Reiniciar contador
+    this.palabrasCorrectas = 0;
     this.faseJuego = 'jugando';
-    this.cdr.detectChanges(); // Forzar actualización
+    this.cdr.detectChanges();
     
     this.iniciarEscuchaVoz();
     this.intervaloJuego = setInterval(() => {
@@ -530,8 +487,6 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     this.router.navigate(['/juegos-terapeuticos']);
   }
 
-  // ===== CONTROLES DEL JUEGO =====
-  
   pausarJuego() {
     if (this.faseJuego === 'jugando') {
       this.faseJuego = 'pausado';
@@ -562,8 +517,6 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     this.router.navigate(['/juegos-terapeuticos']);
   }
 
-  // ===== UTILIDADES =====
-  
   obtenerEjemplos(silaba: string): string {
     const ejemplos: { [key: string]: string } = {
       'PA': 'pato, papá, pan',

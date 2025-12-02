@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { HistorialActividadesService } from '../..//services/historial-actividades.service'; // 📝 NUEVO
 
 // Interfaz de reconocimiento de voz para TypeScript
 interface SpeechRecognitionEvent extends Event {
@@ -68,7 +69,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   faseJuego: 'instrucciones' | 'seleccion-nivel' | 'preparando' | 'jugando' | 'completado' | 'error' = 'instrucciones';
   nivelActual: number = 1;
   maxNiveles: number = 7;
-  modoJuego: 'todos' | 'individual' = 'todos'; // Nuevo: modo de juego
+  modoJuego: 'todos' | 'individual' = 'todos';
   
   // Reconocimiento de voz
   recognition: any = null;
@@ -153,7 +154,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   mostrandoFeedback: boolean = false;
   mensajeFeedback: string = '';
   tipoFeedback: 'correcto' | 'incorrecto' | 'cerca' = 'correcto';
-  ultimoEscuchado: string = ''; // Nuevo: para mostrar lo que escuchó
+  ultimoEscuchado: string = '';
   
   // Text-to-Speech
   synth: SpeechSynthesis | null = null;
@@ -171,7 +172,8 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private historialService: HistorialActividadesService // 📝 NUEVO: Inyectar servicio
   ) {
     this.synth = window.speechSynthesis;
   }
@@ -212,23 +214,20 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       this.faseJuego = 'preparando';
       console.log('🎤 Solicitando permiso de micrófono...');
       
-      // Verificar soporte de Web Speech API
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         throw new Error('Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.');
       }
       
-      // Solicitar acceso al micrófono
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       console.log('✅ Permiso de micrófono concedido, stream:', stream);
       
-      // Configurar reconocimiento de voz
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       this.recognition = new SpeechRecognition();
       
-      this.recognition.lang = 'es-ES'; // Español de España
-      this.recognition.continuous = false; // Solo una frase
-      this.recognition.interimResults = false; // ✅ FALSE - Solo resultados finales
-      this.recognition.maxAlternatives = 10; // Más alternativas para analizar
+      this.recognition.lang = 'es-ES';
+      this.recognition.continuous = false;
+      this.recognition.interimResults = false;
+      this.recognition.maxAlternatives = 10;
       
       console.log('🎤 Reconocimiento configurado:', {
         lang: this.recognition.lang,
@@ -271,7 +270,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
           console.error('❌ Error en reconocimiento:', event.error);
           console.error('❌ Mensaje de error:', event.message);
           
-          // Limpiar timeout de grabación
           if (this.timeoutGrabacion) {
             clearTimeout(this.timeoutGrabacion);
             this.timeoutGrabacion = null;
@@ -279,7 +277,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
           
           this.esperandoPronunciacion = false;
           this.recognitionActiva = false;
-          this.cdr.detectChanges(); // FORZAR actualización de vista
+          this.cdr.detectChanges();
           
           if (event.error === 'no-speech') {
             this.mostrarFeedbackTemporal('No escuché nada. Intenta de nuevo.', 'incorrecto');
@@ -299,7 +297,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
         this.ngZone.run(() => {
           console.log('🎤 Evento onend - Reconocimiento finalizado');
           
-          // Limpiar timeout de grabación
           if (this.timeoutGrabacion) {
             clearTimeout(this.timeoutGrabacion);
             this.timeoutGrabacion = null;
@@ -307,7 +304,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
           
           this.recognitionActiva = false;
           this.esperandoPronunciacion = false;
-          this.cdr.detectChanges(); // FORZAR actualización de vista
+          this.cdr.detectChanges();
         });
       };
       
@@ -350,7 +347,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     this.palabraActual = nivelData.palabras[this.indicePalabra];
     this.esperandoPronunciacion = false;
     this.recognitionActiva = false;
-    this.ultimoEscuchado = ''; // Limpiar lo que escuchó anteriormente
+    this.ultimoEscuchado = '';
     
     console.log(`🎯 Palabra actual: ${this.palabraActual}`);
   }
@@ -368,14 +365,11 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     
     console.log('🔊 Iniciando ejemplo de audio para:', this.palabraActual);
     
-    // Cancelar cualquier síntesis anterior
     this.synth.cancel();
     
-    // Establecer estado ANTES de hablar
     this.escuchandoAudio = true;
-    this.cdr.detectChanges(); // FORZAR actualización de vista
+    this.cdr.detectChanges();
     
-    // Timeout de seguridad
     this.timeoutEscucha = setTimeout(() => {
       this.ngZone.run(() => {
         console.log('⏰ Timeout de escucha - reseteando estado');
@@ -409,7 +403,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
           this.timeoutEscucha = null;
         }
         this.escuchandoAudio = false;
-        this.cdr.detectChanges(); // FORZAR actualización de vista
+        this.cdr.detectChanges();
       });
     };
     
@@ -421,7 +415,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
           this.timeoutEscucha = null;
         }
         this.escuchandoAudio = false;
-        this.cdr.detectChanges(); // FORZAR actualización de vista
+        this.cdr.detectChanges();
       });
     };
     
@@ -453,9 +447,8 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     
     this.esperandoPronunciacion = true;
     this.recognitionActiva = true;
-    this.cdr.detectChanges(); // FORZAR actualización de vista
+    this.cdr.detectChanges();
     
-    // Timeout de seguridad - aumentado a 15 segundos
     this.timeoutGrabacion = setTimeout(() => {
       this.ngZone.run(() => {
         console.log('⏰ Timeout de grabación (15s) - reseteando estado');
@@ -471,7 +464,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
         }
         this.mostrarFeedbackTemporal('Tiempo agotado. Intenta de nuevo.', 'incorrecto');
       });
-    }, 15000); // Aumentado a 15 segundos
+    }, 15000);
     
     try {
       this.recognition.start();
@@ -492,7 +485,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   procesarResultado(event: SpeechRecognitionEvent) {
     console.log('📊 ========== PROCESANDO RESULTADO ==========');
     
-    // Limpiar timeout de grabación
     if (this.timeoutGrabacion) {
       clearTimeout(this.timeoutGrabacion);
       this.timeoutGrabacion = null;
@@ -509,7 +501,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       return;
     }
     
-    // Con interimResults = false, siempre usamos results[0] que es el resultado final
     const resultado = results[0];
     
     console.log('✅ Procesando resultado final');
@@ -523,16 +514,13 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       return;
     }
     
-    // Detener reconocimiento inmediatamente
     this.esperandoPronunciacion = false;
     this.recognitionActiva = false;
     this.cdr.detectChanges();
     
-    // Normalizar la palabra esperada
     const palabraEsperadaNormalizada = this.normalizarTexto(this.palabraActual);
     console.log('🎯 Palabra esperada (normalizada):', palabraEsperadaNormalizada);
     
-    // Analizar TODAS las alternativas
     console.log('📝 Analizando', resultado.length, 'alternativas:');
     
     let mejorCoincidencia = {
@@ -552,7 +540,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       console.log(`  ${i + 1}. "${alt.transcript}" → "${transcriptNormalizado}"`);
       console.log(`     Confianza: ${(alt.confidence * 100).toFixed(0)}% | Similitud: ${(similitud * 100).toFixed(0)}% | Correcto: ${esCorrecto}`);
       
-      // Buscar la mejor coincidencia (priorizar corrección, luego similitud, luego confianza)
       if (esCorrecto) {
         mejorCoincidencia = {
           transcript: alt.transcript,
@@ -562,7 +549,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
           normalizado: transcriptNormalizado
         };
         console.log('     ✅ ¡COINCIDENCIA EXACTA!');
-        break; // Si encontramos coincidencia exacta, no seguir buscando
+        break;
       } else if (similitud > mejorCoincidencia.similitud) {
         mejorCoincidencia = {
           transcript: alt.transcript,
@@ -583,7 +570,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     console.log('   Confianza:', (mejorCoincidencia.confidence * 100).toFixed(0) + '%');
     console.log('=====================================');
     
-    // Guardar intento
     const intento: IntentoPalabra = {
       palabra: this.palabraActual,
       escuchado: mejorCoincidencia.transcript,
@@ -593,12 +579,10 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     };
     this.intentos.push(intento);
     
-    // Decidir resultado basado en la mejor coincidencia
     if (mejorCoincidencia.esCorrecto) {
       console.log('✅ Llamando a palabraCorrecta()');
       this.palabraCorrecta(mejorCoincidencia.confidence);
     } else if (mejorCoincidencia.similitud >= 0.7) {
-      // Umbral de similitud 70% para ser más permisivo
       console.log('🟡 Llamando a palabraCerca()');
       this.palabraCerca(mejorCoincidencia.transcript, mejorCoincidencia.similitud);
     } else {
@@ -608,19 +592,15 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   }
 
   normalizarTexto(texto: string): string {
-    // Eliminar acentos y tildes
     const sinAcentos = texto
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
     
-    // Convertir a mayúsculas
     const mayusculas = sinAcentos.toUpperCase();
     
-    // Eliminar TODA puntuación y caracteres especiales
     const sinPuntuacion = mayusculas
       .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()¿?¡!"""''´`]/g, '');
     
-    // Normalizar espacios múltiples a un solo espacio
     const espaciosNormalizados = sinPuntuacion
       .replace(/\s+/g, ' ')
       .trim();
@@ -635,7 +615,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   }
 
   calcularSimilitud(str1: string, str2: string): number {
-    // Algoritmo de Levenshtein mejorado
     const longer = str1.length > str2.length ? str1 : str2;
     const shorter = str1.length > str2.length ? str2 : str1;
     
@@ -644,12 +623,10 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     const editDistance = this.levenshteinDistance(longer, shorter);
     const similitud = (longer.length - editDistance) / longer.length;
     
-    // BONUS: Dar puntos extra si contiene todas las letras importantes
     const letrasEsperadas = new Set(str2.split(''));
     const letrasEncontradas = str1.split('').filter(letra => letrasEsperadas.has(letra));
     const porcentajeLetras = letrasEncontradas.length / str2.length;
     
-    // Similitud ponderada (70% Levenshtein + 30% letras coincidentes)
     const similitudFinal = (similitud * 0.7) + (porcentajeLetras * 0.3);
     
     console.log('📊 Cálculo de similitud:', {
@@ -696,7 +673,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   palabraCorrecta(confianza: number) {
     console.log('✅✅✅ ¡PALABRA CORRECTA! ✅✅✅');
     
-    this.ultimoEscuchado = ''; // Limpiar ya que fue correcto
+    this.ultimoEscuchado = '';
     this.mostrarFeedbackTemporal('¡Excelente! 🎉', 'correcto');
     
     this.palabrasCompletadas++;
@@ -708,7 +685,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       indicePalabra: this.indicePalabra
     });
     
-    // Vibración de éxito
     if ('vibrate' in navigator) {
       navigator.vibrate([50, 100, 50]);
     }
@@ -742,7 +718,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     this.mensajeFeedback = mensaje;
     this.tipoFeedback = tipo;
     this.mostrandoFeedback = true;
-    this.cdr.detectChanges(); // FORZAR actualización
+    this.cdr.detectChanges();
     
     console.log('💬 Estado de feedback:', {
       mostrandoFeedback: this.mostrandoFeedback,
@@ -764,24 +740,28 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     
     console.log(`✅ Nivel ${this.nivelActual} completado`);
     
-    // Si está en modo "todos los niveles" y no es el último nivel
     if (this.modoJuego === 'todos' && this.nivelActual < this.maxNiveles) {
       setTimeout(() => {
         this.nivelActual++;
         this.empezarNivel();
       }, 2000);
     } else {
-      // Modo individual o último nivel de "todos"
       setTimeout(() => {
         this.completarJuego();
       }, 2000);
     }
   }
 
+  // 📝 ACTUALIZADO: Registrar actividad al completar
   completarJuego() {
     this.faseJuego = 'completado';
-    
     console.log('🎉 ¡Juego completado!');
+    
+    // 📝 REGISTRAR EN EL HISTORIAL
+    this.historialService.registrarJuego('Reto de Pronunciación').subscribe({
+      next: () => console.log('✅ Reto de Pronunciación registrado en historial'),
+      error: (error: any) => console.error('❌ Error registrando actividad:', error)
+    });
   }
 
   getNivelActualData(): Nivel {
@@ -849,12 +829,10 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   }
 
   volverAJuegos() {
-    // Si está jugando o en pantalla de completado, ir a selección de niveles
     if (this.faseJuego === 'jugando' || this.faseJuego === 'completado') {
       this.limpiarRecursos();
       this.faseJuego = 'seleccion-nivel';
     } else {
-      // Si está en instrucciones, error, o selección de nivel, ir al dashboard
       this.limpiarRecursos();
       this.router.navigate(['/juegos-terapeuticos']);
     }
@@ -871,7 +849,6 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   }
 
   limpiarRecursos() {
-    // Limpiar timeouts
     if (this.timeoutEscucha) {
       clearTimeout(this.timeoutEscucha);
       this.timeoutEscucha = null;

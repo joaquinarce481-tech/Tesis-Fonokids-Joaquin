@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { HistorialActividadesService } from '../presentation/services/historial-actividades.service';
 import { FaceMesh } from '@mediapipe/face_mesh';
 import { Camera } from '@mediapipe/camera_utils';
 
@@ -32,9 +33,9 @@ interface ResultadoEjercicio {
   completado: boolean;
   tiempoRealizado: number;
   errores: number;
-  repeticionesHoy: number;      // Cuántas veces se hizo hoy
-  fechaUltimaRepeticion: string; // Fecha de la última vez que se hizo
-  repeticionesRequeridas: number; // Cuántas repeticiones se necesitan (3 por defecto)
+  repeticionesHoy: number;
+  fechaUltimaRepeticion: string;
+  repeticionesRequeridas: number;
 }
 
 @Component({
@@ -53,11 +54,12 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   private canvasCtx!: CanvasRenderingContext2D;
   private mediaPipeReady = false;
   private intervalTimer: any;
-  private animationFrame = 0; // Para animaciones de pulso
+  private animationFrame = 0;
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private historialService: HistorialActividadesService
   ) {}
 
   isRecording = false;
@@ -321,6 +323,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   }
 
   ngOnInit() {
+    window.scrollTo(0, 0);
     this.cargarResultados();
     this.organizarEjerciciosPorSeccion();
   }
@@ -356,30 +359,34 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     console.log('📂 Seleccionando sección:', seccion.nombre);
     this.seccionActiva = seccion;
     this.vistaActual = 'ejercicios';
+    
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
   }
 
   volverASecciones() {
     console.log('🏠 Volviendo a vista de secciones');
-    this.cerrarModal(); // Cierra el modal primero
+    this.cerrarModal();
     this.seccionActiva = null;
     this.vistaActual = 'secciones';
+    
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
   }
 
-  // Función para cerrar el modal de resultados
   cerrarModal() {
     this.mostrarResultados = false;
     this.vistaActual = this.seccionActiva ? 'ejercicios' : 'secciones';
   }
 
-  // Función para ajustar el brillo de un color (usado en el badge)
   ajustarBrillo(color: string, porcentaje: number): string {
-    // Extrae los valores RGB del color hex
     const hex = color.replace('#', '');
     const r = parseInt(hex.substring(0, 2), 16);
     const g = parseInt(hex.substring(2, 4), 16);
     const b = parseInt(hex.substring(4, 6), 16);
     
-    // Ajusta cada componente
     const ajustar = (valor: number) => {
       const nuevo = valor + (valor * porcentaje / 100);
       return Math.max(0, Math.min(255, Math.round(nuevo)));
@@ -389,7 +396,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     const gNuevo = ajustar(g);
     const bNuevo = ajustar(b);
     
-    // Convierte de vuelta a hex
     const toHex = (n: number) => n.toString(16).padStart(2, '0');
     return `#${toHex(rNuevo)}${toHex(gNuevo)}${toHex(bNuevo)}`;
   }
@@ -411,40 +417,31 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     return ejerciciosSeccion.length > 0 ? Math.round((completados / ejerciciosSeccion.length) * 100) : 0;
   }
 
-  // 📅 FUNCIONES PARA MANEJO DE REPETICIONES DIARIAS
-  
-  // Obtiene la fecha de hoy en formato YYYY-MM-DD
   private obtenerFechaHoy(): string {
     const hoy = new Date();
     return hoy.toISOString().split('T')[0];
   }
 
-  // Verifica si una fecha es hoy
   private esFechaHoy(fecha: string): boolean {
     return fecha === this.obtenerFechaHoy();
   }
 
-  // Obtiene las repeticiones del ejercicio para hoy
   getRepeticionesHoy(ejercicioId: number): number {
     const resultado = this.resultados[ejercicioId];
     if (!resultado) return 0;
     
-    // Si la última repetición fue hoy, retorna el contador
     if (this.esFechaHoy(resultado.fechaUltimaRepeticion)) {
       return resultado.repeticionesHoy;
     }
     
-    // Si fue otro día, el contador se reinicia
     return 0;
   }
 
-  // Verifica si el ejercicio está completado HOY (3 repeticiones)
   isEjercicioCompletadoHoy(ejercicioId: number): boolean {
     const repeticiones = this.getRepeticionesHoy(ejercicioId);
     return repeticiones >= 3;
   }
 
-  // Obtiene cuántas repeticiones faltan para completar hoy
   getRepeticionesFaltantes(ejercicioId: number): number {
     const repeticiones = this.getRepeticionesHoy(ejercicioId);
     return Math.max(0, 3 - repeticiones);
@@ -467,12 +464,11 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
         }
       });
 
-      // ⚡ CONFIGURACIÓN OPTIMIZADA PARA MEJOR RENDIMIENTO Y CALIDAD
       this.faceMesh.setOptions({
         maxNumFaces: 1,
         refineLandmarks: true,
-        minDetectionConfidence: 0.6,  // ⚡ Aumentado para mejor detección
-        minTrackingConfidence: 0.5    // ⚡ Aumentado para tracking más estable
+        minDetectionConfidence: 0.6,
+        minTrackingConfidence: 0.5
       });
 
       this.faceMesh.onResults((results) => {
@@ -487,10 +483,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     }
   }
 
-  // ✨ Variable para rastrear detección en tiempo real
   private ejercicioDetectadoAhora = false;
-  
-  // 👁️ Variable para mostrar/ocultar landmarks
   mostrarLandmarks = true;
 
   private onResults(results: any) {
@@ -500,20 +493,13 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     this.canvasCtx.save();
     this.canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // ⚡ Mantener calidad de imagen original
     this.canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
     if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
       const landmarks = results.multiFaceLandmarks[0];
-      
-      // ✨ Incrementar frame de animación
       this.animationFrame++;
-      
-      // ✅ Verificar detección ANTES de dibujar para usar el color correcto
       this.ejercicioDetectadoAhora = this.verificarDeteccionEjercicio(landmarks);
       
-      // ✅ Solo dibujar si el usuario quiere ver los landmarks
       if (this.mostrarLandmarks) {
         this.dibujarVisualizacionMinimalista(landmarks);
       }
@@ -524,7 +510,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     this.canvasCtx.restore();
   }
 
-  // ✨ VERIFICAR DETECCIÓN DEL EJERCICIO (sin contar frames)
   private verificarDeteccionEjercicio(landmarks: any[]): boolean {
     if (!this.ejercicioActivo || !this.ejercicioIniciado) return false;
 
@@ -550,82 +535,40 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     }
   }
 
-  // ✨ OBTENER COLOR DINÁMICO SEGÚN ESTADO
   private getColorDinamico(): string {
     if (!this.ejercicioActivo) return '#666';
-    
-    // Si el ejercicio se está detectando correctamente = VERDE SUAVE
     if (this.ejercicioDetectadoAhora) {
-      return '#28a745'; // Verde suave (éxito)
+      return '#28a745';
     }
-    
-    // Si no se detecta = Color original del ejercicio
     return this.ejercicioActivo.color;
   }
 
-  // ✨ NUEVO SISTEMA DE VISUALIZACIÓN MINIMALISTA
   private dibujarVisualizacionMinimalista(landmarks: any[]) {
     if (!this.ejercicioActivo) return;
     
-    // ✅ Usar color dinámico en lugar de color fijo
     const color = this.getColorDinamico();
     
     switch (this.ejercicioActivo.id) {
-      case 5: // Lengua Arriba
-        this.dibujarLenguaArribaMinimalista(landmarks, color);
-        break;
-      case 1: // Sonrisa Grande
-        this.dibujarSonrisaMinimalista(landmarks, color);
-        break;
-      case 2: // Beso de Pez
-        this.dibujarBesoPezMinimalista(landmarks, color);
-        break;
-      case 3: // Abrir la Boca
-        this.dibujarAperturaBocaMinimalista(landmarks, color);
-        break;
-      case 4: // Guiño Alternado
-        this.dibujarGuinoMinimalista(landmarks, color);
-        break;
-      case 6: // Mejillas de Globo
-        this.dibujarMejillasInfladasMinimalista(landmarks, color);
-        break;
-      case 7: // Cara de Sorpresa
-        this.dibujarSorpresaMinimalista(landmarks, color);
-        break;
-      case 8: // Masticar Chicle
-        this.dibujarMasticadoMinimalista(landmarks, color);
-        break;
-      case 9: // Vibrar Labios
-        this.dibujarVibracionLabiosMinimalista(landmarks, color);
-        break;
-      case 10: // Inflar Globo
-        this.dibujarInflarGloboMinimalista(landmarks, color);
-        break;
-      case 11: // Lengua Circular
-        this.dibujarLenguaCircularMinimalista(landmarks, color);
-        break;
-      case 12: // Lengua Lateral
-        this.dibujarLenguaLateralMinimalista(landmarks, color);
-        break;
-      case 13: // Vibración Lingual
-        this.dibujarVibracionLingualMinimalista(landmarks, color);
-        break;
-      case 14: // Sostener Lápiz
-        this.dibujarSostenerLapizMinimalista(landmarks, color);
-        break;
-      case 15: // Besitos al Aire
-        this.dibujarBesitosAireMinimalista(landmarks, color);
-        break;
-      case 16: // Mandíbula Lateral
-        this.dibujarMandibulaLateralMinimalista(landmarks, color);
-        break;
-      case 17: // Bostezo Grande
-        this.dibujarBostezoMinimalista(landmarks, color);
-        break;
+      case 5: this.dibujarLenguaArribaMinimalista(landmarks, color); break;
+      case 1: this.dibujarSonrisaMinimalista(landmarks, color); break;
+      case 2: this.dibujarBesoPezMinimalista(landmarks, color); break;
+      case 3: this.dibujarAperturaBocaMinimalista(landmarks, color); break;
+      case 4: this.dibujarGuinoMinimalista(landmarks, color); break;
+      case 6: this.dibujarMejillasInfladasMinimalista(landmarks, color); break;
+      case 7: this.dibujarSorpresaMinimalista(landmarks, color); break;
+      case 8: this.dibujarMasticadoMinimalista(landmarks, color); break;
+      case 9: this.dibujarVibracionLabiosMinimalista(landmarks, color); break;
+      case 10: this.dibujarInflarGloboMinimalista(landmarks, color); break;
+      case 11: this.dibujarLenguaCircularMinimalista(landmarks, color); break;
+      case 12: this.dibujarLenguaLateralMinimalista(landmarks, color); break;
+      case 13: this.dibujarVibracionLingualMinimalista(landmarks, color); break;
+      case 14: this.dibujarSostenerLapizMinimalista(landmarks, color); break;
+      case 15: this.dibujarBesitosAireMinimalista(landmarks, color); break;
+      case 16: this.dibujarMandibulaLateralMinimalista(landmarks, color); break;
+      case 17: this.dibujarBostezoMinimalista(landmarks, color); break;
     }
   }
 
-  // ✨ LENGUA ARRIBA - VISUALIZACIÓN MINIMALISTA CON FEEDBACK
   private dibujarLenguaArribaMinimalista(landmarks: any[], color: string) {
     const canvas = this.canvasElement.nativeElement;
     const ctx = this.canvasCtx;
@@ -636,19 +579,14 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     if (!labioSuperior || !labioInferior || !nariz) return;
     
-    // Punto principal animado en el labio superior
     const puntoX = labioSuperior.x * canvas.width;
     const puntoY = labioSuperior.y * canvas.height;
     
-    // Punto más pequeño cuando está correcto
     const pulsoBase = this.ejercicioDetectadoAhora ? 4.5 : 5;
     const pulsoVariacion = this.ejercicioDetectadoAhora ? 1 : 1.5;
     const pulso = Math.sin(this.animationFrame * 0.15) * pulsoVariacion + pulsoBase;
-    
-    // Sombra moderada cuando está correcto
     const shadowBlur = this.ejercicioDetectadoAhora ? 12 : 10;
     
-    // Sombra del punto
     ctx.shadowColor = color;
     ctx.shadowBlur = shadowBlur;
     ctx.fillStyle = color;
@@ -656,14 +594,12 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     ctx.arc(puntoX, puntoY, pulso, 0, 2 * Math.PI);
     ctx.fill();
     
-    // Punto interior más brillante
     ctx.shadowBlur = 0;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.beginPath();
     ctx.arc(puntoX, puntoY, pulso * 0.35, 0, 2 * Math.PI);
     ctx.fill();
     
-    // Línea guía vertical desde labio inferior hasta nariz
     const lineaInicioX = labioInferior.x * canvas.width;
     const lineaInicioY = labioInferior.y * canvas.height;
     const lineaFinX = nariz.x * canvas.width;
@@ -684,7 +620,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     ctx.shadowBlur = 0;
   }
 
-  // ✨ SONRISA GRANDE - VISUALIZACIÓN MINIMALISTA CON FEEDBACK
   private dibujarSonrisaMinimalista(landmarks: any[], color: string) {
     const canvas = this.canvasElement.nativeElement;
     const ctx = this.canvasCtx;
@@ -694,7 +629,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     if (!comisuraIzq || !comisuraDer) return;
     
-    // Puntos más pequeños cuando está correcto
     const pulsoBase = this.ejercicioDetectadoAhora ? 3.5 : 4;
     const pulsoVariacion = this.ejercicioDetectadoAhora ? 1 : 1.5;
     const pulso = Math.sin(this.animationFrame * 0.15) * pulsoVariacion + pulsoBase;
@@ -718,7 +652,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       ctx.fill();
     });
     
-    // Línea suave conectando comisuras
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     ctx.shadowColor = color;
@@ -732,7 +665,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     ctx.shadowBlur = 0;
   }
 
-  // ✨ BESO DE PEZ - VISUALIZACIÓN MINIMALISTA CON FEEDBACK
   private dibujarBesoPezMinimalista(landmarks: any[], color: string) {
     const canvas = this.canvasElement.nativeElement;
     const ctx = this.canvasCtx;
@@ -744,7 +676,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     if (!labioSuperior || !labioInferior || !comisuraIzq || !comisuraDer) return;
     
-    // Punto central más pequeño cuando está correcto
     const centroX = (labioSuperior.x + labioInferior.x) / 2 * canvas.width;
     const centroY = (labioSuperior.y + labioInferior.y) / 2 * canvas.height;
     const pulsoBase = this.ejercicioDetectadoAhora ? 4.5 : 5;
@@ -765,7 +696,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     ctx.arc(centroX, centroY, pulso * 0.35, 0, 2 * Math.PI);
     ctx.fill();
     
-    // Líneas horizontales mostrando fruncido
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     ctx.setLineDash([4, 3]);
@@ -781,7 +711,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     ctx.shadowBlur = 0;
   }
 
-  // ✨ ABRIR BOCA - VISUALIZACIÓN MINIMALISTA CON FEEDBACK
   private dibujarAperturaBocaMinimalista(landmarks: any[], color: string) {
     const canvas = this.canvasElement.nativeElement;
     const ctx = this.canvasCtx;
@@ -791,7 +720,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     if (!labioSup || !labioInf) return;
     
-    // Línea vertical con grosor moderado
     const x = (labioSup.x + labioInf.x) / 2 * canvas.width;
     const yInicio = labioSup.y * canvas.height;
     const yFin = labioInf.y * canvas.height;
@@ -809,7 +737,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     ctx.lineTo(x, yFin);
     ctx.stroke();
     
-    // Puntos en extremos más pequeños cuando está correcto
     const pulsoBase = this.ejercicioDetectadoAhora ? 4.5 : 5;
     const pulsoVariacion = this.ejercicioDetectadoAhora ? 1 : 1.5;
     const pulso = Math.sin(this.animationFrame * 0.15) * pulsoVariacion + pulsoBase;
@@ -834,14 +761,11 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     ctx.shadowBlur = 0;
   }
 
-  // ✨ FUNCIONES MINIMALISTAS PARA OTROS EJERCICIOS
   private dibujarGuinoMinimalista(landmarks: any[], color: string) {
     const ojoIzqSuperior = landmarks[159];
-    const ojoIzqInferior = landmarks[145];
     const ojoDerSuperior = landmarks[386];
-    const ojoDerInferior = landmarks[374];
     
-    if (!ojoIzqSuperior || !ojoIzqInferior || !ojoDerSuperior || !ojoDerInferior) return;
+    if (!ojoIzqSuperior || !ojoDerSuperior) return;
     
     this.dibujarPuntoAnimado(ojoIzqSuperior, color);
     this.dibujarPuntoAnimado(ojoDerSuperior, color);
@@ -916,7 +840,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     this.dibujarAperturaBocaMinimalista(landmarks, color);
   }
 
-  // ✨ FUNCIÓN HELPER PARA DIBUJAR PUNTO ANIMADO CON FEEDBACK
   private dibujarPuntoAnimado(landmark: any, color: string, tamañoBase: number = 5) {
     const canvas = this.canvasElement.nativeElement;
     const ctx = this.canvasCtx;
@@ -924,13 +847,11 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     const x = landmark.x * canvas.width;
     const y = landmark.y * canvas.height;
     
-    // Punto más pequeño y pulso más sutil cuando está correcto
     const pulsoVariacion = this.ejercicioDetectadoAhora ? 1 : 1.5;
     const pulsoBaseAjustado = this.ejercicioDetectadoAhora ? tamañoBase - 0.5 : tamañoBase;
     const pulso = Math.sin(this.animationFrame * 0.15) * pulsoVariacion + pulsoBaseAjustado;
     const shadowBlur = this.ejercicioDetectadoAhora ? 12 : 10;
     
-    // Sombra y punto principal
     ctx.shadowColor = color;
     ctx.shadowBlur = shadowBlur;
     ctx.fillStyle = color;
@@ -938,7 +859,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     ctx.arc(x, y, pulso, 0, 2 * Math.PI);
     ctx.fill();
     
-    // Punto interior brillante
     ctx.shadowBlur = 0;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.beginPath();
@@ -1388,29 +1308,24 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       console.log('📊 Frames totales:', this.contadorFramesTotales);
       console.log('📊 Puntuación final:', puntuacionCalculada + '%');
       
-      // 📅 SISTEMA DE REPETICIONES DIARIAS
       const ejercicioId = this.ejercicioActivo.id;
       const resultadoAnterior = this.resultados[ejercicioId];
       const fechaHoy = this.obtenerFechaHoy();
       
-      let repeticionesHoy = 1; // Esta es la primera repetición
+      let repeticionesHoy = 1;
       
-      // Si ya existe un resultado anterior
       if (resultadoAnterior) {
-        // Si la última repetición fue hoy, incrementa el contador
         if (this.esFechaHoy(resultadoAnterior.fechaUltimaRepeticion)) {
           repeticionesHoy = resultadoAnterior.repeticionesHoy + 1;
         }
-        // Si fue otro día, reinicia el contador a 1
       }
       
-      // El ejercicio está completado si tiene 3 o más repeticiones HOY
       const completadoHoy = repeticionesHoy >= 3;
       
       const resultado: ResultadoEjercicio = {
         ejercicioId: ejercicioId,
         puntuacion: puntuacionCalculada,
-        completado: completadoHoy, // ✅ Ahora se basa en repeticiones, no en puntuación
+        completado: completadoHoy,
         tiempoRealizado: this.ejercicioActivo.duracion,
         errores: this.contadorFramesTotales - this.contadorFramesCorrectos,
         repeticionesHoy: repeticionesHoy,
@@ -1420,7 +1335,12 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       
       this.resultados[ejercicioId] = resultado;
       this.ultimoResultado = resultado;
-      this.guardarResultados();
+      this.guardarEstadisticas();
+      
+      this.historialService.registrarEjercicio(this.ejercicioActivo.nombre).subscribe({
+        next: () => console.log(`✅ ${this.ejercicioActivo!.nombre} registrado en historial`),
+        error: (error: any) => console.error('❌ Error registrando ejercicio:', error)
+      });
       
       console.log('📊 Resultado final:', resultado);
       console.log('🔄 Repeticiones hoy:', repeticionesHoy);
@@ -1450,7 +1370,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   volverAlMenu() {
     console.log('🏠 Volviendo al menú de ejercicios...');
     this.ejercicioActivo = null;
-    this.mostrarResultados = false; // Cierra el modal
+    this.mostrarResultados = false;
     this.vistaActual = this.seccionActiva ? 'ejercicios' : 'secciones';
     this.stopCamera();
     
@@ -1468,6 +1388,9 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     this.ejercicioIniciado = false;
     this.ultimoTiempoFeedback = 0;
     this.animationFrame = 0;
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
   }
 
   repetirEjercicio() {
@@ -1554,6 +1477,10 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     if (guardado) {
       this.resultados = JSON.parse(guardado);
     }
+  }
+
+  private guardarEstadisticas() {
+    this.guardarResultados();
   }
 
   private guardarResultados() {

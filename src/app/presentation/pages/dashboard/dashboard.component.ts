@@ -89,12 +89,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   menuItems: MenuItem[] = [
     {
       id: 'agenda',
-      title: 'Mi Agenda',
-      subtitle: 'Próximas sesiones',
+      title: 'Mis Actividades',
+      subtitle: 'Ejercicios completados',
       color: 'from-blue-400 to-blue-600',
       hoverColor: 'from-blue-500 to-blue-700',
       emoji: '📅',
-      description: 'Ve tus citas programadas'
+      description: 'Ve tus ejercicios realizados'
     },
     {
       id: 'juegos',
@@ -264,7 +264,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         break;
       
       case 'agenda':
-        console.log('Función de agenda aún no implementada');
+        this.router.navigate(['/mi-agenda']);
+        console.log('📅 Navegando a Mi Agenda...');
         break;
       
       case 'juegos':

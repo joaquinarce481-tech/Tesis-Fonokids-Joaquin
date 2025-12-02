@@ -117,6 +117,9 @@ export class JuegosTerapeuticosComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit() {
+    // ⬆️ SCROLL AL INICIO AL CARGAR LA PÁGINA
+    window.scrollTo(0, 0);
+    
     console.log('🎮 Juegos Terapéuticos cargados - Vista unificada');
   }
 

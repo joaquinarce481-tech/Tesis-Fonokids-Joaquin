@@ -1,6 +1,7 @@
 import { Component, ViewChild, ElementRef, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { HistorialActividadesService } from '../../services/historial-actividades.service';
 import * as faceapi from 'face-api.js';
 
 interface Praxia {
@@ -132,7 +133,8 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private historialService: HistorialActividadesService
   ) {}
 
   async ngOnInit() {
@@ -857,6 +859,12 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
       this.exercisesCompletedToday[exerciseName] = currentCount + 1;
       this.totalExercisesToday++;
       this.saveTodayProgress();
+      
+      // 🎯 REGISTRAR EJERCICIO EN HISTORIAL
+      this.historialService.registrarEjercicio(exerciseName).subscribe({
+        next: () => console.log(`✅ ${exerciseName} registrado en historial`),
+        error: (error: any) => console.error('❌ Error registrando ejercicio:', error)
+      });
       
       console.log('📊 Progreso actualizado:', exerciseName, 
                   this.exercisesCompletedToday[exerciseName] + '/' + maxReps,

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { HistorialActividadesService } from '../../services/historial-actividades.service';
 
 interface Palabra {
   id: number;
@@ -25,6 +26,12 @@ interface Nivel {
   styleUrls: ['./parejas-silabas.component.css']
 })
 export class ParejasSilabasComponent implements OnInit, OnDestroy {
+
+  // ========================================
+  // VISTA ACTUAL - AGREGADO PARA INSTRUCCIONES
+  // ========================================
+  vistaActual: 'instrucciones' | 'jugando' = 'instrucciones';
+
   niveles: Nivel[] = [
     {
       id: 1,
@@ -100,14 +107,37 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
   nivelCompletado: boolean = false;
   juegoCompletado: boolean = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private historialService: HistorialActividadesService
+  ) {}
 
   ngOnInit(): void {
-    this.iniciarNivel();
+    console.log('🎮 Parejas de Sílabas iniciado');
+    
+    // 🔝 SCROLL AUTOMÁTICO AL INICIO
+    window.scrollTo(0, 0);
+    
+    // NO iniciar el juego hasta que el usuario presione "Comenzar"
   }
 
   ngOnDestroy(): void {
     // Cleanup si es necesario
+  }
+
+  // ========================================
+  // MÉTODO PARA INICIAR EL JUEGO
+  // ========================================
+  comenzarJuego(): void {
+    console.log('🎮 Comenzando juego...');
+    this.vistaActual = 'jugando';
+    
+    // 🔝 SCROLL AL INICIO
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
+    
+    this.iniciarNivel();
   }
 
   iniciarNivel(): void {
@@ -201,11 +231,24 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
 
   siguienteNivel(): void {
     this.indiceNivel++;
+    
+    // 🔝 SCROLL AL INICIO
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
+    
     this.iniciarNivel();
   }
 
   completarJuego(): void {
     this.juegoCompletado = true;
+    
+    // 🎯 REGISTRAR JUEGO EN HISTORIAL
+    this.historialService.registrarJuego('Parejas de Sílabas').subscribe({
+      next: () => console.log('✅ Parejas de Sílabas registrado en historial'),
+      error: (error: any) => console.error('❌ Error registrando juego:', error)
+    });
+    
     this.hablar('¡Felicitaciones! ¡Completaste todas las familias de sílabas!');
   }
 
@@ -217,11 +260,17 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
     this.nivelCompletado = false;
     this.juegoCompletado = false;
     this.mostrarCelebracion = false;
+    this.vistaActual = 'jugando';
+    
+    // 🔝 SCROLL AL INICIO
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
+    
     this.iniciarNivel();
   }
 
   volverAlMenu(): void {
-    // Navegar correctamente al dashboard de juegos terapéuticos
     this.router.navigate(['/juegos-terapeuticos']);
   }
 

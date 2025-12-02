@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { HistorialActividadesService } from '../../services/historial-actividades.service'; // 📝 NUEVO
 
 @Component({
   selector: 'app-arma-cara-game',
@@ -182,7 +183,10 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     ]
   };
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private historialService: HistorialActividadesService // 📝 NUEVO: Inyectar servicio
+  ) {}
 
   ngOnInit(): void {
     this.cargarEstadisticas();
@@ -192,7 +196,6 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
 
   // ========== FUNCIONES DE NAVEGACIÓN ==========
   irASeleccion(): void {
-    // En lugar de ir a la pantalla de selección, elegir emoción al azar e iniciar juego
     const emocionesKeys = this.getEmocionesKeys();
     const emocionAleatoria = emocionesKeys[Math.floor(Math.random() * emocionesKeys.length)];
     this.iniciarJuego(emocionAleatoria);
@@ -213,7 +216,6 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
   }
 
   volverASeleccion(): void {
-    // Cambiar para que elija otra emoción al azar
     const emocionesKeys = this.getEmocionesKeys();
     const emocionAleatoria = emocionesKeys[Math.floor(Math.random() * emocionesKeys.length)];
     this.iniciarJuego(emocionAleatoria);
@@ -264,11 +266,20 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
     this.mostrarModalError = false;
   }
 
+  // 📝 ACTUALIZADO: Registrar actividad al finalizar exitosamente
   finalizarJuego(exito: boolean): void {
     this.juegoActivo = false;
     this.totalJugados++;
     this.guardarEstadisticas();
     this.pantalla = 'completado';
+    
+    // 📝 REGISTRAR EN EL HISTORIAL SI FUE EXITOSO
+    if (exito) {
+      this.historialService.registrarJuego('Arma la Cara - Labios').subscribe({
+        next: () => console.log('✅ Arma la Cara registrado en historial'),
+        error: (error: any) => console.error('❌ Error registrando actividad:', error)
+      });
+    }
   }
 
   juegoCompletado(): boolean {

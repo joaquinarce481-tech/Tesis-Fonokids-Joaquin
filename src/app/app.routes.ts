@@ -310,6 +310,18 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
 
+  // RUTA DE MI AGENDA - HISTORIAL DE ACTIVIDADES
+  {
+  path: 'mi-agenda',
+ loadComponent: () => import('./presentation/pages/mi-agenda/mi-agenda').then(m => m.MiAgendaComponent),
+  canActivate: [AuthGuard],
+  data: {
+    icon: 'fa-solid fa-calendar-days',
+    title: 'Mi Agenda',
+    description: 'Historial de actividades y progreso diario'
+  }
+},
+
   // WILDCARD ROUTE - DEBE SER SIEMPRE LA ÚLTIMA RUTA
   {
     path: '**',

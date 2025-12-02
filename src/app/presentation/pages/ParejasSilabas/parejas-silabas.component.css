@@ -1,15 +1,227 @@
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 
+/* ========================================
+   VARIABLES Y BASE
+   ======================================== */
+
+:root {
+  --color-primary: #66bb6a;
+  --color-secondary: #4caf50;
+  --color-accent: #81c784;
+  --color-success: #4caf50;
+  --color-warning: #ff9800;
+  --color-error: #ff4757;
+  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 15px 35px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ========================================
+   CONTENEDOR PRINCIPAL
+   ======================================== */
+
 .game-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
-  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 15px;
   font-family: 'Fredoka', 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', sans-serif;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
-/* Header */
+/* ========================================
+   PANTALLA DE INSTRUCCIONES
+   ======================================== */
+
+.instructions-screen {
+  min-height: calc(100vh - 30px);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.instructions-screen .game-header {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 1.5rem;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.instructions-screen .game-header .game-info {
+  text-align: center;
+  flex: 1;
+}
+
+.instructions-screen .game-header .game-info h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.instructions-screen .game-header .game-info p {
+  margin: 0.5rem 0 0 0;
+  opacity: 0.9;
+  font-size: 1rem;
+  color: white;
+}
+
+.instructions-screen .game-stats {
+  min-width: 70px;
+}
+
+.instructions-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 2rem;
+  max-width: 800px;
+  width: 90%;
+  margin: 2rem auto;
+  animation: card-appear 0.6s ease-out;
+}
+
+@keyframes card-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.instructions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.instructions-header h2 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+}
+
+.difficulty-badge {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.instructions-content {
+  margin-bottom: 2rem;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.step-number {
+  background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.step-text {
+  color: white;
+}
+
+.step-text strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: #f3f4f6;
+}
+
+.step-text p {
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.tips-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(129, 199, 132, 0.15);
+  border-radius: 12px;
+  border: 1px solid rgba(129, 199, 132, 0.3);
+}
+
+.tips-section h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  color: #a5d6a7;
+}
+
+.tips-section ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style: none;
+  color: white;
+}
+
+.tips-section li {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  position: relative;
+}
+
+.btn-start {
+  width: 100%;
+  background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+}
+
+.btn-start:hover {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(76, 175, 80, 0.4);
+}
+
+/* ========================================
+   HEADER DEL JUEGO
+   ======================================== */
+
 .game-header {
   display: flex;
   justify-content: space-between;
@@ -520,6 +732,52 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .instructions-screen {
+    padding: 0;
+  }
+
+  .instructions-screen .game-header {
+    flex-wrap: wrap;
+    padding: 1rem;
+    justify-content: center;
+  }
+
+  .instructions-screen .game-header .game-info {
+    order: 2;
+    width: 100%;
+  }
+
+  .instructions-screen .game-header .btn-back {
+    order: 1;
+  }
+
+  .instructions-screen .game-header .game-stats {
+    display: none;
+  }
+
+  .instructions-screen .game-header .game-info h1 {
+    font-size: 1.5rem;
+  }
+
+  .instructions-screen .game-header .game-info p {
+    font-size: 0.9rem;
+  }
+
+  .instructions-card {
+    padding: 1.5rem;
+    margin: 1rem;
+    width: calc(100% - 2rem);
+  }
+
+  .instructions-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .instructions-header h2 {
+    font-size: 1.6rem;
+  }
+
   .game-title {
     font-size: 1.6rem;
   }
@@ -585,6 +843,38 @@
 }
 
 @media (max-width: 480px) {
+  .instructions-screen .game-header {
+    padding: 0.75rem;
+  }
+
+  .instructions-screen .game-header .btn-back {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .instructions-screen .game-header .game-info h1 {
+    font-size: 1.3rem;
+  }
+
+  .instructions-screen .game-header .game-info p {
+    font-size: 0.8rem;
+  }
+
+  .instructions-card {
+    padding: 1rem;
+    margin: 0.5rem;
+    width: calc(100% - 1rem);
+  }
+
+  .step {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .step-number {
+    margin: 0 auto;
+  }
+
   .game-header {
     flex-direction: column;
     align-items: stretch;

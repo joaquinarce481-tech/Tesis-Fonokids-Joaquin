@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { HistorialActividadesService } from '../../services/historial-actividades.service';
 import { Camera } from '@mediapipe/camera_utils';
 import { FaceMesh, Results } from '@mediapipe/face_mesh';
 
@@ -113,7 +114,8 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private historialService: HistorialActividadesService
   ) {}
 
   async ngOnInit() {
@@ -644,6 +646,12 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
   completarJuego() {
     this.faseJuego = 'completado';
     console.log('🎉 ¡Juego completado!');
+    
+    // 📝 REGISTRAR EN EL HISTORIAL
+    this.historialService.registrarJuego('Memoria de Gestos Labiales').subscribe({
+      next: () => console.log('✅ Memoria de Gestos registrado en historial'),
+      error: (error: any) => console.error('❌ Error registrando actividad:', error)
+    });
   }
 
   // === UTILIDADES ===

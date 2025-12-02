@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { HistorialActividadesService } from '../../services/historial-actividades.service';
 
 // Declarar SpeechRecognition para TypeScript
 declare global {
@@ -28,6 +29,11 @@ interface Sonido {
   styleUrls: ['./sonidos-divertidos.component.css']
 })
 export class SonidosDivertidosComponent implements OnInit, OnDestroy {
+
+  // ========================================
+  // VISTA ACTUAL - AGREGADO PARA INSTRUCCIONES
+  // ========================================
+  vistaActual: 'instrucciones' | 'jugando' = 'instrucciones';
 
   sonidos: Sonido[] = [
     {
@@ -162,13 +168,18 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private historialService: HistorialActividadesService
   ) {}
 
   ngOnInit(): void {
     console.log('🎮 Sonidos Divertidos iniciado');
+    
+    // 🔝 SCROLL AUTOMÁTICO AL INICIO
+    window.scrollTo(0, 0);
+    
     this.verificarReconocimientoVoz();
-    this.mostrarSonido();
+    // NO mostrar el sonido hasta que se presione "Comenzar"
   }
 
   ngOnDestroy(): void {
@@ -177,6 +188,21 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     if (this.timeoutEscucha) {
       clearTimeout(this.timeoutEscucha);
     }
+  }
+
+  // ========================================
+  // MÉTODO PARA INICIAR EL JUEGO
+  // ========================================
+  comenzarJuego(): void {
+    console.log('🎮 Comenzando juego...');
+    this.vistaActual = 'jugando';
+    
+    // 🔝 SCROLL AL INICIO
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
+    
+    this.mostrarSonido();
   }
 
   // ========================================
@@ -413,6 +439,13 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
 
   completarJuego(): void {
     this.juegoCompletado = true;
+    
+    // 🎯 REGISTRAR JUEGO EN HISTORIAL
+    this.historialService.registrarJuego('Sonidos Divertidos').subscribe({
+      next: () => console.log('✅ Sonidos Divertidos registrado en historial'),
+      error: (error: any) => console.error('❌ Error registrando juego:', error)
+    });
+    
     this.hablar('¡Felicitaciones! ¡Completaste todos los sonidos! ¡Eres increíble!');
   }
 
@@ -422,6 +455,13 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     this.mostrarCelebracion = false;
     this.juegoCompletado = false;
     this.mostrarFeedback = false;
+    this.vistaActual = 'jugando';
+    
+    // 🔝 SCROLL AL INICIO
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
+    
     this.mostrarSonido();
   }
 

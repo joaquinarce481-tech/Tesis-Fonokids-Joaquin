@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Camera } from '@mediapipe/camera_utils';
 import { FaceMesh, Results } from '@mediapipe/face_mesh';
+import { HistorialActividadesService } from '../../services/historial-actividades.service'; // 📝 NUEVO
 
 // Interfaces
 interface MovimientoLingual {
@@ -16,7 +17,7 @@ interface MovimientoLingual {
   posicionCorrecta: number;
   colocado: boolean;
   arrastrando: boolean;
-  foto?: string | null; // Nueva propiedad para almacenar la foto
+  foto?: string | null;
 }
 
 interface SecuenciaNivel {
@@ -166,7 +167,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       nombre: 'Apertura Bucal',
       descripcion: 'Práctica de apertura y cierre',
       dificultad: 'fácil',
-      movimientos: [8, 7], // Boca Cerrada, Boca Abierta (ORIGINAL)
+      movimientos: [8, 7],
       tiempoLimite: 90
     },
     {
@@ -174,7 +175,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       nombre: 'Sonrisa Terapéutica',
       descripcion: 'De reposo a sonrisa',
       dificultad: 'fácil',
-      movimientos: [8, 3], // Boca Cerrada, Sonrisa
+      movimientos: [8, 3],
       tiempoLimite: 90
     },
     {
@@ -182,7 +183,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       nombre: 'Protrusión Labial',
       descripcion: 'Movimiento de beso',
       dificultad: 'fácil',
-      movimientos: [8, 4], // Boca Cerrada, Hacer Beso
+      movimientos: [8, 4],
       tiempoLimite: 90
     },
     {
@@ -190,7 +191,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       nombre: 'Extensión Lingual Vertical',
       descripcion: 'Lengua hacia abajo',
       dificultad: 'media',
-      movimientos: [8, 1, 5], // Boca Cerrada, Sacar Lengua, Tocar Mentón
+      movimientos: [8, 1, 5],
       tiempoLimite: 100
     },
     {
@@ -198,7 +199,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       nombre: 'Extensión Lingual Superior',
       descripcion: 'Lengua hacia arriba',
       dificultad: 'media',
-      movimientos: [8, 1, 2], // Boca Cerrada, Sacar Lengua, Tocar Nariz
+      movimientos: [8, 1, 2],
       tiempoLimite: 100
     },
     {
@@ -206,7 +207,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       nombre: 'Secuencia Completa',
       descripcion: 'Movimientos verticales combinados',
       dificultad: 'difícil',
-      movimientos: [8, 1, 2, 5], // Boca Cerrada, Sacar Lengua, Tocar Nariz, Tocar Mentón
+      movimientos: [8, 1, 2, 5],
       tiempoLimite: 120
     }
   ];
@@ -228,7 +229,10 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   tipoModal: 'success' | 'error' | 'info' = 'info';
   puntosModal: number = 0;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private historialService: HistorialActividadesService // 📝 NUEVO: Inyectar servicio
+  ) {}
 
   ngOnInit(): void {
     this.cargarEstadisticas();
@@ -245,7 +249,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
 
   async iniciarCamara(): Promise<void> {
     try {
-      // Inicializar MediaPipe Face Mesh
       this.faceMesh = new FaceMesh({
         locateFile: (file) => {
           return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
@@ -261,10 +264,8 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
 
       this.faceMesh.onResults((results: Results) => this.onResults(results));
 
-      // Esperar a que el video esté disponible
       await this.esperarVideoElement();
 
-      // Inicializar cámara
       const video = this.videoElement.nativeElement;
       this.camera = new Camera(video, {
         onFrame: async () => {
@@ -302,17 +303,14 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     const ctx = canvas.getContext('2d')!;
     const video = this.videoElement.nativeElement;
 
-    // Ajustar tamaño del canvas
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
-    // Dibujar el video en el canvas
     ctx.save();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     ctx.restore();
 
-    // Verificar si hay rostro detectado
     if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
       this.movimientoDetectado = false;
       this.mensajeValidacion = '❌ No detectamos tu cara. Acércate a la cámara';
@@ -322,20 +320,17 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     const landmarks = results.multiFaceLandmarks[0];
     const movimiento = this.todosLosMovimientos[this.movimientoActualCaptura];
 
-    // Validar el movimiento según el ID
     this.movimientoDetectado = this.validarMovimiento(movimiento.id, landmarks);
 
     if (this.movimientoDetectado) {
       this.mensajeValidacion = '✅ ¡Perfecto! Ahora toma la foto 📸';
       
-      // Dibujar un borde verde en el canvas cuando detecta correctamente
       ctx.strokeStyle = '#10b981';
       ctx.lineWidth = 10;
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
     } else {
       this.mensajeValidacion = `❌ ${this.getMensajeError(movimiento.id)}`;
       
-      // Dibujar un borde rojo cuando no detecta
       ctx.strokeStyle = '#ef4444';
       ctx.lineWidth = 10;
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
@@ -344,21 +339,21 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
 
   validarMovimiento(movimientoId: number, landmarks: any[]): boolean {
     switch (movimientoId) {
-      case 1: // Sacar Lengua
+      case 1:
         return this.detectarLenguaAfuera(landmarks);
-      case 2: // Tocar Nariz
+      case 2:
         return this.detectarLenguaArriba(landmarks);
-      case 3: // Sonrisa Amplia
+      case 3:
         return this.detectarSonrisa(landmarks);
-      case 4: // Hacer Beso
+      case 4:
         return this.detectarBeso(landmarks);
-      case 5: // Tocar Mentón
+      case 5:
         return this.detectarLenguaAbajo(landmarks);
-      case 6: // Lengua Arriba (Paladar)
+      case 6:
         return this.detectarLenguaPaladar(landmarks);
-      case 7: // Boca Abierta
+      case 7:
         return this.detectarBocaAbierta(landmarks);
-      case 8: // Boca Cerrada
+      case 8:
         return this.detectarBocaCerrada(landmarks);
       default:
         return false;
@@ -366,17 +361,13 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   }
 
   detectarLenguaAfuera(landmarks: any[]): boolean {
-    // Landmarks de la boca
     const labioSuperior = landmarks[13];
     const labioInferior = landmarks[14];
     const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
-    
-    // MÁS ESTRICTO: Si la boca está MUY abierta, asumimos que la lengua está afuera
     return aperturaBoca > 0.045;
   }
 
   detectarLenguaArriba(landmarks: any[]): boolean {
-    // Detectar si la lengua está tocando la nariz
     const labioSuperior = landmarks[13];
     const puntaNariz = landmarks[1];
     const labioInferior = landmarks[14];
@@ -384,95 +375,65 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
     const distanciaNariz = Math.abs(labioSuperior.y - puntaNariz.y);
     
-    // MÁS ESTRICTO: Boca muy abierta (>0.04) y MUCHO más cerca de la nariz (<0.08)
     return aperturaBoca > 0.04 && distanciaNariz < 0.08;
   }
 
   detectarSonrisa(landmarks: any[]): boolean {
-    // Detectar sonrisa amplia
-    // Las comisuras de la boca se estiran hacia los lados
     const comisuraIzq = landmarks[61];
     const comisuraDer = landmarks[291];
     const labioSuperior = landmarks[13];
     const labioInferior = landmarks[14];
     
-    // Calcular el ancho total de la boca
     const anchoBoca = Math.abs(comisuraDer.x - comisuraIzq.x);
-    
-    // Calcular la apertura de la boca (altura)
     const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
     
-    // Debug opcional (descomentar para ver valores)
-    // console.log('Sonrisa - Ancho:', anchoBoca.toFixed(3), 'Apertura:', aperturaBoca.toFixed(3));
-    
-    // Para sonrisa: boca ancha (más de 0.12) y levemente abierta
-    // Hacemos la detección MÁS PERMISIVA
     return anchoBoca > 0.12 && aperturaBoca > 0.01 && aperturaBoca < 0.06;
   }
 
   detectarBeso(landmarks: any[]): boolean {
-    // Detectar labios fruncidos (posición de beso)
     const comisuraIzq = landmarks[61];
     const comisuraDer = landmarks[291];
     const labioSuperior = landmarks[13];
     const labioInferior = landmarks[14];
     
-    // Calcular el ancho de la boca (los labios se juntan y la boca se estrecha)
     const anchoBoca = Math.abs(comisuraDer.x - comisuraIzq.x);
-    
-    // Calcular apertura (debe ser pequeña o cerrada)
     const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
     
-    // Debug opcional (descomentar para ver valores)
-    // console.log('Beso - Ancho:', anchoBoca.toFixed(3), 'Apertura:', aperturaBoca.toFixed(3));
-    
-    // Para beso: boca estrecha y labios juntos o levemente separados
-    // Hacemos la detección MÁS PERMISIVA
     return anchoBoca < 0.11 && aperturaBoca < 0.03;
   }
 
   detectarLenguaAbajo(landmarks: any[]): boolean {
-    // Detectar lengua bajando hacia el mentón
     const labioSuperior = landmarks[13];
     const labioInferior = landmarks[14];
-    const menton = landmarks[152]; // Punto del mentón
+    const menton = landmarks[152];
     
     const aperturaBoca = labioInferior.y - labioSuperior.y;
     const distanciaMenton = Math.abs(labioInferior.y - menton.y);
     
-    // MÁS ESTRICTO: La lengua debe estar MUY cerca del mentón
-    // Boca debe estar bien abierta (>0.05) y la lengua MUY cerca del mentón (<0.08)
     return aperturaBoca > 0.05 && distanciaMenton < 0.08;
   }
 
   detectarLenguaPaladar(landmarks: any[]): boolean {
-    // Detectar lengua tocando el paladar (boca levemente abierta, sin apertura grande)
     const labioSuperior = landmarks[13];
     const labioInferior = landmarks[14];
     const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
     
-    // MÁS ESTRICTO: Apertura MUY específica (0.02 - 0.035)
-    // No muy cerrada (no es boca cerrada) pero tampoco muy abierta (no es sacar lengua)
     return aperturaBoca > 0.02 && aperturaBoca < 0.035;
   }
 
   detectarBocaAbierta(landmarks: any[]): boolean {
-    // Detectar boca muy abierta
     const labioSuperior = landmarks[13];
     const labioInferior = landmarks[14];
     const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
     
-    // Boca MUY abierta
     return aperturaBoca > 0.05;
   }
 
   detectarBocaCerrada(landmarks: any[]): boolean {
-    // Detectar boca cerrada
     const labioSuperior = landmarks[13];
     const labioInferior = landmarks[14];
     const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
     
-    // Boca casi cerrada
     return aperturaBoca < 0.02;
   }
 
@@ -513,24 +474,19 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     const canvas = this.canvasElement.nativeElement;
     const fotoBase64 = canvas.toDataURL('image/jpeg', 0.8);
 
-    // Guardar la foto en el movimiento
     this.todosLosMovimientos[this.movimientoActualCaptura].foto = fotoBase64;
-    this.todosLosMovimientos[this.movimientoActualCaptura].emoji = ''; // Vaciar emoji para usar foto
+    this.todosLosMovimientos[this.movimientoActualCaptura].emoji = '';
 
-    // Efecto de flash
     this.mostrarFlashCaptura();
 
-    // Avanzar al siguiente movimiento
     this.movimientoActualCaptura++;
 
     if (this.movimientoActualCaptura >= this.todosLosMovimientos.length) {
-      // Terminó de capturar todas las fotos
       setTimeout(() => {
         this.detenerCamara();
         this.iniciarFaseJuego();
       }, 500);
     } else {
-      // Resetear estado para el siguiente movimiento
       this.movimientoDetectado = false;
       this.mensajeValidacion = '';
     }
@@ -540,7 +496,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     const canvas = this.canvasElement.nativeElement;
     const ctx = canvas.getContext('2d')!;
     
-    // Flash blanco
     ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
@@ -559,7 +514,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
         this.faceMesh.close();
         this.faceMesh = null;
       }
-      // Detener el stream de video también
       if (this.videoElement && this.videoElement.nativeElement.srcObject) {
         const stream = this.videoElement.nativeElement.srcObject as MediaStream;
         stream.getTracks().forEach(track => track.stop());
@@ -573,25 +527,20 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   // ==================== MÉTODOS DEL JUEGO ====================
 
   empezarNivel(): void {
-    // Verificar si ya tenemos fotos capturadas
     const yaHayFotos = this.todosLosMovimientos.some(mov => mov.foto !== null);
     
     if (yaHayFotos) {
-      // Si ya tenemos fotos, ir directo al juego
       this.iniciarFaseJuego();
     } else {
-      // Si no hay fotos, capturar todas primero
       this.faseJuego = 'captura';
       this.movimientoActualCaptura = 0;
       
-      // Resetear fotos de todos los movimientos
       const emojisOriginales = ['👅', '🔔', '😁', '😘', '⬇️', '⬆️', '😮', '😐'];
       this.todosLosMovimientos.forEach((mov, index) => {
         mov.foto = null;
         mov.emoji = emojisOriginales[index];
       });
 
-      // Iniciar cámara después de un pequeño delay para que se renderice el template
       setTimeout(() => {
         this.iniciarCamara();
       }, 100);
@@ -608,7 +557,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   preparaNivel(): void {
     if (!this.secuenciaActual) return;
 
-    // Crear zonas de destino dinámicamente según el número de movimientos
     const numMovimientos = this.secuenciaActual.movimientos.length;
     this.zonasDestino = new Array(numMovimientos).fill(null);
     
@@ -616,7 +564,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     this.intentos = 0;
     this.mostrarPista = false;
 
-    // Preparar movimientos arrastrables según la secuencia del nivel
     this.movimientosArrastrable = this.secuenciaActual.movimientos.map((idMov, index) => {
       const movimiento = this.todosLosMovimientos.find(m => m.id === idMov)!;
       return {
@@ -627,7 +574,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       };
     });
 
-    // Mezclar los movimientos
     this.movimientosArrastrable = this.mezclarArray(this.movimientosArrastrable);
   }
 
@@ -651,8 +597,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   }
 
   onDragEnd(event: DragEvent, movimiento: MovimientoLingual): void {
-    // Resetear el estado de arrastrando cuando termina el drag
-    // (sin importar si se soltó en una zona válida o no)
     movimiento.arrastrando = false;
   }
 
@@ -669,7 +613,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     
     if (!movimiento) return;
 
-    // Si la zona ya tiene un movimiento, devolverlo al banco
     if (this.zonasDestino[zonaIndex] !== null) {
       const movimientoAnterior = this.obtenerMovimientoPorId(this.zonasDestino[zonaIndex]!);
       if (movimientoAnterior) {
@@ -677,18 +620,15 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Si el movimiento ya estaba colocado, liberar su zona anterior
     const zonaAnterior = this.zonasDestino.indexOf(movimiento.id);
     if (zonaAnterior !== -1) {
       this.zonasDestino[zonaAnterior] = null;
     }
 
-    // Colocar el movimiento en la nueva zona
     this.zonasDestino[zonaIndex] = movimiento.id;
     movimiento.colocado = true;
     movimiento.arrastrando = false;
 
-    // Verificar si la secuencia está completa
     this.secuenciaCompleta = this.zonasDestino.every(z => z !== null);
   }
 
@@ -740,25 +680,27 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       0
     );
 
-    // Avanzar al siguiente nivel después de cerrar el modal
     setTimeout(() => {
       if (this.nivelActual < this.maxNiveles) {
         this.nivelActual++;
         this.faseJuego = 'jugando';
         
-        // Actualizar la secuencia actual al nuevo nivel
         this.secuenciaActual = this.secuencias[this.nivelActual - 1];
         
-        // Preparar el nuevo nivel
         this.preparaNivel();
         this.iniciarTemporizador();
       } else {
-        // Completó todos los niveles
+        // 📝 ACTUALIZADO: Registrar actividad al completar todos los niveles
         this.detenerTemporizador();
         this.faseJuego = 'completado';
         this.guardarEstadisticas();
         
-        // NO redirigir automáticamente - dejar que el usuario elija
+        // 📝 REGISTRAR EN EL HISTORIAL
+        this.historialService.registrarJuego('Puzzle de Movimientos').subscribe({
+          next: () => console.log('✅ Puzzle de Movimientos registrado en historial'),
+          error: (error: any) => console.error('❌ Error registrando actividad:', error)
+        });
+        
         console.log('¡Juego completado! Mostrando pantalla de felicitaciones.');
       }
     }, 2000);
@@ -775,7 +717,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.faseJuego = 'jugando';
       
-      // Resetear posiciones pero mantener fotos
       const numMovimientos = this.secuenciaActual!.movimientos.length;
       this.zonasDestino = new Array(numMovimientos).fill(null);
       this.movimientosArrastrable.forEach(m => m.colocado = false);
@@ -851,7 +792,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     localStorage.setItem('puzzleMovimientosStats', JSON.stringify(stats));
   }
 
-  // Métodos helper para las fases
   get estaJugando(): boolean {
     return this.faseJuego === 'jugando' || this.faseJuego === 'verificando';
   }
@@ -881,7 +821,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     this.secuenciasCorrectas = 0;
     this.faseJuego = 'instrucciones';
     
-    // Resetear fotos
     const emojisOriginales = ['👅', '🔔', '😁', '😘', '⬇️', '⬆️', '😮', '😐'];
     this.todosLosMovimientos.forEach((mov, index) => {
       mov.foto = null;
@@ -890,7 +829,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       mov.arrastrando = false;
     });
     
-    // Resetear zonas de destino
     this.zonasDestino = [];
     this.movimientosArrastrable = [];
     this.secuenciaActual = null;
