@@ -13,7 +13,8 @@ export interface RegistrarActividadDto {
   providedIn: 'root'
 })
 export class HistorialActividadesService {
-  private apiUrl = `${environment.backendApi}/historial-actividades`;
+  // 🔧 CORREGIDO: Agregado /api/ a la ruta
+  private apiUrl = `${environment.backendApi}/api/historial-actividades`;
 
   constructor(private http: HttpClient) {}
 
