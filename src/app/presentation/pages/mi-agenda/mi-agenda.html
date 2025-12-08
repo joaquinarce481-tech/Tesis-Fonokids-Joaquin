@@ -17,6 +17,14 @@
     </div>
   </div>
 
+  <!-- Botón Generar PDF -->
+  <div class="pdf-button-container" *ngIf="!cargando && !error && actividadesPorFecha.length > 0">
+    <button class="btn-generar-pdf" (click)="abrirModalPDF()">
+      <span class="pdf-icon-btn">📄</span>
+      Generar Reporte PDF
+    </button>
+  </div>
+
   <!-- Estadísticas Resumen -->
   <div class="stats-section" *ngIf="!cargando && !error && actividadesPorFecha.length > 0">
     <div class="stat-card">
@@ -96,6 +104,81 @@
             ✅
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Generar PDF -->
+  <div class="modal-overlay" *ngIf="mostrarModalPDF" (click)="cerrarModalPDF()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Generar Reporte PDF</h2>
+        <button class="btn-cerrar-modal" (click)="cerrarModalPDF()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-descripcion">
+          Selecciona el tipo de reporte que deseas generar para compartir con tu fonoaudiólogo:
+        </p>
+
+        <!-- Opciones de Filtro -->
+        <div class="filtros-container">
+          
+          <!-- Opción 1: Hoy -->
+          <div class="filtro-opcion" [class.active]="tipoReporte === 'hoy'" (click)="tipoReporte = 'hoy'">
+            <div class="radio-custom">
+              <div class="radio-dot" *ngIf="tipoReporte === 'hoy'"></div>
+            </div>
+            <div class="filtro-info">
+              <h3>Actividades de Hoy</h3>
+              <p>Genera un reporte solo con las actividades realizadas el día de hoy</p>
+            </div>
+          </div>
+
+          <!-- Opción 2: Rango de Fechas -->
+          <div class="filtro-opcion" [class.active]="tipoReporte === 'rango'" (click)="tipoReporte = 'rango'">
+            <div class="radio-custom">
+              <div class="radio-dot" *ngIf="tipoReporte === 'rango'"></div>
+            </div>
+            <div class="filtro-info">
+              <h3>Rango de Fechas</h3>
+              <p>Selecciona un período específico para el reporte</p>
+            </div>
+          </div>
+
+          <!-- Campos de Fecha (solo si se selecciona rango) -->
+          <div class="fechas-rango" *ngIf="tipoReporte === 'rango'">
+            <div class="input-group">
+              <label>Fecha Inicio:</label>
+              <input type="date" [(ngModel)]="fechaInicio" class="input-fecha">
+            </div>
+            <div class="input-group">
+              <label>Fecha Fin:</label>
+              <input type="date" [(ngModel)]="fechaFin" class="input-fecha">
+            </div>
+          </div>
+
+          <!-- Opción 3: Todas las Actividades -->
+          <div class="filtro-opcion" [class.active]="tipoReporte === 'todos'" (click)="tipoReporte = 'todos'">
+            <div class="radio-custom">
+              <div class="radio-dot" *ngIf="tipoReporte === 'todos'"></div>
+            </div>
+            <div class="filtro-info">
+              <h3>Todas las Actividades</h3>
+              <p>Genera un reporte completo con todo tu historial de actividades</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-modal-cancelar" (click)="cerrarModalPDF()">
+          Cancelar
+        </button>
+        <button class="btn-modal-generar" (click)="generarPDF()">
+          Generar PDF
+        </button>
       </div>
     </div>
   </div>

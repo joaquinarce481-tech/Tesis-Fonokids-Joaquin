@@ -54,7 +54,7 @@ export class GuiaTutoresComponent implements OnInit {
       id: 'senales-progreso',
       titulo: 'Señales de Progreso',
       subtitulo: 'Monitoreo y seguimiento',
-      descripcion: 'Identifica los indicadores de mejora y genera reportes para el fonoaudiólogo',
+      descripcion: 'Identifica los indicadores de mejora en el desarrollo del habla y comunicación',
       icono: '📈',
       color: 'from-orange-400 to-orange-600'
     },
@@ -227,27 +227,27 @@ export class GuiaTutoresComponent implements OnInit {
   // Contenido de Ejercicios - LOS 17 EJERCICIOS REALES
   ejercicios = [
     // EJERCICIOS LABIALES (6)
-    { id: 1, nombre: 'Sonrisa Amplia', categoria: 'Labial', descripcion: 'Extiende los labios hacia los lados formando una sonrisa amplia', repeticiones: '10 veces' },
-    { id: 2, nombre: 'Beso', categoria: 'Labial', descripcion: 'Proyecta los labios hacia adelante como dando un beso', repeticiones: '10 veces' },
-    { id: 3, nombre: 'Sonrisa-Beso Alternado', categoria: 'Labial', descripcion: 'Alterna entre sonrisa amplia y posición de beso', repeticiones: '10 veces' },
-    { id: 4, nombre: 'Inflar Mejillas', categoria: 'Labial', descripcion: 'Infla las mejillas manteniendo el aire dentro', repeticiones: '8 veces' },
-    { id: 5, nombre: 'Mover Aire', categoria: 'Labial', descripcion: 'Pasa el aire de una mejilla a otra', repeticiones: '10 veces' },
-    { id: 6, nombre: 'Vibración de Labios', categoria: 'Labial', descripcion: 'Haz vibrar los labios mientras sueltas aire', repeticiones: '5 veces' },
+    { id: 1, nombre: 'Sonrisa Amplia', categoria: 'Labial', descripcion: 'Extiende los labios hacia los lados formando una sonrisa amplia', repeticiones: '3 veces por día' },
+    { id: 2, nombre: 'Beso', categoria: 'Labial', descripcion: 'Proyecta los labios hacia adelante como dando un beso', repeticiones: '3 veces por día' },
+    { id: 3, nombre: 'Sonrisa-Beso Alternado', categoria: 'Labial', descripcion: 'Alterna entre sonrisa amplia y posición de beso', repeticiones: '3 veces por día' },
+    { id: 4, nombre: 'Inflar Mejillas', categoria: 'Labial', descripcion: 'Infla las mejillas manteniendo el aire dentro', repeticiones: '3 veces por día' },
+    { id: 5, nombre: 'Mover Aire', categoria: 'Labial', descripcion: 'Pasa el aire de una mejilla a otra', repeticiones: '3 veces por día' },
+    { id: 6, nombre: 'Vibración de Labios', categoria: 'Labial', descripcion: 'Haz vibrar los labios mientras sueltas aire', repeticiones: '3 veces por día' },
     
     // EJERCICIOS LINGUALES (7)
-    { id: 7, nombre: 'Lengua Afuera', categoria: 'Lingual', descripcion: 'Saca la lengua lo más que puedas hacia adelante', repeticiones: '10 veces' },
-    { id: 8, nombre: 'Tocar Nariz', categoria: 'Lingual', descripcion: 'Intenta tocar la punta de tu nariz con la lengua', repeticiones: '8 veces' },
-    { id: 9, nombre: 'Tocar Barbilla', categoria: 'Lingual', descripcion: 'Intenta tocar tu barbilla con la lengua', repeticiones: '8 veces' },
-    { id: 10, nombre: 'Lengua a Comisuras', categoria: 'Lingual', descripcion: 'Toca las esquinas de tu boca con la lengua', repeticiones: '10 veces' },
-    { id: 11, nombre: 'Lengua Circular', categoria: 'Lingual', descripcion: 'Mueve la lengua en círculos alrededor de los labios', repeticiones: '5 círculos' },
-    { id: 12, nombre: 'Chasquido', categoria: 'Lingual', descripcion: 'Haz el sonido de chasquido con la lengua', repeticiones: '15 veces' },
-    { id: 13, nombre: 'Lengua Ancha/Angosta', categoria: 'Lingual', descripcion: 'Alterna entre lengua ancha y puntiaguda', repeticiones: '10 veces' },
+    { id: 7, nombre: 'Lengua Afuera', categoria: 'Lingual', descripcion: 'Saca la lengua lo más que puedas hacia adelante', repeticiones: '3 veces por día' },
+    { id: 8, nombre: 'Tocar Nariz', categoria: 'Lingual', descripcion: 'Intenta tocar la punta de tu nariz con la lengua', repeticiones: '3 veces por día' },
+    { id: 9, nombre: 'Tocar Barbilla', categoria: 'Lingual', descripcion: 'Intenta tocar tu barbilla con la lengua', repeticiones: '3 veces por día' },
+    { id: 10, nombre: 'Lengua a Comisuras', categoria: 'Lingual', descripcion: 'Toca las esquinas de tu boca con la lengua', repeticiones: '3 veces por día' },
+    { id: 11, nombre: 'Lengua Circular', categoria: 'Lingual', descripcion: 'Mueve la lengua en círculos alrededor de los labios', repeticiones: '3 veces por día' },
+    { id: 12, nombre: 'Chasquido', categoria: 'Lingual', descripcion: 'Haz el sonido de chasquido con la lengua', repeticiones: '3 veces por día' },
+    { id: 13, nombre: 'Lengua Ancha/Angosta', categoria: 'Lingual', descripcion: 'Alterna entre lengua ancha y puntiaguda', repeticiones: '3 veces por día' },
     
     // EJERCICIOS MANDIBULARES (4)
-    { id: 14, nombre: 'Abrir y Cerrar Boca', categoria: 'Mandibular', descripcion: 'Abre y cierra la boca de forma controlada', repeticiones: '10 veces' },
-    { id: 15, nombre: 'Mandíbula a los Lados', categoria: 'Mandibular', descripcion: 'Mueve la mandíbula de lado a lado', repeticiones: '10 veces' },
-    { id: 16, nombre: 'Mandíbula Adelante/Atrás', categoria: 'Mandibular', descripcion: 'Proyecta y retrae la mandíbula', repeticiones: '10 veces' },
-    { id: 17, nombre: 'Movimiento Circular Mandíbula', categoria: 'Mandibular', descripcion: 'Mueve la mandíbula en círculos suaves', repeticiones: '5 círculos' }
+    { id: 14, nombre: 'Abrir y Cerrar Boca', categoria: 'Mandibular', descripcion: 'Abre y cierra la boca de forma controlada', repeticiones: '3 veces por día' },
+    { id: 15, nombre: 'Mandíbula a los Lados', categoria: 'Mandibular', descripcion: 'Mueve la mandíbula de lado a lado', repeticiones: '3 veces por día' },
+    { id: 16, nombre: 'Mandíbula Adelante/Atrás', categoria: 'Mandibular', descripcion: 'Proyecta y retrae la mandíbula', repeticiones: '3 veces por día' },
+    { id: 17, nombre: 'Movimiento Circular Mandíbula', categoria: 'Mandibular', descripcion: 'Mueve la mandíbula en círculos suaves', repeticiones: '3 veces por día' }
   ];
 
   // Contenido de Señales de Progreso
@@ -374,9 +374,5 @@ export class GuiaTutoresComponent implements OnInit {
 
   toggleItem(id: string): void {
     this.itemExpandido = this.itemExpandido === id ? null : id;
-  }
-
-  generarPDF(): void {
-    alert('🚧 Generador de PDF\n\nEsta funcionalidad estará disponible próximamente.\n\nEl PDF incluirá:\n• Historial de ejercicios\n• Frecuencia de práctica\n• Gráficos de progreso');
   }
 }

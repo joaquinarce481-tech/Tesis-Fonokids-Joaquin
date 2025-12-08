@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface Actividad {
   id_actividad: number;
@@ -20,7 +23,7 @@ interface ActividadesPorFecha {
 @Component({
   selector: 'app-mi-agenda',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './mi-agenda.html',
   styleUrls: ['./mi-agenda.css']
 })
@@ -28,6 +31,12 @@ export class MiAgendaComponent implements OnInit {
   actividadesPorFecha: ActividadesPorFecha[] = [];
   cargando: boolean = true;
   error: string = '';
+  
+  // Variables para el modal de PDF
+  mostrarModalPDF: boolean = false;
+  tipoReporte: 'hoy' | 'rango' | 'todos' = 'hoy';
+  fechaInicio: string = '';
+  fechaFin: string = '';
 
   constructor(
     private router: Router,
@@ -36,10 +45,7 @@ export class MiAgendaComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('📅 Mi Agenda iniciada');
-    
-    // 🔝 SCROLL AUTOMÁTICO AL INICIO
     window.scrollTo(0, 0);
-    
     this.cargarHistorial();
   }
 
@@ -47,7 +53,6 @@ export class MiAgendaComponent implements OnInit {
     this.cargando = true;
     this.error = '';
 
-    // Obtener el ID del paciente del localStorage
     const userData = localStorage.getItem('fonokids_user');
     if (!userData) {
       this.error = 'No se encontró información del usuario';
@@ -64,9 +69,7 @@ export class MiAgendaComponent implements OnInit {
       return;
     }
 
-    // ✅ CORREGIDO: Agregado /api/ en la URL
     console.log('🔍 Cargando historial del paciente:', idPaciente);
-    console.log('🔗 URL:', `${environment.backendApi}/api/historial-actividades/paciente/${idPaciente}`);
     
     this.http.get<any>(`${environment.backendApi}/api/historial-actividades/paciente/${idPaciente}`)
       .subscribe({
@@ -84,7 +87,6 @@ export class MiAgendaComponent implements OnInit {
   }
 
   agruparPorFecha(actividades: Actividad[]): void {
-    // Agrupar actividades por fecha
     const actividadesPorFechaMap = new Map<string, Actividad[]>();
 
     actividades.forEach(actividad => {
@@ -95,7 +97,6 @@ export class MiAgendaComponent implements OnInit {
       actividadesPorFechaMap.get(fecha)!.push(actividad);
     });
 
-    // Convertir a array y ordenar por fecha (más reciente primero)
     this.actividadesPorFecha = Array.from(actividadesPorFechaMap.entries())
       .map(([fecha, actividades]) => ({
         fecha,
@@ -108,7 +109,6 @@ export class MiAgendaComponent implements OnInit {
   }
 
   formatearFecha(fechaStr: string): string {
-    // Parsear fecha correctamente desde formato YYYY-MM-DD
     const [year, month, day] = fechaStr.split('-');
     const fecha = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
     
@@ -116,15 +116,14 @@ export class MiAgendaComponent implements OnInit {
     const ayer = new Date(hoy);
     ayer.setDate(ayer.getDate() - 1);
 
-    // Resetear horas para comparación
     hoy.setHours(0, 0, 0, 0);
     ayer.setHours(0, 0, 0, 0);
     fecha.setHours(0, 0, 0, 0);
 
     if (fecha.getTime() === hoy.getTime()) {
-      return ' Hoy';
+      return 'Hoy';
     } else if (fecha.getTime() === ayer.getTime()) {
-      return '📆 Ayer';
+      return 'Ayer';
     } else {
       const opciones: Intl.DateTimeFormatOptions = { 
         weekday: 'long', 
@@ -158,5 +157,207 @@ export class MiAgendaComponent implements OnInit {
 
   get diasRegistrados(): number {
     return this.actividadesPorFecha.length;
+  }
+
+  // ========== FUNCIONES PARA PDF ==========
+
+  abrirModalPDF(): void {
+    this.mostrarModalPDF = true;
+    this.tipoReporte = 'hoy';
+    this.fechaInicio = new Date().toISOString().split('T')[0];
+    this.fechaFin = new Date().toISOString().split('T')[0];
+  }
+
+  cerrarModalPDF(): void {
+    this.mostrarModalPDF = false;
+  }
+
+  generarPDF(): void {
+    let actividadesFiltradas: ActividadesPorFecha[] = [];
+    let tituloReporte = '';
+
+    // Filtrar según el tipo de reporte
+    if (this.tipoReporte === 'hoy') {
+      const hoy = new Date().toISOString().split('T')[0];
+      actividadesFiltradas = this.actividadesPorFecha.filter(grupo => grupo.fecha === hoy);
+      tituloReporte = 'Reporte de Actividades - Hoy';
+    } else if (this.tipoReporte === 'rango') {
+      if (!this.fechaInicio || !this.fechaFin) {
+        alert('Por favor selecciona ambas fechas');
+        return;
+      }
+      const inicio = new Date(this.fechaInicio);
+      const fin = new Date(this.fechaFin);
+      
+      actividadesFiltradas = this.actividadesPorFecha.filter(grupo => {
+        const fechaGrupo = new Date(grupo.fecha);
+        return fechaGrupo >= inicio && fechaGrupo <= fin;
+      });
+      tituloReporte = `Reporte de Actividades - Del ${this.formatearFechaPDF(this.fechaInicio)} al ${this.formatearFechaPDF(this.fechaFin)}`;
+    } else {
+      actividadesFiltradas = this.actividadesPorFecha;
+      tituloReporte = 'Reporte Completo de Actividades';
+    }
+
+    if (actividadesFiltradas.length === 0) {
+      alert('No hay actividades en el rango seleccionado');
+      return;
+    }
+
+    this.crearPDF(actividadesFiltradas, tituloReporte);
+    this.cerrarModalPDF();
+  }
+
+  formatearFechaPDF(fechaStr: string): string {
+    const [year, month, day] = fechaStr.split('-');
+    const fecha = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const opciones: Intl.DateTimeFormatOptions = { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    };
+    return fecha.toLocaleDateString('es-ES', opciones);
+  }
+
+  crearPDF(actividades: ActividadesPorFecha[], titulo: string): void {
+    const doc = new jsPDF();
+    
+    // Obtener datos del usuario
+    const userData = localStorage.getItem('fonokids_user');
+    const user = userData ? JSON.parse(userData) : {};
+    
+    // ✅ El servidor envía el nombre en el campo 'name'
+    const nombrePaciente = user.name || user.username || 'Paciente';
+    
+    console.log('👤 Usuario para PDF:', user);
+    console.log('📝 Nombre del paciente:', nombrePaciente);
+
+    // === ENCABEZADO ===
+    doc.setFillColor(102, 126, 234);
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('FonoKids', 105, 15, { align: 'center' });
+    
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Reporte de Actividades Terapeuticas', 105, 25, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.text(`Generado el ${new Date().toLocaleDateString('es-ES')}`, 105, 33, { align: 'center' });
+
+    // === INFORMACIÓN DEL PACIENTE ===
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Informacion del Paciente:', 20, 50);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(`Nombre: ${nombrePaciente}`, 20, 58);
+    doc.text(`Fecha del reporte: ${new Date().toLocaleDateString('es-ES')}`, 20, 65);
+
+    // === TÍTULO DEL REPORTE ===
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(102, 126, 234);
+    doc.text(titulo, 20, 78);
+
+    // === ESTADÍSTICAS GENERALES ===
+    const totalActividadesReporte = actividades.reduce((sum, grupo) => sum + grupo.actividades.length, 0);
+    const totalJuegos = actividades.reduce((sum, grupo) => 
+      sum + grupo.actividades.filter(a => a.tipo_actividad === 'juego_terapeutico').length, 0
+    );
+    const totalEjercicios = totalActividadesReporte - totalJuegos;
+
+    doc.setFillColor(240, 240, 240);
+    doc.roundedRect(20, 85, 170, 25, 3, 3, 'F');
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Estadisticas del Periodo:', 25, 93);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total de actividades: ${totalActividadesReporte}`, 25, 100);
+    doc.text(`Juegos terapeuticos: ${totalJuegos}`, 100, 100);
+    doc.text(`Ejercicios orofaciales: ${totalEjercicios}`, 25, 106);
+    doc.text(`Dias con actividad: ${actividades.length}`, 100, 106);
+
+    // === DETALLE DE ACTIVIDADES POR FECHA ===
+    let yPosition = 120;
+    
+    actividades.forEach((grupo, index) => {
+      // Verificar si necesitamos una nueva página
+      if (yPosition > 250) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      // Fecha del día
+      doc.setFillColor(102, 126, 234);
+      doc.roundedRect(20, yPosition, 170, 8, 2, 2, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${this.formatearFechaPDF(grupo.fecha)} - ${grupo.actividades.length} actividades`, 25, yPosition + 6);
+      
+      yPosition += 12;
+
+      // Tabla de actividades del día
+      const datosTabla = grupo.actividades.map((act, idx) => [
+        (idx + 1).toString(),
+        act.tipo_actividad === 'juego_terapeutico' ? 'Juego Terapeutico' : 'Ejercicio Orofacial',
+        act.nombre_actividad
+      ]);
+
+      autoTable(doc, {
+        startY: yPosition,
+        head: [['#', 'Tipo', 'Actividad']],
+        body: datosTabla,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [118, 75, 162],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 9
+        },
+        styles: {
+          fontSize: 9,
+          cellPadding: 4
+        },
+        columnStyles: {
+          0: { cellWidth: 15 },
+          1: { cellWidth: 55 },
+          2: { cellWidth: 100 }
+        },
+        margin: { left: 20, right: 20 }
+      });
+
+      yPosition = (doc as any).lastAutoTable.finalY + 8;
+    });
+
+    // === PIE DE PÁGINA ===
+    const totalPages = (doc as any).internal.pages.length - 1;
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(
+        `Pagina ${i} de ${totalPages} - FonoKids - Sistema de Terapia de Habla`,
+        105,
+        285,
+        { align: 'center' }
+      );
+    }
+
+    // Guardar PDF
+    const fechaArchivo = new Date().toISOString().split('T')[0];
+    doc.save(`FonoKids_Reporte_${nombrePaciente}_${fechaArchivo}.pdf`);
+    
+    console.log('✅ PDF generado exitosamente');
   }
 }

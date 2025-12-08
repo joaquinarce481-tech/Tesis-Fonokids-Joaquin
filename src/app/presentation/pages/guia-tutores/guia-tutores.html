@@ -168,7 +168,7 @@
             <span class="ejercicio-categoria">{{ ejercicio.categoria }}</span>
             <h3>{{ ejercicio.nombre }}</h3>
             <p>{{ ejercicio.descripcion }}</p>
-            <strong>Repeticiones: {{ ejercicio.repeticiones }}</strong>
+            <strong>Completar: {{ ejercicio.repeticiones }}</strong>
           </div>
         </div>
       </div>
@@ -185,7 +185,7 @@
       <div class="header-info">
         <div class="header-icon">📈</div>
         <h1>Señales de Progreso</h1>
-        <p>Identifica mejoras y genera reportes</p>
+        <p>Identifica mejoras en el desarrollo del habla</p>
       </div>
     </header>
 
@@ -203,16 +203,6 @@
             <li *ngFor="let indicador of senal.indicadores">{{ indicador }}</li>
           </ul>
         </div>
-      </div>
-
-      <div class="pdf-card">
-        <div class="pdf-icon">📄</div>
-        <h2>Generar Reporte de Progreso</h2>
-        <p>Crea un PDF profesional para compartir con el fonoaudiólogo.</p>
-        <button class="btn-generar-pdf" (click)="generarPDF()">
-          <span class="icon">📥</span>
-          Generar Reporte PDF
-        </button>
       </div>
     </main>
   </div>
