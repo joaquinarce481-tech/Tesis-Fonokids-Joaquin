@@ -124,13 +124,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       description: 'Charla con la Inteligencia Artificial'
     },
     {
-      id: 'contacto',
-      title: 'Hablar con mi Fonoaudióloga',
-      subtitle: 'Siempre aquí para ayudarte',
+      id: 'guia-tutores',
+      title: 'Guía para Padres',
+      subtitle: 'Recursos y apoyo',
       color: 'from-orange-400 to-orange-600',
       hoverColor: 'from-orange-500 to-orange-700',
-      emoji: '👩‍⚕️',
-      description: 'Contacta a tu especialista'
+      emoji: '👨‍👩‍👧',
+      description: 'Información para apoyar la terapia'
     }
   ];
 
@@ -259,10 +259,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.stopAutoPlay();
     
     switch(item.id) {
-      case 'contacto':
-        console.log('Función de contacto aún no implementada');
-        break;
-      
       case 'agenda':
         this.router.navigate(['/mi-agenda']);
         console.log('📅 Navegando a Mi Agenda...');
@@ -278,9 +274,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
         break;
       
       case 'practicas':
-        // ✅ Navegar a FonoBot (assistant-page) en lugar de assistant
         this.router.navigate(['/chat/assistant-page']);
         console.log('🤖 Navegando a FonoBot...');
+        break;
+      
+      // ========== ✅ NAVEGACIÓN A GUÍA PARA TUTORES ==========
+      case 'guia-tutores':
+        this.router.navigate(['/guia-tutores']);
+        console.log('👨‍👩‍👧 Navegando a Guía para Padres...');
         break;
     }
     
@@ -358,7 +359,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // ✅ MÉTODO PARA NAVEGAR AL CHATBOT DE FONOBOT
   goToFonoBot() {
     console.log('🤖 Navegando al chatbot FonoBot...');
-    // Navegar directamente a la sección de FonoBot con replaceUrl
     this.router.navigate(['/chat/assistant-page'], { 
       replaceUrl: true,
       skipLocationChange: false 

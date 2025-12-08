@@ -312,13 +312,37 @@ export const routes: Routes = [
 
   // RUTA DE MI AGENDA - HISTORIAL DE ACTIVIDADES
   {
-  path: 'mi-agenda',
- loadComponent: () => import('./presentation/pages/mi-agenda/mi-agenda').then(m => m.MiAgendaComponent),
+    path: 'mi-agenda',
+    loadComponent: () => import('./presentation/pages/mi-agenda/mi-agenda').then(m => m.MiAgendaComponent),
+    canActivate: [AuthGuard],
+    data: {
+      icon: 'fa-solid fa-calendar-days',
+      title: 'Mi Agenda',
+      description: 'Historial de actividades y progreso diario'
+    }
+  },
+
+  // ========== ✅ NUEVA RUTA DE GUÍA PARA TUTORES ==========
+  {
+    path: 'guia-tutores',
+    loadComponent: () => import('./presentation/pages/guia-tutores/guia-tutores').then(m => m.GuiaTutoresComponent),
+    canActivate: [AuthGuard],
+    data: {
+      icon: 'fa-solid fa-users',
+      title: 'Guía para Padres',
+      description: 'Información y recursos para apoyar la terapia en casa'
+    }
+  },
+
+  // ========== ✅ RUTA PARA CATEGORÍAS INDIVIDUALES ==========
+ {
+  path: 'guia-tutores',
+  loadComponent: () => import('./presentation/pages/guia-tutores/guia-tutores').then(m => m.GuiaTutoresComponent),
   canActivate: [AuthGuard],
   data: {
-    icon: 'fa-solid fa-calendar-days',
-    title: 'Mi Agenda',
-    description: 'Historial de actividades y progreso diario'
+    icon: 'fa-solid fa-users',
+    title: 'Guía para Padres',
+    description: 'Información y recursos para apoyar la terapia en casa'
   }
 },
 

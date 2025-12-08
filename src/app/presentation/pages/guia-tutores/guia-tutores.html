@@ -1,0 +1,266 @@
+<div class="guia-tutores-container">
+  
+  <!-- ========== VISTA HOME (Categorías) ========== -->
+  <div *ngIf="vistaActual === 'home'">
+    <header class="guia-header">
+      <div class="header-content">
+        <button class="btn-volver" (click)="volverDashboard()">
+          <span class="icon-volver">←</span>
+          Volver al Inicio
+        </button>
+        
+        <div class="header-info">
+          <h1 class="header-title">
+            <span class="icon-titulo">👨‍👩‍👧</span>
+            Guía para Padres y Tutores
+          </h1>
+          <p class="header-subtitle">
+            Todo lo que necesitas saber para apoyar el proceso terapéutico
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <main class="guia-main">
+      <section class="welcome-section">
+        <div class="welcome-card">
+          <div class="welcome-icon">🌟</div>
+          <h2>¡Bienvenido/a a la Guía para Padres!</h2>
+          <p>Aquí encontrarás toda la información necesaria para entender y acompañar el proceso de terapia.</p>
+        </div>
+      </section>
+
+      <section class="categorias-section">
+        <h2 class="section-title">Explora las Categorías</h2>
+        
+        <div class="categorias-grid">
+          <div 
+            *ngFor="let categoria of categorias"
+            class="categoria-card"
+            [ngClass]="'bg-' + categoria.color"
+            (click)="navegarCategoria(categoria)">
+            
+            <div class="categoria-imagen"></div>
+            
+            <div class="categoria-content">
+              <div class="categoria-header">
+                <span class="categoria-icono">{{ categoria.icono }}</span>
+                <div class="categoria-badge">{{ categoria.subtitulo }}</div>
+              </div>
+              
+              <h3 class="categoria-titulo">{{ categoria.titulo }}</h3>
+              <p class="categoria-descripcion">{{ categoria.descripcion }}</p>
+              
+              <div class="categoria-footer">
+                <span class="btn-explorar">
+                  Explorar <span class="arrow-icon">→</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ========== VISTA: ENTENDIENDO LA TERAPIA ========== -->
+  <div *ngIf="vistaActual === 'entendiendo-terapia'" class="contenido-seccion terapia">
+    <header class="seccion-header">
+      <button class="btn-volver" (click)="volverHome()">
+        <span class="icon-volver">←</span>
+        Volver a Guía
+      </button>
+      <div class="header-info">
+        <div class="header-icon">📚</div>
+        <h1>Entendiendo la Terapia</h1>
+        <p>Fundamentos esenciales sobre ejercicios orofaciales</p>
+      </div>
+    </header>
+
+    <main class="seccion-main">
+      <div class="intro-card">
+        <h2>Aprende los fundamentos</h2>
+        <p>Comprende qué son los ejercicios orofaciales y cómo FonoKids apoya el proceso terapéutico.</p>
+      </div>
+
+      <div class="articulos-lista">
+        <div *ngFor="let articulo of articulosTerapia" 
+             class="articulo-item"
+             [class.expanded]="itemExpandido === articulo.id">
+          <div class="articulo-header" (click)="toggleItem(articulo.id)">
+            <div class="articulo-icon">{{ articulo.icono }}</div>
+            <h3>{{ articulo.titulo }}</h3>
+            <span class="expand-icon">{{ itemExpandido === articulo.id ? '−' : '+' }}</span>
+          </div>
+          <div class="articulo-contenido" *ngIf="itemExpandido === articulo.id">
+            <p *ngFor="let parrafo of articulo.contenido">{{ parrafo }}</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ========== VISTA: CÓMO AYUDAR EN CASA ========== -->
+  <div *ngIf="vistaActual === 'ayudar-casa'" class="contenido-seccion casa">
+    <header class="seccion-header">
+      <button class="btn-volver" (click)="volverHome()">
+        <span class="icon-volver">←</span>
+        Volver a Guía
+      </button>
+      <div class="header-info">
+        <div class="header-icon">🏠</div>
+        <h1>Cómo Ayudar en Casa</h1>
+        <p>Estrategias efectivas para crear un ambiente de práctica positivo</p>
+      </div>
+    </header>
+
+    <main class="seccion-main">
+      <div class="intro-card">
+        <h2>Tu rol es fundamental</h2>
+        <p>Como padre o tutor, eres el pilar más importante en el proceso terapéutico.</p>
+      </div>
+
+      <div class="consejos-lista">
+        <div *ngFor="let consejo of consejosCasa"
+             class="consejo-item"
+             [class.expanded]="itemExpandido === consejo.id">
+          <div class="consejo-header" (click)="toggleItem(consejo.id)">
+            <div class="consejo-icon">{{ consejo.icono }}</div>
+            <h3>{{ consejo.titulo }}</h3>
+            <span class="expand-icon">{{ itemExpandido === consejo.id ? '−' : '+' }}</span>
+          </div>
+          <div class="consejo-contenido" *ngIf="itemExpandido === consejo.id">
+            <ul>
+              <li *ngFor="let tip of consejo.tips">
+                <span class="bullet">✓</span> {{ tip }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ========== VISTA: GUÍA DE EJERCICIOS ========== -->
+  <div *ngIf="vistaActual === 'guia-ejercicios'" class="contenido-seccion ejercicios">
+    <header class="seccion-header">
+      <button class="btn-volver" (click)="volverHome()">
+        <span class="icon-volver">←</span>
+        Volver a Guía
+      </button>
+      <div class="header-info">
+        <div class="header-icon">💪</div>
+        <h1>Guía de Ejercicios</h1>
+        <p>Los ejercicios orofaciales explicados en detalle</p>
+      </div>
+    </header>
+
+    <main class="seccion-main">
+      <div class="intro-card">
+        <h2>17 Ejercicios Orofaciales</h2>
+        <p>Cada ejercicio está diseñado para fortalecer músculos específicos del habla.</p>
+      </div>
+
+      <div class="ejercicios-lista">
+        <div *ngFor="let ejercicio of ejercicios" class="ejercicio-item">
+          <div class="ejercicio-numero">{{ ejercicio.id }}</div>
+          <div class="ejercicio-info">
+            <span class="ejercicio-categoria">{{ ejercicio.categoria }}</span>
+            <h3>{{ ejercicio.nombre }}</h3>
+            <p>{{ ejercicio.descripcion }}</p>
+            <strong>Repeticiones: {{ ejercicio.repeticiones }}</strong>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ========== VISTA: SEÑALES DE PROGRESO ========== -->
+  <div *ngIf="vistaActual === 'senales-progreso'" class="contenido-seccion progreso">
+    <header class="seccion-header">
+      <button class="btn-volver" (click)="volverHome()">
+        <span class="icon-volver">←</span>
+        Volver a Guía
+      </button>
+      <div class="header-info">
+        <div class="header-icon">📈</div>
+        <h1>Señales de Progreso</h1>
+        <p>Identifica mejoras y genera reportes</p>
+      </div>
+    </header>
+
+    <main class="seccion-main">
+      <div class="intro-card">
+        <h2>Monitorea el avance</h2>
+        <p>Aquí encontrarás las señales que indican que tu hijo/a está progresando.</p>
+      </div>
+
+      <div class="senales-grid">
+        <div *ngFor="let senal of senalesProgreso" class="senal-card">
+          <div class="senal-icon">{{ senal.icono }}</div>
+          <h3>{{ senal.titulo }}</h3>
+          <ul>
+            <li *ngFor="let indicador of senal.indicadores">{{ indicador }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pdf-card">
+        <div class="pdf-icon">📄</div>
+        <h2>Generar Reporte de Progreso</h2>
+        <p>Crea un PDF profesional para compartir con el fonoaudiólogo.</p>
+        <button class="btn-generar-pdf" (click)="generarPDF()">
+          <span class="icon">📥</span>
+          Generar Reporte PDF
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <!-- ========== VISTA: PREGUNTAS FRECUENTES ========== -->
+  <div *ngIf="vistaActual === 'preguntas-frecuentes'" class="contenido-seccion faq">
+    <header class="seccion-header">
+      <button class="btn-volver" (click)="volverHome()">
+        <span class="icon-volver">←</span>
+        Volver a Guía
+      </button>
+      <div class="header-info">
+        <div class="header-icon">❓</div>
+        <h1>Preguntas Frecuentes</h1>
+        <p>Respuestas rápidas a las dudas más comunes</p>
+      </div>
+    </header>
+
+    <main class="seccion-main">
+      <div class="intro-card">
+        <h2>Encuentra respuestas</h2>
+        <p>Hemos compilado las preguntas más frecuentes de padres y tutores.</p>
+      </div>
+
+      <div class="preguntas-lista">
+        <div *ngFor="let pregunta of preguntas"
+             class="pregunta-item"
+             [class.expanded]="itemExpandido === pregunta.id">
+          <div class="pregunta-header" (click)="toggleItem(pregunta.id)">
+            <span class="pregunta-icon">❓</span>
+            <h3>{{ pregunta.pregunta }}</h3>
+            <span class="expand-icon">{{ itemExpandido === pregunta.id ? '−' : '+' }}</span>
+          </div>
+          <div class="pregunta-respuesta" *ngIf="itemExpandido === pregunta.id">
+            <p>{{ pregunta.respuesta }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="contacto-ia">
+        <div class="ia-icon">🤖</div>
+        <h3>¿No encontraste tu respuesta?</h3>
+        <p>Consulta con FonoBot, nuestro asistente de IA</p>
+        <button class="btn-fonobot" (click)="navegarAFonoBot()">
+          Hablar con FonoBot
+        </button>
+      </div>
+    </main>
+  </div>
+
+</div>
