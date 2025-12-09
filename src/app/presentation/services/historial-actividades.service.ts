@@ -13,34 +13,22 @@ export interface RegistrarActividadDto {
   providedIn: 'root'
 })
 export class HistorialActividadesService {
-  // ✅ CORREGIDO: Agregado /api/ antes de /historial-actividades
-  private apiUrl = `${environment.backendApi}/api/historial-actividades`;
+  // ✅ USAR backendLogin (donde está el server.js con historial-actividades)
+  private apiUrl = `${environment.backendLogin}/api/historial-actividades`;
 
   constructor(private http: HttpClient) {
     console.log('🔧 HistorialActividadesService configurado:', this.apiUrl);
   }
 
-  /**
-   * Registra una nueva actividad en el historial
-   * @param actividad Datos de la actividad a registrar
-   */
   registrarActividad(actividad: RegistrarActividadDto): Observable<any> {
     console.log('📝 Registrando actividad:', actividad);
     return this.http.post(`${this.apiUrl}`, actividad);
   }
 
-  /**
-   * Obtiene el historial de actividades de un paciente
-   * @param idPaciente ID del paciente
-   */
   obtenerHistorial(idPaciente: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/paciente/${idPaciente}`);
   }
 
-  /**
-   * Método auxiliar para registrar un juego terapéutico
-   * Obtiene automáticamente el ID del paciente del localStorage
-   */
   registrarJuego(nombreJuego: string): Observable<any> {
     const idPaciente = this.obtenerIdPaciente();
     if (!idPaciente) {
@@ -54,10 +42,6 @@ export class HistorialActividadesService {
     });
   }
 
-  /**
-   * Método auxiliar para registrar un ejercicio de praxia
-   * Obtiene automáticamente el ID del paciente del localStorage
-   */
   registrarEjercicio(nombreEjercicio: string): Observable<any> {
     const idPaciente = this.obtenerIdPaciente();
     if (!idPaciente) {
@@ -71,9 +55,6 @@ export class HistorialActividadesService {
     });
   }
 
-  /**
-   * Obtiene el ID del paciente desde el localStorage
-   */
   private obtenerIdPaciente(): number | null {
     const userData = localStorage.getItem('fonokids_user');
     if (!userData) {
