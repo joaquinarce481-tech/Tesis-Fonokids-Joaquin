@@ -76,7 +76,8 @@ export class MiAgendaComponent implements OnInit {
 
     console.log('🔍 Cargando historial del paciente:', idPaciente);
     
-    this.http.get<any>(`${environment.backendApi}/api/historial-actividades/paciente/${idPaciente}`)
+    // ✅ CORRECCIÓN: Cambiar backendApi por backendLogin
+    this.http.get<any>(`${environment.backendLogin}/api/historial-actividades/paciente/${idPaciente}`)
       .subscribe({
         next: (response) => {
           console.log('✅ Actividades cargadas:', response);
