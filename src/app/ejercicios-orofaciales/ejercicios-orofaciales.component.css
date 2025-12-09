@@ -99,6 +99,10 @@
   animation: arrowPulse 0.6s ease-in-out infinite;
 }
 
+.btn-volver-texto {
+  font-weight: 800;
+}
+
 @keyframes arrowPulse {
   0%, 100% { transform: translateX(-5px); }
   50% { transform: translateX(-10px); }
@@ -218,8 +222,8 @@
 .contenedor-boom {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(600px, 800px) 380px;
-  gap: 25px;
+  grid-template-columns: minmax(650px, 900px) 400px;
+  gap: 30px;
   max-height: calc(100vh - 140px);
   align-items: start;
   justify-content: center;
@@ -231,7 +235,7 @@
   flex-direction: column;
   gap: 15px;
   overflow: visible;
-  max-width: 800px;
+  max-width: 900px;
 }
 
 .video-frame-3d {
@@ -292,14 +296,32 @@
   height: auto;
 }
 
-/* ✨ TIMER CIRCULAR COMPACTO */
-.timer-circular-container {
+.input-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.output-canvas {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  width: 75px;
-  height: 75px;
-  z-index: 25;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  transform: scaleX(-1);
+}
+
+/* ✅ TIMER CIRCULAR - MOVIDO AL PANEL LATERAL */
+.timer-circular-container {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 20px;
+  z-index: 5;
 }
 
 .timer-circular-svg {
@@ -354,13 +376,14 @@
   50% { transform: scale(1.1); }
 }
 
-/* ✨ FEEDBACK COMPACTO */
+/* ✨ FEEDBACK COMPACTO - SOLO MENSAJES EN EL VIDEO */
 .feedback-overlay-boom {
   position: absolute;
   top: 15px;
   left: 15px;
-  right: 105px;
+  right: 15px;
   z-index: 20;
+  pointer-events: none;
 }
 
 .feedback-message-boom {
@@ -371,15 +394,17 @@
   border-radius: 18px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   font-size: 0.95rem;
   font-weight: 700;
-  margin-bottom: 10px;
   transition: all 0.3s ease;
   opacity: 0;
   transform: translateY(-10px);
   box-shadow: 0 6px 20px rgba(0,0,0,0.4);
   border: 2px solid rgba(255,255,255,0.1);
+  margin: 0 auto;
+  max-width: 80%;
 }
 
 .feedback-message-boom:not(:empty) {
@@ -419,47 +444,8 @@
   100% { transform: rotate(360deg) scale(1); }
 }
 
-/* ✨ BARRA DE PROGRESO COMPACTA */
-.progreso-container-boom {
-  background: rgba(255,255,255,0.2);
-  height: 8px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.progreso-bar-boom {
-  height: 100%;
-  background: linear-gradient(90deg, 
-    rgba(255,255,255,0.8) 0%, 
-    rgba(255,255,255,0.4) 50%, 
-    rgba(255,255,255,0.8) 100%);
-  background-size: 200% 100%;
-  border-radius: 10px;
-  transition: width 0.3s ease;
-  position: relative;
-  animation: shimmer 2s linear infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.progreso-shine {
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-  animation: shine 2s ease-in-out infinite;
-}
-
-@keyframes shine {
-  0% { left: -100%; }
-  100% { left: 100%; }
+.feedback-texto {
+  font-weight: 700;
 }
 
 /* ✨ PARTÍCULAS DE ÉXITO */
@@ -506,60 +492,6 @@
     opacity: 0;
     transform: translateY(-200px) scale(0);
   }
-}
-
-/* 👁️ BOTÓN PARA MOSTRAR/OCULTAR LANDMARKS */
-.btn-toggle-landmarks {
-  position: absolute;
-  bottom: 15px;
-  left: 15px;
-  z-index: 25;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.7));
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 15px;
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-}
-
-.btn-toggle-landmarks:hover {
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8));
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.btn-toggle-landmarks.activo {
-  background: linear-gradient(135deg, rgba(40, 167, 69, 0.9), rgba(32, 201, 151, 0.8));
-  border-color: rgba(255, 255, 255, 0.6);
-}
-
-.btn-toggle-landmarks.activo:hover {
-  background: linear-gradient(135deg, rgba(40, 167, 69, 1), rgba(32, 201, 151, 0.9));
-}
-
-.icono-ojo {
-  font-size: 1.3rem;
-  display: inline-block;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.texto-toggle {
-  color: white;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.btn-toggle-landmarks:active {
-  transform: translateY(0) scale(0.98);
 }
 
 /* ✨ INSTRUCCIONES COMPACTAS Y SIEMPRE VISIBLES */
@@ -635,15 +567,115 @@
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   border-radius: 30px;
-  padding: 35px;
+  padding: 35px 25px;
   box-shadow: 
     0 20px 60px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.2);
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  gap: 20px;
+  min-width: 400px;
+}
+
+/* ✅ BARRA DE PROGRESO - MOVIDA AL PANEL LATERAL */
+.progreso-container-boom {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0 0 15px 0;
+  backdrop-filter: blur(5px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progreso-bar-boom {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.progreso-shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shine 2s infinite;
+}
+
+@keyframes shine {
+  to {
+    left: 100%;
+  }
+}
+
+/* 👁️ BOTÓN PARA MOSTRAR/OCULTAR LANDMARKS - MOVIDO AL PANEL LATERAL */
+.btn-toggle-landmarks {
+  position: relative;
+  display: flex;
+  width: 100%;
   justify-content: center;
-  gap: 25px;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  padding: 14px 20px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  color: white;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-toggle-landmarks:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-toggle-landmarks.activo {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.9), rgba(32, 201, 151, 0.8));
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.btn-toggle-landmarks.activo:hover {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 1), rgba(32, 201, 151, 0.9));
+}
+
+.icono-ojo {
+  font-size: 1.4rem;
+  display: inline-block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.texto-toggle {
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  font-size: 0.85rem;
+}
+
+.btn-toggle-landmarks:active {
+  transform: translateY(0) scale(0.98);
 }
 
 /* ✨ ESTADO DE CARGA CON ANILLOS */
@@ -785,6 +817,10 @@
   transition: transform 0.3s ease;
 }
 
+.btn-texto-boom {
+  font-weight: 900;
+}
+
 .btn-shine {
   position: absolute;
   top: -50%;
@@ -852,7 +888,7 @@
 
 @media (max-width: 1400px) {
   .contenedor-boom {
-    grid-template-columns: minmax(500px, 700px) 380px;
+    grid-template-columns: minmax(500px, 700px) 400px;
   }
 }
 
@@ -869,6 +905,7 @@
 
   .panel-controles-boom {
     padding: 25px;
+    min-width: unset;
   }
 
   .botones-control-boom {
@@ -903,10 +940,8 @@
   }
 
   .timer-circular-container {
-    width: 65px;
-    height: 65px;
-    top: 12px;
-    right: 12px;
+    width: 70px;
+    height: 70px;
   }
 
   .numero-grande {
@@ -941,6 +976,11 @@
   .instrucciones-banner {
     padding: 14px 18px;
   }
+  
+  .btn-toggle-landmarks {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -957,8 +997,8 @@
   }
   
   .timer-circular-container {
-    width: 60px;
-    height: 60px;
+    width: 65px;
+    height: 65px;
   }
   
   .numero-grande {
@@ -973,370 +1013,9 @@
   .video-wrapper-boom {
     max-height: 400px;
   }
-}
-
-/* ✅ HEADER COMPACTO */
-.ejercicio-header-compacto {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 10;
-}
-
-.btn-volver-ejercicio {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(15px);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  padding: 12px 24px;
-  border-radius: 25px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 800;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  white-space: nowrap;
-}
-
-.btn-volver-ejercicio:hover {
-  background: rgba(255, 255, 255, 0.35);
-  transform: translateX(-5px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
-
-.titulo-ejercicio-container {
-  flex: 1;
-  text-align: center;
-}
-
-.titulo-ejercicio {
-  margin: 0;
-  font-size: 2.5rem;
-  font-weight: 900;
-  color: white;
-  text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
-  letter-spacing: -0.5px;
-}
-
-/* ✅ CONTENEDOR PRINCIPAL - LAYOUT HORIZONTAL */
-.contenedor-ejercicio-compacto {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 20px;
-  max-height: calc(100vh - 140px);
-}
-
-/* ✅ SECCIÓN VIDEO E INSTRUCCIONES */
-.seccion-video-instrucciones {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  background: white;
-  border-radius: 25px;
-  padding: 20px;
-  box-shadow: 0 15px 50px rgba(0,0,0,0.25);
-  overflow: hidden;
-}
-
-.video-wrapper-compacto {
-  position: relative;
-  width: 100%;
-  background: #000;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  aspect-ratio: 4/3;
-  flex-shrink: 0;
-}
-
-.input-video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scaleX(-1);
-}
-
-.output-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 10;
-  transform: scaleX(-1);
-}
-
-/* ✅ TIEMPO EN ESQUINA SUPERIOR DERECHA */
-.tiempo-overlay {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  z-index: 20;
-}
-
-.tiempo-badge {
-  padding: 12px 20px;
-  border-radius: 25px;
-  color: white;
-  font-size: 1.3rem;
-  font-weight: 900;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  animation: pulseTiempo 1s ease-in-out infinite;
-}
-
-@keyframes pulseTiempo {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-/* ✅ FEEDBACK Y PROGRESO COMPACTOS */
-.feedback-overlay-compacto {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  right: 80px;
-  z-index: 15;
-}
-
-.feedback-message-compacto {
-  background: rgba(0,0,0,0.85);
-  color: white;
-  padding: 12px 18px;
-  border-radius: 12px;
-  text-align: center;
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-  transition: all 0.3s ease;
-  opacity: 0;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-}
-
-.feedback-message-compacto:not(:empty) {
-  opacity: 1;
-}
-
-.feedback-message-compacto.success {
-  background: linear-gradient(135deg, #28a745, #20c997);
-  animation: pulseSuccess 0.5s ease-in-out;
-}
-
-.feedback-message-compacto.warning {
-  background: linear-gradient(135deg, #ffc107, #ff9800);
-  color: #333;
-}
-
-.progreso-container-compacto {
-  background: rgba(255,255,255,0.3);
-  height: 8px;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.progreso-bar-compacto {
-  height: 100%;
-  transition: width 0.3s ease;
-  border-radius: 10px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5));
-}
-
-/* ✅ INSTRUCCIONES COMPACTAS */
-.instrucciones-compactas {
-  padding: 15px 20px;
-  text-align: center;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-  border-radius: 15px;
-  border: 2px solid #dee2e6;
-}
-
-.instrucciones-compactas p {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #495057;
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-/* ✅ PANEL DE CONTROLES LATERAL */
-.panel-controles {
-  background: white;
-  border-radius: 25px;
-  padding: 30px;
-  box-shadow: 0 15px 50px rgba(0,0,0,0.25);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: stretch;
-}
-
-/* ✅ ESTADO DE CARGA */
-.loading-estado {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.loading-spinner {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 20px;
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid #667eea;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loading-texto {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #495057;
-  margin: 0 0 8px 0;
-}
-
-.loading-subtexto {
-  font-size: 0.95rem;
-  color: #6c757d;
-  font-weight: 500;
-}
-
-/* ✅ BOTONES DE CONTROL */
-.botones-control {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.btn-control {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 18px 24px;
-  border: none;
-  border-radius: 20px;
-  font-size: 1.1rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-}
-
-.btn-icono {
-  font-size: 1.5rem;
-}
-
-.btn-texto {
-  font-size: 1rem;
-}
-
-.btn-reiniciar-compacto {
-  background: linear-gradient(135deg, #6c757d, #5a6268);
-  color: white;
-}
-
-.btn-reiniciar-compacto:hover {
-  background: linear-gradient(135deg, #5a6268, #545b62);
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
-}
-
-.btn-detener-compacto {
-  background: linear-gradient(135deg, #dc3545, #c82333);
-  color: white;
-}
-
-.btn-detener-compacto:hover {
-  background: linear-gradient(135deg, #c82333, #bd2130);
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
-}
-
-/* ============================================
-   📱 RESPONSIVE DESIGN - EJERCICIO ACTIVO
-   ============================================ */
-
-@media (max-width: 1200px) {
-  .contenedor-ejercicio-compacto {
-    grid-template-columns: 1fr;
-    max-height: none;
-  }
-
-  .panel-controles {
-    padding: 20px;
-  }
-
-  .botones-control {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .btn-control {
-    flex: 1;
-    max-width: 200px;
-  }
-}
-
-@media (max-width: 768px) {
-  .ejercicio-header-compacto {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 15px;
-  }
-
-  .btn-volver-ejercicio {
-    width: 100%;
-    text-align: center;
-  }
-
-  .titulo-ejercicio {
-    font-size: 2rem;
-  }
-
-  .instrucciones-compactas p {
-    font-size: 1.1rem;
-  }
-
-  .botones-control {
-    flex-direction: column;
-  }
-
-  .btn-control {
-    max-width: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .titulo-ejercicio {
-    font-size: 1.6rem;
-  }
-
-  .tiempo-badge {
-    padding: 10px 16px;
-    font-size: 1.1rem;
-  }
-
-  .instrucciones-compactas p {
-    font-size: 1rem;
+  
+  .btn-toggle-landmarks {
+    padding: 10px 14px;
   }
 }
 
@@ -1401,6 +1080,10 @@
 .btn-volver-dashboard:hover .icono-flecha {
   transform: translateX(-8px) scale(1.2);
   animation: arrowBounce 0.6s ease-in-out infinite;
+}
+
+.texto-btn {
+  font-weight: 800;
 }
 
 @keyframes arrowBounce {
@@ -1710,6 +1393,10 @@
   color: #495057;
 }
 
+.duracion-icono {
+  font-size: 1.2rem;
+}
+
 .ejercicio-completado {
   display: flex;
   align-items: center;
@@ -1800,7 +1487,6 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
 }
 
-/* PANTALLA DE RESULTADOS */
 /* ============================================
    🎉 MODAL DE RESULTADOS MEJORADO Y COMPACTO
    ============================================ */
@@ -2123,36 +1809,8 @@
     font-size: 0.8rem;
   }
   
-  .btn-icono {
-    font-size: 1rem;
-  }
-  
   .modal-acciones-boom {
     padding: 12px;
     gap: 7px;
-  }
-}
-
-/* ANIMACIONES EXISTENTES */
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulseSuccess {
-  0% { 
-    transform: scale(1); 
-  }
-  50% { 
-    transform: scale(1.08); 
-  }
-  100% { 
-    transform: scale(1); 
   }
 }

@@ -307,11 +307,15 @@
   line-height: 1.5;
 }
 
-.fechas-rango {
+.fechas-rango,
+.fecha-especifica {
   margin-top: 1rem;
   padding: 1.25rem;
   background: rgba(102, 126, 234, 0.05);
   border-radius: 12px;
+}
+
+.fechas-rango {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
@@ -336,12 +340,22 @@
   font-size: 1rem;
   transition: all 0.3s ease;
   font-family: inherit;
+  color: #000000; /* ✅ Texto negro para que se vea */
 }
 
 .input-fecha:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* ✅ Asegurar que el texto sea negro en todos los navegadores */
+.input-fecha::-webkit-datetime-edit {
+  color: #000000;
+}
+
+.input-fecha::-webkit-calendar-picker-indicator {
+  cursor: pointer;
 }
 
 .modal-footer {
@@ -379,6 +393,57 @@
 }
 
 .btn-modal-generar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ========================================
+   MODAL DE ALERTA PERSONALIZADO
+   ======================================== */
+
+.modal-alerta {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+.alerta-icono {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.alerta-mensaje {
+  color: #333;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+.btn-alerta-ok {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.875rem 3rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-alerta-ok:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
@@ -753,6 +818,10 @@
 
   .fechas-rango {
     grid-template-columns: 1fr;
+  }
+
+  .fecha-especifica {
+    padding: 1rem;
   }
 
   .modal-content {

@@ -153,27 +153,8 @@
             <video #videoElement class="input-video" playsinline autoplay muted></video>
             <canvas #canvasElement class="output-canvas"></canvas>
             
-            <!-- ✨ TIMER CIRCULAR MEJORADO -->
-            <div class="timer-circular-container" *ngIf="isRecording">
-              <svg class="timer-circular-svg" viewBox="0 0 100 100">
-                <circle class="timer-circle-bg" cx="50" cy="50" r="45"></circle>
-                <circle 
-                  class="timer-circle-progress" 
-                  cx="50" 
-                  cy="50" 
-                  r="45"
-                  [style.stroke]="ejercicioActivo?.color"
-                  [style.stroke-dashoffset]="283 - (283 * progresoEjercicio / 100)">
-                </circle>
-              </svg>
-              <div class="timer-numero" [style.color]="ejercicioActivo?.color">
-                <span class="numero-grande">{{tiempoRestante}}</span>
-                <span class="texto-pequeño">s</span>
-              </div>
-            </div>
-            
-            <!-- ✨ FEEDBACK MEJORADO CON EFECTOS -->
-            <div class="feedback-overlay-boom" *ngIf="isRecording">
+            <!-- ✨ FEEDBACK MEJORADO CON EFECTOS (solo mensajes) -->
+            <div class="feedback-overlay-boom" *ngIf="isRecording && mensajeFeedback">
               <div class="feedback-message-boom" 
                    [class.success]="feedbackTipo === 'success'"
                    [class.warning]="feedbackTipo === 'warning'"
@@ -184,29 +165,12 @@
                 </span>
                 <span class="feedback-texto">{{mensajeFeedback}}</span>
               </div>
-              
-              <!-- Barra de progreso con gradiente -->
-              <div class="progreso-container-boom">
-                <div class="progreso-bar-boom" 
-                     [style.width.%]="progresoEjercicio">
-                  <div class="progreso-shine"></div>
-                </div>
-              </div>
             </div>
 
             <!-- ✨ EFECTO DE PARTÍCULAS CUANDO ESTÁ CORRECTO -->
             <div class="particles-overlay" *ngIf="feedbackTipo === 'success'">
               <div class="particle" *ngFor="let i of [1,2,3,4,5,6,7,8]"></div>
             </div>
-            
-            <!-- 👁️ BOTÓN PARA MOSTRAR/OCULTAR LANDMARKS -->
-            <button class="btn-toggle-landmarks" 
-                    *ngIf="isRecording"
-                    (click)="mostrarLandmarks = !mostrarLandmarks"
-                    [class.activo]="mostrarLandmarks">
-              <span class="icono-ojo">{{mostrarLandmarks ? '👁️' : '👁️‍🗨️'}}</span>
-              <span class="texto-toggle">{{mostrarLandmarks ? 'Ocultar Guía' : 'Mostrar Guía'}}</span>
-            </button>
           </div>
         </div>
 
@@ -224,6 +188,43 @@
 
       <!-- ✨ PANEL DE CONTROLES CON GLASSMORPHISM -->
       <div class="panel-controles-boom">
+        
+        <!-- ✨ TIMER CIRCULAR MOVIDO AQUÍ -->
+        <div class="timer-circular-container" *ngIf="isRecording">
+          <svg class="timer-circular-svg" viewBox="0 0 100 100">
+            <circle class="timer-circle-bg" cx="50" cy="50" r="45"></circle>
+            <circle 
+              class="timer-circle-progress" 
+              cx="50" 
+              cy="50" 
+              r="45"
+              [style.stroke]="ejercicioActivo?.color"
+              [style.stroke-dashoffset]="283 - (283 * progresoEjercicio / 100)">
+            </circle>
+          </svg>
+          <div class="timer-numero" [style.color]="ejercicioActivo?.color">
+            <span class="numero-grande">{{tiempoRestante}}</span>
+            <span class="texto-pequeño">s</span>
+          </div>
+        </div>
+
+        <!-- Barra de progreso MOVIDA AQUÍ -->
+        <div class="progreso-container-boom" *ngIf="isRecording">
+          <div class="progreso-bar-boom" 
+               [style.width.%]="progresoEjercicio"
+               [style.background]="'linear-gradient(90deg, ' + ejercicioActivo!.color + ', ' + ajustarBrillo(ejercicioActivo!.color, 20) + ')'">
+            <div class="progreso-shine"></div>
+          </div>
+        </div>
+
+        <!-- 👁️ BOTÓN LANDMARKS MOVIDO AQUÍ -->
+        <button class="btn-toggle-landmarks" 
+                *ngIf="isRecording"
+                (click)="mostrarLandmarks = !mostrarLandmarks"
+                [class.activo]="mostrarLandmarks">
+          <span class="icono-ojo">{{mostrarLandmarks ? '👁️' : '👁️‍🗨️'}}</span>
+          <span class="texto-toggle">{{mostrarLandmarks ? 'Ocultar Guía' : 'Mostrar Guía'}}</span>
+        </button>
         
         <!-- Estado de carga mejorado -->
         <div *ngIf="!isRecording" class="loading-estado-boom">

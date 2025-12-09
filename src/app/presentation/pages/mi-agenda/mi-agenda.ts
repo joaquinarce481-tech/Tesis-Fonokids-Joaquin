@@ -34,9 +34,14 @@ export class MiAgendaComponent implements OnInit {
   
   // Variables para el modal de PDF
   mostrarModalPDF: boolean = false;
-  tipoReporte: 'hoy' | 'rango' | 'todos' = 'hoy';
+  tipoReporte: 'hoy' | 'especifica' | 'rango' | 'todos' = 'hoy';
+  fechaEspecifica: string = '';
   fechaInicio: string = '';
   fechaFin: string = '';
+  
+  // Variables para modal de alerta personalizado
+  mostrarModalAlerta: boolean = false;
+  mensajeAlerta: string = '';
 
   constructor(
     private router: Router,
@@ -164,12 +169,25 @@ export class MiAgendaComponent implements OnInit {
   abrirModalPDF(): void {
     this.mostrarModalPDF = true;
     this.tipoReporte = 'hoy';
-    this.fechaInicio = new Date().toISOString().split('T')[0];
-    this.fechaFin = new Date().toISOString().split('T')[0];
+    const hoy = new Date().toISOString().split('T')[0];
+    this.fechaEspecifica = hoy;
+    this.fechaInicio = hoy;
+    this.fechaFin = hoy;
   }
 
   cerrarModalPDF(): void {
     this.mostrarModalPDF = false;
+  }
+
+  // Funciones para modal de alerta
+  mostrarAlerta(mensaje: string): void {
+    this.mensajeAlerta = mensaje;
+    this.mostrarModalAlerta = true;
+  }
+
+  cerrarModalAlerta(): void {
+    this.mostrarModalAlerta = false;
+    this.mensajeAlerta = '';
   }
 
   generarPDF(): void {
@@ -179,33 +197,92 @@ export class MiAgendaComponent implements OnInit {
     // Filtrar según el tipo de reporte
     if (this.tipoReporte === 'hoy') {
       const hoy = new Date().toISOString().split('T')[0];
-      actividadesFiltradas = this.actividadesPorFecha.filter(grupo => grupo.fecha === hoy);
-      tituloReporte = 'Reporte de Actividades - Hoy';
-    } else if (this.tipoReporte === 'rango') {
-      if (!this.fechaInicio || !this.fechaFin) {
-        alert('Por favor selecciona ambas fechas');
+      actividadesFiltradas = this.actividadesPorFecha.filter(grupo => 
+        this.normalizarFecha(grupo.fecha) === this.normalizarFecha(hoy)
+      );
+      
+      if (actividadesFiltradas.length === 0) {
+        this.mostrarAlerta('No hay actividades registradas para el día de hoy.');
         return;
       }
-      const inicio = new Date(this.fechaInicio);
-      const fin = new Date(this.fechaFin);
+      
+      tituloReporte = 'Reporte de Actividades - Hoy';
+      
+    } else if (this.tipoReporte === 'especifica') {
+      if (!this.fechaEspecifica) {
+        this.mostrarAlerta('Por favor selecciona una fecha.');
+        return;
+      }
+      
+      console.log('🔍 Buscando actividades para fecha:', this.fechaEspecifica);
+      console.log('📅 Fechas disponibles:', this.actividadesPorFecha.map(g => g.fecha));
+      
+      // Normalizar ambas fechas para comparación
+      const fechaBuscada = this.normalizarFecha(this.fechaEspecifica);
       
       actividadesFiltradas = this.actividadesPorFecha.filter(grupo => {
-        const fechaGrupo = new Date(grupo.fecha);
-        return fechaGrupo >= inicio && fechaGrupo <= fin;
+        const fechaGrupo = this.normalizarFecha(grupo.fecha);
+        const coincide = fechaGrupo === fechaBuscada;
+        console.log(`  Comparando: ${fechaGrupo} === ${fechaBuscada} → ${coincide}`);
+        return coincide;
       });
+      
+      console.log('✅ Actividades encontradas:', actividadesFiltradas.length);
+      
+      if (actividadesFiltradas.length === 0) {
+        this.mostrarAlerta('No hay actividades registradas en la fecha seleccionada.');
+        return;
+      }
+      
+      tituloReporte = `Reporte de Actividades - ${this.formatearFechaPDF(this.fechaEspecifica)}`;
+      
+    } else if (this.tipoReporte === 'rango') {
+      if (!this.fechaInicio || !this.fechaFin) {
+        this.mostrarAlerta('Por favor selecciona ambas fechas (inicio y fin).');
+        return;
+      }
+      
+      // Normalizar fechas para comparación
+      const fechaInicioNorm = this.normalizarFecha(this.fechaInicio);
+      const fechaFinNorm = this.normalizarFecha(this.fechaFin);
+      
+      if (fechaInicioNorm > fechaFinNorm) {
+        this.mostrarAlerta('La fecha de inicio no puede ser posterior a la fecha fin.');
+        return;
+      }
+      
+      actividadesFiltradas = this.actividadesPorFecha.filter(grupo => {
+        const fechaGrupo = this.normalizarFecha(grupo.fecha);
+        return fechaGrupo >= fechaInicioNorm && fechaGrupo <= fechaFinNorm;
+      });
+      
+      if (actividadesFiltradas.length === 0) {
+        this.mostrarAlerta('No hay actividades registradas en el rango de fechas seleccionado.');
+        return;
+      }
+      
       tituloReporte = `Reporte de Actividades - Del ${this.formatearFechaPDF(this.fechaInicio)} al ${this.formatearFechaPDF(this.fechaFin)}`;
+      
     } else {
       actividadesFiltradas = this.actividadesPorFecha;
+      
+      if (actividadesFiltradas.length === 0) {
+        this.mostrarAlerta('No hay actividades registradas en tu historial.');
+        return;
+      }
+      
       tituloReporte = 'Reporte Completo de Actividades';
-    }
-
-    if (actividadesFiltradas.length === 0) {
-      alert('No hay actividades en el rango seleccionado');
-      return;
     }
 
     this.crearPDF(actividadesFiltradas, tituloReporte);
     this.cerrarModalPDF();
+  }
+
+  // Función auxiliar para normalizar fechas y asegurar comparación correcta
+  normalizarFecha(fecha: string): string {
+    // Asegura que la fecha esté en formato YYYY-MM-DD sin zona horaria
+    const partes = fecha.split('T')[0].split('-');
+    return `${partes[0]}-${partes[1].padStart(2, '0')}-${partes[2].padStart(2, '0')}`;
   }
 
   formatearFechaPDF(fechaStr: string): string {

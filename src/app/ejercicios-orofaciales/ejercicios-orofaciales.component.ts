@@ -85,6 +85,10 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   seccionActiva: Seccion | null = null;
   vistaActual: 'secciones' | 'ejercicios' | 'activo' | 'resultados' = 'secciones';
 
+  // ✅ LANDMARKS DESACTIVADOS POR DEFECTO
+  private ejercicioDetectadoAhora = false;
+  mostrarLandmarks = false;
+
   secciones: Seccion[] = [
     {
       id: 'linguales',
@@ -447,9 +451,10 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     return Math.max(0, 3 - repeticiones);
   }
 
+  // ✅ MEDIAPIPE OPTIMIZADO PARA DETECCIÓN RÁPIDA Y ALTA CALIDAD
   private async initializeMediaPipe() {
     try {
-      console.log('🚀 Inicializando MediaPipe para ejercicios...');
+      console.log('🚀 Inicializando MediaPipe optimizado...');
       
       if (!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) {
         console.error('❌ Elementos de video/canvas no disponibles');
@@ -464,11 +469,12 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
         }
       });
 
+      // ✅ OPCIONES OPTIMIZADAS PARA RAPIDEZ
       this.faceMesh.setOptions({
         maxNumFaces: 1,
         refineLandmarks: true,
-        minDetectionConfidence: 0.6,
-        minTrackingConfidence: 0.5
+        minDetectionConfidence: 0.5,  // ✅ Reducido de 0.6 a 0.5 para detección más rápida
+        minTrackingConfidence: 0.5     // ✅ Mantenido en 0.5 para tracking eficiente
       });
 
       this.faceMesh.onResults((results) => {
@@ -476,16 +482,14 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       });
 
       this.mediaPipeReady = true;
-      console.log('✅ MediaPipe listo para ejercicios');
+      console.log('✅ MediaPipe listo - Optimizado para rapidez y calidad');
     } catch (error) {
       console.error('❌ Error inicializando MediaPipe:', error);
       this.mediaPipeReady = false;
     }
   }
 
-  private ejercicioDetectadoAhora = false;
-  mostrarLandmarks = true;
-
+  // ✅ RENDERING OPTIMIZADO PARA MEJOR CALIDAD
   private onResults(results: any) {
     if (!this.canvasCtx || !this.ejercicioActivo) return;
 
@@ -493,13 +497,23 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     this.canvasCtx.save();
     this.canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-    this.canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+    
+    // ✅ SOLO DIBUJAR VIDEO SI NO HAY LANDMARKS O SI ESTÁN DESACTIVADOS
+    // Esto mantiene la calidad del video original visible
+    if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0 || !this.mostrarLandmarks) {
+      // Video siempre visible con buena calidad
+      this.canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+    } else {
+      // Cuando hay landmarks y están activados, dibujar video + landmarks
+      this.canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+    }
 
     if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
       const landmarks = results.multiFaceLandmarks[0];
       this.animationFrame++;
       this.ejercicioDetectadoAhora = this.verificarDeteccionEjercicio(landmarks);
       
+      // ✅ SOLO DIBUJAR LANDMARKS SI ESTÁN ACTIVADOS
       if (this.mostrarLandmarks) {
         this.dibujarVisualizacionMinimalista(landmarks);
       }
@@ -1190,21 +1204,25 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     this.ultimoTiempoFeedback = 0;
     this.animationFrame = 0;
     
+    // ✅ LANDMARKS DESACTIVADOS AL INICIAR
+    this.mostrarLandmarks = false;
+    
     this.cdr.detectChanges();
     
     setTimeout(() => {
       this.startCamera();
-    }, 1000);
+    }, 500); // ✅ Reducido de 1000ms a 500ms para inicio más rápido
   }
 
+  // ✅ INICIALIZACIÓN DE CÁMARA OPTIMIZADA PARA ALTA CALIDAD
   private async startCamera() {
     try {
-      console.log('🎥 Iniciando cámara...');
+      console.log('🎥 Iniciando cámara HD...');
       
       if (this.isRecording) {
         console.log('⚠️ Cámara ya estaba activa, reiniciando...');
         this.stopCamera();
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 300)); // ✅ Reducido de 500ms a 300ms
       }
       
       this.landmarksAnteriores = [];
@@ -1215,20 +1233,18 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       this.mediaPipeReady = false;
       
       let intentos = 0;
-      while ((!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) && intentos < 10) {
-        console.log(`⏳ Esperando elementos DOM (intento ${intentos + 1}/10)...`);
-        await new Promise(resolve => setTimeout(resolve, 200));
+      while ((!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) && intentos < 8) {
+        await new Promise(resolve => setTimeout(resolve, 100)); // ✅ Reducido de 200ms a 100ms
         intentos++;
       }
       
       if (!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) {
-        console.error('❌ Elementos de video/canvas no disponibles después de espera');
+        console.error('❌ Elementos de video/canvas no disponibles');
         return;
       }
 
       console.log('✅ Elementos DOM disponibles');
 
-      console.log('📋 Reinicializando MediaPipe...');
       await this.initializeMediaPipe();
       
       if (!this.mediaPipeReady) {
@@ -1236,9 +1252,10 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
         return;
       }
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 200)); // ✅ Reducido de 1000ms a 200ms
       
-      console.log('📷 Creando instancia de cámara...');
+      // ✅ CONFIGURACIÓN DE CÁMARA EN HD (1280x720)
+      console.log('📷 Creando cámara HD...');
       this.camera = new Camera(this.videoElement.nativeElement, {
         onFrame: async () => {
           try {
@@ -1247,16 +1264,16 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
             console.error('❌ Error enviando frame:', error);
           }
         },
-        width: 640,
-        height: 480
+        width: 1280,  // ✅ Aumentado de 640 a 1280
+        height: 720   // ✅ Aumentado de 480 a 720
       });
       
-      console.log('▶️ Iniciando stream de cámara...');
+      console.log('▶️ Iniciando stream HD...');
       await this.camera.start();
       this.isRecording = true;
       this.iniciarContadorEjercicio();
       
-      console.log('✅ Cámara iniciada correctamente');
+      console.log('✅ Cámara HD iniciada - Resolución: 1280x720');
     } catch (error) {
       console.error('❌ Error starting camera:', error);
       this.isRecording = false;
@@ -1423,7 +1440,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       if (this.ejercicioActivo) {
         this.startCamera();
       }
-    }, 800);
+    }, 500); // ✅ Reducido de 800ms a 500ms
   }
 
   private stopCamera() {

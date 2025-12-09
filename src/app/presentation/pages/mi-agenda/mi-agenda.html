@@ -135,18 +135,37 @@
             </div>
           </div>
 
-          <!-- Opción 2: Rango de Fechas -->
+          <!-- Opción 2: Fecha Específica -->
+          <div class="filtro-opcion" [class.active]="tipoReporte === 'especifica'" (click)="tipoReporte = 'especifica'">
+            <div class="radio-custom">
+              <div class="radio-dot" *ngIf="tipoReporte === 'especifica'"></div>
+            </div>
+            <div class="filtro-info">
+              <h3>Fecha Específica</h3>
+              <p>Selecciona un día específico para el reporte</p>
+            </div>
+          </div>
+
+          <!-- Campo de Fecha Específica -->
+          <div class="fecha-especifica" *ngIf="tipoReporte === 'especifica'">
+            <div class="input-group">
+              <label>Seleccionar Fecha:</label>
+              <input type="date" [(ngModel)]="fechaEspecifica" class="input-fecha">
+            </div>
+          </div>
+
+          <!-- Opción 3: Rango de Fechas -->
           <div class="filtro-opcion" [class.active]="tipoReporte === 'rango'" (click)="tipoReporte = 'rango'">
             <div class="radio-custom">
               <div class="radio-dot" *ngIf="tipoReporte === 'rango'"></div>
             </div>
             <div class="filtro-info">
               <h3>Rango de Fechas</h3>
-              <p>Selecciona un período específico para el reporte</p>
+              <p>Selecciona un período desde una fecha hasta otra</p>
             </div>
           </div>
 
-          <!-- Campos de Fecha (solo si se selecciona rango) -->
+          <!-- Campos de Rango -->
           <div class="fechas-rango" *ngIf="tipoReporte === 'rango'">
             <div class="input-group">
               <label>Fecha Inicio:</label>
@@ -158,7 +177,7 @@
             </div>
           </div>
 
-          <!-- Opción 3: Todas las Actividades -->
+          <!-- Opción 4: Todas las Actividades -->
           <div class="filtro-opcion" [class.active]="tipoReporte === 'todos'" (click)="tipoReporte = 'todos'">
             <div class="radio-custom">
               <div class="radio-dot" *ngIf="tipoReporte === 'todos'"></div>
@@ -180,6 +199,15 @@
           Generar PDF
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal de Alerta Personalizado -->
+  <div class="modal-overlay" *ngIf="mostrarModalAlerta" (click)="cerrarModalAlerta()">
+    <div class="modal-alerta" (click)="$event.stopPropagation()">
+      <div class="alerta-icono">⚠️</div>
+      <div class="alerta-mensaje">{{ mensajeAlerta }}</div>
+      <button class="btn-alerta-ok" (click)="cerrarModalAlerta()">Aceptar</button>
     </div>
   </div>
 </div>
