@@ -1,17 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;600;700&family=Fredoka:wght@300;400;500;600&display=swap');
 
-/* 🌈 Variables mejoradas */
+/* 🌈 Variables actualizadas con colores del logo */
 :root {
-  --primary-purple: #8b5cf6;
-  --primary-blue: #06b6d4;
-  --primary-green: #10b981;
+  --primary-blue: #42a5f5;
+  --secondary-blue: #29b6f6;
+  --primary-cyan: #26c6da;
+  --primary-turquoise: #4dd0e1;
+  --primary-green: #66bb6a;
+  --accent-mint: #81c784;
   --accent-pink: #f06292;
   --accent-yellow: #ffd54f;
   --accent-orange: #ff8a65;
+  --accent-purple: #ba68c8;
   --glass-bg: rgba(255, 255, 255, 0.25);
   --glass-border: rgba(255, 255, 255, 0.3);
   --shadow-soft: 0 15px 35px rgba(0, 0, 0, 0.1);
-  --shadow-glow: 0 0 40px rgba(255, 107, 157, 0.4);
+  --shadow-glow: 0 0 40px rgba(66, 165, 245, 0.3);
 }
 
 * {
@@ -22,9 +26,34 @@
 
 body {
   overflow: hidden;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(66, 165, 245, 0.5) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(129, 199, 132, 0.5) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(38, 198, 218, 0.4) 0%, transparent 60%),
+    radial-gradient(circle at 10% 80%, rgba(77, 208, 225, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 90% 20%, rgba(102, 187, 170, 0.4) 0%, transparent 50%),
+    linear-gradient(135deg,
+      #64b5f6 0%,
+      #42a5f5 20%,
+      #29b6f6 35%,
+      #26c6da 50%,
+      #4dd0e1 65%,
+      #66bb6a 80%,
+      #81c784 100%);
+  background-size: 400% 400%, 350% 350%, 500% 500%, 450% 450%, 400% 400%, 300% 300%;
+  animation: logo-gradient-flow 15s ease infinite;
+  position: relative;
 }
 
-/* 🌊 Fondo animado espectacular mejorado */
+@keyframes logo-gradient-flow {
+  0% { background-position: 0% 50%, 0% 0%, 50% 50%, 0% 100%, 100% 0%, 0% 50%; }
+  25% { background-position: 50% 75%, 100% 50%, 75% 25%, 50% 50%, 0% 100%, 50% 75%; }
+  50% { background-position: 100% 50%, 50% 100%, 25% 75%, 100% 0%, 50% 50%, 100% 50%; }
+  75% { background-position: 50% 25%, 0% 50%, 75% 25%, 50% 100%, 100% 50%, 50% 25%; }
+  100% { background-position: 0% 50%, 0% 0%, 50% 50%, 0% 100%, 100% 0%, 0% 50%; }
+}
+
+/* 🌊 Wrapper del login - Diseño horizontal */
 .login-wrapper {
   display: flex;
   flex-direction: row;
@@ -33,22 +62,74 @@ body {
   min-height: 100vh;
   padding: 0 5%;
   gap: 60px;
-  background: 
-    radial-gradient(circle at 30% 20%, rgba(66, 165, 245, 0.4) 0%, transparent 60%),
-    radial-gradient(circle at 70% 80%, rgba(255, 213, 79, 0.4) 0%, transparent 60%),
-    radial-gradient(circle at 20% 80%, rgba(129, 199, 132, 0.4) 0%, transparent 60%),
-    radial-gradient(circle at 80% 30%, rgba(239, 108, 0, 0.4) 0%, transparent 60%),
-    radial-gradient(circle at 50% 10%, rgba(38, 198, 218, 0.4) 0%, transparent 60%),
-    radial-gradient(circle at 10% 50%, rgba(156, 39, 176, 0.4) 0%, transparent 60%),
-    linear-gradient(45deg,
-      #64b5f6 0%,
-      #aed581 20%,
-      #ffd54f 40%,
-      #4dd0e1 60%,
-      #ff8a65 80%,
-      #ba68c8 100%);
-  background-size: 500% 500%, 400% 400%, 600% 600%, 450% 450%, 550% 550%, 350% 350%, 300% 300%;
-  animation: rainbow-dance 20s ease infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 👈 Lado izquierdo: Logo + Título */
+.left-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 2;
+}
+
+/* 🎨 Logo de FonoKids */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: logo-entrance 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.fonokids-logo {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.15));
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: logo-float 4s ease-in-out infinite;
+}
+
+.fonokids-logo:hover {
+  transform: scale(1.05) rotate(2deg);
+  filter: drop-shadow(0 12px 30px rgba(66, 165, 245, 0.3));
+}
+
+@keyframes logo-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.5) rotate(-10deg);
+  }
+  50% {
+    transform: translateY(10px) scale(1.1) rotate(5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes logo-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* 🌊 Wrapper del login - Diseño horizontal */
+.login-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 0 5%;
+  gap: 60px;
   position: relative;
   overflow: hidden;
 }
@@ -66,7 +147,7 @@ body {
 
 .star, .heart, .cloud {
   position: absolute;
-  opacity: 0.7;
+  opacity: 0.6;
   animation: float-around 15s infinite linear;
 }
 
@@ -75,6 +156,7 @@ body {
   height: 20px;
   background: linear-gradient(45deg, #ffd54f, #ff8a65);
   clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  filter: drop-shadow(0 0 8px rgba(255, 213, 79, 0.6));
 }
 
 .heart {
@@ -83,6 +165,7 @@ body {
   background: linear-gradient(45deg, #f06292, #ba68c8);
   transform: rotate(-45deg);
   border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  filter: drop-shadow(0 0 8px rgba(240, 98, 146, 0.6));
 }
 
 .heart::before {
@@ -99,14 +182,15 @@ body {
 .cloud {
   width: 30px;
   height: 18px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 20px;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
 }
 
 .cloud::before {
   content: '';
   position: absolute;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   width: 18px;
   height: 18px;
   top: -9px;
@@ -117,7 +201,7 @@ body {
 .cloud::after {
   content: '';
   position: absolute;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   width: 12px;
   height: 12px;
   top: -6px;
@@ -142,27 +226,24 @@ body {
   100% { transform: translateX(0) translateY(0) rotate(360deg); }
 }
 
-@keyframes rainbow-dance {
-  0% { background-position: 0% 50%, 0% 0%, 0% 100%, 100% 0%, 50% 50%, 0% 75%, 0% 50%; }
-  16% { background-position: 25% 75%, 100% 100%, 50% 0%, 0% 100%, 75% 25%, 100% 50%, 25% 75%; }
-  33% { background-position: 50% 100%, 50% 50%, 100% 50%, 50% 50%, 100% 0%, 25% 75%, 50% 25%; }
-  50% { background-position: 75% 25%, 0% 100%, 25% 75%, 100% 25%, 25% 75%, 75% 25%, 75% 50%; }
-  66% { background-position: 100% 50%, 75% 25%, 75% 25%, 25% 75%, 50% 100%, 50% 0%, 100% 75%; }
-  83% { background-position: 75% 75%, 25% 0%, 100% 75%, 75% 0%, 0% 25%, 25% 100%, 25% 25%; }
-  100% { background-position: 0% 50%, 0% 0%, 0% 100%, 100% 0%, 50% 50%, 0% 75%, 0% 50%; }
-}
-
 /* 🎨 Título de bienvenida mejorado */
 .titulo-bienvenida {
   font-family: 'Fredoka', 'Comfortaa', sans-serif;
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.8rem, 4.5vw, 3rem);
   font-weight: 700;
   text-align: center;
-  margin-bottom: 30px;
-  background: linear-gradient(90deg, #f06292, #a855f7, #3b82f6, #06b6d4, #10b981, #ffd54f);
+  margin-bottom: 0;
+  background: linear-gradient(90deg, 
+    #f06292 0%, 
+    #ba68c8 20%, 
+    #42a5f5 40%, 
+    #26c6da 60%, 
+    #66bb6a 80%, 
+    #ffd54f 100%);
   background-size: 400% 400%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
   animation: movimientoGradiente 4s ease infinite, bounce-title 2s ease-in-out infinite;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
   position: relative;
@@ -189,8 +270,8 @@ body {
 /* 🎯 Caja de login mejorada */
 .login-box {
   background: linear-gradient(145deg, 
-    rgba(255, 255, 255, 0.3) 0%, 
-    rgba(255, 255, 255, 0.15) 100%);
+    rgba(255, 255, 255, 0.35) 0%, 
+    rgba(255, 255, 255, 0.2) 100%);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   border: 3px solid var(--glass-border);
@@ -218,14 +299,13 @@ body {
   right: 0;
   height: 4px;
   background: linear-gradient(90deg, 
-    var(--accent-pink) 0%, 
-    var(--primary-purple) 20%, 
-    var(--primary-blue) 40%, 
-    var(--primary-green) 60%, 
-    var(--accent-yellow) 80%,
-    var(--accent-pink) 100%);
+    #42a5f5 0%, 
+    #26c6da 25%, 
+    #4dd0e1 50%, 
+    #66bb6a 75%,
+    #42a5f5 100%);
   background-size: 300% 100%;
-  animation: rainbow-flow 2s linear infinite;
+  animation: rainbow-flow 3s linear infinite;
   border-radius: 30px 30px 0 0;
 }
 
@@ -248,25 +328,6 @@ body {
 @keyframes gentle-float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
-}
-
-/* 🎭 Mascota/Avatar */
-.mascot {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  animation: mascot-bounce 3s ease-in-out infinite;
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-
-.mascot:hover {
-  transform: scale(1.2) rotate(10deg);
-}
-
-@keyframes mascot-bounce {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-5px) rotate(-5deg); }
-  75% { transform: translateY(-3px) rotate(5deg); }
 }
 
 /* 📝 Campos de entrada con iconos */
@@ -295,11 +356,11 @@ form input {
   padding: 1.2rem 1.5rem 1.2rem 3.5rem;
   border-radius: 20px;
   border: 3px solid transparent;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(15px);
   font-size: 1.1rem;
   font-family: 'Comfortaa', sans-serif;
-  color: #4a5568;
+  color: #2c5282;
   font-weight: 500;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 
@@ -310,22 +371,22 @@ form input {
 }
 
 form input::placeholder {
-  color: rgba(74, 85, 104, 0.7);
+  color: rgba(44, 82, 130, 0.7);
   font-weight: 400;
 }
 
 form input:focus {
   outline: none;
-  border: 3px solid var(--accent-pink);
-  background: rgba(255, 255, 255, 0.35);
+  border: 3px solid var(--primary-blue);
+  background: rgba(255, 255, 255, 0.4);
   transform: translateY(-3px) scale(1.02);
   box-shadow: 
-    0 10px 30px rgba(255, 107, 157, 0.4),
+    0 10px 30px rgba(66, 165, 245, 0.4),
     inset 0 2px 0 rgba(255, 255, 255, 0.6);
 }
 
 form input:focus + .input-icon {
-  color: var(--accent-pink);
+  color: var(--primary-blue);
   transform: scale(1.2);
 }
 
@@ -347,9 +408,9 @@ form button, .login-button {
   width: 100%;
   padding: 1.4rem;
   background: linear-gradient(135deg, 
-    var(--accent-pink) 0%, 
-    var(--primary-purple) 50%,
-    var(--primary-blue) 100%);
+    #42a5f5 0%, 
+    #26c6da 50%,
+    #4dd0e1 100%);
   border: none;
   border-radius: 20px;
   color: white;
@@ -359,7 +420,7 @@ form button, .login-button {
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 
-    0 10px 25px rgba(255, 107, 157, 0.5),
+    0 10px 25px rgba(66, 165, 245, 0.5),
     inset 0 2px 0 rgba(255, 255, 255, 0.3);
   position: relative;
   overflow: hidden;
@@ -389,12 +450,12 @@ form button:hover::before, .login-button:hover::before {
 
 form button:hover, .login-button:hover {
   background: linear-gradient(135deg, 
-    var(--primary-purple) 0%, 
-    var(--primary-blue) 50%,
-    var(--primary-green) 100%);
+    #26c6da 0%, 
+    #4dd0e1 50%,
+    #66bb6a 100%);
   transform: translateY(-4px) scale(1.03);
   box-shadow: 
-    0 20px 40px rgba(255, 107, 157, 0.7),
+    0 20px 40px rgba(66, 165, 245, 0.7),
     inset 0 2px 0 rgba(255, 255, 255, 0.4);
 }
 
@@ -407,11 +468,11 @@ form button:active, .login-button:active {
   width: 100%;
   padding: 1rem;
   background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.2) 0%, 
-    rgba(255, 255, 255, 0.1) 100%);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+    rgba(255, 255, 255, 0.25) 0%, 
+    rgba(255, 255, 255, 0.15) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   border-radius: 15px;
-  color: #4a5568;
+  color: #2c5282;
   font-weight: 600;
   font-size: 1rem;
   font-family: 'Comfortaa', sans-serif;
@@ -424,12 +485,12 @@ form button:active, .login-button:active {
 
 .forgot-password-button:hover {
   background: linear-gradient(135deg, 
-    rgba(139, 92, 246, 0.2) 0%, 
-    rgba(59, 130, 246, 0.2) 100%);
-  border-color: var(--primary-purple);
-  color: var(--primary-purple);
+    rgba(66, 165, 245, 0.25) 0%, 
+    rgba(38, 198, 218, 0.25) 100%);
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 8px 20px rgba(66, 165, 245, 0.3);
 }
 
 .forgot-password-button:active {
@@ -464,10 +525,10 @@ form button:active, .login-button:active {
 
 .success-message {
   background: linear-gradient(135deg, 
-    rgba(16, 185, 129, 0.15) 0%, 
-    rgba(5, 150, 105, 0.15) 100%);
-  border: 2px solid rgba(16, 185, 129, 0.3);
-  color: #059669;
+    rgba(102, 187, 106, 0.15) 0%, 
+    rgba(129, 199, 132, 0.15) 100%);
+  border: 2px solid rgba(102, 187, 106, 0.3);
+  color: #2e7d32;
   backdrop-filter: blur(10px);
 }
 
@@ -486,13 +547,13 @@ form button:active, .login-button:active {
 .help-text {
   margin-top: 2rem;
   font-size: 1rem;
-  color: rgba(74, 85, 104, 0.8);
+  color: rgba(44, 82, 130, 0.9);
   font-weight: 500;
   line-height: 1.6;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.2);
   padding: 1.2rem;
   border-radius: 15px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(10px);
   font-family: 'Comfortaa', sans-serif;
 }
@@ -502,7 +563,7 @@ form button:active, .login-button:active {
   transform: translateY(-8px);
   box-shadow: 
     0 25px 50px rgba(0, 0, 0, 0.2),
-    0 0 80px rgba(255, 107, 157, 0.6),
+    0 0 80px rgba(66, 165, 245, 0.5),
     inset 0 2px 0 rgba(255, 255, 255, 0.6);
 }
 
@@ -514,18 +575,22 @@ form button:active, .login-button:active {
     padding: 20px;
   }
   
+  .left-side {
+    gap: 15px;
+  }
+  
+  .fonokids-logo {
+    max-width: 250px;
+  }
+  
   .titulo-bienvenida {
     font-size: 2.5rem;
-    margin-bottom: 20px;
+    margin-bottom: 0;
   }
   
   .login-box {
     width: 95%;
     padding: 2.5rem 2rem;
-  }
-  
-  .mascot {
-    font-size: 3rem;
   }
   
   form input, form button, .login-button {
@@ -545,12 +610,12 @@ form button:active, .login-button:active {
 }
 
 @media (max-width: 480px) {
-  .titulo-bienvenida {
-    font-size: 2rem;
+  .fonokids-logo {
+    max-width: 200px;
   }
   
-  .mascot {
-    font-size: 2.5rem;
+  .titulo-bienvenida {
+    font-size: 2rem;
   }
   
   form input, form button, .login-button {
@@ -561,27 +626,23 @@ form button:active, .login-button:active {
 
 /* 🌟 Animaciones de entrada mejoradas */
 form .input-group:nth-child(1) {
-  animation: slide-up 0.8s ease-out 0.4s both;
-}
-
-form .input-group:nth-child(2) {
   animation: slide-up 0.8s ease-out 0.6s both;
 }
 
-form button, .login-button {
+form .input-group:nth-child(2) {
   animation: slide-up 0.8s ease-out 0.8s both;
 }
 
-.forgot-password-button {
+form button, .login-button {
   animation: slide-up 0.8s ease-out 1s both;
 }
 
-.help-text {
-  animation: fade-in 1s ease-out 1s both;
+.forgot-password-button {
+  animation: slide-up 0.8s ease-out 1.2s both;
 }
 
-.mascot {
-  animation: mascot-entrance 1.2s ease-out 0.2s both, mascot-bounce 3s ease-in-out infinite 1.4s;
+.help-text {
+  animation: fade-in 1s ease-out 1.3s both;
 }
 
 @keyframes slide-up {
@@ -598,17 +659,6 @@ form button, .login-button {
 @keyframes fade-in {
   0% { opacity: 0; }
   100% { opacity: 1; }
-}
-
-@keyframes mascot-entrance {
-  0% { 
-    opacity: 0; 
-    transform: scale(0) rotate(-180deg); 
-  }
-  100% { 
-    opacity: 1; 
-    transform: scale(1) rotate(0deg); 
-  }
 }
 
 /* 🎉 Efecto de éxito */

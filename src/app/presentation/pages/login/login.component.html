@@ -10,8 +10,16 @@
     <div class="cloud"></div>
   </div>
   
-  <!-- Título de bienvenida -->
-  <h1 class="titulo-bienvenida">¡BIENVENIDOS CHICOS/AS!</h1>
+  <!-- Lado izquierdo: Logo + Título -->
+  <div class="left-side">
+    <!-- 🎨 Logo de FonoKids -->
+    <div class="logo-container">
+      <img src="assets/images/Logo moderno FonoKids con gradiente.png" alt="FonoKids Logo" class="fonokids-logo" />
+    </div>
+    
+    <!-- Título de bienvenida -->
+    <h1 class="titulo-bienvenida">¡BIENVENIDOS CHICOS/AS!</h1>
+  </div>
   
   <div class="login-box">
     <!-- Formulario con binding corregido -->
@@ -60,14 +68,14 @@
         <span *ngIf="isLoading">Cargando... ⏳</span>
       </button>
       
-      <!-- 🆕 BOTÓN OLVIDÉ MI CONTRASEÑA -->
+      <!-- Botón olvidé mi contraseña -->
       <button 
         type="button"
         (click)="irARecuperarContrasena()"
         class="forgot-password-button"
         [disabled]="isLoading"
       >
-         ¿Olvidaste tu contraseña? 🔑
+        ¿Olvidaste tu contraseña? 🔑
       </button>
     </form>
     
