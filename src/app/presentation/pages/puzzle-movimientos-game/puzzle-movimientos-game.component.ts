@@ -1,6 +1,4 @@
-// puzzle-movimientos-game.component.ts
-
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Camera } from '@mediapipe/camera_utils';
@@ -84,7 +82,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     {
       id: 2,
       nombre: 'Tocar Nariz',
-      emoji: '🔔',
+      emoji: '👃🏼',
       descripcion: 'Tocar la nariz con la lengua',
       instruccion: 'Toca tu nariz con la lengua hacia arriba',
       posicionCorrecta: 1,
@@ -232,7 +230,8 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private historialService: HistorialActividadesService,
-    private cdr: ChangeDetectorRef // Ya estaba importado
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone // 🔥 AGREGADO: NgZone para manejar cambios fuera de Angular
   ) {}
 
   ngOnInit(): void {
@@ -241,9 +240,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.detenerCamara();
-    if (this.intervalTemporizador) {
-      clearInterval(this.intervalTemporizador);
-    }
+    this.detenerTemporizador();
   }
 
   // ==================== MÉTODOS DE CÁMARA Y MEDIAPIPE ====================
@@ -277,7 +274,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       });
 
       await this.camera.start();
-      console.log('Cámara iniciada correctamente');
     } catch (error) {
       console.error('Error al iniciar la cámara:', error);
       alert('No se pudo acceder a la cámara. Por favor, permite el acceso a la cámara.');
@@ -298,11 +294,22 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   }
 
   onResults(results: Results): void {
-    if (this.faseJuego !== 'captura') return;
+    if (this.faseJuego !== 'captura') {
+      return;
+    }
+
+    if (!this.canvasElement || !this.canvasElement.nativeElement || 
+        !this.videoElement || !this.videoElement.nativeElement) {
+      return;
+    }
 
     const canvas = this.canvasElement.nativeElement;
-    const ctx = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d');
     const video = this.videoElement.nativeElement;
+
+    if (!ctx) {
+      return;
+    }
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -325,13 +332,11 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
 
     if (this.movimientoDetectado) {
       this.mensajeValidacion = '✅ ¡Perfecto! Ahora toma la foto 📸';
-      
       ctx.strokeStyle = '#10b981';
       ctx.lineWidth = 10;
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
     } else {
       this.mensajeValidacion = `❌ ${this.getMensajeError(movimiento.id)}`;
-      
       ctx.strokeStyle = '#ef4444';
       ctx.lineWidth = 10;
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
@@ -443,7 +448,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       case 1:
         return '¡No vemos tu lengua! Sácala más 👅';
       case 2:
-        return '¡Intenta tocar tu nariz con la lengua! 🔔';
+        return '¡Intenta tocar tu nariz con la lengua! 👃🏼';
       case 3:
         return '¡Sonríe más! Muestra tus dientes 😁';
       case 4:
@@ -499,10 +504,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     
     ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    setTimeout(() => {
-      // El onResults lo redibujará
-    }, 100);
   }
 
   detenerCamara(): void {
@@ -511,11 +512,13 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
         this.camera.stop();
         this.camera = null;
       }
+      
       if (this.faceMesh) {
         this.faceMesh.close();
         this.faceMesh = null;
       }
-      if (this.videoElement && this.videoElement.nativeElement.srcObject) {
+      
+      if (this.videoElement && this.videoElement.nativeElement && this.videoElement.nativeElement.srcObject) {
         const stream = this.videoElement.nativeElement.srcObject as MediaStream;
         stream.getTracks().forEach(track => track.stop());
         this.videoElement.nativeElement.srcObject = null;
@@ -536,7 +539,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       this.faseJuego = 'captura';
       this.movimientoActualCaptura = 0;
       
-      const emojisOriginales = ['👅', '🔔', '😁', '😘', '⬇️', '⬆️', '😮', '😐'];
+      const emojisOriginales = ['👅', '👃🏼', '😁', '😘', '⬇️', '⬆️', '😮', '😐'];
       this.todosLosMovimientos.forEach((mov, index) => {
         mov.foto = null;
         mov.emoji = emojisOriginales[index];
@@ -653,14 +656,17 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     this.faseJuego = 'verificando';
     this.intentos++;
 
+    // 🔥 CORRECCIÓN: Usar NgZone.run() para asegurar detección de cambios
     setTimeout(() => {
-      const esCorrecta = this.verificarOrdenCorrecto();
+      this.ngZone.run(() => {
+        const esCorrecta = this.verificarOrdenCorrecto();
 
-      if (esCorrecta) {
-        this.manejarSecuenciaCorrecta();
-      } else {
-        this.manejarSecuenciaIncorrecta();
-      }
+        if (esCorrecta) {
+          this.manejarSecuenciaCorrecta();
+        } else {
+          this.manejarSecuenciaIncorrecta();
+        }
+      });
     }, 1500);
   }
 
@@ -671,101 +677,121 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     });
   }
 
-  // 🔥 MÉTODO ACTUALIZADO CON OPCIÓN 1
+  // 🔥 MÉTODO CORREGIDO COMPLETAMENTE
   manejarSecuenciaCorrecta(): void {
     this.secuenciasCorrectas++;
 
-    this.mostrarModalPersonalizado(
-      '¡Excelente! 🎉',
-      `¡Muy bien! Has completado la secuencia correctamente.`,
-      'success',
-      0
-    );
+    if (this.nivelActual < this.maxNiveles) {
+      // ✅ CASO 1: AÚN HAY MÁS NIVELES
+      this.mostrarModalPersonalizado(
+        '¡Excelente!',
+        `¡Muy bien! Has completado la secuencia correctamente.`,
+        'success',
+        0
+      );
 
-    setTimeout(() => {
-      if (this.nivelActual < this.maxNiveles) {
-        // Continuar con el siguiente nivel
-        this.nivelActual++;
-        this.faseJuego = 'jugando';
-        
-        this.secuenciaActual = this.secuencias[this.nivelActual - 1];
-        
-        this.preparaNivel();
-        this.iniciarTemporizador();
-      } else {
-        // 🔥 COMPLETÓ TODOS LOS NIVELES
-        console.log('🎊 ¡Todos los niveles completados!');
-        
-        // 1️⃣ Detener temporizador
-        this.detenerTemporizador();
-        
-        // 2️⃣ Cambiar fase a 'completado'
-        this.faseJuego = 'completado';
-        console.log('✅ faseJuego cambiada a:', this.faseJuego);
-        
-        // 3️⃣ 🔥 FORZAR DETECCIÓN DE CAMBIOS
-        this.cdr.detectChanges();
-        console.log('🔄 Detección de cambios forzada');
-        
-        // 4️⃣ Guardar estadísticas
-        this.guardarEstadisticas();
-        
-        // 5️⃣ Registrar en historial
-        this.historialService.registrarJuego('Puzzle de Movimientos').subscribe({
-          next: () => console.log('✅ Puzzle de Movimientos registrado en historial'),
-          error: (error: any) => console.error('❌ Error registrando actividad:', error)
+      setTimeout(() => {
+        this.ngZone.run(() => {
+          this.nivelActual++;
+          this.faseJuego = 'jugando';
+          this.secuenciaActual = this.secuencias[this.nivelActual - 1];
+          this.preparaNivel();
+          this.iniciarTemporizador();
+          this.cdr.detectChanges();
         });
-        
-        console.log('🎊 Pantalla de completado debería estar visible ahora');
-      }
-    }, 2000);
+      }, 2000);
+      
+    } else {
+      // ✅ CASO 2: COMPLETÓ TODOS LOS NIVELES - ¡SOLUCIÓN DEFINITIVA!
+      
+      // 1️⃣ Detener temporizador PRIMERO
+      this.detenerTemporizador();
+      
+      // 2️⃣ Cerrar cualquier modal abierto
+      this.mostrarModal = false;
+      
+      // 3️⃣ Cambiar fase a completado INMEDIATAMENTE
+      this.faseJuego = 'completado';
+      
+      // 4️⃣ Forzar detección de cambios
+      this.cdr.detectChanges();
+      
+      // 5️⃣ Guardar estadísticas
+      this.guardarEstadisticas();
+      
+      // 6️⃣ Registrar en historial
+      this.historialService.registrarJuego('Puzzle de Movimientos').subscribe({
+        next: () => {},
+        error: () => {}
+      });
+    }
   }
 
   manejarSecuenciaIncorrecta(): void {
     this.mostrarModalPersonalizado(
-      'Inténtalo de nuevo 🔄',
+      'Inténtalo de nuevo',
       `El orden no es correcto. ¡Vuelve a intentarlo!`,
       'error',
       0
     );
     
     setTimeout(() => {
-      this.faseJuego = 'jugando';
-      
-      const numMovimientos = this.secuenciaActual!.movimientos.length;
-      this.zonasDestino = new Array(numMovimientos).fill(null);
-      this.movimientosArrastrable.forEach(m => m.colocado = false);
-      this.secuenciaCompleta = false;
+      this.ngZone.run(() => {
+        this.faseJuego = 'jugando';
+        
+        const numMovimientos = this.secuenciaActual!.movimientos.length;
+        this.zonasDestino = new Array(numMovimientos).fill(null);
+        this.movimientosArrastrable.forEach(m => m.colocado = false);
+        this.secuenciaCompleta = false;
+        this.cdr.detectChanges();
+      });
     }, 2000);
   }
 
   // ==================== TEMPORIZADOR ====================
 
   iniciarTemporizador(): void {
+    this.detenerTemporizador(); // Limpiar cualquier temporizador existente
     this.tiempoInicio = Date.now();
+    
     this.intervalTemporizador = setInterval(() => {
+      // 🔥 CORRECCIÓN: Solo ejecutar si estamos jugando
+      if (this.faseJuego !== 'jugando' && this.faseJuego !== 'verificando') {
+        this.detenerTemporizador();
+        return;
+      }
+      
       const tiempoTranscurrido = this.obtenerTiempoTranscurrido();
       
       if (tiempoTranscurrido >= this.secuenciaActual!.tiempoLimite) {
         this.detenerTemporizador();
         
-        this.mostrarModalPersonalizado(
-          '¡Tiempo agotado! ⏰',
-          'Se acabó el tiempo. ¡Intenta completar la secuencia más rápido!',
-          'error',
-          0
-        );
-        setTimeout(() => {
-          this.preparaNivel();
-          this.iniciarTemporizador();
-        }, 2000);
+        this.ngZone.run(() => {
+          this.mostrarModalPersonalizado(
+            '¡Tiempo agotado!',
+            'Se acabó el tiempo. ¡Intenta completar la secuencia más rápido!',
+            'error',
+            0
+          );
+          
+          setTimeout(() => {
+            this.ngZone.run(() => {
+              this.preparaNivel();
+              this.iniciarTemporizador();
+              this.cdr.detectChanges();
+            });
+          }, 2000);
+        });
       }
+      
+      this.cdr.detectChanges();
     }, 1000);
   }
 
   detenerTemporizador(): void {
     if (this.intervalTemporizador) {
       clearInterval(this.intervalTemporizador);
+      this.intervalTemporizador = null;
     }
   }
 
@@ -793,7 +819,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   cargarEstadisticas(): void {
     const stats = localStorage.getItem('puzzleMovimientosStats');
     if (stats) {
-      const data: EstadisticasJuego = JSON.parse(stats);
       // Cargar estadísticas si es necesario
     }
   }
@@ -805,14 +830,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       tiempoTotal: this.obtenerTiempoTranscurrido()
     };
     localStorage.setItem('puzzleMovimientosStats', JSON.stringify(stats));
-  }
-
-  get estaJugando(): boolean {
-    return this.faseJuego === 'jugando' || this.faseJuego === 'verificando';
-  }
-
-  get estaCompletado(): boolean {
-    return this.faseJuego === 'completado';
   }
 
   // ==================== NAVEGACIÓN ====================
@@ -830,7 +847,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   }
 
   reiniciarJuego(): void {
-    console.log('Reiniciando juego...');
     this.nivelActual = 1;
     this.intentos = 0;
     this.secuenciasCorrectas = 0;
@@ -850,12 +866,10 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   }
 
   siguienteJuego(): void {
-    console.log('Navegando a siguiente juego...');
     this.router.navigate(['/juego/linguales/ritmo-silabas']);
   }
 
   volverAJuegos(): void {
-    console.log('Volviendo al menú de juegos...');
     this.router.navigate(['/juegos-terapeuticos']);
   }
 }

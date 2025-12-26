@@ -8,7 +8,7 @@
       </button>
       
       <div class="game-info">
-        <h1>🧠 Memoria de Gestos</h1>
+        <h1>Memoria de Gestos</h1>
         <p>Recuerda y repite la secuencia de gestos faciales</p>
       </div>
       
@@ -26,7 +26,7 @@
     <div class="instructions-screen">
       <div class="instructions-card">
         <div class="instructions-header">
-          <h2>📋 Cómo Jugar</h2>
+          <h2>Cómo Jugar</h2>
           <div class="difficulty-badge">{{ getDificultadTexto() }}</div>
         </div>
         
@@ -57,7 +57,7 @@
         </div>
         
         <div class="gestos-preview">
-          <h3>🎭 Gestos a Capturar</h3>
+          <h3>Gestos a Capturar</h3>
           <div class="gestos-grid">
             <div *ngFor="let gesto of gestosDisponibles" class="gesto-preview">
               <span class="gesto-emoji">{{ gesto.emoji }}</span>
@@ -67,7 +67,7 @@
         </div>
         
         <button class="btn-start" (click)="saltarInstrucciones()">
-          📸 ¡Empezar a Capturar!
+          ¡Empezar a Capturar!
         </button>
       </div>
     </div>
@@ -78,7 +78,7 @@
     
     <!-- Progreso de captura -->
     <div class="capture-progress" *ngIf="!todasFotosTomadas">
-      <h2>📸 Captura tus gestos</h2>
+      <h2>Captura tus gestos</h2>
       <div class="progress-bar-container">
         <div class="progress-bar-fill" [style.width.%]="(getFotosCapturadas() / gestosDisponibles.length) * 100"></div>
       </div>
@@ -99,7 +99,7 @@
         <div class="foto-nombre">{{ gesto.nombre }}</div>
         <div class="foto-status">
           <span *ngIf="gesto.imagenCapturada" class="status-check">✓</span>
-          <span *ngIf="!gesto.imagenCapturada" class="status-pending">📷</span>
+          <span *ngIf="!gesto.imagenCapturada" class="status-pending">○</span>
         </div>
       </div>
     </div>
@@ -129,7 +129,7 @@
               <div class="resultado-icono-video" 
                    [class.correcto]="resultadoDeteccion === 'correcto'"
                    [class.incorrecto]="resultadoDeteccion === 'incorrecto'">
-                {{ resultadoDeteccion === 'correcto' ? '✅' : '❌' }}
+                {{ resultadoDeteccion === 'correcto' ? '✓' : '✕' }}
               </div>
               <div class="resultado-texto-video">{{ mensajeDeteccion }}</div>
             </div>
@@ -138,7 +138,7 @@
           <button class="btn-capture-photo" 
                   (click)="capturarFotoInicial()"
                   [disabled]="!movimientoDetectado || resultadoDeteccion !== null">
-            📷 Capturar Foto
+            Capturar Foto
           </button>
         </div>
 
@@ -159,7 +159,7 @@
 
     <!-- Mensaje de finalización de captura -->
     <div class="captura-completa" *ngIf="todasFotosTomadas">
-      <div class="completa-icono">✅</div>
+      <div class="completa-icono">✓</div>
       <h2>¡Todas las fotos capturadas!</h2>
       <p>Preparando el juego...</p>
       <div class="loading-dots">
@@ -175,7 +175,7 @@
     <!-- Área de demostración -->
     <div class="demo-area" *ngIf="mostrandoSecuencia">
       <div class="demo-header">
-        <h3>👀 Observa la secuencia</h3>
+        <h3>Observa la secuencia</h3>
         <div class="sequence-progress">
           <span *ngFor="let gesto of secuenciaActual; let i = index"
                 class="progress-dot"
@@ -205,24 +205,24 @@
     <!-- Mensaje de fase -->
     <div class="phase-message" *ngIf="!mostrandoSecuencia && faseJuego === 'esperando'">
       <div class="message-content">
-        <h3>🎯 Nivel {{ nivelActual }}</h3>
+        <h3>Nivel {{ nivelActual }}</h3>
         <p>Prepárate para ver la secuencia...</p>
       </div>
     </div>
 
-    <!-- 🎯 ZONA DE DRAG AND DROP HORIZONTAL -->
+    <!-- ZONA DE DRAG AND DROP HORIZONTAL -->
     <div class="drag-drop-horizontal" *ngIf="faseJuego === 'jugando'">
       
       <!-- Instrucciones compactas -->
       <div class="drag-instructions-horizontal">
-        <h3>🤔 Arrastra las fotos en el orden correcto</h3>
+        <h3>Arrastra las fotos en el orden correcto</h3>
         <div class="progress-indicator">{{ respuestaJugador.length }} / {{ secuenciaActual.length }}</div>
       </div>
 
       <!-- LAYOUT HORIZONTAL -->
       <div class="horizontal-game-layout">
         
-        <!-- 📦 SLOTS A LA IZQUIERDA/ARRIBA -->
+        <!-- SLOTS A LA IZQUIERDA/ARRIBA -->
         <div class="drop-zone-horizontal">
           <div *ngFor="let slot of slots; let i = index"
                class="drop-slot-horizontal"
@@ -249,11 +249,11 @@
         </div>
 
         <!-- SEPARADOR VISUAL -->
-        <div class="separator-arrow">➡️</div>
+        <div class="separator-arrow">→</div>
 
-        <!-- 🖼️ FOTOS DISPONIBLES A LA DERECHA -->
+        <!-- FOTOS DISPONIBLES A LA DERECHA -->
         <div class="available-photos-horizontal">
-          <h4>📸 Tus fotos:</h4>
+          <h4>Tus fotos:</h4>
           <div class="photos-horizontal">
             <div *ngFor="let gesto of fotosDisponibles; trackBy: trackByGestoUniqueId"
                  class="draggable-photo-horizontal"
@@ -274,14 +274,14 @@
       <button class="btn-verify-horizontal" 
               (click)="verificarOrden()"
               [disabled]="respuestaJugador.length !== secuenciaActual.length">
-        ✅ Verificar Orden
+        Verificar Orden
       </button>
     </div>
 
     <!-- Mensaje de error -->
     <div class="error-message" *ngIf="faseJuego === 'error'">
       <div class="error-content">
-        <div class="error-icon">❌</div>
+        <div class="error-icon">✕</div>
         <h3>¡Oops!</h3>
         <p>Ese no era el orden correcto. ¡Inténtalo de nuevo!</p>
       </div>
@@ -313,15 +313,15 @@
       
       <div class="modal-actions">
         <button class="btn-secondary" (click)="reiniciarJuego()">
-          🔄 Jugar de Nuevo
+          Jugar de Nuevo
         </button>
         
         <button class="btn-primary" (click)="siguienteJuego()">
-          ➡️ Siguiente Juego
+          Siguiente Juego
         </button>
         
         <button class="btn-outline" (click)="volverAJuegos()">
-          🏠 Volver a Juegos
+          Volver a Juegos
         </button>
       </div>
     </div>

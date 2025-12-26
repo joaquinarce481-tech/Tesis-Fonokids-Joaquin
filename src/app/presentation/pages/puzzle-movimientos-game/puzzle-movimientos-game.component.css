@@ -1019,203 +1019,6 @@
   font-size: 1.5rem;
 }
 
-/* ==================== PANTALLA DE COMPLETADO ==================== */
-.completion-screen {
-  max-width: 1000px;
-  margin: 3rem auto;
-  padding: 0 2rem;
-}
-
-.completion-screen .completion-content {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
-  padding: 3rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-}
-
-.completion-screen .completion-header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
-
-.completion-screen .completion-header h2 {
-  font-size: 2.5rem;
-  color: white;
-  margin: 0 0 1rem 0;
-  font-weight: 700;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.completion-screen .completion-header .completion-icon {
-  font-size: 6rem;
-  margin: 1rem 0;
-  animation: bounce 2s ease-in-out infinite;
-}
-
-.completion-screen .completion-stats {
-  margin-bottom: 3rem;
-}
-
-.completion-screen .completion-stats .final-score {
-  text-align: center;
-  padding: 2rem;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border-radius: 20px;
-  color: white;
-  margin-bottom: 2rem;
-  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
-}
-
-.completion-screen .completion-stats .final-score .score-label {
-  display: block;
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-  opacity: 0.9;
-}
-
-.completion-screen .completion-stats .final-score .score-value {
-  display: block;
-  font-size: 4rem;
-  font-weight: 700;
-}
-
-.completion-screen .completion-stats .stars-earned {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.completion-screen .completion-stats .stars-earned .stars-label {
-  display: block;
-  font-size: 1.25rem;
-  color: white;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.completion-screen .completion-stats .stars-earned .stars-display {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.completion-screen .completion-stats .stars-earned .stars-display .star {
-  font-size: 3rem;
-  opacity: 0.3;
-  transition: all 0.3s ease;
-}
-
-.completion-screen .completion-stats .stars-earned .stars-display .star.star-earned {
-  opacity: 1;
-  animation: star-bounce 0.5s ease;
-}
-
-.completion-screen .completion-stats .completion-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.completion-screen .completion-stats .completion-details .stat-final {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-}
-
-.completion-screen .completion-stats .completion-details .stat-final .stat-icon {
-  font-size: 1.5rem;
-}
-
-.completion-screen .completion-stats .completion-details .stat-final .stat-text {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: white;
-}
-
-.completion-screen .completion-message {
-  text-align: center;
-  margin-bottom: 3rem;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-}
-
-.completion-screen .completion-message p {
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.95);
-  margin: 0 0 1rem 0;
-  line-height: 1.6;
-}
-
-.completion-screen .completion-message p:last-child {
-  margin-bottom: 0;
-}
-
-.completion-screen .completion-actions {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.completion-screen .completion-actions button {
-  padding: 1.25rem 2.5rem;
-  border: none;
-  border-radius: 16px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.completion-screen .completion-actions button span:first-child {
-  font-size: 1.5rem;
-}
-
-.completion-screen .completion-actions .btn-restart {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-}
-
-.completion-screen .completion-actions .btn-restart:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
-}
-
-.completion-screen .completion-actions .btn-continue {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
-}
-
-.completion-screen .completion-actions .btn-continue:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.5);
-}
-
-.completion-screen .completion-actions .btn-menu {
-  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-  color: white;
-  box-shadow: 0 8px 24px rgba(107, 114, 128, 0.4);
-}
-
-.completion-screen .completion-actions .btn-menu:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(107, 114, 128, 0.5);
-}
-
 /* ==================== LOADING OVERLAY ==================== */
 .loading-overlay {
   position: fixed;
@@ -1428,7 +1231,7 @@
   }
 }
 
-/* ==================== MODAL PERSONALIZADO ==================== */
+/* ==================== MODAL PERSONALIZADO (DURANTE EL JUEGO) ==================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1768,4 +1571,239 @@
 /* Columna derecha para la secuencia */
 .sequence-column {
   min-width: 0;
+}
+
+/* ==================== MODAL DE FELICITACIÓN (ESTILO CARRERA DE SÍLABAS) ==================== */
+.felicitacion-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.felicitacion-modal {
+  position: relative;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+  animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: none;
+}
+
+@keyframes modalSlideIn {
+  0% {
+    transform: scale(0.8) translateY(50px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.felicitacion-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.felicitacion-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #4f46e5;
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.5px;
+}
+
+.felicitacion-message {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #374151;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.6;
+}
+
+.felicitacion-message strong {
+  color: #4f46e5;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.felicitacion-submessage {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #10b981;
+  margin: 0 0 1.5rem 0;
+}
+
+.felicitacion-stats-mini {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35);
+  min-width: 100px;
+}
+
+.stat-mini-icon {
+  font-size: 1.5rem;
+}
+
+.stat-mini-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+}
+
+.stat-mini-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.felicitacion-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.btn-continuar,
+.btn-terminar {
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-continuar {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+}
+
+.btn-continuar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.45);
+}
+
+.btn-terminar {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+}
+
+.btn-terminar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.45);
+}
+
+.btn-icon {
+  font-size: 1.2rem;
+}
+
+/* ==================== RESPONSIVE PARA EL MODAL DE FELICITACIÓN ==================== */
+@media (max-width: 768px) {
+  .felicitacion-modal {
+    padding: 2rem 1.5rem;
+    max-width: 360px;
+  }
+
+  .felicitacion-title {
+    font-size: 2rem;
+  }
+
+  .felicitacion-message {
+    font-size: 1rem;
+  }
+
+  .felicitacion-message strong {
+    font-size: 1.1rem;
+  }
+
+  .felicitacion-submessage {
+    font-size: 0.9rem;
+  }
+
+  .felicitacion-stats-mini {
+    gap: 1rem;
+  }
+
+  .stat-mini {
+    padding: 0.875rem 1.25rem;
+    min-width: 90px;
+  }
+
+  .stat-mini-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-mini-label {
+    font-size: 0.7rem;
+  }
+
+  .btn-continuar,
+  .btn-terminar {
+    font-size: 0.95rem;
+    padding: 0.875rem 1.25rem;
+  }
+
+  .btn-icon {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .felicitacion-modal {
+    padding: 1.5rem 1.25rem;
+    max-width: 320px;
+  }
+  
+  .felicitacion-title {
+    font-size: 1.75rem;
+  }
+  
+  .felicitacion-stats-mini {
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+  
+  .stat-mini {
+    padding: 0.75rem 1rem;
+    min-width: 80px;
+  }
+  
+  .stat-mini-value {
+    font-size: 1.3rem;
+  }
 }

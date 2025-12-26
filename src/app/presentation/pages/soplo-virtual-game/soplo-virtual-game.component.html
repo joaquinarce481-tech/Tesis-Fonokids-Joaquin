@@ -10,7 +10,7 @@
       </button>
       
       <div class="game-info">
-        <h1>🎤 Reto de Pronunciación</h1>
+        <h1>Reto de Pronunciación</h1>
         <p>Pronuncia correctamente las palabras que aparecen</p>
       </div>
       
@@ -32,7 +32,7 @@
     <div class="instructions-screen">
       <div class="instructions-card">
         <div class="instructions-header">
-          <h2>📚 Cómo Jugar</h2>
+          <h2>Cómo Jugar</h2>
           <div class="difficulty-badge">Pronunciación</div>
         </div>
         
@@ -71,17 +71,17 @@
         </div>
         
         <div class="tips-section">
-          <h3>💡 Consejos</h3>
+          <h3>Consejos</h3>
           <ul>
-            <li>🎧 Busca un lugar tranquilo sin ruido</li>
-            <li>🎤 Habla claro y despacio</li>
-            <li>🔊 Escucha el ejemplo varias veces si lo necesitas</li>
-            <li>⭐ ¡Diviértete practicando!</li>
+            <li>Busca un lugar tranquilo sin ruido</li>
+            <li>Habla claro y despacio</li>
+            <li>Escucha el ejemplo varias veces si lo necesitas</li>
+            <li>¡Diviértete practicando!</li>
           </ul>
         </div>
         
         <button class="btn-start" (click)="saltarInstrucciones()">
-          🎯 Elegir Nivel
+          Elegir Nivel
         </button>
       </div>
     </div>
@@ -91,14 +91,14 @@
   <main class="game-main" *ngIf="faseJuego === 'seleccion-nivel'">
     <div class="level-selection-screen">
       <div class="selection-header">
-        <h2>🎯 Selecciona un Nivel</h2>
+        <h2>Selecciona un Nivel</h2>
         <p>Elige el nivel que quieres jugar o practica todos en orden</p>
       </div>
 
       <!-- Opción de jugar todos los niveles -->
       <div class="play-all-section">
         <button class="btn-play-all" (click)="jugarTodosLosNiveles()">
-          <span class="play-all-icon">🎮</span>
+          <span class="play-all-icon">▶</span>
           <div class="play-all-content">
             <h3>Jugar Todos los Niveles</h3>
             <p>Completa los 7 niveles en orden, desde vocales hasta trabalenguas</p>
@@ -134,7 +134,7 @@
       </div>
 
       <button class="btn-back-selection" (click)="volverAlDashboard()">
-        🏠 Volver a Juegos
+        Volver a Juegos
       </button>
     </div>
   </main>
@@ -146,11 +146,11 @@
         <div class="loading-spinner">
           <div class="spinner"></div>
         </div>
-        <h2>🎤 Configurando micrófono...</h2>
+        <h2>Configurando micrófono...</h2>
         <p>Por favor, permite el acceso al micrófono cuando te lo solicite el navegador.</p>
         
         <div class="microphone-test" *ngIf="permisoMicrofono">
-          <h3>✅ Micrófono conectado</h3>
+          <h3>Micrófono conectado</h3>
           <p>Iniciando nivel {{ nivelActual }}...</p>
         </div>
       </div>
@@ -161,26 +161,26 @@
   <main class="game-main" *ngIf="faseJuego === 'error'">
     <div class="error-screen">
       <div class="error-card">
-        <div class="error-icon">❌</div>
+        <div class="error-icon">✕</div>
         <h2>Error de Micrófono</h2>
         <p>{{ errorMicrofono }}</p>
         
         <div class="error-solutions">
           <h3>Posibles soluciones:</h3>
           <ul>
-            <li>🔄 Recarga la página y permite el micrófono</li>
-            <li>🔧 Verifica que tu micrófono esté conectado</li>
-            <li>🌐 Usa Chrome o Edge (navegadores compatibles)</li>
-            <li>⚙️ Revisa la configuración de permisos del navegador</li>
+            <li>Recarga la página y permite el micrófono</li>
+            <li>Verifica que tu micrófono esté conectado</li>
+            <li>Usa Chrome o Edge (navegadores compatibles)</li>
+            <li>Revisa la configuración de permisos del navegador</li>
           </ul>
         </div>
         
         <div class="error-actions">
           <button class="btn-retry" (click)="solicitarPermisoMicrofono()">
-            🔄 Reintentar
+            Reintentar
           </button>
           <button class="btn-back-error" (click)="volverAlDashboard()">
-            🏠 Volver a Juegos
+            Volver a Juegos
           </button>
         </div>
       </div>
@@ -226,7 +226,7 @@
         <!-- Botón de reseteo de emergencia (solo visible si hay problema) -->
         <div class="debug-reset" *ngIf="escuchandoAudio || esperandoPronunciacion">
           <button class="btn-reset" (click)="resetearEstadosBotones()">
-            🔄 Resetear Botones
+            Resetear Botones
           </button>
         </div>
         
@@ -234,7 +234,7 @@
         <div class="escuchado-display" *ngIf="ultimoEscuchado && !mostrandoFeedback">
           <div class="escuchado-label">Escuché:</div>
           <div class="escuchado-texto">"{{ ultimoEscuchado }}"</div>
-          <div class="escuchado-hint">💡 Vuelve a intentarlo pronunciando más claro</div>
+          <div class="escuchado-hint">Vuelve a intentarlo pronunciando más claro</div>
         </div>
         
         <!-- Indicador de grabación -->
@@ -252,9 +252,9 @@
            [class.incorrecto]="tipoFeedback === 'incorrecto'"
            [class.cerca]="tipoFeedback === 'cerca'">
         <div class="feedback-icon">
-          <span *ngIf="tipoFeedback === 'correcto'">✅</span>
-          <span *ngIf="tipoFeedback === 'incorrecto'">❌</span>
-          <span *ngIf="tipoFeedback === 'cerca'">🟡</span>
+          <span *ngIf="tipoFeedback === 'correcto'">✓</span>
+          <span *ngIf="tipoFeedback === 'incorrecto'">✕</span>
+          <span *ngIf="tipoFeedback === 'cerca'">~</span>
         </div>
         <div class="feedback-texto">{{ mensajeFeedback }}</div>
       </div>
@@ -312,19 +312,19 @@
       
       <div class="modal-actions">
         <button class="btn-secondary" (click)="reiniciarNivel()">
-          🔄 Repetir este nivel
+          Repetir este nivel
         </button>
         
         <button class="btn-secondary" (click)="volverASeleccionNivel()">
-          🎯 Elegir otro nivel
+          Elegir otro nivel
         </button>
         
         <button class="btn-primary" (click)="siguienteJuego()">
-          ➡️ Siguiente Juego
+          Siguiente Juego
         </button>
         
         <button class="btn-outline" (click)="volverAlDashboard()">
-          🏠 Volver a Juegos
+          Volver a Juegos
         </button>
       </div>
     </div>
