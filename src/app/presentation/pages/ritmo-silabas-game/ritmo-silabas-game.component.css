@@ -98,6 +98,8 @@
   font-size: 0.7rem;
   opacity: 0.8;
   margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .stat-value {
@@ -307,7 +309,175 @@
   position: relative;
 }
 
-/* Indicador de voz */
+/* ===== PANEL DE SÍLABA (IZQUIERDO) ===== */
+.syllable-panel {
+  position: fixed;
+  top: 100px;
+  left: 20px;
+  padding: 20px 24px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  min-width: 180px;
+  text-align: center;
+  border: 2px solid #e5e7eb;
+}
+
+.syllable-panel-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.syllable-panel-value {
+  font-size: 52px;
+  font-weight: 800;
+  color: #4f46e5;
+  line-height: 1;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+.syllable-panel-hint {
+  font-size: 14px;
+  color: #10b981;
+  font-weight: 600;
+  margin-bottom: 14px;
+  padding: 6px 12px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.syllable-panel-separator {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+  margin: 14px 0;
+}
+
+.syllable-panel-examples-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9ca3af;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.syllable-panel-examples {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* ===== PANEL DE MICRÓFONO (DERECHO) ===== */
+.mic-panel {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  min-width: 130px;
+  text-align: center;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.mic-panel.mic-listening {
+  border-color: #10b981;
+  background: #ffffff;
+}
+
+.mic-panel.mic-success {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%);
+  animation: micSuccessPulse 0.5s ease-out;
+}
+
+.mic-panel.mic-error {
+  border-color: #ef4444;
+  background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+  animation: micErrorShake 0.5s ease-out;
+}
+
+@keyframes micSuccessPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@keyframes micErrorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.mic-panel-icon {
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.mic-panel-icon svg {
+  color: #9ca3af;
+  transition: all 0.3s ease;
+}
+
+.mic-panel.mic-listening .mic-panel-icon svg {
+  color: #10b981;
+  animation: micIconPulse 1.5s ease-in-out infinite;
+}
+
+.mic-panel.mic-success .mic-panel-icon svg {
+  color: #10b981;
+}
+
+.mic-panel.mic-error .mic-panel-icon svg {
+  color: #ef4444;
+}
+
+@keyframes micIconPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.8; }
+}
+
+.mic-panel-status {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.mic-panel.mic-listening .mic-panel-status {
+  color: #10b981;
+}
+
+.mic-panel-result {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+  display: inline-block;
+}
+
+.mic-panel.mic-success .mic-panel-result {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.mic-panel.mic-error .mic-panel-result {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* ===== INDICADORES ANTIGUOS (por compatibilidad) ===== */
 .voice-indicator {
   position: fixed;
   top: 100px;
@@ -344,12 +514,8 @@
 }
 
 @keyframes success-flash {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 @keyframes error-shake {
@@ -385,7 +551,7 @@
   text-align: center;
 }
 
-/* Indicador de próxima sílaba */
+/* Indicador de próxima sílaba (antiguo) */
 .next-syllable-indicator {
   position: fixed;
   top: 100px;
@@ -401,19 +567,7 @@
   z-index: 50;
   border: 3px solid #667eea;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  animation: next-syllable-pulse 2s ease-in-out infinite;
   max-width: 220px;
-}
-
-@keyframes next-syllable-pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
-  }
 }
 
 .next-label {
@@ -432,16 +586,6 @@
 
 .next-emoji {
   font-size: 2.5rem;
-  animation: bounce-emoji 1s ease-in-out infinite;
-}
-
-@keyframes bounce-emoji {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
 }
 
 .next-text {
@@ -455,16 +599,6 @@
   font-size: 0.8rem;
   font-weight: 600;
   color: #10b981;
-  animation: hint-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes hint-pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
 }
 
 .word-examples {
@@ -492,7 +626,7 @@
   line-height: 1.3;
 }
 
-/* Área de juego */
+/* ===== ÁREA DE JUEGO ===== */
 .game-area {
   position: relative;
   height: 500px;
@@ -515,12 +649,8 @@
 }
 
 @keyframes clouds-move {
-  0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: 400px 0;
-  }
+  0% { background-position: 0 0; }
+  100% { background-position: 400px 0; }
 }
 
 .ground {
@@ -551,15 +681,11 @@
 }
 
 @keyframes ground-move {
-  0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: 40px 0;
-  }
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 0; }
 }
 
-/* Jugador */
+/* ===== JUGADOR ===== */
 .player {
   position: absolute;
   left: 100px;
@@ -573,6 +699,12 @@
 .player-character {
   font-size: 4rem;
   animation: run 0.3s steps(2) infinite;
+  color: #4f46e5;
+}
+
+.player-character svg {
+  color: #4f46e5;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .player.jumping .player-character {
@@ -580,18 +712,12 @@
 }
 
 @keyframes run {
-  0% {
-    transform: scaleX(1);
-  }
-  50% {
-    transform: scaleX(1.1);
-  }
-  100% {
-    transform: scaleX(1);
-  }
+  0% { transform: scaleX(1); }
+  50% { transform: scaleX(1.1); }
+  100% { transform: scaleX(1); }
 }
 
-/* Obstáculos */
+/* ===== OBSTÁCULOS ===== */
 .obstacle {
   position: absolute;
   bottom: 150px;
@@ -617,15 +743,9 @@
 }
 
 @keyframes obstacle-success {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.2) rotate(5deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
 }
 
 @keyframes fade-out {
@@ -639,21 +759,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.25rem;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
   padding: 0.75rem;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
   animation: obstacle-bounce 0.5s ease-in-out infinite alternate;
+  min-height: 60px;
 }
 
 @keyframes obstacle-bounce {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-5px);
-  }
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-5px); }
 }
 
 .obstacle-emoji {
@@ -661,12 +779,13 @@
 }
 
 .obstacle-syllable {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #667eea;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #4f46e5;
+  letter-spacing: 1px;
 }
 
-/* Partículas */
+/* ===== PARTÍCULAS ===== */
 .particle {
   position: absolute;
   width: 8px;
@@ -757,27 +876,35 @@
   transform: translateY(-2px);
 }
 
-/* Botón de pausa */
+/* ===== BOTÓN DE PAUSA ===== */
 .btn-pause {
   position: fixed;
   top: 50%;
   right: 2rem;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  width: 56px;
+  height: 56px;
   color: white;
   font-size: 1.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-pause svg {
+  width: 24px;
+  height: 24px;
 }
 
 .btn-pause:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.25);
   transform: translateY(-50%) scale(1.1);
 }
 
@@ -976,7 +1103,193 @@
   font-size: 1.2rem;
 }
 
+/* ===== MODAL DE FELICITACIÓN (SIN COPA) ===== */
+.felicitacion-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.felicitacion-modal {
+  position: relative;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+  animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: none;
+}
+
+@keyframes modalSlideIn {
+  0% {
+    transform: scale(0.8) translateY(50px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.felicitacion-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.felicitacion-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #4f46e5;
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.5px;
+}
+
+.felicitacion-message {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #374151;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.6;
+}
+
+.felicitacion-message strong {
+  color: #4f46e5;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.felicitacion-submessage {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #10b981;
+  margin: 0 0 1.5rem 0;
+}
+
+.felicitacion-stats-mini {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35);
+  min-width: 100px;
+}
+
+.stat-mini-icon {
+  font-size: 1.5rem;
+}
+
+.stat-mini-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+}
+
+.stat-mini-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.felicitacion-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.btn-continuar,
+.btn-terminar {
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-continuar {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+}
+
+.btn-continuar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.45);
+}
+
+.btn-terminar {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+}
+
+.btn-terminar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.45);
+}
+
+.btn-icon {
+  font-size: 1.2rem;
+}
+
 /* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .syllable-panel {
+    padding: 16px 20px;
+    min-width: 160px;
+  }
+  
+  .syllable-panel-value {
+    font-size: 44px;
+  }
+  
+  .mic-panel {
+    padding: 14px 16px;
+    min-width: 120px;
+  }
+  
+  .btn-pause {
+    right: 1rem;
+    width: 50px;
+    height: 50px;
+  }
+}
+
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
@@ -997,6 +1310,63 @@
   
   .game-area {
     height: 400px;
+  }
+  
+  /* Paneles en móvil - abajo */
+  .syllable-panel {
+    position: fixed;
+    top: auto;
+    bottom: 100px;
+    left: 10px;
+    padding: 12px 14px;
+    min-width: auto;
+    border-radius: 12px;
+  }
+  
+  .syllable-panel-value {
+    font-size: 32px;
+    margin-bottom: 4px;
+  }
+  
+  .syllable-panel-header {
+    font-size: 9px;
+    margin-bottom: 6px;
+  }
+  
+  .syllable-panel-hint {
+    font-size: 11px;
+    padding: 4px 8px;
+    margin-bottom: 0;
+  }
+  
+  .syllable-panel-separator,
+  .syllable-panel-examples-title,
+  .syllable-panel-examples {
+    display: none;
+  }
+  
+  .mic-panel {
+    position: fixed;
+    top: auto;
+    bottom: 100px;
+    right: 10px;
+    padding: 10px 14px;
+    min-width: auto;
+    border-radius: 12px;
+  }
+  
+  .mic-panel-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .mic-panel-status {
+    font-size: 10px;
+  }
+  
+  .mic-panel-result {
+    font-size: 11px;
+    padding: 4px 8px;
   }
   
   .voice-indicator {
@@ -1023,6 +1393,19 @@
     left: 60px;
   }
   
+  .btn-pause {
+    top: auto;
+    bottom: 20px;
+    right: 50%;
+    transform: translateX(50%);
+    width: 48px;
+    height: 48px;
+  }
+  
+  .btn-pause:hover {
+    transform: translateX(50%) scale(1.1);
+  }
+  
   .completion-content {
     padding: 2rem 1.5rem;
   }
@@ -1034,287 +1417,15 @@
   .score-value {
     font-size: 2.5rem;
   }
-}
-
-@media (max-width: 480px) {
-  .game-main {
-    padding: 0.5rem;
-  }
   
-  .game-area {
-    height: 350px;
-  }
-  
-  .player-character {
-    font-size: 3rem;
-  }
-  
-  .obstacle-emoji {
-    font-size: 1.5rem;
-  }
-  
-  .obstacle-syllable {
-    font-size: 1rem;
-  }
-}
-
-/* ===== MODAL DE FELICITACIÓN ===== */
-.felicitacion-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease;
-}
-
-.felicitacion-modal {
-  position: relative;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border-radius: 25px;
-  padding: 2rem 1.5rem;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-  animation: modalBounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  border: 4px solid #667eea;
-}
-
-@keyframes modalBounceIn {
-  0% {
-    transform: scale(0) rotate(-180deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.1) rotate(10deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-}
-
-.confetti-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  overflow: hidden;
-  border-radius: 30px;
-}
-
-.confetti {
-  position: absolute;
-  font-size: 2rem;
-  animation: confettiFall 3s ease-in-out infinite;
-}
-
-.confetti:nth-child(1) {
-  left: 10%;
-  animation-delay: 0s;
-  animation-duration: 3s;
-}
-
-.confetti:nth-child(2) {
-  left: 30%;
-  animation-delay: 0.5s;
-  animation-duration: 3.5s;
-}
-
-.confetti:nth-child(3) {
-  left: 50%;
-  animation-delay: 1s;
-  animation-duration: 4s;
-}
-
-.confetti:nth-child(4) {
-  left: 70%;
-  animation-delay: 1.5s;
-  animation-duration: 3.2s;
-}
-
-.confetti:nth-child(5) {
-  left: 90%;
-  animation-delay: 2s;
-  animation-duration: 3.8s;
-}
-
-@keyframes confettiFall {
-  0% {
-    top: -10%;
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    top: 110%;
-    transform: translateY(0) rotate(360deg);
-    opacity: 0.5;
-  }
-}
-
-.felicitacion-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-}
-
-.felicitacion-icon {
-  font-size: 4.5rem;
-  margin-bottom: 0.75rem;
-  animation: iconBounce 1s ease-in-out infinite;
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
-}
-
-@keyframes iconBounce {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-20px) rotate(15deg);
-  }
-}
-
-.felicitacion-title {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #667eea;
-  margin: 0 0 0.75rem 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  animation: titlePulse 0.5s ease 0.3s backwards;
-}
-
-@keyframes titlePulse {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.felicitacion-message {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #333;
-  margin: 0 0 0.5rem 0;
-  line-height: 1.5;
-}
-
-.felicitacion-message strong {
-  color: #667eea;
-  font-weight: 700;
-  font-size: 1.2rem;
-}
-
-.felicitacion-submessage {
-  font-size: 1rem;
-  font-weight: 400;
-  color: #10b981;
-  margin: 0 0 1.25rem 0;
-}
-
-.felicitacion-stats-mini {
-  display: flex;
-  justify-content: center;
-  gap: 1.25rem;
-  margin-bottom: 1.25rem;
-}
-
-.stat-mini {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.75rem 1.25rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-}
-
-.stat-mini-icon {
-  font-size: 1.5rem;
-}
-
-.stat-mini-value {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: white;
-}
-
-.stat-mini-label {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.felicitacion-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.btn-continuar,
-.btn-terminar {
-  padding: 0.875rem 1.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-}
-
-.btn-continuar {
-  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-  color: white;
-}
-
-.btn-continuar:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-}
-
-.btn-terminar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.btn-terminar:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-}
-
-.btn-icon {
-  font-size: 1.2rem;
-}
-
-@media (max-width: 768px) {
+  /* Modal en móvil */
   .felicitacion-modal {
-    padding: 1.5rem 1.25rem;
-    max-width: 350px;
-  }
-
-  .felicitacion-icon {
-    font-size: 3.5rem;
+    padding: 2rem 1.5rem;
+    max-width: 360px;
   }
 
   .felicitacion-title {
-    font-size: 1.8rem;
+    font-size: 2rem;
   }
 
   .felicitacion-message {
@@ -1334,32 +1445,119 @@
   }
 
   .stat-mini {
-    padding: 0.625rem 1rem;
-  }
-
-  .stat-mini-icon {
-    font-size: 1.25rem;
+    padding: 0.875rem 1.25rem;
+    min-width: 90px;
   }
 
   .stat-mini-value {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
   }
 
   .stat-mini-label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
 
   .btn-continuar,
   .btn-terminar {
-    font-size: 1rem;
-    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    padding: 0.875rem 1.25rem;
   }
 
   .btn-icon {
     font-size: 1.1rem;
   }
+}
 
-  .confetti {
+@media (max-width: 480px) {
+  .game-main {
+    padding: 0.5rem;
+  }
+  
+  .game-area {
+    height: 350px;
+  }
+  
+  .player-character {
+    font-size: 3rem;
+  }
+  
+  .player-character svg {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .obstacle-emoji {
     font-size: 1.5rem;
   }
+  
+  .obstacle-syllable {
+    font-size: 1.2rem;
+  }
+  
+  .syllable-panel {
+    bottom: 80px;
+    padding: 10px 12px;
+  }
+  
+  .syllable-panel-value {
+    font-size: 28px;
+  }
+  
+  .mic-panel {
+    bottom: 80px;
+    padding: 8px 12px;
+  }
+  
+  .felicitacion-modal {
+    padding: 1.5rem 1.25rem;
+    max-width: 320px;
+  }
+  
+  .felicitacion-title {
+    font-size: 1.75rem;
+  }
+  
+  .felicitacion-stats-mini {
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+  
+  .stat-mini {
+    padding: 0.75rem 1rem;
+    min-width: 80px;
+  }
+  
+  .stat-mini-value {
+    font-size: 1.3rem;
+  }
+}
+
+/* ===== ANIMACIONES ADICIONALES ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animación suave para cambios de estado */
+.side-panel,
+.felicitacion-modal,
+.pause-content {
+  animation: scaleIn 0.3s ease-out;
 }

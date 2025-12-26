@@ -81,8 +81,8 @@
         <p>Tómate fotos haciendo cada ejercicio lingual</p>
       </div>
 
-      <!-- LAYOUT DE 2 COLUMNAS: Video + Ejercicio Actual -->
-      <div class="capture-main-layout">
+      <!-- 🔥 LAYOUT DE 2 COLUMNAS: Video + Ejercicio Actual - AGREGADA VERIFICACIÓN -->
+      <div *ngIf="todosLosMovimientos && todosLosMovimientos[movimientoActualCaptura]" class="capture-main-layout">
         <!-- COLUMNA IZQUIERDA: Cámara y Canvas -->
         <div class="camera-container">
           <div class="video-wrapper">
@@ -120,11 +120,11 @@
                [class.detected]="movimientoDetectado"
                [class.not-detected]="!movimientoDetectado">
             <div class="movement-icon">
-              {{ todosLosMovimientos[movimientoActualCaptura].emoji }}
+              {{ todosLosMovimientos[movimientoActualCaptura]?.emoji }}
             </div>
-            <h3>{{ todosLosMovimientos[movimientoActualCaptura].nombre }}</h3>
+            <h3>{{ todosLosMovimientos[movimientoActualCaptura]?.nombre }}</h3>
             <p class="movement-instruction">
-              {{ todosLosMovimientos[movimientoActualCaptura].instruccion }}
+              {{ todosLosMovimientos[movimientoActualCaptura]?.instruccion }}
             </p>
           </div>
         </div>
@@ -138,13 +138,13 @@
         <div class="photos-progress">
           <div *ngFor="let mov of todosLosMovimientos; let i = index" 
                class="photo-item"
-               [class.completed]="mov.foto !== null"
+               [class.completed]="mov?.foto !== null"
                [class.current]="i === movimientoActualCaptura">
             <div class="photo-icon">
-              <span *ngIf="mov.foto === null">{{ mov.emoji }}</span>
-              <span *ngIf="mov.foto !== null">✅</span>
+              <span *ngIf="mov?.foto === null">{{ mov?.emoji }}</span>
+              <span *ngIf="mov?.foto !== null">✅</span>
             </div>
-            <span class="photo-name">{{ mov.nombre }}</span>
+            <span class="photo-name">{{ mov?.nombre }}</span>
           </div>
         </div>
       </div>
@@ -185,9 +185,9 @@
     <div class="game-layout-columns">
       <!-- COLUMNA IZQUIERDA: Banco de fotos -->
       <div class="movements-bank movements-bank-vertical">
-        <!-- Indicador de cantidad de fotos -->
+        <!-- 🔥 Indicador de cantidad de fotos - AGREGADA VERIFICACIÓN -->
         <div class="photos-counter">
-          📸 {{ movimientosArrastrable.length }} fotos disponibles
+          📸 {{ movimientosArrastrable?.length || 0 }} fotos disponibles
         </div>
         
         <div class="movements-vertical-list">
@@ -195,28 +195,28 @@
           *ngFor="let movimiento of movimientosArrastrable" 
           class="movement-card movement-card-compact"
           [ngClass]="{
-            'movement-placed': movimiento.colocado,
-            'movement-dragging': movimiento.arrastrando,
-            'movement-available': !movimiento.colocado
+            'movement-placed': movimiento?.colocado,
+            'movement-dragging': movimiento?.arrastrando,
+            'movement-available': !movimiento?.colocado
           }"
-          [draggable]="!movimiento.colocado && faseJuego === 'jugando'"
+          [draggable]="!movimiento?.colocado && faseJuego === 'jugando'"
           (dragstart)="onDragStart($event, movimiento)"
           (dragend)="onDragEnd($event, movimiento)">
           
-          <!-- Mostrar foto si existe -->
-          <div class="movement-photo movement-photo-compact" *ngIf="movimiento.foto">
+          <!-- 🔥 Mostrar foto si existe - AGREGADO ?. -->
+          <div class="movement-photo movement-photo-compact" *ngIf="movimiento?.foto">
             <img [src]="movimiento.foto" alt="Foto del movimiento">
           </div>
           
-          <!-- Mostrar emoji si no hay foto (fallback) -->
-          <div class="movement-emoji movement-emoji-compact" *ngIf="!movimiento.foto">
+          <!-- 🔥 Mostrar emoji si no hay foto (fallback) - AGREGADO ?. -->
+          <div class="movement-emoji movement-emoji-compact" *ngIf="!movimiento?.foto && movimiento?.emoji">
             {{ movimiento.emoji }}
           </div>
           
-          <div class="movement-name movement-name-compact">{{ movimiento.nombre }}</div>
+          <div class="movement-name movement-name-compact">{{ movimiento?.nombre }}</div>
           
-          <!-- Indicador si ya fue colocado -->
-          <div *ngIf="movimiento.colocado" class="placed-indicator placed-indicator-compact">
+          <!-- 🔥 Indicador si ya fue colocado - AGREGADO ?. -->
+          <div *ngIf="movimiento?.colocado" class="placed-indicator placed-indicator-compact">
             <span class="placed-icon">✓</span>
           </div>
         </div>
@@ -230,7 +230,7 @@
         <div class="sequence-builder">
           <h3>🎯 Construye la secuencia correcta:</h3>
       
-      <div class="drop-zones" [style.grid-template-columns]="'repeat(' + zonasDestino.length + ', 1fr)'">
+      <div class="drop-zones" [style.grid-template-columns]="'repeat(' + (zonasDestino?.length || 1) + ', 1fr)'">
         <div 
           *ngFor="let zona of zonasDestino; let i = index" 
           class="drop-zone"
@@ -260,7 +260,7 @@
               </div>
               
               <!-- Mostrar emoji si no hay foto (fallback) -->
-              <div class="movement-emoji" *ngIf="!obtenerMovimientoPorId(zona)?.foto">
+              <div class="movement-emoji" *ngIf="!obtenerMovimientoPorId(zona)?.foto && obtenerMovimientoPorId(zona)?.emoji">
                 {{ obtenerMovimientoPorId(zona)?.emoji }}
               </div>
               

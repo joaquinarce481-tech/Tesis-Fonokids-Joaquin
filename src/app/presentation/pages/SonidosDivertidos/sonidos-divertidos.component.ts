@@ -15,6 +15,7 @@ interface Sonido {
   id: number;
   nombre: string;
   onomatopeya: string;
+  sonidoTTS: string; // 🔥 Lo que el TTS debe DECIR (pronunciable)
   imagen: string;
   audio: string;
   filtro: string;
@@ -40,109 +41,121 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       id: 1,
       nombre: 'Perro',
       onomatopeya: '¡GUAU GUAU!',
+      sonidoTTS: 'guau, guau',
       imagen: '🐕',
       audio: 'guau',
       filtro: 'perro',
-      palabrasClave: ['guau', 'wau', 'wow', 'gua', 'guaú', 'wauf', 'gau', 'gua gua']
+      palabrasClave: ['guau', 'wau', 'wow', 'gua', 'guaú', 'wauf', 'gau', 'gua gua', 'agua', 'aua', 'guaú guaú']
     },
     {
       id: 2,
       nombre: 'Gato',
       onomatopeya: '¡MIAU MIAU!',
+      sonidoTTS: 'miau, miau',
       imagen: '🐱',
       audio: 'miau',
       filtro: 'gato',
-      palabrasClave: ['miau', 'mia', 'meow', 'miau', 'miaú', 'mia mia']
+      palabrasClave: ['miau', 'mia', 'meow', 'miaú', 'mia mia', 'mia u', 'ya', 'miau miau']
     },
     {
       id: 3,
       nombre: 'Vaca',
       onomatopeya: '¡MUUU!',
+      sonidoTTS: 'mu, muuu',
       imagen: '🐄',
       audio: 'muuu',
       filtro: 'vaca',
-      palabrasClave: ['mu', 'muu', 'muuu', 'moo', 'muuuu']
+      palabrasClave: ['mu', 'muu', 'muuu', 'moo', 'muuuu', 'muy', 'mu mu', 'más', 'mú', 'hum', 'um', 'mus', 'muñ', 'mur', 'bus', 'mm', 'mmm', 'mmmm', 'boom', 'bum', 'bu', 'mo', 'mou', 'move', 'moon']
     },
     {
       id: 4,
       nombre: 'Oveja',
       onomatopeya: '¡BEEE!',
+      sonidoTTS: 'be, beee',
       imagen: '🐑',
       audio: 'beee',
       filtro: 'oveja',
-      palabrasClave: ['be', 'bee', 'beee', 'baa', 'beeee', 've']
+      palabrasClave: ['be', 'bee', 'beee', 'baa', 'beeee', 've', 'de', 'vez', 'ved', 'ven', 'vi', 'me', 'mee', 'bien', 'ver']
     },
     {
       id: 5,
       nombre: 'Pato',
       onomatopeya: '¡CUAC CUAC!',
+      sonidoTTS: 'cuac, cuac',
       imagen: '🦆',
       audio: 'cuac',
       filtro: 'pato',
-      palabrasClave: ['cuac', 'cuak', 'quack', 'cua', 'cuac cuac', 'cuá']
+      palabrasClave: ['cuac', 'cuak', 'quack', 'cua', 'cuac cuac', 'cuá', 'crack', 'guac', 'cuan', 'cual', 'ca', 'cac', 'pack', 'quac']
     },
     {
       id: 6,
       nombre: 'Cerdo',
       onomatopeya: '¡OINC OINC!',
+      sonidoTTS: 'oinc, oinc',
       imagen: '🐷',
       audio: 'oinc',
       filtro: 'cerdo',
-      palabrasClave: ['oinc', 'oink', 'oin', 'oinc oinc', 'oing']
+      palabrasClave: ['oinc', 'oink', 'oin', 'oinc oinc', 'oing', 'oí', 'oing oing', 'oink oink', 'oing', 'coin', 'join', 'going']
     },
     {
       id: 7,
       nombre: 'León',
       onomatopeya: '¡ROAAR!',
+      sonidoTTS: 'roar, rugido',
       imagen: '🦁',
       audio: 'roar',
       filtro: 'leon',
-      palabrasClave: ['roar', 'roaar', 'rugido', 'grrr', 'rawr', 'ruar', 'roar']
+      palabrasClave: ['roar', 'roaar', 'rugido', 'grrr', 'rawr', 'ruar', 'grr', 'grrr', 'rrr', 'roa', 'ra', 'rar', 'ar', 'arr', 'raw', 'road']
     },
     {
       id: 8,
       nombre: 'Abeja',
       onomatopeya: '¡BZZZ!',
+      sonidoTTS: 'zum, zum, zumbido',
       imagen: '🐝',
       audio: 'bzzz',
       filtro: 'abeja',
-      palabrasClave: ['bzz', 'bzzz', 'buzz', 'zzzz', 'bz', 'bzzzz']
+      palabrasClave: ['bzz', 'bzzz', 'buzz', 'zzzz', 'bz', 'bzzzz', 'bes', 'vez', 'vis', 'ss', 'sss', 'zz', 'zzz', 'zumbido', 'zum', 'bus']
     },
     {
       id: 9,
       nombre: 'Campana',
       onomatopeya: '¡DING DONG!',
+      sonidoTTS: 'din, don',
       imagen: '🔔',
       audio: 'ding',
       filtro: 'campana',
-      palabrasClave: ['ding', 'dong', 'din', 'tan', 'ding dong', 'din don']
+      palabrasClave: ['ding', 'dong', 'din', 'tan', 'ding dong', 'din don', 'rin', 'tin', 'ring', 'din din', 'don', 'dan', 'ten']
     },
     {
       id: 10,
       nombre: 'Auto',
       onomatopeya: '¡BIP BIP!',
+      sonidoTTS: 'bip, bip',
       imagen: '🚗',
       audio: 'bip',
       filtro: 'auto',
-      palabrasClave: ['bip', 'beep', 'pip', 'bip bip', 'pi pi']
+      palabrasClave: ['bip', 'beep', 'pip', 'bip bip', 'pi pi', 'bis', 'pis', 'pi', 'bib', 'bib bib', 'vip', 'bit', 'big']
     },
     {
       id: 11,
       nombre: 'Reloj',
       onomatopeya: '¡TIC TAC!',
+      sonidoTTS: 'tic, tac',
       imagen: '⏰',
       audio: 'tic',
       filtro: 'reloj',
-      palabrasClave: ['tic', 'tac', 'tick', 'tock', 'tic tac', 'ti ta']
+      palabrasClave: ['tic', 'tac', 'tick', 'tock', 'tic tac', 'ti ta', 'tictac', 'di', 'ti', 'tic tic', 'tac tac', 'dic', 'tak']
     },
     {
       id: 12,
       nombre: 'Aplausos',
       onomatopeya: '¡CLAP CLAP!',
+      sonidoTTS: 'clap, clap',
       imagen: '👏',
       audio: 'clap',
       filtro: 'aplausos',
-      palabrasClave: ['clap', 'aplausos', 'palm', 'aplauso', 'clap clap']
+      palabrasClave: ['clap', 'aplausos', 'palm', 'aplauso', 'clap clap', 'clac', 'plap', 'clac clac', 'plap plap', 'cap', 'plaf']
     }
   ];
 
@@ -155,8 +168,11 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
   recognition: any = null;
   reconocimientoDisponible: boolean = false;
   escuchandoAhora: boolean = false;
+  reconocimientoEnProceso: boolean = false;
   transcripcion: string = '';
   timeoutEscucha: any = null;
+  yaVerificado: boolean = false;
+  huboResultado: boolean = false; // 🔥 NUEVA BANDERA para saber si onresult se disparó
   
   // Feedback
   intentoActual: number = 0;
@@ -179,7 +195,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     window.scrollTo(0, 0);
     
     this.verificarReconocimientoVoz();
-    // NO mostrar el sonido hasta que se presione "Comenzar"
   }
 
   ngOnDestroy(): void {
@@ -197,7 +212,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     console.log('🎮 Comenzando juego...');
     this.vistaActual = 'jugando';
     
-    // 🔝 SCROLL AL INICIO
     setTimeout(() => {
       window.scrollTo(0, 0);
     }, 100);
@@ -219,6 +233,8 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       this.mostrarFeedback = false;
       this.feedbackTipo = '';
       this.feedbackMensaje = '';
+      this.yaVerificado = false;
+      this.huboResultado = false; // 🔥 RESETEAR
       
       console.log('✅ Mostrando sonido:', this.sonidoActual.nombre, '(ID:', this.sonidoActual.id + ')');
       console.log('🎨 Emoji:', this.sonidoActual.imagen);
@@ -231,8 +247,8 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
 
   reproducirSonido(): void {
     if (this.sonidoActual) {
-      console.log('🔊 Reproduciendo sonido:', this.sonidoActual.onomatopeya);
-      this.hablar(this.sonidoActual.onomatopeya);
+      console.log('🔊 Reproduciendo sonido:', this.sonidoActual.sonidoTTS);
+      this.hablar(this.sonidoActual.sonidoTTS);
     }
   }
 
@@ -252,48 +268,90 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       }, 3000);
       return;
     }
-    
-    this.escuchandoAhora = true;
-    this.transcripcion = '';
-    this.mostrarFeedback = false;
-    
-    console.log('🎤 Iniciando reconocimiento de voz...');
-    
-    if (this.recognition) {
-      try {
-        this.recognition.start();
-        
-        this.timeoutEscucha = setTimeout(() => {
-          if (this.escuchandoAhora) {
-            console.log('⏱️ Timeout: No se detectó voz');
-            this.detenerEscucha();
-            this.feedbackTipo = 'incorrecto';
-            this.feedbackMensaje = '¡No te escuché! Presiona el botón e intenta de nuevo';
-            this.mostrarFeedback = true;
-            this.hablar('No te escuché, intenta de nuevo más fuerte');
-            setTimeout(() => {
-              this.mostrarFeedback = false;
-            }, 3000);
-          }
-        }, 8000);
-      } catch (error) {
-        console.error('❌ Error al iniciar reconocimiento:', error);
-        this.detenerEscucha();
-      }
+
+    // 🔥 EVITAR MÚLTIPLES LLAMADAS
+    if (this.reconocimientoEnProceso || this.escuchandoAhora) {
+      console.log('⚠️ Ya hay un reconocimiento en proceso');
+      return;
     }
+    
+    this.reconocimientoEnProceso = true;
+    this.yaVerificado = false;
+    this.huboResultado = false; // 🔥 RESETEAR bandera de resultado
+    
+    // 🔥 DETENER COMPLETAMENTE CUALQUIER RECONOCIMIENTO PREVIO
+    this.detenerEscucha();
+    
+    // 🔥 ESPERAR Y LUEGO REINICIAR
+    setTimeout(() => {
+      this.escuchandoAhora = true;
+      this.transcripcion = '';
+      this.mostrarFeedback = false;
+      
+      console.log('🎤 Iniciando reconocimiento de voz...');
+      console.log('🎤 Sonido esperado:', this.sonidoActual?.nombre, '-', this.sonidoActual?.onomatopeya);
+      
+      if (this.recognition) {
+        try {
+          this.recognition.start();
+          console.log('🎤 Recognition.start() ejecutado');
+          
+          // 🔥 TIMEOUT DE 8 SEGUNDOS para dar más tiempo
+          this.timeoutEscucha = setTimeout(() => {
+            if (this.escuchandoAhora && !this.yaVerificado) {
+              console.log('⏱️ Timeout: No se detectó voz');
+              this.manejarSinResultado();
+            }
+          }, 8000);
+        } catch (error: any) {
+          console.error('❌ Error al iniciar reconocimiento:', error);
+          this.reconocimientoEnProceso = false;
+          this.detenerEscucha();
+        }
+      } else {
+        this.reconocimientoEnProceso = false;
+      }
+    }, 300);
+  }
+
+  // 🔥 NUEVO MÉTODO para manejar cuando no hay resultado
+  manejarSinResultado(): void {
+    console.log('🔇 Manejando sin resultado de voz');
+    this.detenerEscucha();
+    
+    this.ngZone.run(() => {
+      this.feedbackTipo = 'incorrecto';
+      this.feedbackMensaje = '¡No te escuché! Presiona el botón e intenta de nuevo';
+      this.mostrarFeedback = true;
+      this.cdr.detectChanges();
+    });
+    
+    this.hablar('No te escuché, intenta de nuevo más fuerte');
+    
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.mostrarFeedback = false;
+        this.cdr.detectChanges();
+      });
+    }, 3000);
   }
 
   detenerEscucha(): void {
+    console.log('🛑 Deteniendo escucha...');
     this.escuchandoAhora = false;
+    this.reconocimientoEnProceso = false;
+    
     if (this.timeoutEscucha) {
       clearTimeout(this.timeoutEscucha);
       this.timeoutEscucha = null;
     }
+    
     if (this.recognition) {
       try {
-        this.recognition.stop();
+        this.recognition.abort();
+        console.log('🛑 Recognition abortado');
       } catch (error) {
-        console.log('Recognition ya estaba detenido');
+        console.log('⚠️ Recognition ya estaba detenido');
       }
     }
   }
@@ -304,26 +362,38 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // 🔥 EVITAR VERIFICACIONES MÚLTIPLES
+    if (this.yaVerificado) {
+      console.log('⚠️ Ya se verificó este resultado, ignorando...');
+      return;
+    }
+
     const textoLimpio = textoDetectado.toLowerCase().trim();
     console.log('🎤 Texto detectado:', textoDetectado);
     console.log('🧹 Texto limpio:', textoLimpio);
     console.log('🔍 Buscando en palabras clave:', this.sonidoActual.palabrasClave);
+    console.log('🐮 Sonido actual:', this.sonidoActual.nombre);
 
     const coincide = this.sonidoActual.palabrasClave.some(palabra => {
       const palabraLimpia = palabra.toLowerCase();
       const incluye = textoLimpio.includes(palabraLimpia) || palabraLimpia.includes(textoLimpio);
       const similitud = this.similitudCadenas(textoLimpio, palabraLimpia);
       
-      console.log(`  - Comparando con "${palabra}": incluye=${incluye}, similitud=${similitud.toFixed(2)}`);
+      // Umbral más flexible de 0.4
+      const esCoincidencia = incluye || similitud > 0.4;
       
-      return incluye || similitud > 0.7;
+      console.log(`  - Comparando con "${palabra}": incluye=${incluye}, similitud=${similitud.toFixed(2)}, coincide=${esCoincidencia}`);
+      
+      return esCoincidencia;
     });
 
     if (coincide) {
       console.log('✅ ¡COINCIDENCIA ENCONTRADA!');
+      this.yaVerificado = true;
       this.respuestaCorrecta();
     } else {
-      console.log('❌ No hay coincidencia');
+      console.log('❌ No hay coincidencia - Texto detectado fue:', textoLimpio);
+      this.yaVerificado = true;
       this.respuestaIncorrecta();
     }
   }
@@ -368,19 +438,19 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       this.feedbackMensaje = '¡Excelente! ¡Lo hiciste perfecto!';
       this.mostrarFeedback = true;
       console.log('💬 Mostrando feedback');
+      this.cdr.detectChanges();
     });
     
     this.hablar('¡Muy bien! ¡Excelente sonido!');
 
-    // Esperar 2 segundos y mostrar celebración
     setTimeout(() => {
       this.ngZone.run(() => {
         this.mostrarFeedback = false;
         this.mostrarCelebracion = true;
         console.log('🎉 Mostrando celebración');
+        this.cdr.detectChanges();
       });
 
-      // Esperar 2.5 segundos más y avanzar
       setTimeout(() => {
         this.ngZone.run(() => {
           console.log('➡️ Avanzando al siguiente sonido');
@@ -388,6 +458,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
           this.indiceActual++;
           console.log('📍 Nuevo índice:', this.indiceActual);
           this.mostrarSonido();
+          this.cdr.detectChanges();
         });
       }, 2500);
     }, 2000);
@@ -402,15 +473,17 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
         this.feedbackTipo = 'incorrecto';
         this.feedbackMensaje = `¡No te preocupes! El sonido era: ${this.sonidoActual?.onomatopeya}`;
         this.mostrarFeedback = true;
+        this.cdr.detectChanges();
       });
       
-      this.hablar(`No te preocupes. El sonido era ${this.sonidoActual?.onomatopeya}. Vamos al siguiente`);
+      this.hablar(`No te preocupes. El sonido era ${this.sonidoActual?.sonidoTTS}. Vamos al siguiente`);
       
       setTimeout(() => {
         this.ngZone.run(() => {
           this.mostrarFeedback = false;
           this.indiceActual++;
           this.mostrarSonido();
+          this.cdr.detectChanges();
         });
       }, 4000);
     } else {
@@ -418,6 +491,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
         this.feedbackTipo = 'incorrecto';
         this.feedbackMensaje = `¡Casi! Escucha bien e intenta de nuevo (${this.intentoActual}/${this.maxIntentos})`;
         this.mostrarFeedback = true;
+        this.cdr.detectChanges();
       });
       
       this.hablar('Casi casi. Escucha de nuevo e intenta otra vez');
@@ -425,6 +499,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         this.ngZone.run(() => {
           this.mostrarFeedback = false;
+          this.cdr.detectChanges();
         });
       }, 2500);
     }
@@ -440,7 +515,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
   completarJuego(): void {
     this.juegoCompletado = true;
     
-    // 🎯 REGISTRAR JUEGO EN HISTORIAL
     this.historialService.registrarJuego('Sonidos Divertidos').subscribe({
       next: () => console.log('✅ Sonidos Divertidos registrado en historial'),
       error: (error: any) => console.error('❌ Error registrando juego:', error)
@@ -456,8 +530,9 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     this.juegoCompletado = false;
     this.mostrarFeedback = false;
     this.vistaActual = 'jugando';
+    this.yaVerificado = false;
+    this.huboResultado = false;
     
-    // 🔝 SCROLL AL INICIO
     setTimeout(() => {
       window.scrollTo(0, 0);
     }, 100);
@@ -493,85 +568,141 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     
     this.recognition = new SpeechRecognition();
     this.recognition.lang = 'es-ES';
-    this.recognition.continuous = false;
+    this.recognition.continuous = true; // 🔥 CAMBIAR A TRUE para escuchar continuamente
     this.recognition.interimResults = true;
-    this.recognition.maxAlternatives = 10;
+    this.recognition.maxAlternatives = 10; // 🔥 Aumentar alternativas
 
     this.recognition.onstart = () => {
       console.log('🎤 Reconocimiento iniciado');
+      this.huboResultado = false;
     };
 
     this.recognition.onresult = (event: any) => {
+      console.log('🎤 onresult disparado');
+      this.huboResultado = true;
+      
+      if (this.yaVerificado) {
+        console.log('⚠️ Ya verificado, ignorando onresult');
+        return;
+      }
+
       if (this.timeoutEscucha) {
         clearTimeout(this.timeoutEscucha);
         this.timeoutEscucha = null;
       }
 
-      const results = event.results[event.results.length - 1];
-      const alternatives: string[] = [];
+      // 🔥 RECOPILAR TODAS LAS ALTERNATIVAS DE TODOS LOS RESULTADOS
+      const todasAlternativas: string[] = [];
       
-      for (let i = 0; i < results.length; i++) {
-        alternatives.push(results[i].transcript);
+      for (let i = 0; i < event.results.length; i++) {
+        const result = event.results[i];
+        for (let j = 0; j < result.length; j++) {
+          todasAlternativas.push(result[j].transcript);
+        }
       }
 
-      const transcript = results[0].transcript;
-      this.transcripcion = transcript;
-      console.log('🎤 Transcripción:', transcript);
+      const ultimoResultado = event.results[event.results.length - 1];
+      const isFinal = ultimoResultado.isFinal;
+      const transcript = ultimoResultado[0].transcript;
+      
+      this.ngZone.run(() => {
+        this.transcripcion = transcript;
+        this.cdr.detectChanges();
+      });
+      
+      console.log('🎤 Transcripción principal:', transcript, '| Final:', isFinal);
+      console.log('🎤 TODAS las alternativas:', todasAlternativas);
 
-      if (results.isFinal) {
-        let coincidenciaEncontrada = false;
-        for (const alt of alternatives) {
-          if (!coincidenciaEncontrada) {
-            const textoLimpio = alt.toLowerCase().trim();
-            const coincide = this.sonidoActual?.palabrasClave.some(palabra => {
-              const palabraLimpia = palabra.toLowerCase();
-              return textoLimpio.includes(palabraLimpia) || 
-                     palabraLimpia.includes(textoLimpio) ||
-                     this.similitudCadenas(textoLimpio, palabraLimpia) > 0.65;
-            });
-            
-            if (coincide) {
-              console.log('✅ Coincidencia en alternativa:', alt);
-              coincidenciaEncontrada = true;
-              this.verificarRespuesta(alt);
-              break;
-            }
-          }
-        }
-        
-        if (!coincidenciaEncontrada) {
-          this.verificarRespuesta(transcript);
-        }
+      // 🔥 VERIFICAR CON TODAS LAS ALTERNATIVAS
+      if (!this.yaVerificado) {
+        this.verificarConTodasAlternativas(todasAlternativas, isFinal);
       }
     };
 
     this.recognition.onerror = (event: any) => {
       console.error('❌ Error en reconocimiento:', event.error);
+      
+      // 🔥 IGNORAR error "aborted" porque es intencional
+      if (event.error === 'aborted') {
+        console.log('ℹ️ Error "aborted" ignorado (es intencional)');
+        return;
+      }
+      
       this.detenerEscucha();
       
       if (event.error === 'no-speech') {
-        this.feedbackTipo = 'incorrecto';
-        this.feedbackMensaje = '¡No te escuché! Intenta hablar más fuerte';
-        this.mostrarFeedback = true;
-        this.hablar('No te escuché');
-        setTimeout(() => {
-          this.mostrarFeedback = false;
-        }, 2500);
+        if (!this.yaVerificado) {
+          this.manejarSinResultado();
+        }
       } else if (event.error === 'not-allowed') {
-        this.feedbackTipo = 'incorrecto';
-        this.feedbackMensaje = 'Permiso de micrófono denegado';
-        this.mostrarFeedback = true;
+        this.ngZone.run(() => {
+          this.feedbackTipo = 'incorrecto';
+          this.feedbackMensaje = 'Permiso de micrófono denegado';
+          this.mostrarFeedback = true;
+          this.cdr.detectChanges();
+        });
       }
     };
 
     this.recognition.onend = () => {
-      console.log('🎤 Reconocimiento finalizado');
+      console.log('🎤 Reconocimiento finalizado | huboResultado:', this.huboResultado, '| yaVerificado:', this.yaVerificado);
+      
+      const estabaEscuchando = this.escuchandoAhora;
       this.escuchandoAhora = false;
+      this.reconocimientoEnProceso = false;
+      
       if (this.timeoutEscucha) {
         clearTimeout(this.timeoutEscucha);
         this.timeoutEscucha = null;
       }
+
+      // 🔥 SI NO HUBO RESULTADO Y NO SE VERIFICÓ, MOSTRAR FEEDBACK
+      if (estabaEscuchando && !this.huboResultado && !this.yaVerificado) {
+        console.log('⚠️ onend sin resultado - mostrando feedback');
+        this.manejarSinResultado();
+      }
+      
+      this.ngZone.run(() => {
+        this.cdr.detectChanges();
+      });
     };
+  }
+
+  // 🔥 MÉTODO MEJORADO para verificar con TODAS las alternativas
+  verificarConTodasAlternativas(alternativas: string[], esFinal: boolean): void {
+    if (!this.sonidoActual) return;
+
+    console.log('🔍 Verificando con todas las alternativas:', alternativas);
+
+    // 🔥 BUSCAR COINCIDENCIA EN CUALQUIER ALTERNATIVA
+    let coincidioEnAlguna = false;
+    
+    for (const alternativa of alternativas) {
+      const textoLimpio = alternativa.toLowerCase().trim();
+      
+      const coincide = this.sonidoActual.palabrasClave.some(palabra => {
+        const palabraLimpia = palabra.toLowerCase();
+        const incluye = textoLimpio.includes(palabraLimpia) || palabraLimpia.includes(textoLimpio);
+        const similitud = this.similitudCadenas(textoLimpio, palabraLimpia);
+        return incluye || similitud > 0.35; // 🔥 Umbral más bajo (0.35)
+      });
+
+      if (coincide) {
+        console.log('✅ ¡COINCIDENCIA en alternativa:', alternativa);
+        coincidioEnAlguna = true;
+        break;
+      }
+    }
+
+    if (coincidioEnAlguna) {
+      this.yaVerificado = true;
+      this.respuestaCorrecta();
+    } else if (esFinal) {
+      console.log('❌ Resultado final sin coincidencia en ninguna alternativa');
+      this.yaVerificado = true;
+      this.respuestaIncorrecta();
+    }
+    // Si no coincide y no es final, seguir esperando más resultados
   }
 
   detenerReconocimientoVoz(): void {
@@ -592,13 +723,12 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
   private hablar(texto: string): void {
     console.log('🔊 TTS hablar:', texto);
     if ('speechSynthesis' in window) {
-      // Cancelar cualquier audio que esté sonando
       window.speechSynthesis.cancel();
       
       const utterance = new SpeechSynthesisUtterance(texto);
       utterance.lang = 'es-ES';
-      utterance.rate = 0.85;
-      utterance.pitch = 1.3;
+      utterance.rate = 0.7; // 🔥 MÁS LENTO (era 0.85)
+      utterance.pitch = 1.2; // 🔥 Un poco más bajo (era 1.3)
       utterance.volume = 1;
       
       utterance.onstart = () => {

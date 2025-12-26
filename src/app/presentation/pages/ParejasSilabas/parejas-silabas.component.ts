@@ -301,4 +301,8 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
   get totalNiveles(): number {
     return this.niveles.length;
   }
+
+  get esUltimoNivel(): boolean {
+    return this.indiceNivel === this.niveles.length - 1;
+  }
 }

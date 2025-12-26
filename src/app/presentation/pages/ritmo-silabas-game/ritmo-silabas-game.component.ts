@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HistorialActividadesService } from '../..//services/historial-actividades.service'; // 📝 NUEVO
+import { HistorialActividadesService } from '../../services/historial-actividades.service';
 
 interface Obstaculo {
   id: string;
@@ -9,7 +9,6 @@ interface Obstaculo {
   posicionX: number;
   superado: boolean;
   activo: boolean;
-  emoji: string;
 }
 
 interface Particula {
@@ -49,15 +48,21 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   distanciaEntreObstaculos: number = 600;
   ultimaPosicionObstaculo: number = 800;
   
-  // Sílabas disponibles
-  silabasDisponibles: string[] = ['PA', 'PE', 'PI', 'PO', 'PU', 'MA', 'ME', 'MI', 'MO', 'MU', 'TA', 'TE', 'TI', 'TO', 'TU', 'LA', 'LE', 'LI', 'LO', 'LU', 'SA', 'SE', 'SI', 'SO', 'SU'];
-  emojisPorSilaba: { [key: string]: string } = {
-    'PA': '🦆', 'PE': '⚽', 'PI': '🔋', 'PO': '🐔', 'PU': '🚪',
-    'MA': '✋', 'ME': '🪑', 'MI': '🍯', 'MO': '🐵', 'MU': '🪆',
-    'TA': '☕', 'TE': '📺', 'TI': '✂️', 'TO': '🍅', 'TU': '🌷',
-    'LA': '🧶', 'LE': '🦁', 'LI': '📚', 'LO': '🦜', 'LU': '🌙',
-    'SA': '🐸', 'SE': '🚦', 'SI': '🪑', 'SO': '☀️', 'SU': '➕'
-  };
+  // Sílabas disponibles - TODAS las sílabas
+  silabasDisponibles: string[] = [
+    'PA', 'PE', 'PI', 'PO', 'PU', 
+    'MA', 'ME', 'MI', 'MO', 'MU', 
+    'TA', 'TE', 'TI', 'TO', 'TU', 
+    'LA', 'LE', 'LI', 'LO', 'LU', 
+    'SA', 'SE', 'SI', 'SO', 'SU'
+  ];
+  
+  // Para mostrar en instrucciones (solo algunas)
+  silabasParaMostrar: string[] = ['PA', 'MA', 'TA', 'LA', 'SA', 'PE', 'ME', 'TE'];
+  
+  // SISTEMA ANTI-REPETICIÓN: Cola de sílabas mezcladas
+  colaSilabas: string[] = [];
+  silabasUsadas: string[] = [];
   
   // Partículas de efectos
   particulas: Particula[] = [];
@@ -65,12 +70,12 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   // Puntuación y progreso
   obstaculosSuperados: number = 0;
   palabrasCorrectas: number = 0;
-  distanciaRecorrida: number = 0;
   
   // Reconocimiento de voz
   recognition: any = null;
   escuchandoVoz: boolean = false;
   ultimaPalabraDetectada: string = '';
+  feedbackTipo: 'correcto' | 'incorrecto' | '' = ''; // NUEVO para estilo visual
   
   // Control del juego
   intervaloJuego: any;
@@ -82,11 +87,24 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private historialService: HistorialActividadesService // 📝 NUEVO: Inyectar servicio
+    private historialService: HistorialActividadesService
   ) {}
 
   ngOnInit() {
+    // Scroll al inicio
+    window.scrollTo(0, 0);
     this.inicializarReconocimientoVoz();
+    this.inicializarColaSilabas();
+    
+    // Verificar si viene de "Seguir Jugando" para saltar instrucciones
+    const saltarInstrucciones = sessionStorage.getItem('carrera_continuar');
+    if (saltarInstrucciones === 'true') {
+      sessionStorage.removeItem('carrera_continuar');
+      // Iniciar juego directamente
+      setTimeout(() => {
+        this.empezarJuego();
+      }, 100);
+    }
   }
 
   ngOnDestroy() {
@@ -96,7 +114,40 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ... [RESTO DEL CÓDIGO SIN CAMBIOS HASTA mostrarFelicitacion()] ...
+  // NUEVO: Inicializar cola de sílabas mezcladas
+  inicializarColaSilabas(): void {
+    this.colaSilabas = this.mezclarArray([...this.silabasDisponibles]);
+    this.silabasUsadas = [];
+    console.log('Cola de sílabas inicializada:', this.colaSilabas);
+  }
+
+  // NUEVO: Obtener siguiente sílaba sin repetir
+  obtenerSiguienteSilaba(): string {
+    // Si la cola está vacía, regenerarla
+    if (this.colaSilabas.length === 0) {
+      this.colaSilabas = this.mezclarArray([...this.silabasDisponibles]);
+      this.silabasUsadas = [];
+      console.log('Cola regenerada:', this.colaSilabas);
+    }
+    
+    // Sacar la primera sílaba de la cola
+    const silaba = this.colaSilabas.shift()!;
+    this.silabasUsadas.push(silaba);
+    
+    console.log(`Sílaba seleccionada: ${silaba} | Restantes: ${this.colaSilabas.length}`);
+    
+    return silaba;
+  }
+
+  // NUEVO: Mezclar array (algoritmo Fisher-Yates)
+  mezclarArray(array: string[]): string[] {
+    const resultado = [...array];
+    for (let i = resultado.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [resultado[i], resultado[j]] = [resultado[j], resultado[i]];
+    }
+    return resultado;
+  }
 
   inicializarReconocimientoVoz() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -146,9 +197,9 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
         }
       };
 
-      console.log('✅ Reconocimiento de voz inicializado');
+      console.log('Reconocimiento de voz inicializado');
     } else {
-      console.warn('⚠️ Reconocimiento de voz no disponible');
+      console.warn('Reconocimiento de voz no disponible');
     }
   }
 
@@ -157,7 +208,7 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
 
     const palabraNormalizada = this.normalizarTexto(palabra);
     
-    console.log(`🎤 Detectado: "${palabra}" → Normalizado: "${palabraNormalizada}"`);
+    console.log(`Detectado: "${palabra}" → Normalizado: "${palabraNormalizada}"`);
 
     const obstaculoProximo = this.obstaculos.find(obs => 
       !obs.superado && 
@@ -167,7 +218,7 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     );
 
     if (!obstaculoProximo) {
-      console.log('❌ No hay obstáculos próximos');
+      console.log('No hay obstáculos próximos');
       return;
     }
 
@@ -178,19 +229,32 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
       this.saltar();
       this.palabrasCorrectas++;
       this.obstaculosSuperados++;
-      this.ultimaPalabraDetectada = `✅ ${obstaculoProximo.silaba}`;
-      this.reproducirSonidoAcierto();
+      this.ultimaPalabraDetectada = `${obstaculoProximo.silaba} ✓`;
+      this.feedbackTipo = 'correcto';
+      this.reproducirSonidoAcierto(); // Agregar sonido
       this.crearParticulas(obstaculoProximo.posicionX, this.suelo, '#10b981');
-      console.log(`✅ ¡CORRECTO! Palabra: "${palabra}" contiene sílaba: "${obstaculoProximo.silaba}"`);
-      console.log(`📊 Palabras correctas: ${this.palabrasCorrectas}/25`);
+      console.log(`CORRECTO! Palabra: "${palabra}" contiene sílaba: "${obstaculoProximo.silaba}"`);
+      
+      // Limpiar feedback después de 1.5 segundos
+      setTimeout(() => {
+        this.feedbackTipo = '';
+        this.ultimaPalabraDetectada = '';
+      }, 1500);
       
       if (this.palabrasCorrectas >= this.metaParaFelicitacion) {
-        console.log('🎯 ¡META ALCANZADA! Mostrando felicitación...');
+        console.log('META ALCANZADA! Mostrando felicitación...');
         this.mostrarFelicitacion();
       }
     } else {
-      this.ultimaPalabraDetectada = `❌ ${palabra.substring(0, 15)}`;
-      console.log(`❌ Esperaba: "${obstaculoProximo.silaba}" pero detectó: "${palabra}"`);
+      this.ultimaPalabraDetectada = `${palabra.substring(0, 10)} ✗`;
+      this.feedbackTipo = 'incorrecto';
+      console.log(`Esperaba: "${obstaculoProximo.silaba}" pero detectó: "${palabra}"`);
+      
+      // Limpiar feedback después de 1.5 segundos
+      setTimeout(() => {
+        this.feedbackTipo = '';
+        this.ultimaPalabraDetectada = '';
+      }, 1500);
     }
   }
 
@@ -230,14 +294,39 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   }
 
   iniciarEscuchaVoz() {
-    if (this.recognition && !this.escuchandoVoz) {
+    if (!this.recognition) {
+      console.log('Recognition no disponible');
+      return;
+    }
+    
+    // Si ya está escuchando, no hacer nada
+    if (this.escuchandoVoz) {
+      console.log('Ya está escuchando');
+      return;
+    }
+    
+    try {
+      // Primero intentar detener por si acaso
       try {
-        this.recognition.start();
-        this.escuchandoVoz = true;
-        console.log('🎤 Escuchando voz...');
+        this.recognition.stop();
       } catch (e) {
-        console.log('Recognition already started');
+        // Ignorar
       }
+      
+      // Esperar un poco y luego iniciar
+      setTimeout(() => {
+        try {
+          this.recognition.start();
+          this.escuchandoVoz = true;
+          console.log('Escuchando voz...');
+        } catch (e) {
+          console.log('Error al iniciar recognition:', e);
+          this.escuchandoVoz = false;
+        }
+      }, 100);
+    } catch (e) {
+      console.log('Error en iniciarEscuchaVoz:', e);
+      this.escuchandoVoz = false;
     }
   }
 
@@ -245,7 +334,7 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     if (this.recognition && this.escuchandoVoz) {
       this.recognition.stop();
       this.escuchandoVoz = false;
-      console.log('🔇 Voz detenida');
+      console.log('Voz detenida');
     }
   }
 
@@ -265,19 +354,19 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   empezarJuego() {
     this.faseJuego = 'jugando';
     this.reiniciarEstadisticas();
+    this.inicializarColaSilabas(); // Reiniciar cola al empezar
     this.iniciarEscuchaVoz();
     
     this.intervaloJuego = setInterval(() => {
       this.actualizarJuego();
     }, 1000 / this.frameRate);
     
-    console.log('🏃 ¡Carrera iniciada!');
+    console.log('Carrera iniciada!');
   }
 
   reiniciarEstadisticas() {
     this.obstaculosSuperados = 0;
     this.palabrasCorrectas = 0;
-    this.distanciaRecorrida = 0;
     this.jugadorY = this.suelo;
     this.jugadorSaltando = false;
     this.velocidadSalto = 0;
@@ -295,7 +384,6 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     this.generarObstaculos();
     this.actualizarParticulas();
     this.detectarColisiones();
-    this.distanciaRecorrida += this.velocidadJuego * 0.1;
   }
 
   actualizarJugador() {
@@ -318,7 +406,7 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
       this.velocidadSalto = this.fuerzaSalto;
       this.animacionPersonaje = 'saltando';
       this.reproducirSonidoSalto();
-      console.log('⬆️ ¡Salto!');
+      console.log('Salto!');
     }
   }
 
@@ -329,23 +417,22 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     });
   }
 
+  // MODIFICADO: Usar el sistema anti-repetición
   generarObstaculos() {
     const anchoVentana = 800;
     
     if (this.obstaculos.length === 0 || 
         (anchoVentana - this.ultimaPosicionObstaculo) > this.distanciaEntreObstaculos) {
       
-      const silabaAleatoria = this.silabasDisponibles[
-        Math.floor(Math.random() * this.silabasDisponibles.length)
-      ];
+      // Usar el nuevo sistema de cola
+      const silabaAleatoria = this.obtenerSiguienteSilaba();
       
       const nuevoObstaculo: Obstaculo = {
         id: `obs-${Date.now()}-${Math.random()}`,
         silaba: silabaAleatoria,
         posicionX: anchoVentana + 50,
         superado: false,
-        activo: true,
-        emoji: this.emojisPorSilaba[silabaAleatoria] || '❓'
+        activo: true
       };
       
       this.obstaculos.push(nuevoObstaculo);
@@ -377,15 +464,14 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   colision(obstaculo: Obstaculo) {
     obstaculo.activo = false;
     this.crearExplosion(obstaculo.posicionX, this.suelo);
-    this.reproducirSonidoColision();
-    console.log(`💥 Choque con ${obstaculo.silaba} - ¡Intenta pronunciarla antes!`);
+    this.reproducirSonidoColision(); // Agregar sonido
+    console.log(`Choque con ${obstaculo.silaba}`);
   }
 
   obstaculoSuperado(obstaculo: Obstaculo) {
     this.obstaculosSuperados++;
     this.palabrasCorrectas++;
     this.crearParticulas(obstaculo.posicionX, this.suelo, '#10b981');
-    console.log(`✅ Obstáculo superado correctamente!`);
   }
 
   actualizarParticulas() {
@@ -399,14 +485,15 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   }
 
   crearParticulas(x: number, y: number, color: string) {
-    for (let i = 0; i < 10; i++) {
+    // Reducir cantidad de partículas para mejor rendimiento
+    for (let i = 0; i < 6; i++) {
       this.particulas.push({
         id: `part-${Date.now()}-${i}`,
         x,
         y,
-        velocidadX: (Math.random() - 0.5) * 8,
-        velocidadY: (Math.random() - 0.5) * 8 - 5,
-        vida: 30,
+        velocidadX: (Math.random() - 0.5) * 6,
+        velocidadY: (Math.random() - 0.5) * 6 - 4,
+        vida: 25,
         color
       });
     }
@@ -416,75 +503,91 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     this.crearParticulas(x, y, '#ef4444');
   }
 
+  // Métodos de sonido
   reproducirSonidoSalto() {}
-
+  
   reproducirSonidoAcierto() {
-    this.hablar('¡Bien!');
+    this.hablar('Bien');
   }
-
+  
   reproducirSonidoColision() {
-    this.hablar('¡Intenta de nuevo!');
+    this.hablar('Intenta de nuevo');
   }
 
   private hablar(texto: string) {
     if ('speechSynthesis' in window) {
+      // Cancelar cualquier habla previa para evitar lag
       window.speechSynthesis.cancel();
+      
       const utterance = new SpeechSynthesisUtterance(texto);
       utterance.lang = 'es-ES';
-      utterance.rate = 1.2;
-      utterance.pitch = 1.3;
-      utterance.volume = 0.3;
-      window.speechSynthesis.speak(utterance);
+      utterance.rate = 1.1;
+      utterance.pitch = 1.2;
+      utterance.volume = 0.5;
+      
+      // Usar timeout para no bloquear el juego
+      setTimeout(() => {
+        window.speechSynthesis.speak(utterance);
+      }, 10);
     }
   }
 
   detenerJuego() {
     if (this.intervaloJuego) {
       clearInterval(this.intervaloJuego);
+      this.intervaloJuego = null;
     }
     this.detenerEscuchaVoz();
   }
 
-  // 📝 ACTUALIZADO: Registrar actividad al completar
   mostrarFelicitacion() {
-    console.log('🎉 ¡MOSTRANDO MODAL DE FELICITACIÓN!');
+    console.log('=== MOSTRANDO MODAL DE FELICITACIÓN ===');
     
-    this.detenerEscuchaVoz();
+    // 1. Detener el loop del juego
     if (this.intervaloJuego) {
       clearInterval(this.intervaloJuego);
       this.intervaloJuego = null;
     }
     
+    // 2. Detener reconocimiento de voz completamente
+    if (this.recognition) {
+      try {
+        this.recognition.stop();
+      } catch (e) {
+        console.log('Error deteniendo recognition:', e);
+      }
+    }
+    this.escuchandoVoz = false;
+    
+    // 3. Cambiar estado
     this.faseJuego = 'felicitacion';
     this.mostrarModalFelicitacion = true;
     
+    // 4. Forzar detección de cambios
     this.cdr.detectChanges();
     
-    // 📝 REGISTRAR EN EL HISTORIAL
+    // 5. Registrar en el historial
     this.historialService.registrarJuego('Carrera de Sílabas').subscribe({
-      next: () => console.log('✅ Carrera de Sílabas registrada en historial'),
-      error: (error: any) => console.error('❌ Error registrando actividad:', error)
+      next: () => console.log('Carrera de Sílabas registrada en historial'),
+      error: (error: any) => console.error('Error registrando actividad:', error)
     });
     
-    console.log('Estado del modal:', this.mostrarModalFelicitacion);
-    console.log('Fase del juego:', this.faseJuego);
+    console.log('Modal mostrado correctamente');
   }
 
   continuarJugando() {
-    this.mostrarModalFelicitacion = false;
-    this.palabrasCorrectas = 0;
-    this.faseJuego = 'jugando';
-    this.cdr.detectChanges();
+    // Guardar flag para saltar instrucciones al recargar
+    sessionStorage.setItem('carrera_continuar', 'true');
     
-    this.iniciarEscuchaVoz();
-    this.intervaloJuego = setInterval(() => {
-      this.actualizarJuego();
-    }, 1000 / this.frameRate);
+    // Limpiar todo y recargar la página
+    this.limpiarTodo();
+    window.location.reload();
   }
 
+  // FIX: Forzar recarga completa al terminar para evitar bugs
   terminarJuego() {
-    this.detenerJuego();
-    this.router.navigate(['/juegos-terapeuticos']);
+    this.limpiarTodo();
+    window.location.href = '/juegos-terapeuticos';
   }
 
   pausarJuego() {
@@ -493,6 +596,7 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
       this.detenerEscuchaVoz();
       if (this.intervaloJuego) {
         clearInterval(this.intervaloJuego);
+        this.intervaloJuego = null;
       }
     }
   }
@@ -508,13 +612,40 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
   }
 
   reiniciarJuego() {
-    this.detenerJuego();
+    this.limpiarTodo();
     this.empezarJuego();
   }
 
+  // FIX: Forzar recarga completa al volver para evitar bugs
   volverAJuegos() {
-    this.detenerJuego();
-    this.router.navigate(['/juegos-terapeuticos']);
+    this.limpiarTodo();
+    window.location.href = '/juegos-terapeuticos';
+  }
+
+  // Método para limpiar todo correctamente y evitar memory leaks
+  private limpiarTodo() {
+    // Detener intervalo del juego
+    if (this.intervaloJuego) {
+      clearInterval(this.intervaloJuego);
+      this.intervaloJuego = null;
+    }
+    
+    // Detener reconocimiento de voz completamente
+    if (this.recognition) {
+      try {
+        this.recognition.stop();
+      } catch (e) {
+        // Ignorar errores
+      }
+    }
+    this.escuchandoVoz = false;
+    
+    // Limpiar estado visual
+    this.mostrarModalFelicitacion = false;
+    this.obstaculos = [];
+    this.particulas = [];
+    this.feedbackTipo = '';
+    this.ultimaPalabraDetectada = '';
   }
 
   obtenerEjemplos(silaba: string): string {
@@ -547,9 +678,5 @@ export class RitmoSilabasGameComponent implements OnInit, OnDestroy {
     };
     
     return ejemplos[silaba] || silaba;
-  }
-  
-  formatearDistancia(): string {
-    return Math.floor(this.distanciaRecorrida).toString() + 'm';
   }
 }

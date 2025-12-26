@@ -9,18 +9,14 @@
       </button>
       
       <div class="game-info">
-        <h1>🏃‍♂️ Carrera de Sílabas</h1>
-        <p>¡Pronuncia las sílabas para saltar!</p>
+        <h1>Carrera de Sílabas</h1>
+        <p>Pronuncia las sílabas para saltar</p>
       </div>
       
       <div class="game-stats">
         <div class="stat">
-          <span class="stat-label">✅</span>
+          <span class="stat-label">Correctas</span>
           <span class="stat-value">{{ palabrasCorrectas }}/25</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">📏</span>
-          <span class="stat-value">{{ formatearDistancia() }}</span>
         </div>
       </div>
     </div>
@@ -30,15 +26,14 @@
   <div *ngIf="faseJuego === 'instrucciones'" class="instructions-screen">
     <div class="instructions-card">
       <div class="instructions-header">
-        <h2>🏃‍♂️ ¿Cómo jugar?</h2>
-        <div class="game-icon">🎮</div>
+        <h2>¿Cómo jugar?</h2>
       </div>
       
       <div class="instructions-content">
         <div class="step">
           <div class="step-number">1</div>
           <div class="step-text">
-            <strong>🎤 Activa tu micrófono</strong>
+            <strong>Activa tu micrófono</strong>
             <p>El juego necesita escuchar tu voz. Acepta el permiso cuando te lo pida.</p>
           </div>
         </div>
@@ -46,60 +41,59 @@
         <div class="step">
           <div class="step-number">2</div>
           <div class="step-text">
-            <strong>👀 Observa el obstáculo que viene</strong>
-            <p>Verás una sílaba dentro de una tarjeta blanca (por ejemplo: TA, MA, PA). ¡Mírala con atención!</p>
+            <strong>Observa el obstáculo que viene</strong>
+            <p>Verás una sílaba dentro de una tarjeta (por ejemplo: TA, MA, PA). Mírala con atención.</p>
           </div>
         </div>
         
         <div class="step">
           <div class="step-number">3</div>
           <div class="step-text">
-            <strong>🗣️ Di la sílaba O una palabra que la contenga</strong>
-            <p>Puedes decir solo "TA" o una palabra como "TAZA", "TAPA", "TOMATE". ¡Cualquier palabra que tenga esa sílaba funciona!</p>
+            <strong>Di la sílaba o una palabra que la contenga</strong>
+            <p>Puedes decir solo "TA" o una palabra como "TAZA", "TAPA", "TOMATE". Cualquier palabra que tenga esa sílaba funciona.</p>
           </div>
         </div>
         
         <div class="step">
           <div class="step-number">4</div>
           <div class="step-text">
-            <strong>⬆️ Tu personaje saltará automáticamente</strong>
-            <p>Si pronuncias correctamente, tu personaje 🏃‍♂️ saltará solo. Si no pronuncias, chocará con el obstáculo.</p>
+            <strong>Tu personaje saltará automáticamente</strong>
+            <p>Si pronuncias correctamente, tu personaje saltará solo. Si no pronuncias, chocará con el obstáculo.</p>
           </div>
         </div>
         
         <div class="step">
           <div class="step-number">5</div>
           <div class="step-text">
-            <strong>🔁 ¡Sigue practicando!</strong>
-            <p>El juego nunca termina. Es para practicar sin presión. ¡Pronuncia todas las sílabas que puedas!</p>
+            <strong>Sigue practicando</strong>
+            <p>El juego es para practicar sin presión. Pronuncia todas las sílabas que puedas.</p>
           </div>
         </div>
       </div>
       
       <div class="controls-guide">
-        <h3>🎯 Ejemplos de sílabas:</h3>
+        <h3>Ejemplos de sílabas:</h3>
         <div class="syllables-examples">
-          <div class="syllable-example" *ngFor="let silaba of silabasDisponibles.slice(0, 8)">
-            <span class="example-emoji">{{ emojisPorSilaba[silaba] }}</span>
+          <div class="syllable-example" *ngFor="let silaba of silabasParaMostrar">
             <span class="example-text">{{ silaba }}</span>
           </div>
         </div>
       </div>
       
       <div class="tips-section">
-        <h3>💡 Consejos importantes:</h3>
+        <h3>Consejos importantes:</h3>
         <ul>
           <li><strong>Puedes decir palabras completas</strong> - Por ejemplo, para "TO" puedes decir "TORO", "TOMATE", "TOPO"</li>
-          <li><strong>Di la palabra APENAS VEAS el obstáculo</strong> - No esperes a que esté cerca de tu personaje</li>
+          <li><strong>Di la palabra apenas veas el obstáculo</strong> - No esperes a que esté cerca de tu personaje</li>
           <li>Habla <strong>claro y fuerte</strong> para que el micrófono te detecte bien</li>
           <li>También puedes usar la tecla <strong>ESPACIO</strong> para saltar (como alternativa)</li>
           <li><strong>Mira el panel izquierdo</strong> - Te muestra ejemplos de palabras que puedes decir</li>
-          <li>Si chocas, ¡no pasa nada! Sigue intentando con el próximo obstáculo</li>
+          <li>Si chocas, no pasa nada. Sigue intentando con el próximo obstáculo.</li>
         </ul>
       </div>
       
       <button class="btn-start" (click)="empezarJuego()">
-        ¡Comenzar Carrera! 🏃‍♂️
+        Comenzar Carrera
       </button>
     </div>
   </div>
@@ -107,32 +101,31 @@
   <!-- Pantalla principal del juego -->
   <div *ngIf="faseJuego === 'jugando' || faseJuego === 'pausado'" class="game-main">
     
-    <!-- Indicador de voz mejorado -->
-    <div class="voice-indicator" 
-         [class.listening]="escuchandoVoz"
-         [class.success]="ultimaPalabraDetectada.includes('✅')"
-         [class.error]="ultimaPalabraDetectada.includes('❌')">
-      <div class="mic-icon">🎤</div>
-      <div class="voice-status">
-        <span *ngIf="escuchandoVoz && !ultimaPalabraDetectada">Escuchando...</span>
-        <span *ngIf="!escuchandoVoz">Micrófono apagado</span>
-      </div>
-      <div class="last-word" *ngIf="ultimaPalabraDetectada">
-        {{ ultimaPalabraDetectada }}
-      </div>
+    <!-- Panel izquierdo - Próxima sílaba -->
+    <div class="syllable-panel" *ngIf="obstaculos.length > 0">
+      <div class="syllable-panel-header">PRÓXIMA SÍLABA</div>
+      <div class="syllable-panel-value">{{ obstaculos[0].silaba }}</div>
+      <div class="syllable-panel-hint">Di "{{ obstaculos[0].silaba }}"</div>
+      <div class="syllable-panel-separator"></div>
+      <div class="syllable-panel-examples-title">EJEMPLOS:</div>
+      <div class="syllable-panel-examples">{{ obtenerEjemplos(obstaculos[0].silaba) }}</div>
     </div>
 
-    <!-- Indicador de próxima sílaba mejorado -->
-    <div class="next-syllable-indicator" *ngIf="obstaculos.length > 0">
-      <div class="next-label">Próxima sílaba:</div>
-      <div class="next-syllable">
-        <span class="next-emoji">{{ obstaculos[0].emoji }}</span>
-        <span class="next-text">{{ obstaculos[0].silaba }}</span>
+    <!-- Panel derecho - Estado del micrófono -->
+    <div class="mic-panel" [class.mic-listening]="escuchandoVoz" [class.mic-success]="feedbackTipo === 'correcto'" [class.mic-error]="feedbackTipo === 'incorrecto'">
+      <div class="mic-panel-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+          <line x1="12" x2="12" y1="19" y2="22"></line>
+        </svg>
       </div>
-      <div class="next-hint">👆 ¡Di "{{ obstaculos[0].silaba }}"!</div>
-      <div class="word-examples">
-        <span class="example-label">Ejemplos:</span>
-        <span class="example-words">{{ obtenerEjemplos(obstaculos[0].silaba) }}</span>
+      <div class="mic-panel-status">
+        <span *ngIf="escuchandoVoz && !ultimaPalabraDetectada">Escuchando...</span>
+        <span *ngIf="!escuchandoVoz">Micrófono OFF</span>
+      </div>
+      <div class="mic-panel-result" *ngIf="ultimaPalabraDetectada">
+        {{ ultimaPalabraDetectada }}
       </div>
     </div>
 
@@ -149,7 +142,14 @@
       <div class="player" 
            [class.jumping]="jugadorSaltando"
            [style.bottom.px]="jugadorY - suelo">
-        <div class="player-character">🏃‍♂️</div>
+        <div class="player-character">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="5" r="3"></circle>
+            <line x1="12" x2="12" y1="8" y2="16"></line>
+            <path d="M9 20l3-4 3 4"></path>
+            <path d="M6 12l6 2 6-2"></path>
+          </svg>
+        </div>
       </div>
       
       <!-- Obstáculos -->
@@ -159,7 +159,6 @@
            [class.superado]="obs.superado && obs.activo"
            [style.left.px]="obs.posicionX">
         <div class="obstacle-content">
-          <div class="obstacle-emoji">{{ obs.emoji }}</div>
           <div class="obstacle-syllable">{{ obs.silaba }}</div>
         </div>
       </div>
@@ -178,16 +177,16 @@
     <!-- Panel de pausa -->
     <div *ngIf="faseJuego === 'pausado'" class="pause-overlay">
       <div class="pause-content">
-        <h2>⏸️ Juego Pausado</h2>
+        <h2>Juego Pausado</h2>
         <div class="pause-actions">
           <button class="btn-primary" (click)="reanudarJuego()">
-            ▶️ Continuar
+            Continuar
           </button>
           <button class="btn-secondary" (click)="reiniciarJuego()">
-            🔄 Reiniciar
+            Reiniciar
           </button>
           <button class="btn-outline" (click)="volverAJuegos()">
-            🏠 Salir
+            Salir
           </button>
         </div>
       </div>
@@ -195,7 +194,10 @@
 
     <!-- Botón de pausa -->
     <button *ngIf="faseJuego === 'jugando'" class="btn-pause" (click)="pausarJuego()">
-      ⏸️
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="6" y="4" width="4" height="16"></rect>
+        <rect x="14" y="4" width="4" height="16"></rect>
+      </svg>
     </button>
 
   </div>
@@ -203,44 +205,27 @@
   <!-- Modal de Felicitación -->
   <div *ngIf="mostrarModalFelicitacion" class="felicitacion-overlay">
     <div class="felicitacion-modal">
-      <div class="confetti-container">
-        <div class="confetti">🎉</div>
-        <div class="confetti">🌟</div>
-        <div class="confetti">⭐</div>
-        <div class="confetti">✨</div>
-        <div class="confetti">🎊</div>
-      </div>
-      
       <div class="felicitacion-content">
-        <div class="felicitacion-icon">🏆</div>
         <h2 class="felicitacion-title">¡Felicitaciones!</h2>
         <p class="felicitacion-message">
-          ¡Has completado <strong>25 sílabas</strong> correctamente!
+          Has completado <strong>25 sílabas</strong> correctamente.
         </p>
         <p class="felicitacion-submessage">
-          ¡Excelente pronunciación! Sigue así 💪
+          Excelente pronunciación. Sigue así.
         </p>
         
         <div class="felicitacion-stats-mini">
           <div class="stat-mini">
-            <span class="stat-mini-icon">✅</span>
             <span class="stat-mini-value">{{ palabrasCorrectas }}</span>
             <span class="stat-mini-label">Correctas</span>
-          </div>
-          <div class="stat-mini">
-            <span class="stat-mini-icon">📏</span>
-            <span class="stat-mini-value">{{ formatearDistancia() }}</span>
-            <span class="stat-mini-label">Distancia</span>
           </div>
         </div>
         
         <div class="felicitacion-actions">
           <button class="btn-continuar" (click)="continuarJugando()">
-            <span class="btn-icon">🎮</span>
-            ¡Seguir Jugando!
+            Seguir Jugando
           </button>
           <button class="btn-terminar" (click)="terminarJuego()">
-            <span class="btn-icon">🏠</span>
             Volver al Menú
           </button>
         </div>
@@ -248,5 +233,4 @@
     </div>
   </div>
 
-  </div>
-
+</div>

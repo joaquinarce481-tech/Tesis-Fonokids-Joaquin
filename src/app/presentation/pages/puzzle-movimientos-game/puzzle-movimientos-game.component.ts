@@ -1,11 +1,11 @@
 // puzzle-movimientos-game.component.ts
 
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Camera } from '@mediapipe/camera_utils';
 import { FaceMesh, Results } from '@mediapipe/face_mesh';
-import { HistorialActividadesService } from '../../services/historial-actividades.service'; // 📝 NUEVO
+import { HistorialActividadesService } from '../../services/historial-actividades.service';
 
 // Interfaces
 interface MovimientoLingual {
@@ -231,7 +231,8 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private historialService: HistorialActividadesService // 📝 NUEVO: Inyectar servicio
+    private historialService: HistorialActividadesService,
+    private cdr: ChangeDetectorRef // Ya estaba importado
   ) {}
 
   ngOnInit(): void {
@@ -670,6 +671,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     });
   }
 
+  // 🔥 MÉTODO ACTUALIZADO CON OPCIÓN 1
   manejarSecuenciaCorrecta(): void {
     this.secuenciasCorrectas++;
 
@@ -682,6 +684,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
 
     setTimeout(() => {
       if (this.nivelActual < this.maxNiveles) {
+        // Continuar con el siguiente nivel
         this.nivelActual++;
         this.faseJuego = 'jugando';
         
@@ -690,18 +693,30 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
         this.preparaNivel();
         this.iniciarTemporizador();
       } else {
-        // 📝 ACTUALIZADO: Registrar actividad al completar todos los niveles
+        // 🔥 COMPLETÓ TODOS LOS NIVELES
+        console.log('🎊 ¡Todos los niveles completados!');
+        
+        // 1️⃣ Detener temporizador
         this.detenerTemporizador();
+        
+        // 2️⃣ Cambiar fase a 'completado'
         this.faseJuego = 'completado';
+        console.log('✅ faseJuego cambiada a:', this.faseJuego);
+        
+        // 3️⃣ 🔥 FORZAR DETECCIÓN DE CAMBIOS
+        this.cdr.detectChanges();
+        console.log('🔄 Detección de cambios forzada');
+        
+        // 4️⃣ Guardar estadísticas
         this.guardarEstadisticas();
         
-        // 📝 REGISTRAR EN EL HISTORIAL
+        // 5️⃣ Registrar en historial
         this.historialService.registrarJuego('Puzzle de Movimientos').subscribe({
           next: () => console.log('✅ Puzzle de Movimientos registrado en historial'),
           error: (error: any) => console.error('❌ Error registrando actividad:', error)
         });
         
-        console.log('¡Juego completado! Mostrando pantalla de felicitaciones.');
+        console.log('🎊 Pantalla de completado debería estar visible ahora');
       }
     }, 2000);
   }

@@ -6,20 +6,22 @@
   <div *ngIf="vistaActual === 'instrucciones'" class="instructions-screen">
     <!-- Header del juego -->
     <div class="game-header">
-      <button class="btn-back" (click)="volverAlMenu()">
-        <span class="icon">🏠</span>
-        <span class="btn-text">Volver</span>
-      </button>
-      <div class="game-info">
-        <h1>📢 Sonidos Onomatopéyicos</h1>
-        <p>Imita los sonidos de animales y objetos</p>
+      <div class="header-content">
+        <button class="btn-back" (click)="volverAlMenu()">
+          <span class="back-icon">←</span>
+          <span class="btn-text">Volver</span>
+        </button>
+        <div class="game-info">
+          <h1>Sonidos Divertidos</h1>
+          <p>Imita los sonidos que escuchas</p>
+        </div>
+        <div class="game-stats"></div>
       </div>
-      <div class="game-stats"></div>
     </div>
 
     <div class="instructions-card">
       <div class="instructions-header">
-        <h2>📢 Sonidos Onomatopéyicos</h2>
+        <h2>Sonidos Divertidos</h2>
         <span class="difficulty-badge">Fácil</span>
       </div>
 
@@ -27,8 +29,8 @@
         <div class="step">
           <div class="step-number">1</div>
           <div class="step-text">
-            <strong>Observa el animal u objeto</strong>
-            <p>Verás una imagen grande del animal u objeto que hace el sonido</p>
+            <strong>Observa la imagen</strong>
+            <p>Verás un animal, objeto o cosa que hace un sonido especial</p>
           </div>
         </div>
 
@@ -36,15 +38,15 @@
           <div class="step-number">2</div>
           <div class="step-text">
             <strong>Escucha el sonido</strong>
-            <p>Presiona "Escuchar" para oír cómo se pronuncia la onomatopeya</p>
+            <p>Presiona el botón amarillo para escuchar cómo suena</p>
           </div>
         </div>
 
         <div class="step">
           <div class="step-number">3</div>
           <div class="step-text">
-            <strong>Repite el sonido</strong>
-            <p>Presiona "Grabar" y di el sonido en voz alta. ¡Intenta imitar el sonido del animal u objeto!</p>
+            <strong>Haz el sonido</strong>
+            <p>Presiona el botón rojo y di el sonido en voz alta</p>
           </div>
         </div>
 
@@ -52,23 +54,23 @@
           <div class="step-number">4</div>
           <div class="step-text">
             <strong>Completa todos los sonidos</strong>
-            <p>Practica con todos los sonidos disponibles. ¡Tienes 3 intentos por cada uno!</p>
+            <p>Practica con todos los animales y objetos divertidos</p>
           </div>
         </div>
       </div>
 
       <div class="tips-section">
-        <h3>💡 Consejos:</h3>
+        <h3>Consejos:</h3>
         <ul>
-          <li>✓ Habla claro y en voz alta</li>
-          <li>✓ Trata de imitar el sonido real del animal u objeto</li>
-          <li>✓ Si no lo logras en 3 intentos, no te preocupes, pasarás al siguiente</li>
-          <li>✓ Puedes saltar un sonido después de 2 intentos</li>
+          <li>Habla claro y fuerte cuando hagas el sonido</li>
+          <li>Escucha bien antes de intentar imitar</li>
+          <li>Si no te sale, puedes intentar varias veces</li>
+          <li>Diviértete haciendo los sonidos</li>
         </ul>
       </div>
 
       <button class="btn-start" (click)="comenzarJuego()">
-        🎮 Comenzar a Jugar
+        Comenzar a Jugar
       </button>
     </div>
   </div>
@@ -77,158 +79,134 @@
   <!-- PANTALLA DE JUEGO -->
   <!-- ============================================ -->
   <div *ngIf="vistaActual === 'jugando'">
-    <!-- Header compacto -->
+    
+    <!-- Header del juego -->
     <div class="game-header">
-      <button class="btn-back" (click)="volverAlMenu()">
-        <span class="icon">🏠</span>
-        <span class="btn-text">Volver</span>
-      </button>
-      <h1 class="game-title">
-        <span class="title-emoji">📢</span>
-        <span class="title-text">Sonidos Onomatopéyicos</span>
-        <span class="title-emoji">📢</span>
-      </h1>
+      <div class="header-content">
+        <button class="btn-back" (click)="volverAlMenu()">
+          <span class="back-icon">←</span>
+          <span class="btn-text">Volver</span>
+        </button>
+        <div class="game-info">
+          <h1>Sonidos Divertidos</h1>
+        </div>
+        <div class="game-stats">
+          <div class="stat">
+            <span class="stat-label">Progreso</span>
+            <span class="stat-value">{{ indiceActual + 1 }}/{{ sonidos.length }}</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Barra de progreso -->
-    <div class="progress-bar-container">
+    <div class="progress-bar-container" *ngIf="!juegoCompletado">
       <div class="progress-bar" [style.width.%]="progreso"></div>
     </div>
 
-    <!-- Contenido principal -->
-    <div class="main-content" *ngIf="!juegoCompletado && !mostrarCelebracion && sonidoActual">
+    <!-- Contenido principal del juego -->
+    <div class="game-main" *ngIf="sonidoActual && !juegoCompletado">
       
-      <!-- Tarjeta del animal con emoji gigante -->
-      <div class="animal-display-card">
-        <div class="animal-emoji-huge">{{ sonidoActual.imagen }}</div>
-        <h2 class="animal-name-big">{{ sonidoActual.nombre }}</h2>
+      <!-- Tarjeta del sonido actual -->
+      <div class="sound-card">
+        <div class="sound-emoji">
+          {{ sonidoActual.imagen }}
+        </div>
+        <h2 class="sound-name">{{ sonidoActual.nombre }}</h2>
+        <div class="sound-text">{{ sonidoActual.onomatopeya }}</div>
         
-        <div class="sound-bubble">
-          <span class="sound-icon">💬</span>
-          <p class="onomatopeya-text">{{ sonidoActual.onomatopeya }}</p>
+        <!-- Botones de acción -->
+        <div class="action-buttons">
+          <button class="btn-listen" (click)="reproducirSonido()" [disabled]="escuchandoAhora">
+            <span class="btn-icon">🔊</span>
+            <span class="btn-text">Escuchar</span>
+          </button>
+          
+          <button 
+            class="btn-speak" 
+            [class.recording]="escuchandoAhora"
+            (click)="iniciarDeteccion()" 
+            [disabled]="!reconocimientoDisponible">
+            <span class="btn-icon">🎤</span>
+            <span class="btn-text">{{ escuchandoAhora ? 'Escuchando...' : 'Hablar' }}</span>
+          </button>
         </div>
 
-        <div class="instruction-compact">
-          <span class="instruction-icon">👄</span>
-          <p class="instruction-text">¡Haz el sonido del {{ sonidoActual.nombre.toLowerCase() }}!</p>
+        <!-- Indicador de grabación -->
+        <div class="recording-indicator" *ngIf="escuchandoAhora">
+          <div class="pulse-circle"></div>
+          <span class="recording-text">Di el sonido ahora...</span>
+        </div>
+
+        <!-- Mostrar lo que escuchó -->
+        <div class="transcription-display" *ngIf="transcripcion && !mostrarFeedback">
+          <span class="transcription-label">Escuché:</span>
+          <span class="transcription-text">{{ transcripcion }}</span>
         </div>
       </div>
 
-      <!-- Transcripción (si existe) -->
-      <div class="transcription-card" *ngIf="transcripcion && escuchandoAhora">
-        <span class="transcription-icon">👂</span>
-        <div class="transcription-content">
-          <p class="transcription-label">Escuché:</p>
-          <p class="transcription-text">"{{ transcripcion }}"</p>
+      <!-- Feedback visual -->
+      <div class="feedback-container" *ngIf="mostrarFeedback">
+        <div class="feedback-message" [class.correcto]="feedbackTipo === 'correcto'" [class.incorrecto]="feedbackTipo === 'incorrecto'">
+          <span class="feedback-icon">{{ feedbackTipo === 'correcto' ? '✓' : '✗' }}</span>
+          <span class="feedback-texto">{{ feedbackMensaje }}</span>
         </div>
       </div>
 
-      <!-- Feedback -->
-      <div class="feedback-card" *ngIf="mostrarFeedback" [ngClass]="feedbackTipo">
-        <span class="feedback-icon" *ngIf="feedbackTipo === 'correcto'">✅</span>
-        <span class="feedback-icon" *ngIf="feedbackTipo === 'incorrecto'">💭</span>
-        <p class="feedback-message">{{ feedbackMensaje }}</p>
+      <!-- Información de intentos -->
+      <div class="attempts-info" *ngIf="intentoActual > 0 && !mostrarFeedback">
+        <p>Intento {{ intentoActual }}/{{ maxIntentos }}</p>
       </div>
 
-      <!-- Botones de acción -->
-      <div class="action-buttons">
-        <button class="btn-action btn-listen" (click)="reproducirSonido()" [disabled]="escuchandoAhora">
-          <span class="btn-icon">🔊</span>
-          <span class="btn-label">Escuchar</span>
-        </button>
-        
-        <button 
-          class="btn-action btn-record" 
-          (click)="iniciarDeteccion()" 
-          [disabled]="escuchandoAhora || !reconocimientoDisponible"
-          [ngClass]="{'recording': escuchandoAhora}">
-          <span class="btn-icon">🎤</span>
-          <span class="btn-label" *ngIf="!escuchandoAhora">Grabar</span>
-          <span class="btn-label" *ngIf="escuchandoAhora">Escuchando...</span>
-          <span class="recording-pulse" *ngIf="escuchandoAhora"></span>
-        </button>
-      </div>
-
-      <!-- Botón saltar (solo después de 2 intentos) -->
-      <button class="btn-skip" (click)="saltarSonido()" *ngIf="intentoActual >= 2">
-        <span class="btn-icon">⏭️</span>
-        <span class="btn-label">Saltar</span>
-      </button>
-
-      <!-- Warning reconocimiento -->
-      <div class="warning-banner" *ngIf="!reconocimientoDisponible">
-        <span class="warning-icon">⚠️</span>
-        <p>Reconocimiento de voz no disponible. Usa Chrome o Edge.</p>
-      </div>
-
-      <!-- Indicador de intentos -->
-      <div class="attempts-indicator" *ngIf="intentoActual > 0 && intentoActual < maxIntentos">
-        <div class="attempts-dots">
-          <span class="dot" [class.active]="i < intentoActual" *ngFor="let i of [0, 1, 2]"></span>
-        </div>
-        <p class="attempts-text">Intento {{ intentoActual }} de {{ maxIntentos }}</p>
-      </div>
     </div>
 
-    <!-- Celebración -->
-    <div class="celebration-overlay" *ngIf="mostrarCelebracion && !juegoCompletado">
-      <div class="celebration-content">
-        <div class="celebration-emoji">🎉</div>
-        <h2 class="celebration-title">¡Excelente!</h2>
-        <p class="celebration-message">¡Lo hiciste perfecto!</p>
-        <div class="celebration-stars">
-          <span class="star">⭐</span>
-          <span class="star">⭐</span>
-          <span class="star">⭐</span>
+    <!-- Celebración mejorada entre sonidos -->
+    <div class="celebracion-overlay" *ngIf="mostrarCelebracion && !juegoCompletado">
+      <div class="celebracion-card">
+        <div class="success-icon">
+          <svg viewBox="0 0 52 52" class="checkmark">
+            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+          </svg>
+        </div>
+        <h2 class="celebracion-title">¡Excelente!</h2>
+        <p class="celebracion-message">¡Lo hiciste perfecto!</p>
+        <div class="progress-dots">
+          <span class="dot active"></span>
+          <span class="dot active"></span>
+          <span class="dot active"></span>
         </div>
       </div>
     </div>
 
-    <!-- Pantalla completada -->
+    <!-- Pantalla de juego completado -->
     <div class="game-completed" *ngIf="juegoCompletado">
       <div class="completion-card">
-        <div class="completion-fireworks">
-          <span class="firework">🎆</span>
-          <span class="firework">🎇</span>
-          <span class="firework">✨</span>
+        <div class="trophy-icon">
+          <svg viewBox="0 0 100 100" class="trophy">
+            <path d="M30 20 L30 35 Q30 45 40 45 L40 60 L35 60 L35 70 L65 70 L65 60 L60 60 L60 45 Q70 45 70 35 L70 20 Z" 
+                  fill="#ffd700" stroke="#f5a623" stroke-width="2"/>
+            <circle cx="50" cy="30" r="8" fill="#f5a623"/>
+            <rect x="25" y="70" width="50" height="8" rx="2" fill="#8b4513"/>
+          </svg>
         </div>
-        
-        <div class="completion-trophy">🏆</div>
-        
-        <h2 class="completion-title">¡Felicitaciones!</h2>
-        
+        <h2>¡Felicitaciones!</h2>
         <p class="completion-message">
           ¡Completaste todos los sonidos!
         </p>
-        
         <p class="completion-submessage">
-          ¡Hiciste un trabajo increíble! 🌟
+          ¡Eres increíble imitando sonidos!
         </p>
-        
-        <div class="completion-stats">
-          <div class="stat-item">
-            <span class="stat-icon">🎵</span>
-            <span class="stat-value">{{ sonidos.length }}</span>
-            <span class="stat-label">Sonidos</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-icon">⭐</span>
-            <span class="stat-value">100%</span>
-            <span class="stat-label">Completado</span>
-          </div>
-        </div>
-        
         <div class="completion-buttons">
-          <button class="btn-restart" (click)="reiniciarJuego()">
-            <span class="icon">🔄</span>
-            <span class="btn-text">Jugar de nuevo</span>
+          <button class="btn-reiniciar" (click)="reiniciarJuego()">
+            Jugar de nuevo
           </button>
-          <button class="btn-home" (click)="volverAlMenu()">
-            <span class="icon">🏠</span>
-            <span class="btn-text">Menú principal</span>
+          <button class="btn-menu" (click)="volverAlMenu()">
+            Menú principal
           </button>
         </div>
       </div>
     </div>
+
   </div>
 </div>
