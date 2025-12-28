@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HistorialActividadesService } from '../../services/historial-actividades.service';
@@ -38,20 +38,20 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
   isDetecting = false;
   detectionScore = 0;
   isExerciseCorrect = false;
-  detectionInterval: any;
+  detectionInterval: any = null;
   stream: MediaStream | null = null;
   modelsLoaded = false;
 
-  // 🎯 CAMBIO: Control de visualización de marcas faciales (DESACTIVADO POR DEFECTO)
+  // Control de visualización de marcas faciales
   showFacialLandmarks = false;
 
   // Control de ejercicio
   exerciseStartTime = 0;
   exerciseProgress = 0;
-  requiredDuration = 8000; // 8 segundos para todos los ejercicios (reducido de 10)
-  isCompletingExercise = false; // 🔒 PROTECCIÓN: Prevenir múltiples completaciones
+  requiredDuration = 8000;
+  isCompletingExercise = false;
 
-  // 🎉 Mensajes motivacionales aleatorios
+  // Mensajes motivacionales aleatorios
   motivationalMessages = [
     { main: '¡Continúa así!', sub: 'Sigue practicando todos los días' },
     { main: '¡Excelente trabajo!', sub: 'Cada día mejoras más' },
@@ -62,15 +62,25 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
   ];
   currentMotivation = this.motivationalMessages[0];
 
-  // NUEVO: Sistema de suavizado de detección
+  // Sistema de suavizado de detección
   private lastScores: number[] = [];
-  private maxScoreHistory = 5; // Promedio de últimos 5 frames
+  private maxScoreHistory = 5;
 
-  // 🎯 FASE 1: Sistema de tracking de ejercicios
+  // CALIBRACIÓN: Valores base de la cara en reposo
+  private baselineMouthRatio: number = 0;
+  private baselineFaceRatio: number = 0;
+  private baselineMidRatio: number = 0;
+  private baselineBlowRatio: number = 0;
+  private baselineMouthSize: number = 0;
+  private calibrationFrames: number = 0;
+  isCalibrated: boolean = false;
+  private readonly CALIBRATION_FRAMES_NEEDED = 15;
+
+  // Sistema de tracking de ejercicios
   exercisesCompletedToday: { [key: string]: number } = {};
   totalExercisesToday: number = 0;
-  maxExercisesPerDay: number = 13; // Total: 3+2+4+3+1 = 13 repeticiones
-  currentExerciseCount: number = 0; // Contador actual del ejercicio seleccionado
+  maxExercisesPerDay: number = 13;
+  currentExerciseCount: number = 0;
 
   // Definición de praxias
   praxias: Praxia[] = [
@@ -133,6 +143,7 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
 
   constructor(
     private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
     private router: Router,
     private historialService: HistorialActividadesService
   ) {}
@@ -140,29 +151,26 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     console.log('🎮 Iniciando componente Ruleta de Praxias');
     await this.loadFaceApiModels();
-    this.loadTodayProgress(); // 🎯 FASE 1: Cargar progreso del día
+    this.loadTodayProgress();
   }
 
   ngOnDestroy() {
     console.log('🛑 Destruyendo componente');
     this.stopCamera();
+    this.clearDetectionInterval();
+  }
+
+  private clearDetectionInterval() {
     if (this.detectionInterval) {
       clearInterval(this.detectionInterval);
+      this.detectionInterval = null;
     }
   }
 
-  // 🎯 FASE 1: Cargar progreso del día desde LocalStorage
   loadTodayProgress() {
     const today = new Date().toDateString();
     const storedDate = localStorage.getItem('praxias_date');
     
-    console.log('🔍 DEBUG - Cargando progreso:', {
-      hoy: today,
-      fechaGuardada: storedDate,
-      esNuevoDia: storedDate !== today
-    });
-    
-    // Si es un nuevo día, resetear el progreso
     if (storedDate !== today) {
       console.log('📅 Nuevo día detectado - Reseteando progreso');
       localStorage.setItem('praxias_date', today);
@@ -170,85 +178,58 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
       this.exercisesCompletedToday = {};
       this.totalExercisesToday = 0;
     } else {
-      // Cargar progreso del día actual
       const storedProgress = localStorage.getItem('praxias_progress');
-      console.log('🔍 DEBUG - Progreso guardado (string):', storedProgress);
-      
       if (storedProgress) {
         this.exercisesCompletedToday = JSON.parse(storedProgress);
-        
-        console.log('🔍 DEBUG - Progreso parseado:', this.exercisesCompletedToday);
-        console.log('🔍 DEBUG - Tipos de valores:', 
-          Object.entries(this.exercisesCompletedToday).map(([key, val]) => 
-            `${key}: ${val} (${typeof val})`
-          )
-        );
-        
         this.totalExercisesToday = Object.values(this.exercisesCompletedToday)
           .reduce((sum, count) => sum + (Number(count) || 0), 0);
-          
-        console.log('📊 Progreso cargado:', this.exercisesCompletedToday, 
-                    'Total:', this.totalExercisesToday);
+        console.log('📊 Progreso cargado:', this.exercisesCompletedToday);
       }
     }
   }
 
-  // 🎯 FASE 1: Guardar progreso en LocalStorage
   saveTodayProgress() {
     localStorage.setItem('praxias_progress', JSON.stringify(this.exercisesCompletedToday));
     console.log('💾 Progreso guardado:', this.exercisesCompletedToday);
   }
 
-  // 🎯 FASE 1: Limpiar progreso del día (útil para testing o empezar de nuevo)
   clearTodayProgress() {
     console.log('🗑️ Limpiando progreso del día...');
     localStorage.removeItem('praxias_progress');
     localStorage.removeItem('praxias_date');
     this.exercisesCompletedToday = {};
     this.totalExercisesToday = 0;
-    console.log('✅ Progreso limpiado');
   }
 
-  // 🎯 FASE 1: Obtener repeticiones completadas del ejercicio actual
   getCurrentExerciseProgress(): string {
     if (!this.selectedPraxia) return '0/0';
-    
     const completed = Number(this.exercisesCompletedToday[this.selectedPraxia.nombre] || 0);
     const total = this.selectedPraxia.repeticiones;
-    
     return `${completed}/${total}`;
   }
 
-  // 🎯 FASE 1: Verificar si el ejercicio actual ya está completo
   isCurrentExerciseComplete(): boolean {
     if (!this.selectedPraxia) return false;
-    
     const completed = Number(this.exercisesCompletedToday[this.selectedPraxia.nombre] || 0);
     return completed >= this.selectedPraxia.repeticiones;
   }
 
-  // 🎯 FASE 1: Obtener porcentaje de progreso diario
   getDailyProgressPercentage(): number {
     return Math.round((this.totalExercisesToday / this.maxExercisesPerDay) * 100);
   }
 
-  // 🎯 NUEVO: Botón para volver a juegos terapéuticos
   goBackToGames() {
     console.log('🔙 Volviendo a juegos terapéuticos...');
     this.stopCamera();
     this.router.navigate(['/juegos-terapeuticos']);
   }
 
-  /**
-   * ⚡ SÚPER OPTIMIZADO: Carga los modelos de IA MÁS RÁPIDO
-   */
   async loadFaceApiModels() {
     try {
-      console.log('📦 Cargando modelos de IA (SÚPER RÁPIDO)...');
+      console.log('📦 Cargando modelos de IA...');
       
       const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
       
-      // Solo los modelos más ligeros y esenciales
       await Promise.all([
         faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
         faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
@@ -256,23 +237,18 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
       ]);
       
       this.modelsLoaded = true;
-      console.log('✅ Modelos cargados en tiempo récord');
+      console.log('✅ Modelos cargados correctamente');
       
     } catch (error) {
       console.error('❌ Error cargando modelos de IA:', error);
-      console.warn('⚠️ Se continuará sin detección de IA');
       this.modelsLoaded = false;
     }
   }
 
-  /**
-   * NUEVO: Toggle para mostrar/ocultar marcas faciales
-   */
   toggleFacialLandmarks() {
     this.showFacialLandmarks = !this.showFacialLandmarks;
     console.log('👁️ Marcas faciales:', this.showFacialLandmarks ? 'VISIBLE' : 'OCULTO');
     
-    // Si está oculto, limpiar el canvas
     if (!this.showFacialLandmarks && this.canvasElement) {
       const canvas = this.canvasElement.nativeElement;
       const ctx = canvas.getContext('2d');
@@ -282,9 +258,6 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Gira la ruleta y selecciona una praxia aleatoria
-   */
   spinWheel() {
     if (this.isSpinning) return;
     
@@ -302,91 +275,96 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     
     this.rotation = newRotation;
     
-    setTimeout(() => {
-      const invertedRotation = (360 - (newRotation % 360)) % 360;
-      
-      let selectedIndex = 0;
-      
-      if (invertedRotation >= 0 && invertedRotation < 72) {
-        selectedIndex = 0;
-      } else if (invertedRotation >= 72 && invertedRotation < 144) {
-        selectedIndex = 1;
-      } else if (invertedRotation >= 144 && invertedRotation < 216) {
-        selectedIndex = 2;
-      } else if (invertedRotation >= 216 && invertedRotation < 288) {
-        selectedIndex = 3;
-      } else {
-        selectedIndex = 4;
-      }
-      
-      this.selectedPraxia = this.praxias[selectedIndex];
-      this.isSpinning = false;
-      this.showInstructions = true;
-      
-      console.log('✅ Praxia seleccionada:', this.selectedPraxia?.nombre);
-      
-      this.requiredDuration = 10000;
-      
-      this.cdr.detectChanges();
-    }, 3000);
+    this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.ngZone.run(() => {
+          const invertedRotation = (360 - (newRotation % 360)) % 360;
+          
+          let selectedIndex = 0;
+          
+          if (invertedRotation >= 0 && invertedRotation < 72) {
+            selectedIndex = 0;
+          } else if (invertedRotation >= 72 && invertedRotation < 144) {
+            selectedIndex = 1;
+          } else if (invertedRotation >= 144 && invertedRotation < 216) {
+            selectedIndex = 2;
+          } else if (invertedRotation >= 216 && invertedRotation < 288) {
+            selectedIndex = 3;
+          } else {
+            selectedIndex = 4;
+          }
+          
+          this.selectedPraxia = this.praxias[selectedIndex];
+          this.isSpinning = false;
+          this.showInstructions = true;
+          this.requiredDuration = 8000;
+          
+          console.log('✅ Praxia seleccionada:', this.selectedPraxia?.nombre);
+          this.cdr.detectChanges();
+        });
+      }, 3000);
+    });
   }
 
-  /**
-   * ⚡ SÚPER OPTIMIZADO: Inicia la cámara MÁS RÁPIDO
-   */
   async startCamera() {
     try {
-      console.log('🎥 Iniciando cámara en modo TURBO...');
+      console.log('🎥 Iniciando cámara...');
+      
+      this.resetCalibration();
       
       this.isCameraActive = true;
       this.cdr.detectChanges();
       
-      // ⚡ OPTIMIZACIÓN MÁXIMA: Resolución mínima para máxima velocidad
       this.stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
-          width: { ideal: 320 },  // ⚡ Reducido de 480 a 320
-          height: { ideal: 240 }, // ⚡ Reducido de 360 a 240
+          width: { ideal: 480 },
+          height: { ideal: 360 },
           facingMode: 'user'
         },
         audio: false
       });
       
-      console.log('✅ Stream obtenido instantáneamente');
+      console.log('✅ Stream obtenido');
       
-      setTimeout(async () => {
-        if (!this.videoElement || !this.videoElement.nativeElement) {
-          console.error('❌ Elemento de video no encontrado');
-          return;
-        }
-        
-        const video = this.videoElement.nativeElement;
-        video.srcObject = this.stream;
-        video.autoplay = true;
-        video.muted = true;
-        video.playsInline = true;
-        
-        video.onloadedmetadata = async () => {
-          console.log('✅ Video listo');
-          
-          try {
-            await video.play();
-            console.log('▶️ Video reproduciéndose');
+      this.ngZone.runOutsideAngular(() => {
+        setTimeout(() => {
+          this.ngZone.run(() => {
+            if (!this.videoElement || !this.videoElement.nativeElement) {
+              console.error('❌ Elemento de video no encontrado');
+              return;
+            }
             
-            this.cdr.detectChanges();
+            const video = this.videoElement.nativeElement;
+            video.srcObject = this.stream;
+            video.autoplay = true;
+            video.muted = true;
+            video.playsInline = true;
             
-            // ⚡ INICIO INMEDIATO: Sin delay
-            setTimeout(() => {
-              this.startDetection();
-            }, 30); // ⚡ Reducido de 100ms a 30ms
-            
-          } catch (playError) {
-            console.error('⚠️ Error al reproducir video:', playError);
-            video.play().catch(e => console.error('Error en segundo intento:', e));
-            this.startDetection();
-          }
-        };
-        
-      }, 30); // ⚡ Reducido de 50ms a 30ms
+            video.onloadedmetadata = async () => {
+              console.log('✅ Video listo');
+              
+              try {
+                await video.play();
+                console.log('▶️ Video reproduciéndose');
+                this.cdr.detectChanges();
+                
+                this.ngZone.runOutsideAngular(() => {
+                  setTimeout(() => {
+                    this.ngZone.run(() => {
+                      this.startDetection();
+                    });
+                  }, 100);
+                });
+                
+              } catch (playError) {
+                console.error('⚠️ Error al reproducir video:', playError);
+                video.play().catch(e => console.error('Error en segundo intento:', e));
+                this.startDetection();
+              }
+            };
+          });
+        }, 50);
+      });
       
     } catch (error) {
       console.error('❌ Error al acceder a la cámara:', error);
@@ -407,16 +385,21 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Detiene la cámara y limpia los recursos
-   */
+  private resetCalibration() {
+    this.baselineMouthRatio = 0;
+    this.baselineFaceRatio = 0;
+    this.baselineMidRatio = 0;
+    this.baselineBlowRatio = 0;
+    this.baselineMouthSize = 0;
+    this.calibrationFrames = 0;
+    this.isCalibrated = false;
+    console.log('🔧 Calibración reseteada');
+  }
+
   stopCamera() {
     console.log('🛑 Deteniendo cámara...');
     
-    if (this.detectionInterval) {
-      clearInterval(this.detectionInterval);
-      this.detectionInterval = null;
-    }
+    this.clearDetectionInterval();
     
     if (this.stream) {
       this.stream.getTracks().forEach(track => {
@@ -436,16 +419,13 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     this.isDetecting = false;
     this.detectionScore = 0;
     this.exerciseProgress = 0;
-    this.lastScores = []; // Resetear historial de suavizado
+    this.lastScores = [];
     
     console.log('✅ Cámara detenida');
   }
 
-  /**
-   * ⚡ SÚPER OPTIMIZADO: Detección facial ULTRARRÁPIDA
-   */
   startDetection() {
-    console.log('🤖 Sistema de detección en MODO TURBO...');
+    console.log('🤖 Iniciando sistema de detección...');
     
     if (!this.modelsLoaded) {
       console.warn('⚠️ Modelos NO cargados - modo de prueba');
@@ -453,37 +433,47 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
       return;
     }
     
-    console.log('✅ Detección REAL ultrarrápida activada');
+    console.log('✅ Detección REAL activada - Calibrando cara en reposo...');
     this.isDetecting = true;
     this.exerciseStartTime = Date.now();
     this.lastScores = [];
+    this.isCompletingExercise = false;
     
-    // ⚡ VELOCIDAD MÁXIMA: 33ms = ~30 FPS
-    this.detectionInterval = setInterval(async () => {
-      await this.detectPraxia();
-      
-      // Umbral permisivo de 50%
-      if (this.detectionScore > 50) {
-        const elapsed = Date.now() - this.exerciseStartTime;
-        this.exerciseProgress = Math.min((elapsed / this.requiredDuration) * 100, 100);
-        
-        if (this.exerciseProgress >= 100) {
-          this.completeExercise();
+    this.ngZone.runOutsideAngular(() => {
+      this.detectionInterval = setInterval(() => {
+        if (this.isCompletingExercise || !this.isDetecting) {
+          return;
         }
-      } else {
-        this.exerciseStartTime = Date.now();
-        this.exerciseProgress = Math.max(0, this.exerciseProgress - 2);
-      }
-      
-      this.cdr.detectChanges();
-    }, 33); // ⚡ OPTIMIZADO: 33ms para 30 FPS (antes era 50ms)
+        
+        this.detectPraxia().then(() => {
+          this.ngZone.run(() => {
+            if (!this.isCalibrated) {
+              this.detectionScore = 0;
+              this.cdr.detectChanges();
+              return;
+            }
+            
+            if (this.detectionScore > 60) {
+              const elapsed = Date.now() - this.exerciseStartTime;
+              this.exerciseProgress = Math.min((elapsed / this.requiredDuration) * 100, 100);
+              
+              if (this.exerciseProgress >= 100 && !this.isCompletingExercise) {
+                this.completeExercise();
+              }
+            } else {
+              this.exerciseStartTime = Date.now();
+              this.exerciseProgress = Math.max(0, this.exerciseProgress - 5);
+            }
+            
+            this.cdr.detectChanges();
+          });
+        });
+      }, 50);
+    });
   }
 
-  /**
-   * ⚡ SÚPER OPTIMIZADO: Detecta praxias con máxima velocidad
-   */
   async detectPraxia() {
-    if (!this.videoElement || !this.selectedPraxia) return;
+    if (!this.videoElement || !this.selectedPraxia || this.isCompletingExercise) return;
 
     const video = this.videoElement.nativeElement;
     
@@ -492,27 +482,28 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     }
     
     try {
-      // ⚡ VELOCIDAD MÁXIMA: Configuración más ligera posible
       const detections = await faceapi
         .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({
-          inputSize: 128,        // ⚡ Reducido de 224 a 128 para MÁXIMA velocidad
-          scoreThreshold: 0.3    // ⚡ Más permisivo (antes 0.4)
+          inputSize: 224,
+          scoreThreshold: 0.4
         }))
         .withFaceLandmarks(true)
         .withFaceExpressions();
 
       if (detections) {
-        const rawScore = this.analyzePraxiaType(detections);
+        if (!this.isCalibrated) {
+          this.calibrateFace(detections);
+          return;
+        }
         
-        // Aplicar suavizado
+        const rawScore = this.analyzePraxiaType(detections);
         this.detectionScore = this.smoothScore(rawScore);
         
-        // Solo dibujar si el toggle está activado
         if (this.showFacialLandmarks) {
           this.drawDetectionOverlay(detections);
         }
       } else {
-        this.detectionScore = 0;
+        this.detectionScore = Math.max(0, this.detectionScore - 10);
         this.lastScores = [];
       }
     } catch (error) {
@@ -521,26 +512,64 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * NUEVO: Suaviza el score usando promedio de últimos frames
-   */
+  private calibrateFace(detections: any) {
+    const landmarks = detections.landmarks;
+    
+    const mouth = landmarks.getMouth();
+    const mouthWidth = Math.abs(mouth[0].x - mouth[6].x);
+    const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
+    const mouthRatio = mouthHeight / mouthWidth;
+    
+    const jawOutline = landmarks.getJawOutline();
+    const faceWidth = Math.abs(jawOutline[3].x - jawOutline[13].x);
+    const faceHeight = Math.abs(jawOutline[0].y - jawOutline[8].y);
+    const faceRatio = faceWidth / faceHeight;
+    
+    const midWidth = Math.abs(jawOutline[5].x - jawOutline[11].x);
+    const midRatio = midWidth / faceHeight;
+    
+    const mouthSizeRatio = mouthWidth / faceWidth;
+    
+    this.calibrationFrames++;
+    
+    if (this.calibrationFrames === 1) {
+      this.baselineMouthRatio = mouthRatio;
+      this.baselineFaceRatio = faceRatio;
+      this.baselineMidRatio = midRatio;
+      this.baselineBlowRatio = mouthRatio;
+      this.baselineMouthSize = mouthSizeRatio;
+    } else {
+      this.baselineMouthRatio = (this.baselineMouthRatio + mouthRatio) / 2;
+      this.baselineFaceRatio = (this.baselineFaceRatio + faceRatio) / 2;
+      this.baselineMidRatio = (this.baselineMidRatio + midRatio) / 2;
+      this.baselineBlowRatio = (this.baselineBlowRatio + mouthRatio) / 2;
+      this.baselineMouthSize = (this.baselineMouthSize + mouthSizeRatio) / 2;
+    }
+    
+    console.log(`🔧 Calibrando... ${this.calibrationFrames}/${this.CALIBRATION_FRAMES_NEEDED}`);
+    
+    if (this.calibrationFrames >= this.CALIBRATION_FRAMES_NEEDED) {
+      this.isCalibrated = true;
+      console.log('✅ CALIBRACIÓN COMPLETA:');
+      console.log('   📏 Baseline Mouth Ratio:', this.baselineMouthRatio.toFixed(3));
+      console.log('   📏 Baseline Face Ratio:', this.baselineFaceRatio.toFixed(3));
+      console.log('   📏 Baseline Mid Ratio:', this.baselineMidRatio.toFixed(3));
+      console.log('   📏 Baseline Mouth Size:', this.baselineMouthSize.toFixed(3));
+      console.log('   🎯 ¡Ahora haz el ejercicio!');
+    }
+  }
+
   smoothScore(newScore: number): number {
     this.lastScores.push(newScore);
     
-    // Mantener solo los últimos N scores
     if (this.lastScores.length > this.maxScoreHistory) {
       this.lastScores.shift();
     }
     
-    // Calcular promedio
     const average = this.lastScores.reduce((sum, score) => sum + score, 0) / this.lastScores.length;
-    
     return average;
   }
 
-  /**
-   * Analiza el tipo específico de praxia basado en landmarks faciales
-   */
   analyzePraxiaType(detections: any): number {
     if (!this.selectedPraxia) return 0;
 
@@ -549,261 +578,241 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
 
     switch (this.selectedPraxia.detectionType) {
       case 'smile':
-        // Detectar sonrisa usando expresión de felicidad
-        const happyScore = expressions.happy * 100;
-        
-        console.log('😄 Sonrisa - Happy:', happyScore.toFixed(1),
-                    'Neutral:', (expressions.neutral * 100).toFixed(1));
-        
-        // AJUSTE EQUILIBRADO: Requiere sonrisa visible
-        if (happyScore > 40) { // Balance entre 30 y 50
-          console.log('✅ Sonrisa detectada - Score:', happyScore.toFixed(1));
-          return Math.min(Math.max(happyScore, 75), 100);
-        }
-        
-        console.log('❌ No se detecta sonrisa');
-        return 0;
+        return this.detectSmile(expressions);
         
       case 'kiss':
-        const mouth = landmarks.getMouth();
-        const mouthWidth = Math.abs(mouth[0].x - mouth[6].x);
-        const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
-        const jawOutlineKiss = landmarks.getJawOutline();
-        const faceWidthKiss = Math.abs(jawOutlineKiss[3].x - jawOutlineKiss[13].x);
-        const mouthRatio = mouthHeight / mouthWidth;
-        const mouthSizeRatio = mouthWidth / faceWidthKiss;
-        
-        console.log('😗 Beso - Mouth Ratio:', mouthRatio.toFixed(3), 
-                    'Size Ratio:', mouthSizeRatio.toFixed(3),
-                    'W:', mouthWidth.toFixed(1), 'H:', mouthHeight.toFixed(1));
-        
-        // ⚡ MÁS FÁCIL: Umbrales muy permisivos
-        const minMouthRatio = 0.40;  // Reducido de 0.50 - más fácil
-        const maxMouthSize = 0.50;   // Aumentado de 0.42 - más flexible
-        
-        // Contar indicadores cumplidos
-        let kissIndicators = 0;
-        let kissScore = 0;
-        
-        // Indicador 1: Ratio de altura/ancho
-        if (mouthRatio > minMouthRatio) {
-          kissIndicators++;
-          const ratioScore = Math.min((mouthRatio - minMouthRatio) * 150, 100);
-          kissScore += ratioScore;
-          console.log('  ✓ Ratio OK:', ratioScore.toFixed(1));
-        } else {
-          console.log('  ✗ Ratio:', mouthRatio.toFixed(3), '(necesita >' + minMouthRatio + ')');
-        }
-        
-        // Indicador 2: Tamaño de boca pequeño
-        if (mouthSizeRatio < maxMouthSize) {
-          kissIndicators++;
-          const sizeScore = Math.min((maxMouthSize - mouthSizeRatio) * 180, 100);
-          kissScore += sizeScore;
-          console.log('  ✓ Size OK:', sizeScore.toFixed(1));
-        } else {
-          console.log('  ✗ Size:', mouthSizeRatio.toFixed(3), '(necesita <' + maxMouthSize + ')');
-        }
-        
-        // ⚡ SOLO necesita cumplir 1 de 2 indicadores (OR en lugar de AND)
-        if (kissIndicators >= 1) {
-          const finalScore = kissScore / kissIndicators;
-          console.log('✅ Beso detectado - Score:', finalScore.toFixed(1),
-                      'Indicadores:', kissIndicators + '/2');
-          return Math.min(Math.max(finalScore, 65), 100);
-        }
-        
-        console.log('❌ Labios NO fruncidos - Indicadores:', kissIndicators + '/2');
-        return 0;
+        return this.detectKiss(landmarks);
         
       case 'tongue':
-        const mouthPoints = landmarks.getMouth();
-        const upperLip = mouthPoints[13].y;
-        const lowerLip = mouthPoints[19].y;
-        const mouthOpenness = Math.abs(lowerLip - upperLip);
-        
-        console.log('😛 Lengua - Apertura:', mouthOpenness.toFixed(1));
-        
-        // AJUSTE EQUILIBRADO: Apertura moderada
-        if (mouthOpenness > 13) { // Balance entre 12 y 15
-          const score = Math.min(mouthOpenness * 5, 100);
-          console.log('✅ Lengua detectada - Score:', score.toFixed(1));
-          return score;
-        }
-        
-        console.log('❌ Boca no suficientemente abierta');
-        return 0;
+        return this.detectTongue(landmarks);
         
       case 'cheeks':
-        const jawOutline = landmarks.getJawOutline();
-        const leftJaw = jawOutline[3];
-        const rightJaw = jawOutline[13];
-        const faceWidth = Math.abs(rightJaw.x - leftJaw.x);
-        const topFace = jawOutline[8];
-        const bottomFace = jawOutline[0];
-        const faceHeight = Math.abs(bottomFace.y - topFace.y);
-        const leftCheek = landmarks.getLeftEye()[0];
-        const rightCheek = landmarks.getRightEye()[3];
-        const cheekWidth = Math.abs(rightCheek.x - leftCheek.x);
-        const faceRatio = faceWidth / faceHeight;
-        const cheekRatio = cheekWidth / faceHeight;
-        
-        // Calcular también el ancho de la zona media de la cara
-        const midFace = landmarks.getNose();
-        const leftMidPoint = jawOutline[5];
-        const rightMidPoint = jawOutline[11];
-        const midWidth = Math.abs(rightMidPoint.x - leftMidPoint.x);
-        const midRatio = midWidth / faceHeight;
-        
-        console.log('😮 Cachetes - Face:', faceRatio.toFixed(3), 
-                    'Cheek:', cheekRatio.toFixed(3),
-                    'Mid:', midRatio.toFixed(3));
-        
-        // AJUSTE MÁS PERMISIVO: Umbrales más bajos
-        const minFaceRatio = 1.03;   // Más bajo (antes 1.04)
-        const minCheekRatio = 0.47;  // Más bajo (antes 0.48)
-        const minMidRatio = 0.53;    // Más bajo (antes 0.55)
-        
-        // Contar cuántos indicadores están activos
-        let indicators = 0;
-        let totalScore = 0;
-        
-        // Indicador 1: Face Ratio
-        if (faceRatio > minFaceRatio) {
-          indicators++;
-          const faceExcess = (faceRatio - minFaceRatio) / minFaceRatio;
-          const faceScore = Math.min(faceExcess * 500, 100);
-          totalScore += faceScore;
-          console.log('  ✓ Face Ratio OK:', faceScore.toFixed(1));
-        } else {
-          console.log('  ✗ Face Ratio:', faceRatio.toFixed(3), '(necesita >' + minFaceRatio + ')');
-        }
-        
-        // Indicador 2: Cheek Ratio
-        if (cheekRatio > minCheekRatio) {
-          indicators++;
-          const cheekExcess = (cheekRatio - minCheekRatio) / minCheekRatio;
-          const cheekScore = Math.min(cheekExcess * 600, 100);
-          totalScore += cheekScore;
-          console.log('  ✓ Cheek Ratio OK:', cheekScore.toFixed(1));
-        } else {
-          console.log('  ✗ Cheek Ratio:', cheekRatio.toFixed(3), '(necesita >' + minCheekRatio + ')');
-        }
-        
-        // Indicador 3: Mid Ratio
-        if (midRatio > minMidRatio) {
-          indicators++;
-          const midExcess = (midRatio - minMidRatio) / minMidRatio;
-          const midScore = Math.min(midExcess * 550, 100);
-          totalScore += midScore;
-          console.log('  ✓ Mid Ratio OK:', midScore.toFixed(1));
-        } else {
-          console.log('  ✗ Mid Ratio:', midRatio.toFixed(3), '(necesita >' + minMidRatio + ')');
-        }
-        
-        // Necesita 2 de 3 indicadores
-        if (indicators >= 2) {
-          const finalScore = totalScore / indicators;
-          console.log('✅ Cachetes detectados - Score:', finalScore.toFixed(1), 
-                      'Indicadores:', indicators + '/3');
-          return Math.min(Math.max(finalScore, 70), 100);
-        }
-        
-        console.log('❌ Cachetes NO detectados - Indicadores:', indicators + '/3 (necesita 2)');
-        return 0;
+        return this.detectCheeks(landmarks);
         
       case 'blow':
-        const blowMouth = landmarks.getMouth();
-        const blowWidth = Math.abs(blowMouth[0].x - blowMouth[6].x);
-        const blowHeight = Math.abs(blowMouth[3].y - blowMouth[9].y);
-        const blowRatio = blowHeight / blowWidth;
-        
-        console.log('💨 Soplar - Ratio:', blowRatio.toFixed(2), 
-                    'W:', blowWidth.toFixed(1), 'H:', blowHeight.toFixed(1),
-                    'Sorpresa:', (expressions.surprised * 100).toFixed(1),
-                    'Neutral:', (expressions.neutral * 100).toFixed(1),
-                    'Feliz:', (expressions.happy * 100).toFixed(1));
-        
-        // ⚡ MÁS FÁCIL: Rango MUY amplio para forma de "O"
-        const isOShape = blowRatio > 0.45 && blowRatio < 1.8; // Rango ampliado (antes 0.55-1.6)
-        
-        // ⚡ MÁS FÁCIL: Expresiones muy permisivas
-        const hasExpression = expressions.surprised > 0.10 ||  // Reducido de 0.15
-                              expressions.neutral > 0.20 ||    // Reducido de 0.30
-                              expressions.happy > 0.10 ||      // Reducido de 0.15
-                              expressions.sad > 0.10;          // Agregado como alternativa
-        
-        console.log('  → O-Shape:', isOShape, 'Expression:', hasExpression);
-        
-        // ⚡ DETECTA CON SOLO UNA CONDICIÓN (OR en lugar de AND)
-        if (isOShape || hasExpression) {
-          // Calcular score basado en lo que se cumple
-          let finalScore = 0;
-          
-          if (isOShape && hasExpression) {
-            // Si ambas se cumplen, score alto
-            const ratioScore = Math.min(Math.abs(1.0 - blowRatio) * 60, 100);
-            const expressionScore = Math.max(
-              expressions.surprised, 
-              expressions.neutral,
-              expressions.happy,
-              expressions.sad
-            ) * 100;
-            finalScore = (ratioScore * 0.3) + (expressionScore * 0.7);
-          } else if (isOShape) {
-            // Solo forma O: score medio-alto
-            finalScore = 70;
-          } else {
-            // Solo expresión: score medio
-            finalScore = 60;
-          }
-          
-          console.log('✅ Soplar detectado - Score:', finalScore.toFixed(1),
-                      'O-Shape:', isOShape, 'Expr:', hasExpression);
-          return Math.min(Math.max(finalScore, 55), 100);
-        }
-        
-        // Detección alternativa: Si el ratio está en rango razonable
-        if (blowRatio > 0.6 && blowRatio < 1.5) {
-          const partialScore = 50;
-          console.log('⚠️ Soplar parcial detectado - Score:', partialScore);
-          return partialScore;
-        }
-        
-        console.log('❌ NO se detecta gesto de soplar');
-        return 0;
+        return this.detectBlow(landmarks, expressions);
         
       default:
         return 0;
     }
   }
 
-  /**
-   * Modo de prueba sin IA (temporizador aleatorio)
-   */
+  private detectSmile(expressions: any): number {
+    const happyScore = expressions.happy * 100;
+    
+    console.log('😄 Sonrisa - Happy:', happyScore.toFixed(1));
+    
+    if (happyScore > 40) {
+      console.log('✅ Sonrisa detectada');
+      return Math.min(Math.max(happyScore, 70), 100);
+    }
+    
+    return 0;
+  }
+
+  private detectKiss(landmarks: any): number {
+    const mouth = landmarks.getMouth();
+    const mouthWidth = Math.abs(mouth[0].x - mouth[6].x);
+    const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
+    const jawOutline = landmarks.getJawOutline();
+    const faceWidth = Math.abs(jawOutline[3].x - jawOutline[13].x);
+    
+    const mouthRatio = mouthHeight / mouthWidth;
+    const mouthSizeRatio = mouthWidth / faceWidth;
+    
+    const ratioChange = mouthRatio - this.baselineMouthRatio;
+    const sizeChange = this.baselineMouthSize - mouthSizeRatio;
+    
+    console.log('😗 Beso - Ratio:', mouthRatio.toFixed(3), 
+                '(base:', this.baselineMouthRatio.toFixed(3), ', cambio:', ratioChange.toFixed(3) + ')',
+                '| Size:', mouthSizeRatio.toFixed(3),
+                '(base:', this.baselineMouthSize.toFixed(3), ', cambio:', sizeChange.toFixed(3) + ')');
+    
+    // CRITERIO PRINCIPAL: El ratio altura/ancho debe aumentar significativamente
+    // Cuando haces "beso", los labios se fruncen y el ratio aumenta
+    const ratioIncreased = ratioChange > 0.12; // 12% de aumento
+    
+    // CRITERIO SECUNDARIO (bonus): Si la boca también se achica
+    const sizeDecreased = sizeChange > 0.01; // 1% es suficiente como bonus
+    
+    let score = 0;
+    
+    if (ratioIncreased) {
+      // El ratio aumentó - esto es lo principal para detectar beso
+      score = Math.min(ratioChange * 400, 80); // Hasta 80 puntos por ratio
+      console.log('  ✓ Ratio aumentó:', (ratioChange * 100).toFixed(1) + '%', '- Score:', score.toFixed(1));
+      
+      // Bonus si también se achicó la boca
+      if (sizeDecreased) {
+        const bonus = Math.min(sizeChange * 200, 20);
+        score += bonus;
+        console.log('  ✓ Bonus boca achicó:', (sizeChange * 100).toFixed(1) + '%', '- Bonus:', bonus.toFixed(1));
+      }
+      
+      console.log('✅ BESO DETECTADO - Score Final:', score.toFixed(1));
+      return Math.min(Math.max(score, 70), 100);
+    }
+    
+    console.log('  ✗ Ratio NO aumentó suficiente (necesita +12%)');
+    console.log('❌ No es un beso');
+    return 0;
+  }
+
+  private detectTongue(landmarks: any): number {
+    const mouthPoints = landmarks.getMouth();
+    const upperLip = mouthPoints[13].y;
+    const lowerLip = mouthPoints[19].y;
+    const mouthOpenness = Math.abs(lowerLip - upperLip);
+    
+    console.log('😛 Lengua - Apertura:', mouthOpenness.toFixed(1));
+    
+    if (mouthOpenness > 12) {
+      const score = Math.min(mouthOpenness * 5, 100);
+      console.log('✅ Lengua detectada - Score:', score.toFixed(1));
+      return score;
+    }
+    
+    return 0;
+  }
+
+  private detectCheeks(landmarks: any): number {
+    const jawOutline = landmarks.getJawOutline();
+    const faceWidth = Math.abs(jawOutline[3].x - jawOutline[13].x);
+    const faceHeight = Math.abs(jawOutline[0].y - jawOutline[8].y);
+    const midWidth = Math.abs(jawOutline[5].x - jawOutline[11].x);
+    
+    const faceRatio = faceWidth / faceHeight;
+    const midRatio = midWidth / faceHeight;
+    
+    const faceRatioChange = faceRatio - this.baselineFaceRatio;
+    const midRatioChange = midRatio - this.baselineMidRatio;
+    
+    // Usar VALOR ABSOLUTO
+    const absFaceChange = Math.abs(faceRatioChange);
+    const absMidChange = Math.abs(midRatioChange);
+    
+    console.log('😮 Cachetes - FaceRatio:', faceRatio.toFixed(3),
+                '(base:', this.baselineFaceRatio.toFixed(3), ', cambio:', (faceRatioChange * 100).toFixed(1) + '%)',
+                '| MidRatio:', midRatio.toFixed(3),
+                '(base:', this.baselineMidRatio.toFixed(3), ', cambio:', (midRatioChange * 100).toFixed(1) + '%)');
+    
+    // RANGO VÁLIDO: El cambio debe estar entre 3% y 15%
+    // < 3% = no hay cambio suficiente
+    // > 15% = probablemente es movimiento de cabeza/cámara, no ejercicio real
+    const MIN_CHANGE = 0.03;  // 3% mínimo
+    const MAX_CHANGE = 0.15;  // 15% máximo (más = movimiento)
+    
+    const faceInRange = absFaceChange >= MIN_CHANGE && absFaceChange <= MAX_CHANGE;
+    const midInRange = absMidChange >= MIN_CHANGE && absMidChange <= MAX_CHANGE;
+    
+    let score = 0;
+    let indicators = 0;
+    
+    if (faceInRange) {
+      indicators++;
+      score += Math.min(absFaceChange * 800, 50);
+      console.log('  ✓ Cara cambió:', (absFaceChange * 100).toFixed(1) + '% (en rango 3-15%)');
+    } else if (absFaceChange > MAX_CHANGE) {
+      console.log('  ✗ Cara cambió DEMASIADO:', (absFaceChange * 100).toFixed(1) + '% (probablemente movimiento)');
+    } else {
+      console.log('  ✗ Cara NO cambió suficiente:', (absFaceChange * 100).toFixed(1) + '% (necesita 3-15%)');
+    }
+    
+    if (midInRange) {
+      indicators++;
+      score += Math.min(absMidChange * 800, 50);
+      console.log('  ✓ Zona media cambió:', (absMidChange * 100).toFixed(1) + '% (en rango 3-15%)');
+    } else if (absMidChange > MAX_CHANGE) {
+      console.log('  ✗ Zona media cambió DEMASIADO:', (absMidChange * 100).toFixed(1) + '% (probablemente movimiento)');
+    } else {
+      console.log('  ✗ Zona media NO cambió suficiente:', (absMidChange * 100).toFixed(1) + '% (necesita 3-15%)');
+    }
+    
+    // Necesita AL MENOS 1 indicador en el rango válido
+    if (indicators >= 1) {
+      console.log('✅ CACHETES DETECTADOS - Score:', score.toFixed(1));
+      return Math.min(Math.max(score, 70), 100);
+    }
+    
+    console.log('❌ Cachetes NO inflados - Indicadores:', indicators + '/2');
+    return 0;
+  }
+
+  private detectBlow(landmarks: any, expressions: any): number {
+    const blowMouth = landmarks.getMouth();
+    const blowWidth = Math.abs(blowMouth[0].x - blowMouth[6].x);
+    const blowHeight = Math.abs(blowMouth[3].y - blowMouth[9].y);
+    const blowRatio = blowHeight / blowWidth;
+    
+    const jawOutline = landmarks.getJawOutline();
+    const faceWidth = Math.abs(jawOutline[3].x - jawOutline[13].x);
+    const mouthSizeRatio = blowWidth / faceWidth;
+    
+    const ratioChange = blowRatio - this.baselineBlowRatio;
+    const sizeChange = this.baselineMouthSize - mouthSizeRatio;
+    
+    console.log('💨 Soplar - Ratio:', blowRatio.toFixed(3),
+                '(base:', this.baselineBlowRatio.toFixed(3), ', cambio:', ratioChange.toFixed(3) + ')',
+                '| Size:', mouthSizeRatio.toFixed(3),
+                '(cambio:', sizeChange.toFixed(3) + ')');
+    
+    // CRITERIO: El ratio debe aumentar SIGNIFICATIVAMENTE (labios en forma de O)
+    // Mínimo 15% de aumento para evitar falsos positivos
+    const ratioIncreased = ratioChange > 0.15;
+    const isInORange = blowRatio > 0.5 && blowRatio < 1.8;
+    
+    let score = 0;
+    
+    if (ratioIncreased && isInORange) {
+      score = Math.min(ratioChange * 400, 80);
+      console.log('  ✓ Forma de O detectada - Ratio aumentó:', (ratioChange * 100).toFixed(1) + '%');
+      
+      if (sizeChange > 0.01) {
+        const bonus = Math.min(sizeChange * 200, 20);
+        score += bonus;
+        console.log('  ✓ Bonus boca achicó:', (sizeChange * 100).toFixed(1) + '%');
+      }
+      
+      console.log('✅ SOPLAR DETECTADO - Score Final:', score.toFixed(1));
+      return Math.min(Math.max(score, 70), 100);
+    }
+    
+    console.log('  ✗ Ratio NO aumentó suficiente (necesita +15%) o no está en rango O');
+    console.log('❌ No se detecta soplar');
+    return 0;
+  }
+
   startSimpleTimer() {
     console.log('⏱️ MODO PRUEBA - Temporizador simulado');
     
     this.isDetecting = true;
     this.exerciseStartTime = Date.now();
+    this.isCalibrated = true;
     
-    this.detectionInterval = setInterval(() => {
-      this.detectionScore = Math.random() * 60;
-      this.exerciseProgress = Math.max(0, this.exerciseProgress - 2);
-      this.cdr.detectChanges();
-    }, 100);
+    this.ngZone.runOutsideAngular(() => {
+      this.detectionInterval = setInterval(() => {
+        this.ngZone.run(() => {
+          this.detectionScore = 50 + Math.random() * 30;
+          
+          const elapsed = Date.now() - this.exerciseStartTime;
+          this.exerciseProgress = Math.min((elapsed / this.requiredDuration) * 100, 100);
+          
+          if (this.exerciseProgress >= 100 && !this.isCompletingExercise) {
+            this.completeExercise();
+          }
+          
+          this.cdr.detectChanges();
+        });
+      }, 100);
+    });
   }
 
-  /**
-   * OPTIMIZADO: Dibuja overlay de detección más rápido
-   */
   drawDetectionOverlay(detections: any) {
     if (!this.canvasElement) return;
 
     const canvas = this.canvasElement.nativeElement;
     const video = this.videoElement.nativeElement;
     
-    // Solo actualizar tamaño si cambió
     if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
@@ -814,92 +823,61 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Dibujar detecciones (solo 2 argumentos)
     faceapi.draw.drawDetections(canvas, [detections]);
     faceapi.draw.drawFaceLandmarks(canvas, [detections]);
   }
 
-  /**
-   * 🎯 FASE 1: Completa el ejercicio exitosamente y actualiza el tracking
-   */
   completeExercise() {
-    // 🔒 PROTECCIÓN: Prevenir múltiples llamadas
     if (this.isCompletingExercise) {
-      console.log('⚠️ Ya se está completando un ejercicio, ignorando llamada duplicada');
+      console.log('⚠️ Ya se está completando un ejercicio');
       return;
     }
     
     this.isCompletingExercise = true;
-    console.log('🎉 ¡EJERCICIO COMPLETADO CON ÉXITO!');
+    this.isDetecting = false;
+    console.log('🎉 ¡EJERCICIO COMPLETADO!');
     
-    // 🎉 Elegir mensaje motivacional aleatorio
+    this.clearDetectionInterval();
+    
     const randomIndex = Math.floor(Math.random() * this.motivationalMessages.length);
     this.currentMotivation = this.motivationalMessages[randomIndex];
     
-    if (this.detectionInterval) {
-      clearInterval(this.detectionInterval);
-      this.detectionInterval = null;
-    }
-    
-    // 🎯 FASE 1: Actualizar contador de ejercicios
     if (this.selectedPraxia) {
       const exerciseName = this.selectedPraxia.nombre;
       const currentCount = Number(this.exercisesCompletedToday[exerciseName] || 0);
-      const maxReps = this.selectedPraxia.repeticiones;
       
-      console.log('🔍 DEBUG - Antes de incrementar:', {
-        ejercicio: exerciseName,
-        currentCount: currentCount,
-        tipo: typeof currentCount,
-        maxReps: maxReps,
-        ejerciciosHoy: this.exercisesCompletedToday
-      });
-      
-      // SIEMPRE incrementar (quitamos la restricción de máximo)
       this.exercisesCompletedToday[exerciseName] = currentCount + 1;
       this.totalExercisesToday++;
       this.saveTodayProgress();
       
-      // 🎯 REGISTRAR EJERCICIO EN HISTORIAL
       this.historialService.registrarEjercicio(exerciseName).subscribe({
         next: () => console.log(`✅ ${exerciseName} registrado en historial`),
         error: (error: any) => console.error('❌ Error registrando ejercicio:', error)
       });
       
-      console.log('📊 Progreso actualizado:', exerciseName, 
-                  this.exercisesCompletedToday[exerciseName] + '/' + maxReps,
-                  'Total:', this.totalExercisesToday + '/' + this.maxExercisesPerDay);
-      
-      console.log('🔍 DEBUG - Después de incrementar:', {
-        ejercicio: exerciseName,
-        nuevoCount: this.exercisesCompletedToday[exerciseName],
-        totalHoy: this.totalExercisesToday,
-        todosEjercicios: this.exercisesCompletedToday
-      });
+      console.log('📊 Progreso:', exerciseName, this.exercisesCompletedToday[exerciseName]);
     }
     
     this.isExerciseCorrect = true;
-    this.isDetecting = false;
-    
     this.cdr.detectChanges();
     
-    // 🎉 Dar tiempo para que se vean las animaciones y el mensaje motivacional
-    setTimeout(() => {
-      this.stopCamera();
-      this.cdr.detectChanges();
-      
-      // ⏱️ Duración de 6 segundos para leer el mensaje motivacional
+    this.ngZone.runOutsideAngular(() => {
       setTimeout(() => {
-        this.resetExercise();
-        this.isCompletingExercise = false; // 🔓 Liberar el flag
-        this.cdr.detectChanges();
-      }, 6000); // Aumentado de 2000ms a 6000ms (6 segundos)
-    }, 1000); // Aumentado de 500ms a 1000ms (1 segundo)
+        this.ngZone.run(() => {
+          this.stopCamera();
+          this.cdr.detectChanges();
+          
+          setTimeout(() => {
+            this.ngZone.run(() => {
+              this.resetExercise();
+              this.cdr.detectChanges();
+            });
+          }, 5000);
+        });
+      }, 1000);
+    });
   }
 
-  /**
-   * Resetea el estado del ejercicio actual
-   */
   resetExercise() {
     console.log('🔄 Reseteando ejercicio...');
     this.selectedPraxia = null;
@@ -907,13 +885,11 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     this.isExerciseCorrect = false;
     this.exerciseProgress = 0;
     this.detectionScore = 0;
-    this.lastScores = []; // Resetear historial de suavizado
-    this.isCompletingExercise = false; // 🔓 Liberar el flag
+    this.lastScores = [];
+    this.isCompletingExercise = false;
+    this.resetCalibration();
   }
 
-  /**
-   * Resetea toda la ruleta
-   */
   resetRuleta() {
     console.log('🔄 Reseteando ruleta completa...');
     this.rotation = 0;
@@ -921,23 +897,14 @@ export class RuletaPraxiasComponent implements OnInit, OnDestroy {
     this.stopCamera();
   }
 
-  /**
-   * Obtiene posición left del confeti
-   */
   getConfettiLeft(index: number): number {
     return (index * 10) + (Math.random() * 10);
   }
 
-  /**
-   * Obtiene delay de animación del confeti
-   */
   getConfettiDelay(index: number): number {
     return (index * 0.15) % 2;
   }
 
-  /**
-   * Getter para acceder a Math en el template
-   */
   get Math() {
     return Math;
   }

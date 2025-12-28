@@ -15,7 +15,7 @@ interface Sonido {
   id: number;
   nombre: string;
   onomatopeya: string;
-  sonidoTTS: string; // 🔥 Lo que el TTS debe DECIR (pronunciable)
+  sonidoTTS: string;
   imagen: string;
   audio: string;
   filtro: string;
@@ -32,7 +32,7 @@ interface Sonido {
 export class SonidosDivertidosComponent implements OnInit, OnDestroy {
 
   // ========================================
-  // VISTA ACTUAL - AGREGADO PARA INSTRUCCIONES
+  // VISTA ACTUAL
   // ========================================
   vistaActual: 'instrucciones' | 'jugando' = 'instrucciones';
 
@@ -109,16 +109,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     },
     {
       id: 8,
-      nombre: 'Abeja',
-      onomatopeya: '¡BZZZ!',
-      sonidoTTS: 'zum, zum, zumbido',
-      imagen: '🐝',
-      audio: 'bzzz',
-      filtro: 'abeja',
-      palabrasClave: ['bzz', 'bzzz', 'buzz', 'zzzz', 'bz', 'bzzzz', 'bes', 'vez', 'vis', 'ss', 'sss', 'zz', 'zzz', 'zumbido', 'zum', 'bus']
-    },
-    {
-      id: 9,
       nombre: 'Campana',
       onomatopeya: '¡DING DONG!',
       sonidoTTS: 'din, don',
@@ -128,7 +118,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       palabrasClave: ['ding', 'dong', 'din', 'tan', 'ding dong', 'din don', 'rin', 'tin', 'ring', 'din din', 'don', 'dan', 'ten']
     },
     {
-      id: 10,
+      id: 9,
       nombre: 'Auto',
       onomatopeya: '¡BIP BIP!',
       sonidoTTS: 'bip, bip',
@@ -138,7 +128,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       palabrasClave: ['bip', 'beep', 'pip', 'bip bip', 'pi pi', 'bis', 'pis', 'pi', 'bib', 'bib bib', 'vip', 'bit', 'big']
     },
     {
-      id: 11,
+      id: 10,
       nombre: 'Reloj',
       onomatopeya: '¡TIC TAC!',
       sonidoTTS: 'tic, tac',
@@ -148,7 +138,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       palabrasClave: ['tic', 'tac', 'tick', 'tock', 'tic tac', 'ti ta', 'tictac', 'di', 'ti', 'tic tic', 'tac tac', 'dic', 'tak']
     },
     {
-      id: 12,
+      id: 11,
       nombre: 'Aplausos',
       onomatopeya: '¡CLAP CLAP!',
       sonidoTTS: 'clap, clap',
@@ -172,7 +162,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
   transcripcion: string = '';
   timeoutEscucha: any = null;
   yaVerificado: boolean = false;
-  huboResultado: boolean = false; // 🔥 NUEVA BANDERA para saber si onresult se disparó
+  huboResultado: boolean = false;
   
   // Feedback
   intentoActual: number = 0;
@@ -191,7 +181,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     console.log('🎮 Sonidos Divertidos iniciado');
     
-    // 🔝 SCROLL AUTOMÁTICO AL INICIO
     window.scrollTo(0, 0);
     
     this.verificarReconocimientoVoz();
@@ -234,7 +223,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       this.feedbackTipo = '';
       this.feedbackMensaje = '';
       this.yaVerificado = false;
-      this.huboResultado = false; // 🔥 RESETEAR
+      this.huboResultado = false;
       
       console.log('✅ Mostrando sonido:', this.sonidoActual.nombre, '(ID:', this.sonidoActual.id + ')');
       console.log('🎨 Emoji:', this.sonidoActual.imagen);
@@ -269,7 +258,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // 🔥 EVITAR MÚLTIPLES LLAMADAS
     if (this.reconocimientoEnProceso || this.escuchandoAhora) {
       console.log('⚠️ Ya hay un reconocimiento en proceso');
       return;
@@ -277,12 +265,10 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     
     this.reconocimientoEnProceso = true;
     this.yaVerificado = false;
-    this.huboResultado = false; // 🔥 RESETEAR bandera de resultado
+    this.huboResultado = false;
     
-    // 🔥 DETENER COMPLETAMENTE CUALQUIER RECONOCIMIENTO PREVIO
     this.detenerEscucha();
     
-    // 🔥 ESPERAR Y LUEGO REINICIAR
     setTimeout(() => {
       this.escuchandoAhora = true;
       this.transcripcion = '';
@@ -296,7 +282,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
           this.recognition.start();
           console.log('🎤 Recognition.start() ejecutado');
           
-          // 🔥 TIMEOUT DE 8 SEGUNDOS para dar más tiempo
           this.timeoutEscucha = setTimeout(() => {
             if (this.escuchandoAhora && !this.yaVerificado) {
               console.log('⏱️ Timeout: No se detectó voz');
@@ -314,7 +299,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     }, 300);
   }
 
-  // 🔥 NUEVO MÉTODO para manejar cuando no hay resultado
   manejarSinResultado(): void {
     console.log('🔇 Manejando sin resultado de voz');
     this.detenerEscucha();
@@ -362,7 +346,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // 🔥 EVITAR VERIFICACIONES MÚLTIPLES
     if (this.yaVerificado) {
       console.log('⚠️ Ya se verificó este resultado, ignorando...');
       return;
@@ -379,7 +362,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       const incluye = textoLimpio.includes(palabraLimpia) || palabraLimpia.includes(textoLimpio);
       const similitud = this.similitudCadenas(textoLimpio, palabraLimpia);
       
-      // Umbral más flexible de 0.4
       const esCoincidencia = incluye || similitud > 0.4;
       
       console.log(`  - Comparando con "${palabra}": incluye=${incluye}, similitud=${similitud.toFixed(2)}, coincide=${esCoincidencia}`);
@@ -568,9 +550,9 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     
     this.recognition = new SpeechRecognition();
     this.recognition.lang = 'es-ES';
-    this.recognition.continuous = true; // 🔥 CAMBIAR A TRUE para escuchar continuamente
+    this.recognition.continuous = true;
     this.recognition.interimResults = true;
-    this.recognition.maxAlternatives = 10; // 🔥 Aumentar alternativas
+    this.recognition.maxAlternatives = 10;
 
     this.recognition.onstart = () => {
       console.log('🎤 Reconocimiento iniciado');
@@ -591,7 +573,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
         this.timeoutEscucha = null;
       }
 
-      // 🔥 RECOPILAR TODAS LAS ALTERNATIVAS DE TODOS LOS RESULTADOS
       const todasAlternativas: string[] = [];
       
       for (let i = 0; i < event.results.length; i++) {
@@ -613,7 +594,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       console.log('🎤 Transcripción principal:', transcript, '| Final:', isFinal);
       console.log('🎤 TODAS las alternativas:', todasAlternativas);
 
-      // 🔥 VERIFICAR CON TODAS LAS ALTERNATIVAS
       if (!this.yaVerificado) {
         this.verificarConTodasAlternativas(todasAlternativas, isFinal);
       }
@@ -622,7 +602,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     this.recognition.onerror = (event: any) => {
       console.error('❌ Error en reconocimiento:', event.error);
       
-      // 🔥 IGNORAR error "aborted" porque es intencional
       if (event.error === 'aborted') {
         console.log('ℹ️ Error "aborted" ignorado (es intencional)');
         return;
@@ -656,7 +635,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
         this.timeoutEscucha = null;
       }
 
-      // 🔥 SI NO HUBO RESULTADO Y NO SE VERIFICÓ, MOSTRAR FEEDBACK
       if (estabaEscuchando && !this.huboResultado && !this.yaVerificado) {
         console.log('⚠️ onend sin resultado - mostrando feedback');
         this.manejarSinResultado();
@@ -668,13 +646,11 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     };
   }
 
-  // 🔥 MÉTODO MEJORADO para verificar con TODAS las alternativas
   verificarConTodasAlternativas(alternativas: string[], esFinal: boolean): void {
     if (!this.sonidoActual) return;
 
     console.log('🔍 Verificando con todas las alternativas:', alternativas);
 
-    // 🔥 BUSCAR COINCIDENCIA EN CUALQUIER ALTERNATIVA
     let coincidioEnAlguna = false;
     
     for (const alternativa of alternativas) {
@@ -684,7 +660,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
         const palabraLimpia = palabra.toLowerCase();
         const incluye = textoLimpio.includes(palabraLimpia) || palabraLimpia.includes(textoLimpio);
         const similitud = this.similitudCadenas(textoLimpio, palabraLimpia);
-        return incluye || similitud > 0.35; // 🔥 Umbral más bajo (0.35)
+        return incluye || similitud > 0.35;
       });
 
       if (coincide) {
@@ -702,7 +678,6 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       this.yaVerificado = true;
       this.respuestaIncorrecta();
     }
-    // Si no coincide y no es final, seguir esperando más resultados
   }
 
   detenerReconocimientoVoz(): void {
@@ -727,8 +702,8 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       
       const utterance = new SpeechSynthesisUtterance(texto);
       utterance.lang = 'es-ES';
-      utterance.rate = 0.7; // 🔥 MÁS LENTO (era 0.85)
-      utterance.pitch = 1.2; // 🔥 Un poco más bajo (era 1.3)
+      utterance.rate = 0.7;
+      utterance.pitch = 1.2;
       utterance.volume = 1;
       
       utterance.onstart = () => {
