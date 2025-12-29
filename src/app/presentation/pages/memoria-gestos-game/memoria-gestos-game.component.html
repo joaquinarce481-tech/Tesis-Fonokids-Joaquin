@@ -301,26 +301,24 @@
 
   </main>
 
-  <!-- Modal de juego completado -->
+  <!-- Modal de juego completado - PROFESIONAL -->
   <div class="completion-modal" *ngIf="faseJuego === 'completado'">
     <div class="modal-content">
-      <div class="celebration">
-        <div class="celebration-emoji">🎉</div>
-        <h2>¡Increíble memoria!</h2>
-        <p>Has completado el nivel {{ nivelActual }}</p>
+      <div class="modal-header-icon">
+        <svg class="check-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 12l2.5 2.5L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
       
-      <div class="final-stats">
-        <div class="stat-final">
-          <span class="stat-icon">🎯</span>
-          <span class="stat-text">Nivel alcanzado: {{ nivelActual }}/{{ maxNiveles }}</span>
+      <h2 class="modal-titulo">¡Felicitaciones!</h2>
+      <p class="modal-subtitulo">Has completado todos los niveles del juego</p>
+      
+      <div class="resultado-card">
+        <div class="resultado-item">
+          <span class="resultado-label">Niveles completados</span>
+          <span class="resultado-valor">{{ nivelActual }} de {{ maxNiveles }}</span>
         </div>
-      </div>
-      
-      <div class="stars-rating">
-        <span class="star filled">⭐</span>
-        <span class="star filled">⭐</span>
-        <span class="star filled">⭐</span>
       </div>
       
       <div class="modal-actions">
