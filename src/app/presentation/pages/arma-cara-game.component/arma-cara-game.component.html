@@ -1,61 +1,85 @@
 <div class="game-container">
 
-  <!-- ========== PANTALLA DE INICIO ========== -->
-  <div *ngIf="pantalla === 'inicio'" class="pantalla-inicio">
+  <!-- ========== PANTALLA DE INSTRUCCIONES ========== -->
+  <div *ngIf="pantalla === 'inicio'" class="instructions-screen">
     
-    <!-- Header estilo Memoria de Gestos -->
-    <div class="game-header-inicio">
-      <div class="header-left">
-        <button class="btn-volver-inicio" (click)="volverADashboard()">
-          ← Volver
+    <!-- Header del juego -->
+    <div class="game-header">
+      <div class="header-content">
+        <button class="btn-back" (click)="volverADashboard()">
+          <span class="back-icon">←</span>
+          <span class="btn-text">Volver</span>
         </button>
-      </div>
-      
-      <div class="header-center">
-        <div class="header-icon">🎭</div>
-        <div class="header-info">
-          <h1 class="header-titulo">Arma la Cara</h1>
-          <p class="header-subtitulo">Juego de Reconocimiento de Emociones</p>
+        <div class="game-info">
+          <h1>Arma la Cara</h1>
+          <p>Reconocimiento de Emociones</p>
         </div>
-      </div>
-      
-      <div class="header-right">
-        <!-- Espacio vacío para balance -->
+        <div class="game-stats"></div>
       </div>
     </div>
 
-    <div class="contenido-inicio">
+    <!-- Card de instrucciones -->
+    <div class="instructions-card">
+      <div class="instructions-header">
+        <h2>Arma la Cara</h2>
+        <span class="difficulty-badge">Fácil</span>
+      </div>
 
-      <!-- Contexto del juego -->
-      <div class="contexto-card">
-        <h2 class="contexto-titulo">📖 ¿Cómo jugar?</h2>
-        <div class="contexto-lista">
-          <p class="contexto-item">🎯 <strong>Objetivo:</strong> Arma caras expresando diferentes emociones</p>
-          <p class="contexto-item">🎲 <strong>Desafío:</strong> El sistema elegirá una emoción al azar para ti</p>
-          <p class="contexto-item">🧩 <strong>Mecánica:</strong> Arrastra las partes faciales a las zonas correctas</p>
-          <p class="contexto-item">🎨 <strong>Aprende:</strong> Identifica y construye expresiones emocionales</p>
+      <div class="instructions-content">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-text">
+            <strong>Observa la emoción</strong>
+            <p>El sistema elegirá una emoción al azar para que construyas</p>
+          </div>
         </div>
-      </div>
 
-      <!-- Botón Jugar -->
-      <div class="boton-jugar-container">
-        <button class="btn-jugar-grande" (click)="irASeleccion()">
-          <span class="jugar-icono">🎮</span>
-          <span class="jugar-texto">¡JUGAR AHORA!</span>
-        </button>
-      </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-text">
+            <strong>Selecciona las partes</strong>
+            <p>Verás diferentes cejas, ojos y bocas disponibles para elegir</p>
+          </div>
+        </div>
 
-      <!-- Estadísticas -->
-      <div class="estadisticas-card" *ngIf="totalJugados > 0">
-        <h3 class="estadisticas-titulo">📊 Tus Estadísticas</h3>
-        <div class="estadisticas-grid">
-          <div class="estad-item">
-            <span class="estad-valor">{{ totalJugados }}</span>
-            <span class="estad-label">Emociones Completadas</span>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-text">
+            <strong>Arrastra a la cara</strong>
+            <p>Arrastra cada parte facial correcta hacia su zona en la cara</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-text">
+            <strong>Verifica tu respuesta</strong>
+            <p>Cuando completes las 3 partes, verifica si armaste la emoción correcta</p>
           </div>
         </div>
       </div>
 
+      <div class="tips-section">
+        <h3>Consejos:</h3>
+        <ul>
+          <li>Observa bien el nombre de la emoción antes de empezar</li>
+          <li>Piensa cómo se ve cada emoción en una cara real</li>
+          <li>Si te equivocas, puedes volver a intentarlo</li>
+          <li>Practica con todas las emociones disponibles</li>
+        </ul>
+      </div>
+
+      <button class="btn-start" (click)="irASeleccion()">
+        Comenzar a Jugar
+      </button>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-card" *ngIf="totalJugados > 0">
+      <div class="stat-item">
+        <span class="stat-valor">{{ totalJugados }}</span>
+        <span class="stat-label">Emociones completadas</span>
+      </div>
     </div>
   </div>
 
@@ -63,262 +87,228 @@
   <div *ngIf="pantalla === 'juego' && emocionActual" class="pantalla-juego">
     
     <!-- Header del juego -->
-    <div class="juego-header">
-      <div class="header-left">
-        <button class="btn-volver-juego" (click)="volverAlInicio()">
-          ← Volver al Inicio
+    <div class="game-header">
+      <div class="header-content">
+        <button class="btn-back" (click)="volverAlInicio()">
+          <span class="back-icon">←</span>
+          <span class="btn-text">Volver</span>
         </button>
-      </div>
-      
-      <div class="header-right">
-        <button class="btn-dashboard-small" (click)="volverADashboard()">
-          🏠 Dashboard
-        </button>
+        <div class="game-info">
+          <h1>Arma la Cara</h1>
+          <p>Reconocimiento de Emociones</p>
+        </div>
+        <div class="game-stats"></div>
       </div>
     </div>
 
-    <!-- TARJETA DE EMOCIÓN OBJETIVO -->
-    <div class="emocion-objetivo-card">
-      <div class="objetivo-header">
-        <h3 class="objetivo-titulo">🎯 Tu Desafío:</h3>
-      </div>
-      <div class="objetivo-contenido">
-        <div class="objetivo-emoji" [style.color]="emociones[emocionActual!].color">
-          {{ emociones[emocionActual!].emoji }}
-        </div>
-        <h2 class="objetivo-nombre" [style.color]="emociones[emocionActual!].color">
-          Arma la cara {{ emociones[emocionActual!].nombre }}
-        </h2>
-        <p class="objetivo-instruccion">
-          Arrastra las partes correctas para crear esta emoción
-        </p>
-      </div>
+    <!-- Tarjeta de objetivo -->
+    <div class="objetivo-card">
+      <span class="objetivo-label">Tu desafío:</span>
+      <span class="objetivo-emocion" [style.color]="emociones[emocionActual!].color">
+        Arma la cara {{ emociones[emocionActual!].nombre }}
+      </span>
     </div>
 
     <!-- Área del juego -->
-    <div class="juego-area">
+    <div class="juego-contenido">
       
       <!-- Columna de la Cara -->
-      <div class="cara-columna">
-        <h3 class="columna-titulo">🎭 Arma la Cara</h3>
+      <div class="cara-panel">
+        <h3 class="panel-titulo">Zona de Construcción</h3>
         
-        <div class="cara-container pretty">
-          <!-- SVG de la cara -->
+        <div class="cara-container">
           <svg class="face-svg" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid meet">
             <defs>
               <linearGradient id="faceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" style="stop-color:#fef3c7;stop-opacity:1"/>
                 <stop offset="100%" style="stop-color:#fde68a;stop-opacity:1"/>
               </linearGradient>
+              <filter id="faceShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.15"/>
+              </filter>
             </defs>
-            <ellipse cx="150" cy="200" rx="140" ry="185" 
+            <ellipse cx="150" cy="200" rx="135" ry="180" 
                      fill="url(#faceGrad)" 
                      stroke="#d97706" 
-                     stroke-width="5"/>
+                     stroke-width="4"
+                     filter="url(#faceShadow)"/>
           </svg>
 
-          <!-- Elementos fijos -->
+          <!-- Elementos fijos de la cara -->
           <div class="elementos-fijos">
-            <!-- Ojos fijos -->
-            <div class="ojos-fijos">
-              <span class="ojo-fijo">●</span>
-              <span class="ojo-fijo">●</span>
+            <div class="ojos-base">
+              <span class="ojo-base">●</span>
+              <span class="ojo-base">●</span>
             </div>
-
-            <!-- Nariz fija -->
-            <div class="nariz-fija">▽</div>
+            <div class="nariz-base">▽</div>
           </div>
 
           <!-- Zona de Cejas -->
           <div 
-            class="zona-drop"
-            [ngClass]="{'zona-ocupada': partesColocadas.cejas}"
-            [style.border-color]="emociones[emocionActual!].color"
-            [style.left.%]="50"
-            [style.top.%]="28"
+            class="drop-zone"
+            [class.drop-zone-filled]="partesColocadas.cejas"
+            [style.--accent-color]="emociones[emocionActual!].color"
+            style="top: 28%; left: 50%;"
             (dragover)="handleDragOver($event)"
             (drop)="handleDrop('cejas')">
             
             <img *ngIf="partesColocadas.cejas" 
                  [src]="partesColocadas.cejas.imagen" 
                  [alt]="partesColocadas.cejas.nombre"
-                 class="parte-imagen-colocada">
+                 class="parte-colocada-img">
             
-            <span *ngIf="!partesColocadas.cejas" class="zona-placeholder">Cejas</span>
+            <span *ngIf="!partesColocadas.cejas" class="drop-zone-label">Cejas</span>
           </div>
 
           <!-- Zona de Ojos -->
           <div 
-            class="zona-drop"
-            [ngClass]="{'zona-ocupada': partesColocadas.ojos}"
-            [style.border-color]="emociones[emocionActual!].color"
-            [style.left.%]="50"
-            [style.top.%]="43"
+            class="drop-zone"
+            [class.drop-zone-filled]="partesColocadas.ojos"
+            [style.--accent-color]="emociones[emocionActual!].color"
+            style="top: 43%; left: 50%;"
             (dragover)="handleDragOver($event)"
             (drop)="handleDrop('ojos')">
             
             <img *ngIf="partesColocadas.ojos" 
                  [src]="partesColocadas.ojos.imagen" 
                  [alt]="partesColocadas.ojos.nombre"
-                 class="parte-imagen-colocada">
+                 class="parte-colocada-img">
             
-            <span *ngIf="!partesColocadas.ojos" class="zona-placeholder">Ojos</span>
+            <span *ngIf="!partesColocadas.ojos" class="drop-zone-label">Ojos</span>
           </div>
 
           <!-- Zona de Boca -->
           <div 
-            class="zona-drop"
-            [ngClass]="{'zona-ocupada': partesColocadas.boca}"
-            [style.border-color]="emociones[emocionActual!].color"
-            [style.left.%]="50"
-            [style.top.%]="70"
+            class="drop-zone"
+            [class.drop-zone-filled]="partesColocadas.boca"
+            [style.--accent-color]="emociones[emocionActual!].color"
+            style="top: 72%; left: 50%;"
             (dragover)="handleDragOver($event)"
             (drop)="handleDrop('boca')">
             
             <img *ngIf="partesColocadas.boca" 
                  [src]="partesColocadas.boca.imagen" 
                  [alt]="partesColocadas.boca.nombre"
-                 class="parte-imagen-colocada">
+                 class="parte-colocada-img">
             
-            <span *ngIf="!partesColocadas.boca" class="zona-placeholder">Boca</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Columna de Partes Disponibles -->
-      <div class="partes-columna">
-        <h3 class="columna-titulo">🧩 Partes Disponibles</h3>
-        
-        <!-- Cejas -->
-        <div class="seccion-partes">
-          <h4 class="seccion-titulo">Cejas</h4>
-          <div class="partes-lista">
-            <div
-              *ngFor="let parte of partesDisponibles.cejas"
-              class="parte-card"
-              [ngClass]="{'parte-colocada-ya': partesColocadas.cejas?.id === parte.id}"
-              [style.border-color]="emociones[emocionActual!].color"
-              [attr.draggable]="partesColocadas.cejas?.id !== parte.id"
-              (dragstart)="handleDragStart('cejas', parte)">
-              
-              <div class="parte-imagen-container">
-                <img [src]="parte.imagen" [alt]="parte.nombre" class="parte-imagen">
-              </div>
-              
-              <div class="parte-info">
-                <div class="parte-nombre">{{ parte.nombre }}</div>
-                <div class="parte-instruccion">
-                  {{ partesColocadas.cejas?.id === parte.id ? '✓ Colocada' : 'Arrastra a la cara' }}
-                </div>
-              </div>
-            </div>
+            <span *ngIf="!partesColocadas.boca" class="drop-zone-label">Boca</span>
           </div>
         </div>
 
-        <!-- Ojos -->
-        <div class="seccion-partes">
-          <h4 class="seccion-titulo">Ojos</h4>
-          <div class="partes-lista">
-            <div
-              *ngFor="let parte of partesDisponibles.ojos"
-              class="parte-card"
-              [ngClass]="{'parte-colocada-ya': partesColocadas.ojos?.id === parte.id}"
-              [style.border-color]="emociones[emocionActual!].color"
-              [attr.draggable]="partesColocadas.ojos?.id !== parte.id"
-              (dragstart)="handleDragStart('ojos', parte)">
-              
-              <div class="parte-imagen-container">
-                <img [src]="parte.imagen" [alt]="parte.nombre" class="parte-imagen">
-              </div>
-              
-              <div class="parte-info">
-                <div class="parte-nombre">{{ parte.nombre }}</div>
-                <div class="parte-instruccion">
-                  {{ partesColocadas.ojos?.id === parte.id ? '✓ Colocada' : 'Arrastra a la cara' }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bocas -->
-        <div class="seccion-partes">
-          <h4 class="seccion-titulo">Boca</h4>
-          <div class="partes-lista">
-            <div
-              *ngFor="let parte of partesDisponibles.boca"
-              class="parte-card"
-              [ngClass]="{'parte-colocada-ya': partesColocadas.boca?.id === parte.id}"
-              [style.border-color]="emociones[emocionActual!].color"
-              [attr.draggable]="partesColocadas.boca?.id !== parte.id"
-              (dragstart)="handleDragStart('boca', parte)">
-              
-              <div class="parte-imagen-container">
-                <img [src]="parte.imagen" [alt]="parte.nombre" class="parte-imagen">
-              </div>
-              
-              <div class="parte-info">
-                <div class="parte-nombre">{{ parte.nombre }}</div>
-                <div class="parte-instruccion">
-                  {{ partesColocadas.boca?.id === parte.id ? '✓ Colocada' : 'Arrastra a la cara' }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Progreso -->
-        <div class="progreso-container">
-          <div class="progreso-barra">
+        <!-- Barra de progreso -->
+        <div class="progreso-section">
+          <div class="progreso-bar">
             <div 
               class="progreso-fill" 
               [style.width.%]="(getPartesColocadasCount() / 3) * 100"
-              [style.background]="'linear-gradient(90deg, ' + emociones[emocionActual!].color + ', #10b981)'">
+              [style.background]="emociones[emocionActual!].color">
             </div>
           </div>
-          <div class="progreso-texto">
-            {{ getPartesColocadasCount() }} de 3 partes colocadas
-          </div>
+          <span class="progreso-text">{{ getPartesColocadasCount() }} / 3 partes</span>
         </div>
 
         <!-- Botón Verificar -->
         <button 
           *ngIf="juegoCompletado()"
           class="btn-verificar"
+          [style.background]="emociones[emocionActual!].color"
           (click)="verificarRespuesta()">
-          ✓ Verificar Respuesta
+          Verificar Respuesta
         </button>
       </div>
 
-    </div>
+      <!-- Columna de Partes -->
+      <div class="partes-panel">
+        <h3 class="panel-titulo">Partes Disponibles</h3>
+        
+        <!-- Sección Cejas -->
+        <div class="partes-seccion">
+          <h4 class="seccion-label">Cejas</h4>
+          <div class="partes-grid">
+            <div
+              *ngFor="let parte of partesDisponibles.cejas"
+              class="parte-item"
+              [class.parte-usada]="partesColocadas.cejas?.id === parte.id"
+              [attr.draggable]="partesColocadas.cejas?.id !== parte.id"
+              (dragstart)="handleDragStart('cejas', parte)">
+              
+              <div class="parte-img-wrapper">
+                <img [src]="parte.imagen" [alt]="parte.nombre" class="parte-img">
+              </div>
+              <span class="parte-nombre">{{ parte.nombre }}</span>
+              <span class="parte-estado" *ngIf="partesColocadas.cejas?.id === parte.id">Colocada</span>
+            </div>
+          </div>
+        </div>
 
+        <!-- Sección Ojos -->
+        <div class="partes-seccion">
+          <h4 class="seccion-label">Ojos</h4>
+          <div class="partes-grid">
+            <div
+              *ngFor="let parte of partesDisponibles.ojos"
+              class="parte-item"
+              [class.parte-usada]="partesColocadas.ojos?.id === parte.id"
+              [attr.draggable]="partesColocadas.ojos?.id !== parte.id"
+              (dragstart)="handleDragStart('ojos', parte)">
+              
+              <div class="parte-img-wrapper">
+                <img [src]="parte.imagen" [alt]="parte.nombre" class="parte-img">
+              </div>
+              <span class="parte-nombre">{{ parte.nombre }}</span>
+              <span class="parte-estado" *ngIf="partesColocadas.ojos?.id === parte.id">Colocada</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección Boca -->
+        <div class="partes-seccion">
+          <h4 class="seccion-label">Boca</h4>
+          <div class="partes-grid">
+            <div
+              *ngFor="let parte of partesDisponibles.boca"
+              class="parte-item"
+              [class.parte-usada]="partesColocadas.boca?.id === parte.id"
+              [attr.draggable]="partesColocadas.boca?.id !== parte.id"
+              (dragstart)="handleDragStart('boca', parte)">
+              
+              <div class="parte-img-wrapper">
+                <img [src]="parte.imagen" [alt]="parte.nombre" class="parte-img">
+              </div>
+              <span class="parte-nombre">{{ parte.nombre }}</span>
+              <span class="parte-estado" *ngIf="partesColocadas.boca?.id === parte.id">Colocada</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   </div>
 
   <!-- ========== PANTALLA DE COMPLETADO ========== -->
   <div *ngIf="pantalla === 'completado'" class="pantalla-completado">
     <div class="completado-card">
       
-      <div class="celebracion">
-        <div class="celebracion-emoji">🎉</div>
-        <h2 class="celebracion-titulo">¡Excelente Trabajo!</h2>
-        <p class="celebracion-texto">Has completado la emoción correctamente</p>
+      <div class="completado-icon">
+        <svg viewBox="0 0 100 100" class="star-icon">
+          <path d="M50 15 L61 38 L85 42 L68 58 L72 82 L50 70 L28 82 L32 58 L15 42 L39 38 Z" 
+                fill="#ffd700" stroke="#f5a623" stroke-width="2"/>
+        </svg>
       </div>
+      
+      <h2 class="completado-titulo">¡Excelente!</h2>
+      <p class="completado-mensaje">Has completado la emoción correctamente</p>
 
-      <div class="estrellas-container">
-        <span class="estrella estrella-llena">⭐</span>
-        <span class="estrella estrella-llena">⭐</span>
-        <span class="estrella estrella-llena">⭐</span>
-      </div>
-
-      <div class="botones-completado">
-        <button class="btn-completado btn-verde" (click)="volverASeleccion()">
-          🎲 Otra Emoción
+      <div class="completado-botones">
+        <button class="btn-primario" (click)="volverASeleccion()">
+          Nueva Emoción
         </button>
-        <button class="btn-completado btn-azul" (click)="volverAlInicio()">
-          🏠 Menú Principal
+        <button class="btn-secundario" (click)="volverAlInicio()">
+          Menú Principal
         </button>
-        <button class="btn-completado btn-morado" (click)="volverADashboard()">
-          📊 Dashboard
+        <button class="btn-terciario" (click)="volverADashboard()">
+          Ir al Dashboard
         </button>
       </div>
 
@@ -327,19 +317,20 @@
 
   <!-- ========== MODAL DE ERROR ========== -->
   <div *ngIf="mostrarModalError" class="modal-overlay" (click)="cerrarModalError()">
-    <div class="modal-error" (click)="$event.stopPropagation()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
       
-      <div class="modal-error-icono">😅</div>
+      <div class="modal-icon">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 8v4M12 16h.01"/>
+        </svg>
+      </div>
       
-      <h2 class="modal-error-titulo">¡Casi lo tienes!</h2>
+      <h2 class="modal-titulo">¡Casi lo tienes!</h2>
+      <p class="modal-mensaje">Revisa las partes de la cara e intenta nuevamente.</p>
       
-      <p class="modal-error-mensaje">
-        Revisa las partes de la cara e intenta nuevamente.<br>
-        ¡Tú puedes lograrlo! 💪
-      </p>
-      
-      <button class="btn-modal-error" (click)="cerrarModalError()">
-        ✨ Intentar de Nuevo
+      <button class="btn-modal" (click)="cerrarModalError()">
+        Intentar de Nuevo
       </button>
       
     </div>

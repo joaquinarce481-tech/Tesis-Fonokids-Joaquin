@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HistorialActividadesService } from '../..//services/historial-actividades.service'; // 📝 NUEVO
+import { HistorialActividadesService } from '../../services/historial-actividades.service';
 
 // Interfaz de reconocimiento de voz para TypeScript
 interface SpeechRecognitionEvent extends Event {
@@ -47,6 +47,7 @@ interface Nivel {
   dificultad: 'facil' | 'media' | 'dificil';
   icono: string;
   color: string;
+  umbralSimilitud: number; // Umbral específico por nivel
 }
 
 interface IntentoPalabra {
@@ -83,7 +84,34 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   totalPalabras: number = 0;
   intentos: IntentoPalabra[] = [];
   
-  // Niveles del juego
+  // EQUIVALENCIAS: Variaciones aceptables para vocales y sílabas
+  private equivalencias: { [key: string]: string[] } = {
+    // Vocales - SUPER permisivo (el reconocedor tiene problemas con sonidos cortos)
+    'A': ['A', 'AH', 'HA', 'AA', 'LA A', 'LETRA A', 'AJA', 'JA', 'AJ', 'EA', 'YA', 'NA', 'MA', 'LA', 'TA', 'PA', 'SA', 'CA', 'DA', 'FA', 'GA', 'BA', 'VA', 'RA', 'KA', 'WA', 'ZA', 'HOLA', 'AGUA', 'ALA', 'ANA', 'ASA'],
+    'E': ['E', 'EH', 'HE', 'EE', 'LA E', 'LETRA E', 'EJE', 'JE', 'EL', 'LE', 'ME', 'NE', 'PE', 'SE', 'TE', 'DE', 'FE', 'GE', 'BE', 'VE', 'RE', 'QUE', 'KE', 'WE', 'ZE', 'ESE', 'EME', 'ENE'],
+    'I': ['I', 'IH', 'HI', 'II', 'LA I', 'LETRA I', 'Y', 'SI', 'MI', 'NI', 'TI', 'LI', 'PI', 'FI', 'DI', 'BI', 'VI', 'RI', 'KI', 'GI', 'QUI', 'CHI', 'SHI', 'YI', 'JI', 'AHI', 'AQUI'],
+    'O': ['O', 'OH', 'HO', 'OO', 'LA O', 'LETRA O', 'JO', 'LO', 'NO', 'SO', 'TO', 'DO', 'MO', 'PO', 'CO', 'GO', 'BO', 'FO', 'RO', 'YO', 'KO', 'WO', 'ZO', 'OSO', 'OJO', 'ORO'],
+    'U': ['U', 'UH', 'HU', 'UU', 'LA U', 'LETRA U', 'TU', 'SU', 'MU', 'LU', 'NU', 'PU', 'CU', 'DU', 'FU', 'GU', 'BU', 'RU', 'JU', 'KU', 'WU', 'ZU', 'UNO', 'UVA', 'USA'],
+    // Sílabas simples - muy permisivo
+    'MA': ['MA', 'MAH', 'AMA', 'MAMA', 'MAA', 'MAM', 'MAMI', 'MANO', 'MALO', 'MAS', 'MAR', 'MAL', 'MARCA', 'MASA'],
+    'PA': ['PA', 'PAH', 'APA', 'PAPA', 'PAA', 'PAP', 'PAPI', 'PATO', 'PALO', 'PAN', 'PAR', 'PAZ', 'PASO', 'PASA'],
+    'TA': ['TA', 'TAH', 'ATA', 'TATA', 'TAA', 'TAL', 'TAN', 'TAR', 'TAZA', 'TACO', 'TAPA'],
+    'LA': ['LA', 'LAH', 'ALA', 'LALA', 'LAA', 'LAS', 'LAR', 'LADO', 'LATA', 'LAGO', 'LANA'],
+    'SA': ['SA', 'SAH', 'ASA', 'SASA', 'SAA', 'SAL', 'SAN', 'SALA', 'SANO', 'SAPO', 'SACA'],
+    'ME': ['ME', 'MEH', 'EME', 'MEME', 'MEE', 'MES', 'MESA', 'METE', 'MEMO', 'MENA'],
+    'PE': ['PE', 'PEH', 'EPE', 'PEPE', 'PEE', 'PEZ', 'PESO', 'PENA', 'PELO', 'PERA'],
+    'TE': ['TE', 'TEH', 'ETE', 'TETE', 'TEE', 'TEN', 'TELA', 'TEMA', 'TECHO'],
+    // Sílabas complejas - permisivo
+    'BRA': ['BRA', 'BARA', 'BRAA', 'ABRA', 'BRAVO', 'BRAZO', 'OBRA', 'LIBRA', 'CABRA', 'COBRA'],
+    'PLA': ['PLA', 'PALA', 'PLAA', 'APLA', 'PLATO', 'PLAYA', 'PLANO', 'PLAZA', 'PLATA'],
+    'TRA': ['TRA', 'TARA', 'TRAA', 'ATRA', 'TRATO', 'TRAPO', 'OTRO', 'CUATRO', 'TRABAJO'],
+    'CRA': ['CRA', 'CARA', 'CRAA', 'ACRA', 'CREAR', 'CREMA'],
+    'GRA': ['GRA', 'GARA', 'GRAA', 'AGRA', 'GRATO', 'GRANDE', 'GRASA', 'GRACIAS', 'TIGRA'],
+    'FRE': ['FRE', 'FERE', 'FREE', 'AFRE', 'FRENO', 'FRESCO', 'FRESA', 'FRASE'],
+    'PRI': ['PRI', 'PIRI', 'PRII', 'APRI', 'PRIMO', 'PRECIO', 'PRISA', 'PRIMERO'],
+  };
+  
+  // Niveles del juego con umbrales específicos
   niveles: Nivel[] = [
     {
       numero: 1,
@@ -92,7 +120,8 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       palabras: ['A', 'E', 'I', 'O', 'U'],
       dificultad: 'facil',
       icono: '🅰️',
-      color: '#10b981'
+      color: '#10b981',
+      umbralSimilitud: 0.15 // MUY permisivo - cualquier sonido con la vocal cuenta
     },
     {
       numero: 2,
@@ -101,7 +130,8 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       palabras: ['MA', 'PA', 'TA', 'LA', 'SA', 'ME', 'PE', 'TE'],
       dificultad: 'facil',
       icono: '🔤',
-      color: '#3b82f6'
+      color: '#3b82f6',
+      umbralSimilitud: 0.25 // Muy permisivo para sílabas
     },
     {
       numero: 3,
@@ -110,7 +140,8 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       palabras: ['BRA', 'PLA', 'TRA', 'CRA', 'GRA', 'FRE', 'PRI'],
       dificultad: 'media',
       icono: '🔠',
-      color: '#8b5cf6'
+      color: '#8b5cf6',
+      umbralSimilitud: 0.30 // Permisivo
     },
     {
       numero: 4,
@@ -119,7 +150,8 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       palabras: ['CASA', 'MESA', 'SOPA', 'PATO', 'GATO', 'LUNA', 'SOL'],
       dificultad: 'media',
       icono: '📝',
-      color: '#f59e0b'
+      color: '#f59e0b',
+      umbralSimilitud: 0.45
     },
     {
       numero: 5,
@@ -128,7 +160,8 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       palabras: ['PELOTA', 'CABALLO', 'MANZANA', 'VENTANA', 'TORTUGA'],
       dificultad: 'media',
       icono: '📖',
-      color: '#ef4444'
+      color: '#ef4444',
+      umbralSimilitud: 0.50
     },
     {
       numero: 6,
@@ -137,7 +170,8 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       palabras: ['REFRIGERADOR', 'BICICLETA', 'MARIPOSA', 'DINOSAURIO', 'ELEFANTE'],
       dificultad: 'dificil',
       icono: '🎯',
-      color: '#ec4899'
+      color: '#ec4899',
+      umbralSimilitud: 0.55
     },
     {
       numero: 7,
@@ -146,7 +180,8 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       palabras: ['TRES TRISTES TIGRES', 'PABLITO CLAVO UN CLAVITO', 'EL PERRO DE SAN ROQUE'],
       dificultad: 'dificil',
       icono: '🌪️',
-      color: '#6366f1'
+      color: '#6366f1',
+      umbralSimilitud: 0.45 // Más permisivo porque son frases largas
     }
   ];
   
@@ -163,17 +198,20 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   permisoMicrofono: boolean = false;
   errorMicrofono: string = '';
 
-  // Audio de celebración
+  // Timeouts y control
   escuchandoAudio: boolean = false;
   timeoutEscucha: any = null;
   timeoutGrabacion: any = null;
+  
+  // Flag para evitar procesamiento múltiple
+  private procesandoResultado: boolean = false;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone,
-    private historialService: HistorialActividadesService // 📝 NUEVO: Inyectar servicio
+    private historialService: HistorialActividadesService
   ) {
     this.synth = window.speechSynthesis;
   }
@@ -190,6 +228,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     this.nivelActual = 1;
     this.modoJuego = 'todos';
     this.faseJuego = 'instrucciones';
+    this.procesandoResultado = false;
     console.log('🎤 Juego "Reto de Pronunciación" iniciado');
   }
 
@@ -219,107 +258,115 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       }
       
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      console.log('✅ Permiso de micrófono concedido, stream:', stream);
+      console.log('✅ Permiso de micrófono concedido');
       
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      this.recognition = new SpeechRecognition();
+      // Detener el stream inmediatamente (solo lo usamos para verificar permiso)
+      stream.getTracks().forEach(track => track.stop());
       
-      this.recognition.lang = 'es-ES';
-      this.recognition.continuous = false;
-      this.recognition.interimResults = false;
-      this.recognition.maxAlternatives = 10;
-      
-      console.log('🎤 Reconocimiento configurado:', {
-        lang: this.recognition.lang,
-        continuous: this.recognition.continuous,
-        interimResults: this.recognition.interimResults,
-        maxAlternatives: this.recognition.maxAlternatives
-      });
-      
-      this.recognition.onstart = () => {
-        this.ngZone.run(() => {
-          console.log('🎤 Evento onstart - Reconocimiento iniciado');
-        });
-      };
-      
-      this.recognition.onresult = (event: SpeechRecognitionEvent) => {
-        console.log('🎤 Evento onresult disparado!', event);
-        this.ngZone.run(() => {
-          this.procesarResultado(event);
-        });
-      };
-      
-      this.recognition.onspeechstart = () => {
-        console.log('🗣️ Detectado inicio de voz');
-      };
-      
-      this.recognition.onspeechend = () => {
-        console.log('🗣️ Detectado fin de voz');
-      };
-      
-      this.recognition.onaudiostart = () => {
-        console.log('🔊 Audio iniciado en reconocimiento');
-      };
-      
-      this.recognition.onaudioend = () => {
-        console.log('🔊 Audio finalizado en reconocimiento');
-      };
-      
-      this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-        this.ngZone.run(() => {
-          console.error('❌ Error en reconocimiento:', event.error);
-          console.error('❌ Mensaje de error:', event.message);
-          
-          if (this.timeoutGrabacion) {
-            clearTimeout(this.timeoutGrabacion);
-            this.timeoutGrabacion = null;
-          }
-          
-          this.esperandoPronunciacion = false;
-          this.recognitionActiva = false;
-          this.cdr.detectChanges();
-          
-          if (event.error === 'no-speech') {
-            this.mostrarFeedbackTemporal('No escuché nada. Intenta de nuevo.', 'incorrecto');
-          } else if (event.error === 'aborted') {
-            console.log('🎤 Reconocimiento cancelado');
-          } else if (event.error === 'audio-capture') {
-            this.mostrarFeedbackTemporal('Error de audio. Verifica tu micrófono.', 'incorrecto');
-          } else if (event.error === 'not-allowed') {
-            this.mostrarFeedbackTemporal('Permiso de micrófono denegado.', 'incorrecto');
-          } else {
-            this.mostrarFeedbackTemporal('Error al escuchar. Intenta de nuevo.', 'incorrecto');
-          }
-        });
-      };
-      
-      this.recognition.onend = () => {
-        this.ngZone.run(() => {
-          console.log('🎤 Evento onend - Reconocimiento finalizado');
-          
-          if (this.timeoutGrabacion) {
-            clearTimeout(this.timeoutGrabacion);
-            this.timeoutGrabacion = null;
-          }
-          
-          this.recognitionActiva = false;
-          this.esperandoPronunciacion = false;
-          this.cdr.detectChanges();
-        });
-      };
+      this.configurarReconocimiento();
       
       this.permisoMicrofono = true;
       console.log('✅ Reconocimiento de voz configurado');
       
-      setTimeout(() => {
-        this.empezarNivel();
-      }, 1500);
+      this.ngZone.runOutsideAngular(() => {
+        setTimeout(() => {
+          this.ngZone.run(() => {
+            this.empezarNivel();
+          });
+        }, 1500);
+      });
       
     } catch (error: any) {
       console.error('❌ Error al configurar reconocimiento:', error);
       this.errorMicrofono = error.message || 'No se pudo acceder al micrófono. Verifica los permisos.';
       this.faseJuego = 'error';
+      this.cdr.detectChanges();
     }
+  }
+
+  private configurarReconocimiento() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    this.recognition = new SpeechRecognition();
+    
+    this.recognition.lang = 'es-ES';
+    this.recognition.continuous = false;
+    this.recognition.interimResults = false;
+    this.recognition.maxAlternatives = 15; // Más alternativas para mejor detección
+    
+    this.recognition.onstart = () => {
+      this.ngZone.run(() => {
+        console.log('🎤 Reconocimiento iniciado');
+        this.recognitionActiva = true;
+        this.cdr.detectChanges();
+      });
+    };
+    
+    this.recognition.onresult = (event: SpeechRecognitionEvent) => {
+      console.log('🎤 Resultado recibido');
+      this.ngZone.run(() => {
+        this.procesarResultado(event);
+      });
+    };
+    
+    this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      this.ngZone.run(() => {
+        console.error('❌ Error en reconocimiento:', event.error);
+        
+        this.limpiarTimeouts();
+        this.resetearEstadosGrabacion();
+        
+        if (event.error === 'no-speech') {
+          this.mostrarFeedbackTemporal('No escuché nada. Intenta de nuevo.', 'incorrecto');
+        } else if (event.error === 'aborted') {
+          console.log('🎤 Reconocimiento cancelado');
+        } else if (event.error === 'audio-capture') {
+          this.mostrarFeedbackTemporal('Error de audio. Verifica tu micrófono.', 'incorrecto');
+        } else if (event.error === 'not-allowed') {
+          this.mostrarFeedbackTemporal('Permiso de micrófono denegado.', 'incorrecto');
+        } else if (event.error === 'network') {
+          this.mostrarFeedbackTemporal('Error de red. Verifica tu conexión.', 'incorrecto');
+        } else {
+          this.mostrarFeedbackTemporal('Error al escuchar. Intenta de nuevo.', 'incorrecto');
+        }
+      });
+    };
+    
+    this.recognition.onend = () => {
+      this.ngZone.run(() => {
+        console.log('🎤 Reconocimiento finalizado');
+        this.limpiarTimeouts();
+        this.resetearEstadosGrabacion();
+      });
+    };
+    
+    this.recognition.onspeechend = () => {
+      console.log('🗣️ Fin de voz detectado');
+    };
+    
+    this.recognition.onnomatch = () => {
+      this.ngZone.run(() => {
+        console.log('🎤 No se encontró coincidencia');
+        this.mostrarFeedbackTemporal('No entendí. Intenta de nuevo.', 'incorrecto');
+      });
+    };
+  }
+
+  private limpiarTimeouts() {
+    if (this.timeoutGrabacion) {
+      clearTimeout(this.timeoutGrabacion);
+      this.timeoutGrabacion = null;
+    }
+    if (this.timeoutEscucha) {
+      clearTimeout(this.timeoutEscucha);
+      this.timeoutEscucha = null;
+    }
+  }
+
+  private resetearEstadosGrabacion() {
+    this.esperandoPronunciacion = false;
+    this.recognitionActiva = false;
+    this.procesandoResultado = false;
+    this.cdr.detectChanges();
   }
 
   empezarNivel() {
@@ -327,13 +374,14 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     this.palabrasCompletadas = 0;
     this.indicePalabra = 0;
     this.intentos = [];
+    this.procesandoResultado = false;
     
     const nivelData = this.niveles[this.nivelActual - 1];
     this.totalPalabras = nivelData.palabras.length;
     
     this.cargarSiguientePalabra();
     
-    console.log(`📖 Nivel ${this.nivelActual}: ${nivelData.nombre} - ${this.totalPalabras} palabras`);
+    console.log(`📖 Nivel ${this.nivelActual}: ${nivelData.nombre} - ${this.totalPalabras} palabras (umbral: ${nivelData.umbralSimilitud * 100}%)`);
   }
 
   cargarSiguientePalabra() {
@@ -348,7 +396,9 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     this.esperandoPronunciacion = false;
     this.recognitionActiva = false;
     this.ultimoEscuchado = '';
+    this.procesandoResultado = false;
     
+    this.cdr.detectChanges();
     console.log(`🎯 Palabra actual: ${this.palabraActual}`);
   }
 
@@ -363,41 +413,33 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       return;
     }
     
-    console.log('🔊 Iniciando ejemplo de audio para:', this.palabraActual);
+    console.log('🔊 Reproduciendo ejemplo:', this.palabraActual);
     
     this.synth.cancel();
-    
     this.escuchandoAudio = true;
     this.cdr.detectChanges();
     
+    // Timeout de seguridad
     this.timeoutEscucha = setTimeout(() => {
       this.ngZone.run(() => {
-        console.log('⏰ Timeout de escucha - reseteando estado');
+        console.log('⏰ Timeout de escucha');
         this.escuchandoAudio = false;
         this.cdr.detectChanges();
         if (this.synth) {
           this.synth.cancel();
         }
       });
-    }, 10000);
+    }, 8000);
     
     const utterance = new SpeechSynthesisUtterance(this.palabraActual);
     utterance.lang = 'es-ES';
-    utterance.rate = 0.8;
+    utterance.rate = 0.7; // Más lento para niños
     utterance.pitch = 1.1;
     utterance.volume = 1;
     
-    utterance.onstart = () => {
-      this.ngZone.run(() => {
-        console.log('🔊 Audio iniciado');
-        this.escuchandoAudio = true;
-        this.cdr.detectChanges();
-      });
-    };
-    
     utterance.onend = () => {
       this.ngZone.run(() => {
-        console.log('✅ Audio terminado - RESETEANDO ESTADO');
+        console.log('✅ Audio terminado');
         if (this.timeoutEscucha) {
           clearTimeout(this.timeoutEscucha);
           this.timeoutEscucha = null;
@@ -409,7 +451,7 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     
     utterance.onerror = (error) => {
       this.ngZone.run(() => {
-        console.error('❌ Error en síntesis de voz:', error);
+        console.error('❌ Error en síntesis:', error);
         if (this.timeoutEscucha) {
           clearTimeout(this.timeoutEscucha);
           this.timeoutEscucha = null;
@@ -421,12 +463,8 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     
     try {
       this.synth.speak(utterance);
-      console.log('🎤 Utterance agregado a la cola');
     } catch (error) {
       console.error('❌ Error al iniciar síntesis:', error);
-      if (this.timeoutEscucha) {
-        clearTimeout(this.timeoutEscucha);
-      }
       this.escuchandoAudio = false;
       this.cdr.detectChanges();
     }
@@ -435,82 +473,94 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   empezarGrabacion() {
     if (!this.recognition) {
       console.error('❌ Reconocimiento no disponible');
+      this.mostrarFeedbackTemporal('Error de micrófono. Recarga la página.', 'incorrecto');
       return;
     }
     
-    if (this.recognitionActiva || this.esperandoPronunciacion) {
+    if (this.recognitionActiva || this.esperandoPronunciacion || this.procesandoResultado) {
       console.log('⚠️ Ya hay una grabación en curso');
       return;
+    }
+    
+    // Detener audio si está sonando
+    if (this.escuchandoAudio && this.synth) {
+      this.synth.cancel();
+      this.escuchandoAudio = false;
     }
     
     console.log('🎤 Iniciando grabación para:', this.palabraActual);
     
     this.esperandoPronunciacion = true;
     this.recognitionActiva = true;
+    this.procesandoResultado = false;
     this.cdr.detectChanges();
     
+    // Timeout de seguridad más corto
     this.timeoutGrabacion = setTimeout(() => {
       this.ngZone.run(() => {
-        console.log('⏰ Timeout de grabación (15s) - reseteando estado');
-        this.esperandoPronunciacion = false;
-        this.recognitionActiva = false;
-        this.cdr.detectChanges();
-        if (this.recognition) {
-          try {
-            this.recognition.stop();
-          } catch (e) {
-            console.log('No se pudo detener el reconocimiento');
-          }
-        }
+        console.log('⏰ Timeout de grabación (10s)');
+        this.detenerGrabacion();
         this.mostrarFeedbackTemporal('Tiempo agotado. Intenta de nuevo.', 'incorrecto');
       });
-    }, 15000);
+    }, 10000);
     
     try {
       this.recognition.start();
-      console.log('🎤 Reconocimiento iniciado exitosamente');
-      console.log('🎤 Esperando que pronuncies:', this.palabraActual);
-    } catch (error) {
+      console.log('🎤 Esperando pronunciación de:', this.palabraActual);
+    } catch (error: any) {
       console.error('❌ Error al iniciar grabación:', error);
-      if (this.timeoutGrabacion) {
-        clearTimeout(this.timeoutGrabacion);
-        this.timeoutGrabacion = null;
+      this.limpiarTimeouts();
+      this.resetearEstadosGrabacion();
+      
+      // Si el error es porque ya está corriendo, intentar detener y reiniciar
+      if (error.message && error.message.includes('already started')) {
+        console.log('🔄 Reconocimiento ya iniciado, intentando reiniciar...');
+        try {
+          this.recognition.stop();
+        } catch (e) {
+          // Ignorar
+        }
       }
-      this.recognitionActiva = false;
-      this.esperandoPronunciacion = false;
-      this.cdr.detectChanges();
     }
   }
 
+  private detenerGrabacion() {
+    if (this.recognition) {
+      try {
+        this.recognition.stop();
+      } catch (e) {
+        console.log('No se pudo detener reconocimiento');
+      }
+    }
+    this.limpiarTimeouts();
+    this.resetearEstadosGrabacion();
+  }
+
   procesarResultado(event: SpeechRecognitionEvent) {
-    console.log('📊 ========== PROCESANDO RESULTADO ==========');
-    
-    if (this.timeoutGrabacion) {
-      clearTimeout(this.timeoutGrabacion);
-      this.timeoutGrabacion = null;
+    // Evitar procesamiento múltiple
+    if (this.procesandoResultado) {
+      console.log('⚠️ Ya se está procesando un resultado');
+      return;
     }
     
-    const results = event.results;
-    console.log('📊 Results length:', results.length);
+    this.procesandoResultado = true;
+    console.log('📊 ========== PROCESANDO RESULTADO ==========');
     
-    if (results.length === 0) {
+    this.limpiarTimeouts();
+    
+    const results = event.results;
+    
+    if (!results || results.length === 0) {
       console.error('❌ No hay resultados');
-      this.esperandoPronunciacion = false;
-      this.recognitionActiva = false;
-      this.cdr.detectChanges();
+      this.resetearEstadosGrabacion();
       return;
     }
     
     const resultado = results[0];
     
-    console.log('✅ Procesando resultado final');
-    console.log('📊 isFinal:', resultado.isFinal);
-    
-    if (resultado.length === 0) {
+    if (!resultado || resultado.length === 0) {
       console.error('❌ Resultado vacío');
-      this.esperandoPronunciacion = false;
-      this.recognitionActiva = false;
-      this.cdr.detectChanges();
+      this.resetearEstadosGrabacion();
       return;
     }
     
@@ -519,9 +569,14 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
     
     const palabraEsperadaNormalizada = this.normalizarTexto(this.palabraActual);
-    console.log('🎯 Palabra esperada (normalizada):', palabraEsperadaNormalizada);
+    const nivelData = this.niveles[this.nivelActual - 1];
+    const umbralNivel = nivelData.umbralSimilitud;
+    const esPalabraCorta = palabraEsperadaNormalizada.length <= 3; // Vocales y sílabas
     
-    console.log('📝 Analizando', resultado.length, 'alternativas:');
+    console.log('🎯 Palabra esperada:', palabraEsperadaNormalizada);
+    console.log('📊 Umbral del nivel:', (umbralNivel * 100) + '%');
+    console.log('📏 Es palabra corta:', esPalabraCorta);
+    console.log('📝 Analizando', resultado.length, 'alternativas...');
     
     let mejorCoincidencia = {
       transcript: '',
@@ -531,45 +586,160 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
       normalizado: ''
     };
     
+    // Equivalencias válidas para esta palabra
+    const equivalenciasValidas = this.equivalencias[palabraEsperadaNormalizada] || [];
+    
     for (let i = 0; i < resultado.length; i++) {
       const alt = resultado[i];
       const transcriptNormalizado = this.normalizarTexto(alt.transcript);
-      const similitud = this.calcularSimilitud(transcriptNormalizado, palabraEsperadaNormalizada);
-      const esCorrecto = transcriptNormalizado === palabraEsperadaNormalizada;
+      
+      // Si no hay nada, saltar
+      if (!transcriptNormalizado) continue;
       
       console.log(`  ${i + 1}. "${alt.transcript}" → "${transcriptNormalizado}"`);
-      console.log(`     Confianza: ${(alt.confidence * 100).toFixed(0)}% | Similitud: ${(similitud * 100).toFixed(0)}% | Correcto: ${esCorrecto}`);
       
-      if (esCorrecto) {
-        mejorCoincidencia = {
-          transcript: alt.transcript,
-          confidence: alt.confidence,
-          similitud: 1.0,
-          esCorrecto: true,
-          normalizado: transcriptNormalizado
-        };
-        console.log('     ✅ ¡COINCIDENCIA EXACTA!');
-        break;
-      } else if (similitud > mejorCoincidencia.similitud) {
-        mejorCoincidencia = {
-          transcript: alt.transcript,
-          confidence: alt.confidence,
-          similitud: similitud,
-          esCorrecto: false,
-          normalizado: transcriptNormalizado
-        };
+      // ============ DETECCIÓN PARA PALABRAS CORTAS (Vocales/Sílabas) ============
+      if (esPalabraCorta) {
+        
+        // 1. Coincidencia exacta
+        if (transcriptNormalizado === palabraEsperadaNormalizada) {
+          console.log('     ✅ EXACTO');
+          mejorCoincidencia = { transcript: alt.transcript, confidence: 1, similitud: 1, esCorrecto: true, normalizado: transcriptNormalizado };
+          break;
+        }
+        
+        // 2. Está en la lista de equivalencias
+        if (equivalenciasValidas.includes(transcriptNormalizado)) {
+          console.log('     ✅ EQUIVALENTE');
+          mejorCoincidencia = { transcript: alt.transcript, confidence: 0.95, similitud: 0.95, esCorrecto: true, normalizado: transcriptNormalizado };
+          break;
+        }
+        
+        // 3. La palabra esperada está CONTENIDA en lo escuchado
+        if (transcriptNormalizado.includes(palabraEsperadaNormalizada)) {
+          console.log('     ✅ CONTIENE LA PALABRA');
+          mejorCoincidencia = { transcript: alt.transcript, confidence: 0.9, similitud: 0.9, esCorrecto: true, normalizado: transcriptNormalizado };
+          break;
+        }
+        
+        // 4. Lo escuchado EMPIEZA con la palabra esperada
+        if (transcriptNormalizado.startsWith(palabraEsperadaNormalizada)) {
+          console.log('     ✅ EMPIEZA CON LA PALABRA');
+          mejorCoincidencia = { transcript: alt.transcript, confidence: 0.9, similitud: 0.9, esCorrecto: true, normalizado: transcriptNormalizado };
+          break;
+        }
+        
+        // 5. Lo escuchado TERMINA con la palabra esperada
+        if (transcriptNormalizado.endsWith(palabraEsperadaNormalizada)) {
+          console.log('     ✅ TERMINA CON LA PALABRA');
+          mejorCoincidencia = { transcript: alt.transcript, confidence: 0.9, similitud: 0.9, esCorrecto: true, normalizado: transcriptNormalizado };
+          break;
+        }
+        
+        // 6. Para VOCALES: verificar si la vocal está en CUALQUIER parte
+        if (palabraEsperadaNormalizada.length === 1) {
+          const vocal = palabraEsperadaNormalizada;
+          if (transcriptNormalizado.includes(vocal)) {
+            console.log('     ✅ VOCAL DETECTADA EN:', transcriptNormalizado);
+            mejorCoincidencia = { transcript: alt.transcript, confidence: 0.85, similitud: 0.85, esCorrecto: true, normalizado: transcriptNormalizado };
+            break;
+          }
+        }
+        
+        // 7. Para SÍLABAS: verificar si las letras principales están
+        if (palabraEsperadaNormalizada.length === 2 || palabraEsperadaNormalizada.length === 3) {
+          const primeraLetra = palabraEsperadaNormalizada[0];
+          const segundaLetra = palabraEsperadaNormalizada[1];
+          
+          // Si contiene las dos primeras letras en orden
+          const indexPrimera = transcriptNormalizado.indexOf(primeraLetra);
+          const indexSegunda = transcriptNormalizado.indexOf(segundaLetra, indexPrimera + 1);
+          
+          if (indexPrimera !== -1 && indexSegunda !== -1 && indexSegunda > indexPrimera) {
+            console.log('     ✅ SÍLABA DETECTADA (letras en orden)');
+            mejorCoincidencia = { transcript: alt.transcript, confidence: 0.8, similitud: 0.8, esCorrecto: true, normalizado: transcriptNormalizado };
+            break;
+          }
+          
+          // Si al menos contiene la consonante principal y una vocal
+          const consonantes = palabraEsperadaNormalizada.replace(/[AEIOU]/g, '');
+          const vocales = palabraEsperadaNormalizada.replace(/[^AEIOU]/g, '');
+          
+          if (consonantes && vocales) {
+            const tieneConsonante = transcriptNormalizado.includes(consonantes[0]);
+            const tieneVocal = vocales.split('').some(v => transcriptNormalizado.includes(v));
+            
+            if (tieneConsonante && tieneVocal) {
+              console.log('     ✅ SÍLABA DETECTADA (consonante + vocal)');
+              if (mejorCoincidencia.similitud < 0.75) {
+                mejorCoincidencia = { transcript: alt.transcript, confidence: 0.75, similitud: 0.75, esCorrecto: true, normalizado: transcriptNormalizado };
+              }
+            }
+          }
+        }
+        
+        // 8. Calcular similitud de todas formas
+        const similitud = this.calcularSimilitud(transcriptNormalizado, palabraEsperadaNormalizada);
+        console.log(`     Similitud: ${(similitud * 100).toFixed(0)}%`);
+        
+        if (similitud > mejorCoincidencia.similitud) {
+          mejorCoincidencia = {
+            transcript: alt.transcript,
+            confidence: alt.confidence || 0.5,
+            similitud: similitud,
+            esCorrecto: similitud >= 0.6, // 60% para palabras cortas
+            normalizado: transcriptNormalizado
+          };
+        }
+        
+      } else {
+        // ============ DETECCIÓN PARA PALABRAS LARGAS ============
+        
+        // 1. Coincidencia exacta
+        if (transcriptNormalizado === palabraEsperadaNormalizada) {
+          console.log('     ✅ EXACTO');
+          mejorCoincidencia = { transcript: alt.transcript, confidence: 1, similitud: 1, esCorrecto: true, normalizado: transcriptNormalizado };
+          break;
+        }
+        
+        // 2. Equivalencias
+        if (equivalenciasValidas.includes(transcriptNormalizado)) {
+          console.log('     ✅ EQUIVALENTE');
+          mejorCoincidencia = { transcript: alt.transcript, confidence: 0.95, similitud: 0.95, esCorrecto: true, normalizado: transcriptNormalizado };
+          break;
+        }
+        
+        // 3. Contiene la palabra
+        if (transcriptNormalizado.includes(palabraEsperadaNormalizada)) {
+          console.log('     ✅ CONTIENE');
+          mejorCoincidencia = { transcript: alt.transcript, confidence: 0.9, similitud: 0.9, esCorrecto: true, normalizado: transcriptNormalizado };
+          break;
+        }
+        
+        // 4. Calcular similitud
+        const similitud = this.calcularSimilitud(transcriptNormalizado, palabraEsperadaNormalizada);
+        console.log(`     Similitud: ${(similitud * 100).toFixed(0)}%`);
+        
+        if (similitud > mejorCoincidencia.similitud) {
+          mejorCoincidencia = {
+            transcript: alt.transcript,
+            confidence: alt.confidence || 0.5,
+            similitud: similitud,
+            esCorrecto: similitud >= 0.85,
+            normalizado: transcriptNormalizado
+          };
+        }
       }
     }
     
     console.log('🏆 MEJOR COINCIDENCIA:');
-    console.log('   Original:', mejorCoincidencia.transcript);
+    console.log('   Escuchado:', mejorCoincidencia.transcript);
     console.log('   Normalizado:', mejorCoincidencia.normalizado);
-    console.log('   Esperado:', palabraEsperadaNormalizada);
-    console.log('   Correcto:', mejorCoincidencia.esCorrecto);
     console.log('   Similitud:', (mejorCoincidencia.similitud * 100).toFixed(0) + '%');
-    console.log('   Confianza:', (mejorCoincidencia.confidence * 100).toFixed(0) + '%');
+    console.log('   Correcto:', mejorCoincidencia.esCorrecto);
     console.log('=====================================');
     
+    // Guardar intento
     const intento: IntentoPalabra = {
       palabra: this.palabraActual,
       escuchado: mejorCoincidencia.transcript,
@@ -579,65 +749,59 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     };
     this.intentos.push(intento);
     
+    // Evaluar resultado
     if (mejorCoincidencia.esCorrecto) {
-      console.log('✅ Llamando a palabraCorrecta()');
       this.palabraCorrecta(mejorCoincidencia.confidence);
-    } else if (mejorCoincidencia.similitud >= 0.7) {
-      console.log('🟡 Llamando a palabraCerca()');
+    } else if (mejorCoincidencia.similitud >= umbralNivel) {
       this.palabraCerca(mejorCoincidencia.transcript, mejorCoincidencia.similitud);
     } else {
-      console.log('❌ Llamando a palabraIncorrecta()');
       this.palabraIncorrecta(mejorCoincidencia.transcript);
     }
   }
 
   normalizarTexto(texto: string): string {
+    if (!texto) return '';
+    
+    // Quitar acentos
     const sinAcentos = texto
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
     
+    // Convertir a mayúsculas
     const mayusculas = sinAcentos.toUpperCase();
     
+    // Quitar puntuación
     const sinPuntuacion = mayusculas
       .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()¿?¡!"""''´`]/g, '');
     
-    const espaciosNormalizados = sinPuntuacion
+    // Normalizar espacios
+    const resultado = sinPuntuacion
       .replace(/\s+/g, ' ')
       .trim();
     
-    console.log('🔍 Normalización:', {
-      original: texto,
-      sinAcentos: sinAcentos,
-      resultado: espaciosNormalizados
-    });
-    
-    return espaciosNormalizados;
+    return resultado;
   }
 
   calcularSimilitud(str1: string, str2: string): number {
+    if (!str1 || !str2) return 0;
+    if (str1 === str2) return 1.0;
+    
     const longer = str1.length > str2.length ? str1 : str2;
     const shorter = str1.length > str2.length ? str2 : str1;
     
     if (longer.length === 0) return 1.0;
     
+    // Distancia de Levenshtein
     const editDistance = this.levenshteinDistance(longer, shorter);
-    const similitud = (longer.length - editDistance) / longer.length;
+    const similitudLevenshtein = (longer.length - editDistance) / longer.length;
     
+    // Porcentaje de letras coincidentes
     const letrasEsperadas = new Set(str2.split(''));
     const letrasEncontradas = str1.split('').filter(letra => letrasEsperadas.has(letra));
-    const porcentajeLetras = letrasEncontradas.length / str2.length;
+    const porcentajeLetras = str2.length > 0 ? letrasEncontradas.length / str2.length : 0;
     
-    const similitudFinal = (similitud * 0.7) + (porcentajeLetras * 0.3);
-    
-    console.log('📊 Cálculo de similitud:', {
-      str1,
-      str2,
-      editDistance,
-      similitudLevenshtein: (similitud * 100).toFixed(0) + '%',
-      letrasCoincidentes: letrasEncontradas.length + '/' + str2.length,
-      porcentajeLetras: (porcentajeLetras * 100).toFixed(0) + '%',
-      similitudFinal: (similitudFinal * 100).toFixed(0) + '%'
-    });
+    // Combinar ambas métricas
+    const similitudFinal = (similitudLevenshtein * 0.6) + (Math.min(porcentajeLetras, 1) * 0.4);
     
     return similitudFinal;
   }
@@ -679,22 +843,18 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     this.palabrasCompletadas++;
     this.indicePalabra++;
     
-    console.log('📊 Progreso actualizado:', {
-      palabrasCompletadas: this.palabrasCompletadas,
-      totalPalabras: this.totalPalabras,
-      indicePalabra: this.indicePalabra
-    });
-    
     if ('vibrate' in navigator) {
       navigator.vibrate([50, 100, 50]);
     }
     
-    setTimeout(() => {
-      this.ngZone.run(() => {
-        console.log('➡️ Cargando siguiente palabra...');
-        this.cargarSiguientePalabra();
-      });
-    }, 1500);
+    this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.ngZone.run(() => {
+          this.procesandoResultado = false;
+          this.cargarSiguientePalabra();
+        });
+      }, 1800);
+    });
   }
 
   palabraCerca(escuchado: string, similitud: number) {
@@ -703,6 +863,15 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     
     this.ultimoEscuchado = escuchado;
     this.mostrarFeedbackTemporal('¡Casi! Inténtalo de nuevo 💪', 'cerca');
+    
+    this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.ngZone.run(() => {
+          this.procesandoResultado = false;
+          this.cdr.detectChanges();
+        });
+      }, 2000);
+    });
   }
 
   palabraIncorrecta(escuchado: string) {
@@ -710,54 +879,61 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     
     this.ultimoEscuchado = escuchado;
     this.mostrarFeedbackTemporal('Intenta de nuevo 🔄', 'incorrecto');
+    
+    this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.ngZone.run(() => {
+          this.procesandoResultado = false;
+          this.cdr.detectChanges();
+        });
+      }, 2000);
+    });
   }
 
   mostrarFeedbackTemporal(mensaje: string, tipo: 'correcto' | 'incorrecto' | 'cerca') {
-    console.log('💬 Mostrando feedback:', tipo, '-', mensaje);
-    
     this.mensajeFeedback = mensaje;
     this.tipoFeedback = tipo;
     this.mostrandoFeedback = true;
     this.cdr.detectChanges();
     
-    console.log('💬 Estado de feedback:', {
-      mostrandoFeedback: this.mostrandoFeedback,
-      mensajeFeedback: this.mensajeFeedback,
-      tipoFeedback: this.tipoFeedback
+    this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.ngZone.run(() => {
+          this.mostrandoFeedback = false;
+          this.cdr.detectChanges();
+        });
+      }, 2500);
     });
-    
-    setTimeout(() => {
-      this.ngZone.run(() => {
-        console.log('💬 Ocultando feedback');
-        this.mostrandoFeedback = false;
-        this.cdr.detectChanges();
-      });
-    }, 2500);
   }
 
   completarNivel() {
     this.faseJuego = 'preparando';
-    
     console.log(`✅ Nivel ${this.nivelActual} completado`);
     
     if (this.modoJuego === 'todos' && this.nivelActual < this.maxNiveles) {
-      setTimeout(() => {
-        this.nivelActual++;
-        this.empezarNivel();
-      }, 2000);
+      this.ngZone.runOutsideAngular(() => {
+        setTimeout(() => {
+          this.ngZone.run(() => {
+            this.nivelActual++;
+            this.empezarNivel();
+          });
+        }, 2000);
+      });
     } else {
-      setTimeout(() => {
-        this.completarJuego();
-      }, 2000);
+      this.ngZone.runOutsideAngular(() => {
+        setTimeout(() => {
+          this.ngZone.run(() => {
+            this.completarJuego();
+          });
+        }, 2000);
+      });
     }
   }
 
-  // 📝 ACTUALIZADO: Registrar actividad al completar
   completarJuego() {
     this.faseJuego = 'completado';
     console.log('🎉 ¡Juego completado!');
     
-    // 📝 REGISTRAR EN EL HISTORIAL
     this.historialService.registrarJuego('Reto de Pronunciación').subscribe({
       next: () => console.log('✅ Reto de Pronunciación registrado en historial'),
       error: (error: any) => console.error('❌ Error registrando actividad:', error)
@@ -788,34 +964,34 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
 
   reiniciarNivel() {
     this.limpiarRecursos();
-    this.solicitarPermisoMicrofono();
+    this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.ngZone.run(() => {
+          this.solicitarPermisoMicrofono();
+        });
+      }, 500);
+    });
   }
 
   resetearEstadosBotones() {
     console.log('🔄 Reseteando estados manualmente...');
+    
     this.escuchandoAudio = false;
     this.esperandoPronunciacion = false;
     this.recognitionActiva = false;
+    this.procesandoResultado = false;
     
-    if (this.timeoutEscucha) {
-      clearTimeout(this.timeoutEscucha);
-      this.timeoutEscucha = null;
-    }
-    
-    if (this.timeoutGrabacion) {
-      clearTimeout(this.timeoutGrabacion);
-      this.timeoutGrabacion = null;
-    }
+    this.limpiarTimeouts();
     
     if (this.synth) {
       this.synth.cancel();
     }
     
-    if (this.recognition && this.recognitionActiva) {
+    if (this.recognition) {
       try {
         this.recognition.stop();
       } catch (e) {
-        console.log('No se pudo detener reconocimiento');
+        // Ignorar
       }
     }
     
@@ -849,21 +1025,15 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
   }
 
   limpiarRecursos() {
-    if (this.timeoutEscucha) {
-      clearTimeout(this.timeoutEscucha);
-      this.timeoutEscucha = null;
-    }
+    console.log('🧹 Limpiando recursos...');
     
-    if (this.timeoutGrabacion) {
-      clearTimeout(this.timeoutGrabacion);
-      this.timeoutGrabacion = null;
-    }
+    this.limpiarTimeouts();
     
     if (this.recognition) {
       try {
         this.recognition.stop();
       } catch (e) {
-        // Ignorar errores al detener
+        // Ignorar
       }
       this.recognition = null;
     }
@@ -876,7 +1046,8 @@ export class SoploVirtualGameComponent implements OnInit, OnDestroy {
     this.esperandoPronunciacion = false;
     this.escuchandoAudio = false;
     this.permisoMicrofono = false;
+    this.procesandoResultado = false;
     
-    console.log('🧹 Recursos limpiados');
+    console.log('✅ Recursos limpiados');
   }
 }
