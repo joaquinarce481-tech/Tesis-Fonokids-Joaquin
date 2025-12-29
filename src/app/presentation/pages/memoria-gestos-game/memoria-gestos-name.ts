@@ -13,7 +13,7 @@ interface GestoFacial {
   instruccion: string;
   imagenCapturada?: string;
   usado?: boolean;
-  uniqueId?: string; // ID único para cada instancia en el juego
+  uniqueId?: string;
 }
 
 interface Slot {
@@ -35,7 +35,9 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
   // Estados del juego
   faseJuego: 'instrucciones' | 'capturando-inicial' | 'mostrando' | 'esperando' | 'jugando' | 'completado' | 'error' = 'instrucciones';
   nivelActual: number = 1;
-  maxNiveles: number = 8;
+  
+  // ⭐ DIFICULTAD REDUCIDA: Solo 5 niveles en vez de 8
+  maxNiveles: number = 5;
   
   // Gestos disponibles
   gestosDisponibles: GestoFacial[] = [
@@ -92,7 +94,7 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
   gestoMostrando: GestoFacial | null = null;
   indiceGestoActual: number = 0;
   
-  // 🎯 Drag and Drop
+  // Drag and Drop
   slots: Slot[] = [];
   fotosDisponibles: GestoFacial[] = [];
   gestoDragging: GestoFacial | null = null;
@@ -107,10 +109,16 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
   
   // Animaciones y efectos
   mostrandoSecuencia: boolean = false;
-  tiempoMostrarGesto: number = 1500;
-  tiempoPausa: number = 800;
+  
+  // ⭐ TIEMPOS MÁS LARGOS para que sea más fácil memorizar
+  tiempoMostrarGesto: number = 2000;  // Antes: 1500
+  tiempoPausa: number = 1000;         // Antes: 800
+  
   resultadoDeteccion: 'correcto' | 'incorrecto' | null = null;
   mensajeDeteccion: string = '';
+  
+  // ⭐ Oportunidad de ver secuencia una vez más
+  puedeVerSecuenciaOtraVez: boolean = true;
 
   constructor(
     private router: Router,
@@ -132,7 +140,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     this.todasFotosTomadas = false;
     this.indiceCaptura = 0;
     
-    // Limpiar fotos previas
     this.gestosDisponibles.forEach(g => {
       g.imagenCapturada = undefined;
       g.usado = false;
@@ -157,12 +164,10 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
       this.movimientoDetectado = false;
       this.mensajeValidacion = '';
     } else {
-      // Todas las fotos tomadas
       this.todasFotosTomadas = true;
       this.gestoCapturando = null;
       this.detenerCamara();
       
-      // Esperar un momento y empezar el juego
       setTimeout(() => {
         this.empezarNivel();
       }, 1500);
@@ -173,7 +178,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     try {
       console.log('🎥 Iniciando cámara...');
       
-      // Inicializar MediaPipe Face Mesh
       this.faceMesh = new FaceMesh({
         locateFile: (file) => {
           return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
@@ -189,10 +193,8 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
 
       this.faceMesh.onResults((results: Results) => this.onResults(results));
 
-      // Esperar a que el video esté disponible
       await this.esperarVideoElement();
 
-      // Inicializar cámara
       const video = this.videoElement.nativeElement;
       this.camera = new Camera(video, {
         onFrame: async () => {
@@ -230,17 +232,14 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     const ctx = canvas.getContext('2d')!;
     const video = this.videoElement.nativeElement;
 
-    // Ajustar tamaño del canvas
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
-    // Dibujar el video en el canvas
     ctx.save();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     ctx.restore();
 
-    // Verificar si hay rostro detectado
     if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
       this.movimientoDetectado = false;
       this.mensajeValidacion = '❌ No detectamos tu cara. Acércate a la cámara';
@@ -253,20 +252,17 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
 
     const landmarks = results.multiFaceLandmarks[0];
 
-    // Validar el movimiento según el gesto actual
     this.movimientoDetectado = this.validarMovimiento(this.gestoCapturando.id, landmarks);
 
     if (this.movimientoDetectado) {
       this.mensajeValidacion = '✅ ¡Perfecto! Ahora toma la foto 📸';
       
-      // Dibujar un borde verde en el canvas cuando detecta correctamente
       ctx.strokeStyle = '#10b981';
       ctx.lineWidth = 10;
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
     } else {
       this.mensajeValidacion = `❌ ${this.getMensajeError(this.gestoCapturando.id)}`;
       
-      // Dibujar un borde rojo cuando no detecta
       ctx.strokeStyle = '#ef4444';
       ctx.lineWidth = 10;
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
@@ -386,15 +382,12 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     const canvas = this.canvasElement.nativeElement;
     const fotoBase64 = canvas.toDataURL('image/jpeg', 0.8);
 
-    // Guardar la foto
     this.gestoCapturando!.imagenCapturada = fotoBase64;
     this.resultadoDeteccion = 'correcto';
     this.mensajeDeteccion = '¡Perfecto! Foto guardada';
 
-    // Efecto de flash
     this.mostrarFlashCaptura();
 
-    // Siguiente gesto después de 1 segundo
     setTimeout(() => {
       this.indiceCaptura++;
       this.prepararSiguienteCaptura();
@@ -409,7 +402,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     setTimeout(() => {
-      // El onResults lo redibujará
     }, 100);
   }
 
@@ -423,20 +415,50 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     }, 500);
   }
 
+  // ⭐ SECUENCIAS MÁS CORTAS Y FÁCILES - SIN REPETIR TODOS IGUALES
   generarSecuencia() {
     this.secuenciaActual = [];
     this.respuestaJugador = [];
     
-    const longitudSecuencia = Math.min(2 + this.nivelActual, 5);
+    // ⭐ Resetear la oportunidad de ver secuencia en cada nivel
+    this.puedeVerSecuenciaOtraVez = true;
     
-    for (let i = 0; i < longitudSecuencia; i++) {
-      const gestoAleatorio = this.gestosDisponibles[
-        Math.floor(Math.random() * this.gestosDisponibles.length)
-      ];
-      this.secuenciaActual.push(gestoAleatorio);
+    // Nivel 1: 2 gestos, Nivel 2: 2 gestos, Nivel 3: 3 gestos, Nivel 4: 3 gestos, Nivel 5: 4 gestos
+    let longitudSecuencia: number;
+    if (this.nivelActual <= 2) {
+      longitudSecuencia = 2;  // Niveles 1-2: solo 2 gestos
+    } else if (this.nivelActual <= 4) {
+      longitudSecuencia = 3;  // Niveles 3-4: 3 gestos
+    } else {
+      longitudSecuencia = 4;  // Nivel 5: 4 gestos
     }
     
-    console.log(`🎯 Nivel ${this.nivelActual}: Secuencia generada`, this.secuenciaActual.map(g => g.nombre));
+    // ⭐ ASEGURAR que NO todos los gestos sean iguales
+    let intentos = 0;
+    const maxIntentos = 50;
+    
+    do {
+      this.secuenciaActual = [];
+      
+      for (let i = 0; i < longitudSecuencia; i++) {
+        const gestoAleatorio = this.gestosDisponibles[
+          Math.floor(Math.random() * this.gestosDisponibles.length)
+        ];
+        this.secuenciaActual.push(gestoAleatorio);
+      }
+      
+      intentos++;
+    } while (this.todosGestosIguales() && intentos < maxIntentos);
+    
+    console.log(`🎯 Nivel ${this.nivelActual}: Secuencia de ${longitudSecuencia} gestos`, this.secuenciaActual.map(g => g.nombre));
+  }
+  
+  // ⭐ Verificar si todos los gestos son iguales
+  todosGestosIguales(): boolean {
+    if (this.secuenciaActual.length <= 1) return false;
+    
+    const primerGestoId = this.secuenciaActual[0].id;
+    return this.secuenciaActual.every(g => g.id === primerGestoId);
   }
 
   async mostrarSecuencia() {
@@ -457,30 +479,66 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     this.faseJuego = 'jugando';
     this.gestoMostrando = null;
     
-    // 🎯 Inicializar drag and drop
     this.inicializarDragAndDrop();
   }
 
-  // ========== 🎯 DRAG AND DROP LOGIC - CORREGIDO ========== //
+  // ⭐ Ver secuencia por última vez (una sola oportunidad por nivel)
+  async verSecuenciaOtraVez() {
+    if (!this.puedeVerSecuenciaOtraVez) return;
+    
+    // Deshabilitar el botón - solo se puede usar una vez
+    this.puedeVerSecuenciaOtraVez = false;
+    
+    // Limpiar los slots antes de mostrar la secuencia
+    this.slots.forEach(s => {
+      if (s.gesto) {
+        const gestoEnLista = this.fotosDisponibles.find(
+          f => f.uniqueId === s.gesto!.uniqueId
+        );
+        if (gestoEnLista) {
+          gestoEnLista.usado = false;
+        }
+        s.gesto = null;
+      }
+    });
+    this.respuestaJugador = new Array(this.secuenciaActual.length).fill(null);
+    
+    // Mostrar la secuencia
+    this.mostrandoSecuencia = true;
+    this.indiceGestoActual = 0;
+    
+    for (let i = 0; i < this.secuenciaActual.length; i++) {
+      this.gestoMostrando = this.secuenciaActual[i];
+      this.indiceGestoActual = i;
+      
+      await this.esperar(this.tiempoMostrarGesto);
+      
+      this.gestoMostrando = null;
+      await this.esperar(this.tiempoPausa);
+    }
+    
+    this.mostrandoSecuencia = false;
+    this.gestoMostrando = null;
+    
+    console.log('👀 Secuencia mostrada por última vez');
+  }
+
+  // ========== DRAG AND DROP LOGIC ========== //
 
   inicializarDragAndDrop() {
-    // Crear slots vacíos
     this.slots = [];
     for (let i = 0; i < this.secuenciaActual.length; i++) {
       this.slots.push({ gesto: null, dragOver: false });
     }
     
-    // 🎯 CAMBIO IMPORTANTE: Crear copias únicas de cada foto
     this.fotosDisponibles = this.secuenciaActual.map((gesto, index) => ({
       ...gesto,
-      uniqueId: `${gesto.id}-${index}-${Date.now()}`, // ID único para cada instancia
+      uniqueId: `${gesto.id}-${index}-${Date.now()}`,
       usado: false
     }));
     
-    // Desordenar las fotos disponibles
     this.desordenarArray(this.fotosDisponibles);
     
-    // Inicializar respuesta del jugador
     this.respuestaJugador = new Array(this.secuenciaActual.length).fill(null);
     
     console.log('🎮 Drag and drop inicializado con IDs únicos');
@@ -499,7 +557,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
       return;
     }
     
-    // Guardar el ID único en el dataTransfer
     event.dataTransfer!.setData('gestoUniqueId', gesto.uniqueId || '');
     event.dataTransfer!.effectAllowed = 'move';
     this.gestoDragging = gesto;
@@ -526,7 +583,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     
     const gestoUniqueId = event.dataTransfer!.getData('gestoUniqueId');
     
-    // Buscar el gesto específico por su ID único
     const gesto = this.fotosDisponibles.find(f => f.uniqueId === gestoUniqueId);
     
     if (!gesto || gesto.usado) {
@@ -534,7 +590,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
       return;
     }
     
-    // Si el slot ya tiene un gesto, devolverlo a disponible
     if (this.slots[slotIndex].gesto) {
       const gestoAnterior = this.fotosDisponibles.find(
         f => f.uniqueId === this.slots[slotIndex].gesto!.uniqueId
@@ -544,14 +599,11 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
       }
     }
     
-    // Marcar SOLO este gesto específico como usado
     gesto.usado = true;
     
-    // Colocar en el slot
     this.slots[slotIndex].gesto = gesto;
     this.slots[slotIndex].dragOver = false;
     
-    // Actualizar respuesta del jugador
     this.respuestaJugador[slotIndex] = gesto;
     
     console.log('✅ Foto colocada en slot', slotIndex + 1, 'ID:', gesto.uniqueId);
@@ -564,7 +616,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     const gesto = this.slots[slotIndex].gesto;
     
     if (gesto) {
-      // Buscar el gesto específico por su ID único
       const gestoEnLista = this.fotosDisponibles.find(
         f => f.uniqueId === gesto.uniqueId
       );
@@ -573,7 +624,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
         gestoEnLista.usado = false;
       }
       
-      // Remover del slot
       this.slots[slotIndex].gesto = null;
       this.respuestaJugador[slotIndex] = null;
       
@@ -584,7 +634,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
   verificarOrden() {
     console.log('🔍 Verificando orden...');
     
-    // Comparar secuencia por el nombre del gesto (no por uniqueId)
     let correcto = true;
     
     for (let i = 0; i < this.secuenciaActual.length; i++) {
@@ -625,7 +674,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     this.faseJuego = 'error';
     
     setTimeout(() => {
-      // Limpiar slots y devolver todas las fotos a disponibles
       this.slots.forEach(s => {
         if (s.gesto) {
           const gestoEnLista = this.fotosDisponibles.find(
@@ -647,7 +695,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     this.faseJuego = 'completado';
     console.log('🎉 ¡Juego completado!');
     
-    // 📝 REGISTRAR EN EL HISTORIAL
     this.historialService.registrarJuego('Memoria de Gestos Labiales').subscribe({
       next: () => console.log('✅ Memoria de Gestos registrado en historial'),
       error: (error: any) => console.error('❌ Error registrando actividad:', error)
@@ -662,7 +709,7 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
 
   getDificultadTexto(): string {
     if (this.nivelActual <= 2) return 'Fácil';
-    if (this.nivelActual <= 5) return 'Medio';
+    if (this.nivelActual <= 4) return 'Medio';
     return 'Difícil';
   }
 
@@ -670,7 +717,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     return this.gestosDisponibles.filter(g => g.imagenCapturada).length;
   }
 
-  // Función trackBy para mejor rendimiento
   trackByGestoUniqueId(index: number, gesto: GestoFacial): string {
     return gesto.uniqueId || gesto.id;
   }
@@ -692,7 +738,6 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
   saltarInstrucciones() {
     this.iniciarCapturaInicial();
     
-    // Iniciar cámara después de un pequeño delay
     setTimeout(() => {
       this.iniciarCamara();
     }, 100);

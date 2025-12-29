@@ -1,5 +1,5 @@
 <div class="game-container">
-  <!-- Header del juego -->
+  <!-- Header del juego - SIN NIVEL EN INSTRUCCIONES -->
   <header class="game-header">
     <div class="header-content">
       <button class="btn-back" (click)="volverAJuegos()">
@@ -12,64 +12,66 @@
         <p>Recuerda y repite la secuencia de gestos faciales</p>
       </div>
       
-      <div class="game-stats">
+      <!-- Solo mostrar nivel cuando NO estamos en instrucciones -->
+      <div class="game-stats" *ngIf="faseJuego !== 'instrucciones'">
         <div class="stat">
           <span class="stat-label">Nivel</span>
           <span class="stat-value">{{ nivelActual }}/{{ maxNiveles }}</span>
         </div>
       </div>
+      
+      <!-- Espacio vacío para mantener el layout cuando no hay stats -->
+      <div class="game-stats-placeholder" *ngIf="faseJuego === 'instrucciones'"></div>
     </div>
   </header>
 
-  <!-- Pantalla de instrucciones -->
-  <main class="game-main" *ngIf="faseJuego === 'instrucciones'">
-    <div class="instructions-screen">
-      <div class="instructions-card">
-        <div class="instructions-header">
-          <h2>Cómo Jugar</h2>
-          <div class="difficulty-badge">{{ getDificultadTexto() }}</div>
-        </div>
-        
-        <div class="instructions-content">
-          <div class="step">
-            <div class="step-number">1</div>
-            <div class="step-text">
-              <strong>Tómate fotos de cada gesto</strong>
-              <p>Primero capturarás una foto haciendo cada gesto facial</p>
-            </div>
-          </div>
-          
-          <div class="step">
-            <div class="step-number">2</div>
-            <div class="step-text">
-              <strong>Observa la secuencia</strong>
-              <p>Verás tus fotos en un orden específico - ¡memoriza el orden!</p>
-            </div>
-          </div>
-          
-          <div class="step">
-            <div class="step-number">3</div>
-            <div class="step-text">
-              <strong>Arrastra las fotos en orden</strong>
-              <p>Arrastra tus fotos a los espacios en el mismo orden que las viste</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="gestos-preview">
-          <h3>Gestos a Capturar</h3>
-          <div class="gestos-grid">
-            <div *ngFor="let gesto of gestosDisponibles" class="gesto-preview">
-              <span class="gesto-emoji">{{ gesto.emoji }}</span>
-              <span class="gesto-nombre">{{ gesto.nombre }}</span>
-            </div>
-          </div>
-        </div>
-        
-        <button class="btn-start" (click)="saltarInstrucciones()">
-          ¡Empezar a Capturar!
-        </button>
+  <!-- Pantalla de instrucciones - ESTILO PAREJAS DE SÍLABAS -->
+  <main class="game-main instructions-screen" *ngIf="faseJuego === 'instrucciones'">
+    <div class="instructions-card">
+      <div class="instructions-header">
+        <h2>¿Cómo se juega?</h2>
+        <div class="game-icon"></div>
       </div>
+      
+      <div class="instructions-content">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-text">
+            <strong>Tómate fotos de cada gesto</strong>
+            <p>Primero capturarás una foto haciendo cada gesto facial</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-text">
+            <strong>Observa la secuencia</strong>
+            <p>Verás tus fotos en un orden específico - ¡memoriza el orden!</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-text">
+            <strong>Arrastra las fotos en orden</strong>
+            <p>Arrastra tus fotos a los espacios en el mismo orden que las viste</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="gestos-preview">
+        <h3>Gestos a Capturar</h3>
+        <div class="gestos-grid-preview">
+          <div *ngFor="let gesto of gestosDisponibles" class="gesto-preview-item">
+            <span class="gesto-emoji">{{ gesto.emoji }}</span>
+            <span class="gesto-nombre">{{ gesto.nombre }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <button class="btn-start" (click)="saltarInstrucciones()">
+        ¡Empezar a Capturar!
+      </button>
     </div>
   </main>
 
@@ -210,8 +212,8 @@
       </div>
     </div>
 
-    <!-- ZONA DE DRAG AND DROP HORIZONTAL -->
-    <div class="drag-drop-horizontal" *ngIf="faseJuego === 'jugando'">
+    <!-- ZONA DE DRAG AND DROP HORIZONTAL - OCULTAR CUANDO SE MUESTRA SECUENCIA -->
+    <div class="drag-drop-horizontal" *ngIf="faseJuego === 'jugando' && !mostrandoSecuencia">
       
       <!-- Instrucciones compactas -->
       <div class="drag-instructions-horizontal">
@@ -271,11 +273,21 @@
       </div>
 
       <!-- Botón de verificar -->
-      <button class="btn-verify-horizontal" 
-              (click)="verificarOrden()"
-              [disabled]="respuestaJugador.length !== secuenciaActual.length">
-        Verificar Orden
-      </button>
+      <div class="botones-accion">
+        <button class="btn-ver-secuencia" 
+                (click)="verSecuenciaOtraVez()"
+                [disabled]="!puedeVerSecuenciaOtraVez || mostrandoSecuencia"
+                *ngIf="puedeVerSecuenciaOtraVez">
+          <span class="btn-icon"></span>
+          Ver secuencia otra vez
+        </button>
+        
+        <button class="btn-verify-horizontal" 
+                (click)="verificarOrden()"
+                [disabled]="respuestaJugador.length !== secuenciaActual.length || mostrandoSecuencia">
+          Verificar Orden
+        </button>
+      </div>
     </div>
 
     <!-- Mensaje de error -->
