@@ -40,7 +40,9 @@
             [ngClass]="'bg-' + categoria.color"
             (click)="navegarCategoria(categoria)">
             
-            <div class="categoria-imagen"></div>
+            <div class="categoria-imagen">
+              <img [src]="categoria.imagen" [alt]="categoria.titulo" />
+            </div>
             
             <div class="categoria-content">
               <div class="categoria-header">

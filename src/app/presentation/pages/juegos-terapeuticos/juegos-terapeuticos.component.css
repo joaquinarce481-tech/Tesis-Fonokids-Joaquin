@@ -1,209 +1,113 @@
-/* 🎨 ESTILOS UNIFICADOS - TODOS LOS JUEGOS JUNTOS */
-
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
 .juegos-container {
-  padding: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
-  font-family: 'Fredoka', 'Arial', sans-serif;
-  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ===== DECORACIONES DEL FONDO ===== */
-.juegos-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 400px;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path></svg>') no-repeat;
-  background-size: cover;
-  z-index: 0;
-}
-
-/* ===== CONTENEDOR PRINCIPAL ===== */
-.juegos-container > * {
-  position: relative;
-  z-index: 1;
-}
-
-.btn-volver-menu-principal {
-  position: relative;
-  z-index: 100;
-}
-
-/* ===== BOTÓN VOLVER AL MENÚ PRINCIPAL ===== */
-.btn-volver-menu-principal {
-  position: relative;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));
-  backdrop-filter: blur(15px);
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  color: white;
-  padding: 14px 30px;
-  border-radius: 35px;
-  font-size: 1.05rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  z-index: 100;
-  margin-bottom: 30px;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-}
-
-.btn-volver-menu-principal::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.5s ease;
-}
-
-.btn-volver-menu-principal:hover::before {
-  left: 100%;
-}
-
-.btn-volver-menu-principal:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.25));
-  transform: translateX(-8px) scale(1.08);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.6);
-}
-
-.btn-volver-menu-principal .arrow {
-  font-size: 1.6rem;
-  font-weight: 900;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.3));
-}
-
-.btn-volver-menu-principal:hover .arrow {
-  transform: translateX(-8px) scale(1.2);
-  animation: arrowBounce 0.6s ease-in-out infinite;
-}
-
-@keyframes arrowBounce {
-  0%, 100% {
-    transform: translateX(-8px) scale(1.2);
-  }
-  50% {
-    transform: translateX(-12px) scale(1.2);
-  }
-}
-
-/* ===== VISTA DE SECCIONES (HEADER IGUAL A EJERCICIOS) ===== */
+/* ============================================
+   VISTA DE SECCIONES
+   ============================================ */
 .secciones-menu {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 60px 20px;
-  position: relative;
-  z-index: 1;
+  padding: 40px 20px;
+}
+
+.btn-volver-menu-principal {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.btn-volver-menu-principal:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateX(-5px);
+}
+
+.btn-volver-menu-principal .arrow {
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
 .header-secciones {
   text-align: center;
   color: white;
-  margin-bottom: 60px;
-  position: relative;
-  padding: 80px 50px 60px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
-  border-radius: 35px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
-  border: 2px solid rgba(255, 255, 255, 0.25);
+  margin-bottom: 50px;
+  padding: 60px 40px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 25px;
+  backdrop-filter: blur(10px);
 }
 
 .header-secciones h2 {
-  font-size: 3.8rem;
-  margin: 0 0 25px 0;
-  text-shadow: 3px 3px 8px rgba(0,0,0,0.5);
-  font-weight: 900;
-  color: #ffffff;
-  text-transform: uppercase;
+  font-size: 2.8rem;
+  margin: 0 0 15px 0;
+  font-weight: 800;
 }
 
 .subtitulo {
-  font-size: 1.4rem;
-  opacity: 0.95;
+  font-size: 1.2rem;
+  opacity: 0.9;
   margin: 0;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-  font-weight: 500;
 }
 
-/* ===== GRID UNIFICADO DE TODOS LOS JUEGOS ===== */
+/* ============================================
+   GRID DE JUEGOS
+   ============================================ */
 .juegos-grid-unificado {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 35px;
-  position: relative;
-  padding: 0 20px 40px 20px;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
 }
 
-/* ===== TARJETA MODERNA DE JUEGO ===== */
+/* ============================================
+   TARJETA DE JUEGO
+   ============================================ */
 .juego-card-modern {
   background: white;
   border-radius: 20px;
-  overflow: hidden;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  position: relative;
-  display: flex;
-  flex-direction: column;
+  transition: all 0.3s ease;
   border: 3px solid transparent;
-  animation: cardAppear 0.5s ease-out;
-}
-
-@keyframes cardAppear {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  overflow: hidden;
 }
 
 .juego-card-modern:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
 }
 
-/* Bordes de color según el color del juego */
-.card-from-pink-400:hover {
-  border-color: #f472b6;
-}
+/* Bordes de color en hover */
+.card-from-pink-400:hover { border-color: #f472b6; }
+.card-from-red-400:hover { border-color: #f87171; }
+.card-from-blue-400:hover { border-color: #60a5fa; }
+.card-from-purple-400:hover { border-color: #a78bfa; }
+.card-from-orange-400:hover { border-color: #fb923c; }
+.card-from-green-400:hover { border-color: #4ade80; }
+.card-from-yellow-400:hover { border-color: #facc15; }
+.card-from-cyan-400:hover { border-color: #22d3ee; }
 
-.card-from-red-400:hover {
-  border-color: #f87171;
-}
-
-.card-from-blue-400:hover {
-  border-color: #60a5fa;
-}
-
-.card-from-purple-400:hover {
-  border-color: #a78bfa;
-}
-
-.card-from-orange-400:hover {
-  border-color: #fb923c;
-}
-
-/* ===== IMAGEN DEL JUEGO ===== */
+/* ============================================
+   IMAGEN DEL JUEGO
+   ============================================ */
 .juego-imagen-container {
   width: 100%;
-  height: 220px;
+  height: 200px;
   overflow: hidden;
   position: relative;
 }
@@ -211,212 +115,110 @@
 .juego-imagen {
   width: 100%;
   height: 100%;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.3s ease;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  transition: transform 0.3s ease;
 }
 
 .juego-card-modern:hover .juego-imagen {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
-.imagen-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 100%);
-  transition: all 0.3s ease;
-}
-
-.juego-card-modern:hover .imagen-overlay {
-  background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 100%);
-}
-
-/* ===== CONTENIDO DEL JUEGO ===== */
+/* ============================================
+   CONTENIDO DEL JUEGO
+   ============================================ */
 .juego-contenido-modern {
-  padding: 25px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  padding: 30px;
+  text-align: center;
 }
 
 .juego-nombre {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.8rem;
   margin: 0 0 12px 0;
   color: #2d3748;
-  line-height: 1.3;
+  font-weight: 700;
 }
 
 .juego-descripcion-text {
-  font-size: 0.95rem;
   color: #718096;
+  font-size: 1rem;
   line-height: 1.5;
-  margin: 0 0 20px 0;
-  flex: 1;
+  margin-bottom: 25px;
 }
 
-/* ===== BOTÓN JUGAR MODERNO ===== */
+/* ============================================
+   BOTÓN JUGAR
+   ============================================ */
 .btn-jugar-modern {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 14px 28px;
-  border-radius: 15px;
-  border: none;
+  padding: 14px 30px;
   color: white;
-  font-weight: 800;
+  border-radius: 25px;
+  font-weight: 700;
   font-size: 1rem;
+  transition: all 0.3s ease;
+  border: none;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  position: relative;
-  overflow: hidden;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  width: 100%;
-  margin-top: auto;
-}
-
-.btn-jugar-modern::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-  transition: left 0.5s ease;
-}
-
-.btn-jugar-modern:hover::before {
-  left: 100%;
 }
 
 .btn-jugar-modern:hover {
-  transform: scale(1.05) translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
-
-/* Gradientes de botones según color del juego */
-.btn-gradient-from-pink-400 {
-  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
-}
-
-.btn-gradient-from-pink-400:hover {
-  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
-}
-
-.btn-gradient-from-red-400 {
-  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
-}
-
-.btn-gradient-from-red-400:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-}
-
-.btn-gradient-from-blue-400 {
-  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
-}
-
-.btn-gradient-from-blue-400:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-}
-
-.btn-gradient-from-purple-400 {
-  background: linear-gradient(135deg, #a78bfa 0%, #9333ea 100%);
-}
-
-.btn-gradient-from-purple-400:hover {
-  background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
-}
-
-.btn-gradient-from-orange-400 {
-  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
-}
-
-.btn-gradient-from-orange-400:hover {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  transform: scale(1.05);
 }
 
 .play-icon-modern {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
-/* ===== ANIMACIONES ===== */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Gradientes de botones */
+.btn-gradient-from-pink-400 { background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%); }
+.btn-gradient-from-red-400 { background: linear-gradient(135deg, #f87171 0%, #ef4444 100%); }
+.btn-gradient-from-blue-400 { background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); }
+.btn-gradient-from-purple-400 { background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); }
+.btn-gradient-from-orange-400 { background: linear-gradient(135deg, #fb923c 0%, #f97316 100%); }
+.btn-gradient-from-green-400 { background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%); }
+.btn-gradient-from-yellow-400 { background: linear-gradient(135deg, #facc15 0%, #eab308 100%); }
+.btn-gradient-from-cyan-400 { background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%); }
 
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===== RESPONSIVE ===== */
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 @media (max-width: 768px) {
   .juegos-grid-unificado {
     grid-template-columns: 1fr;
-    gap: 25px;
-    padding: 0 15px 40px 15px;
-  }
-  
-  .header-secciones {
-    padding: 60px 30px 50px;
   }
   
   .header-secciones h2 {
-    font-size: 2.8rem;
+    font-size: 2rem;
   }
   
-  .subtitulo {
-    font-size: 1.2rem;
-  }
-}
-
-@media (max-width: 480px) {
   .header-secciones {
-    padding: 50px 25px 40px;
-  }
-  
-  .header-secciones h2 {
-    font-size: 2.2rem;
-  }
-  
-  .subtitulo {
-    font-size: 1rem;
-  }
-  
-  .btn-volver-menu-principal {
-    padding: 12px 24px;
-    font-size: 1rem;
+    padding: 40px 20px;
   }
   
   .juego-imagen-container {
     height: 180px;
   }
+}
+
+@media (max-width: 480px) {
+  .secciones-menu {
+    padding: 20px 15px;
+  }
   
-  .btn-jugar-modern {
-    width: 100%;
-    justify-content: center;
+  .btn-volver-menu-principal {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+  }
+  
+  .juego-contenido-modern {
+    padding: 25px 20px;
+  }
+  
+  .juego-nombre {
+    font-size: 1.5rem;
   }
 }

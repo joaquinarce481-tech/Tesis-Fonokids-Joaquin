@@ -235,6 +235,9 @@
   gap: 25px;
 }
 
+/* ============================================
+   TARJETA DE EJERCICIO - CENTRADA
+   ============================================ */
 .ejercicio-card {
   background: white;
   border-radius: 16px;
@@ -245,6 +248,9 @@
   border: 3px solid transparent;
   box-shadow: 0 6px 20px rgba(0,0,0,0.1);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .ejercicio-card:hover {
@@ -254,6 +260,9 @@
 
 .ejercicio-imagen-container {
   margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .ejercicio-imagen {

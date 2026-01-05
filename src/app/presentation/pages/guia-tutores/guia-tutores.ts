@@ -11,6 +11,7 @@ interface Categoria {
   descripcion: string;
   icono: string;
   color: string;
+  imagen: string;
 }
 
 @Component({
@@ -31,8 +32,9 @@ export class GuiaTutoresComponent implements OnInit {
       titulo: 'Entendiendo la Terapia',
       subtitulo: 'Fundamentos esenciales',
       descripcion: 'Aprende sobre los ejercicios orofaciales y su importancia en el desarrollo del habla',
-      icono: '📚',
-      color: 'from-blue-400 to-blue-600'
+      icono: '🧠',
+      color: 'from-blue-400 to-blue-600',
+      imagen: 'assets/images/LaTarea.png'
     },
     {
       id: 'ayudar-casa',
@@ -40,15 +42,17 @@ export class GuiaTutoresComponent implements OnInit {
       subtitulo: 'Guía práctica para padres',
       descripcion: 'Estrategias efectivas para crear un ambiente de práctica positivo y motivador',
       icono: '🏠',
-      color: 'from-green-400 to-green-600'
+      color: 'from-green-400 to-green-600',
+      imagen: 'assets/images/AyudaCasa.png'
     },
     {
       id: 'guia-ejercicios',
       titulo: 'Guía de Ejercicios',
       subtitulo: 'Ejercicios detallados',
       descripcion: 'Conoce en profundidad los 17 ejercicios y cómo verificar su correcta ejecución',
-      icono: '💪',
-      color: 'from-purple-400 to-purple-600'
+      icono: '📚',
+      color: 'from-purple-400 to-purple-600',
+      imagen: 'assets/images/GuiaEjercicios.png'
     },
     {
       id: 'senales-progreso',
@@ -56,7 +60,8 @@ export class GuiaTutoresComponent implements OnInit {
       subtitulo: 'Monitoreo y seguimiento',
       descripcion: 'Identifica los indicadores de mejora en el desarrollo del habla y comunicación',
       icono: '📈',
-      color: 'from-orange-400 to-orange-600'
+      color: 'from-orange-400 to-orange-600',
+      imagen: 'assets/images/Progreso.png'
     },
     {
       id: 'preguntas-frecuentes',
@@ -64,7 +69,8 @@ export class GuiaTutoresComponent implements OnInit {
       subtitulo: 'Respuestas rápidas',
       descripcion: 'Encuentra soluciones a las dudas más comunes sobre la terapia y la aplicación',
       icono: '❓',
-      color: 'from-pink-400 to-pink-600'
+      color: 'from-pink-400 to-pink-600',
+      imagen: 'assets/images/Preguntas.png'
     }
   ];
 
@@ -348,8 +354,12 @@ export class GuiaTutoresComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    console.log('📖 Guía para Tutores cargada');
-  }
+  console.log(' Guía para Tutores cargada');
+  // Scroll al inicio cuando se carga el componente
+  setTimeout(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, 0);
+}
 
   navegarCategoria(categoria: Categoria): void {
     console.log(`📂 Mostrando: ${categoria.titulo}`);
