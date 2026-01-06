@@ -76,7 +76,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     {
       title: 'Tu Compañero de',
-      highlight: 'Práctica con IA',
+      highlight: 'Práctica con tu Asistente',
       tag: 'ASISTENTE INTELIGENTE',
       description: 'Practica conversaciones y mejora tu pronunciación con nuestro asistente de inteligencia artificial',
       primaryAction: 'CHATEAR CON IA',
