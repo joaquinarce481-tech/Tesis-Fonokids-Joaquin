@@ -90,7 +90,7 @@ export class AuthService {
 
   // 🚪 LOGOUT
   logout(): void {
-    console.log('🚪 Cerrando sesión...');
+    console.log(' Cerrando sesión...');
     
     // Limpiar localStorage
     localStorage.removeItem('fonokids_token');

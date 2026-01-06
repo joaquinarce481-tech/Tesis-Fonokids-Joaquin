@@ -10,7 +10,7 @@ import { AuthService } from '../../services/auth.service';
     <div class="modal-overlay" (click)="onCancel()">
       <div class="modal-container" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <div class="modal-icon">🚪</div>
+          <div class="modal-icon"></div>
           <h2 class="modal-title">¿Cerrar Sesión?</h2>
         </div>
         
