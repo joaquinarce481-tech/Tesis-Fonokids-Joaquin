@@ -75,8 +75,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       backgroundImage: 'assets/images/hero-slide-2.jpg'
     },
     {
-      title: 'Tu Compañero de',
-      highlight: 'Práctica con tu Asistente',
+      title: 'Tu asistente',
+      highlight: 'y Compañero de Práctica',
       tag: 'ASISTENTE INTELIGENTE',
       description: 'Practica conversaciones y mejora tu pronunciación con nuestro asistente de inteligencia artificial',
       primaryAction: 'CHATEAR CON IA',
