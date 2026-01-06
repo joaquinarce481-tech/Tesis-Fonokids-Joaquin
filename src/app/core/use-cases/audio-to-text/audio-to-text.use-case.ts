@@ -1,3 +1,5 @@
+import { environment } from 'environments/environment';
+
 export const audioToTextUseCase = async (audioFile: File) => {
   console.log('🚀 USE CASE EJECUTADO - Enviando con FormData');
   
@@ -8,7 +10,8 @@ export const audioToTextUseCase = async (audioFile: File) => {
     console.log('📤 Enviando archivo:', audioFile.name, audioFile.size, 'bytes');
     console.log('📦 FormData creado correctamente');
 
-    const resp = await fetch(`http://localhost:3000/gpt/audio-to-text`, {
+    // ✅ USAR ENVIRONMENT EN LUGAR DE LOCALHOST
+    const resp = await fetch(`${environment.backendApi}/gpt/audio-to-text`, {
       method: 'POST',
       body: formData,
     });
