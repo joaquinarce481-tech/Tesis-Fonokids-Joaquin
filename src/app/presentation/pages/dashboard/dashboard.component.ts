@@ -71,7 +71,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       tag: 'PRÁCTICA DIVERTIDA',
       description: 'Juegos especialmente diseñados para fortalecer los músculos de tu boca mientras te diviertes',
       primaryAction: 'JUGAR AHORA',
-      secondaryAction: 'HABLAR CON IA',
+      secondaryAction: 'HABLAR CON ASISTENTE',
       backgroundImage: 'assets/images/hero-slide-2.jpg'
     },
     {
