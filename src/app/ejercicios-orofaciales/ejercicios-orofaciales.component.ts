@@ -38,7 +38,6 @@ interface ResultadoEjercicio {
   repeticionesRequeridas: number;
 }
 
-// Interface para historial de posiciones de boca
 interface MouthPosition {
   centerX: number;
   centerY: number;
@@ -50,7 +49,6 @@ interface MouthPosition {
   rightCornerX: number;
   innerHeight: number;
   timestamp: number;
-  // Nuevos campos para mandíbula
   jawCenterX: number;
   jawCenterY: number;
   mouthRatio: number;
@@ -71,7 +69,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   private detectionInterval: any = null;
   modelsLoaded = false;
 
-  // Colores para landmarks
   private readonly COLOR_JAW = '#00BCD4';
   private readonly COLOR_EYEBROW = '#E91E63';
   private readonly COLOR_NOSE = '#4CAF50';
@@ -103,10 +100,12 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   private feedbackTimeout: any = null;
   private intervalTimer: any = null;
 
+  // ✅ NUEVA BANDERA: Para evitar que el modal se muestre si se salió manualmente
+  private salidaManual = false;
+
   private lastScores: number[] = [];
   private maxScoreHistory = 5;
 
-  // Calibración base
   private baselineMouthRatio = 0;
   private baselineFaceRatio = 0;
   private baselineMidRatio = 0;
@@ -126,7 +125,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   isCalibrated = false;
   private readonly CALIBRATION_FRAMES_NEEDED = 15;
 
-  // Historial para detección de movimiento
   private mouthPositionHistory: MouthPosition[] = [];
   private readonly POSITION_HISTORY_SIZE = 20;
 
@@ -171,7 +169,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     }
   ];
 
-  // TODOS LOS EJERCICIOS DURAN 20 SEGUNDOS
   ejercicios: Ejercicio[] = [
     // LINGUALES
     {
@@ -222,7 +219,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       seccionId: 'linguales',
       detectionType: 'tongueVibrate'
     },
-    // LABIALES - 20 segundos
+    // LABIALES
     {
       id: 1,
       nombre: 'Sonrisa Grande',
@@ -295,7 +292,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       seccionId: 'labiales',
       detectionType: 'cheeks'
     },
-    // MANDIBULARES - 20 segundos
+    // MANDIBULARES
     {
       id: 3,
       nombre: 'Abrir la Boca',
@@ -398,13 +395,23 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   }
 
   ngOnDestroy() {
+    this.limpiarTodosLosTimers();
     this.stopCamera();
-    this.clearDetectionInterval();
+  }
+
+  // ✅ NUEVO MÉTODO: Limpia TODOS los timers e intervalos
+  private limpiarTodosLosTimers(): void {
     if (this.intervalTimer) {
       clearInterval(this.intervalTimer);
+      this.intervalTimer = null;
+    }
+    if (this.detectionInterval) {
+      clearInterval(this.detectionInterval);
+      this.detectionInterval = null;
     }
     if (this.feedbackTimeout) {
       clearTimeout(this.feedbackTimeout);
+      this.feedbackTimeout = null;
     }
   }
 
@@ -435,6 +442,8 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   }
 
   volverAlDashboard(): void {
+    this.limpiarTodosLosTimers();
+    this.stopCamera();
     this.router.navigate(['/dashboard']);
   }
 
@@ -451,6 +460,8 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   }
 
   volverASecciones(): void {
+    this.limpiarTodosLosTimers();
+    this.stopCamera();
     this.cerrarModal();
     this.seccionActiva = null;
     this.vistaActual = 'secciones';
@@ -528,12 +539,8 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     this.mouthPositionHistory = [];
   }
 
-  iniciarEjercicio(ejercicio: Ejercicio): void {
-    this.ejercicioActivo = ejercicio;
-    this.vistaActual = 'activo';
-    this.mostrarResultados = false;
-    this.ultimoResultado = null;
-    
+  // ✅ MÉTODO: Reset completo del estado
+  private resetEstadoEjercicio(): void {
     this.tiempoRestante = 0;
     this.puntuacionActual = 0;
     this.progresoEjercicio = 0;
@@ -546,7 +553,25 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     this.lastScores = [];
     this.isCompletingExercise = false;
     this.mostrarLandmarks = false;
+    this.mostrarResultados = false;
+    this.salidaManual = false;
+    this.mouthPositionHistory = [];
     this.resetCalibration();
+  }
+
+  // ✅ MÉTODO CORREGIDO: Iniciar ejercicio con limpieza previa
+  iniciarEjercicio(ejercicio: Ejercicio): void {
+    // PRIMERO: Limpiar cualquier estado anterior
+    this.limpiarTodosLosTimers();
+    this.stopCamera();
+    
+    // Reset completo
+    this.resetEstadoEjercicio();
+    
+    // Configurar nuevo ejercicio
+    this.ejercicioActivo = ejercicio;
+    this.vistaActual = 'activo';
+    this.salidaManual = false;
     
     this.cdr.detectChanges();
     setTimeout(() => this.startCamera(), 500);
@@ -607,6 +632,11 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   }
 
   startDetection(): void {
+    // ✅ Verificar que el ejercicio sigue activo antes de iniciar
+    if (!this.ejercicioActivo || this.salidaManual) {
+      return;
+    }
+    
     if (!this.modelsLoaded) {
       this.startSimpleTimer();
       return;
@@ -621,7 +651,8 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     this.ngZone.runOutsideAngular(() => {
       this.detectionInterval = setInterval(() => {
-        if (this.isCompletingExercise || !this.ejercicioIniciado) {
+        // ✅ Verificar que el ejercicio sigue activo
+        if (this.isCompletingExercise || !this.ejercicioIniciado || this.salidaManual || !this.ejercicioActivo) {
           return;
         }
         
@@ -649,7 +680,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   }
 
   async detectPraxia(): Promise<void> {
-    if (!this.videoElement || !this.ejercicioActivo || this.isCompletingExercise) {
+    if (!this.videoElement || !this.ejercicioActivo || this.isCompletingExercise || this.salidaManual) {
       return;
     }
 
@@ -673,7 +704,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
           return;
         }
         
-        // Actualizar historial de posiciones
         this.updateMouthPositionHistory(detections.landmarks);
         
         const rawScore = this.analyzePraxiaType(detections);
@@ -691,12 +721,10 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     }
   }
 
-  // Actualizar historial de posiciones de la boca y mandíbula
   private updateMouthPositionHistory(landmarks: any): void {
     const mouth = landmarks.getMouth();
     const jawOutline = landmarks.getJawOutline();
     
-    // Puntos de la boca
     const leftCorner = mouth[0];
     const rightCorner = mouth[6];
     const topLip = mouth[3];
@@ -704,7 +732,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     const innerTop = mouth[13];
     const innerBottom = mouth[19];
     
-    // Centro de la mandíbula (punto 8 del jawOutline)
     const jawCenter = jawOutline[8];
     
     const mouthWidth = Math.abs(rightCorner.x - leftCorner.x);
@@ -801,12 +828,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     if (this.calibrationFrames >= this.CALIBRATION_FRAMES_NEEDED) {
       this.isCalibrated = true;
-      console.log('Calibración completa:', {
-        mouthWidth: this.baselineMouthWidth.toFixed(2),
-        mouthHeight: this.baselineMouthHeight.toFixed(2),
-        innerHeight: this.baselineInnerMouthHeight.toFixed(2),
-        jawCenterX: this.baselineJawCenterX.toFixed(2)
-      });
+      console.log('Calibración completa');
     }
   }
 
@@ -849,47 +871,24 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   // DETECCIONES LINGUALES
   // ============================================
 
-  /**
-   * LENGUA ARRIBA: Detecta boca abierta con lengua hacia arriba
-   * REQUIERE: aspect ratio >= 0.40 (boca abierta)
-   */
   private detectTongueUp(landmarks: any): number {
     const mouth = landmarks.getMouth();
-    
     const outerHeight = Math.abs(mouth[9].y - mouth[3].y);
     const mouthWidth = Math.abs(mouth[6].x - mouth[0].x);
-    
     const aspectRatio = outerHeight / mouthWidth;
-    
-    if (aspectRatio < 0.40) {
-      return 0;
-    }
-    
+    if (aspectRatio < 0.40) return 0;
     return 85;
   }
 
-  /**
-   * LENGUA CIRCULAR: Detecta movimiento circular con boca abierta
-   * REQUIERE: aspect ratio >= 0.50 Y movimiento real detectado
-   */
   private detectTongueCircular(landmarks: any): number {
     const mouth = landmarks.getMouth();
-    
     const outerHeight = Math.abs(mouth[9].y - mouth[3].y);
     const mouthWidth = Math.abs(mouth[6].x - mouth[0].x);
-    
     const aspectRatio = outerHeight / mouthWidth;
-    
-    if (aspectRatio < 0.50) {
-      return 0;
-    }
-    
-    if (this.mouthPositionHistory.length < 6) {
-      return 0;
-    }
+    if (aspectRatio < 0.50) return 0;
+    if (this.mouthPositionHistory.length < 6) return 0;
     
     let score = 0;
-    
     if (aspectRatio >= 0.50) score += 20;
     if (aspectRatio >= 0.65) score += 10;
     
@@ -906,7 +905,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     for (let i = 1; i < recentHistory.length; i++) {
       const prev = recentHistory[i - 1];
       const curr = recentHistory[i];
-      
       const deltaX = curr.centerX - prev.centerX;
       const deltaY = curr.centerY - prev.centerY;
       const aspectDelta = (curr.height / curr.width) - (prev.height / prev.width);
@@ -932,9 +930,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     const totalMovement = totalMovementX + totalMovementY;
     const totalDirectionChanges = directionChangesX + directionChangesY + aspectRatioChanges;
     
-    if (totalMovement < 3 && totalDirectionChanges < 1) {
-      return 0;
-    }
+    if (totalMovement < 3 && totalDirectionChanges < 1) return 0;
     
     if (totalMovement > 3) score += 25;
     if (totalMovement > 8) score += 15;
@@ -952,33 +948,20 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     return score >= 70 ? Math.min(score, 100) : 0;
   }
 
-  /**
-   * LENGUA LATERAL: Detecta movimiento horizontal de lado a lado
-   * REQUIERE: aspect ratio >= 0.45 Y movimiento lateral real
-   */
   private detectTongueLateral(landmarks: any): number {
     const mouth = landmarks.getMouth();
-    
     const outerHeight = Math.abs(mouth[9].y - mouth[3].y);
     const mouthWidth = Math.abs(mouth[6].x - mouth[0].x);
-    
     const aspectRatio = outerHeight / mouthWidth;
     
-    if (aspectRatio < 0.45) {
-      return 0;
-    }
-    
-    if (this.mouthPositionHistory.length < 5) {
-      return 0;
-    }
+    if (aspectRatio < 0.45) return 0;
+    if (this.mouthPositionHistory.length < 5) return 0;
     
     let score = 0;
-    
     if (aspectRatio >= 0.45) score += 20;
     if (aspectRatio >= 0.60) score += 10;
     
     const recentHistory = this.mouthPositionHistory.slice(-12);
-    
     let totalLateralMovement = 0;
     let maxLeftPosition = recentHistory[0].centerX;
     let maxRightPosition = recentHistory[0].centerX;
@@ -988,7 +971,6 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     for (let i = 1; i < recentHistory.length; i++) {
       const prev = recentHistory[i - 1];
       const curr = recentHistory[i];
-      
       const deltaX = curr.centerX - prev.centerX;
       totalLateralMovement += Math.abs(deltaX);
       
@@ -996,18 +978,13 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       if (curr.centerX > maxRightPosition) maxRightPosition = curr.centerX;
       
       if (Math.abs(lastDelta) > 0.2 && Math.abs(deltaX) > 0.2) {
-        if (Math.sign(deltaX) !== Math.sign(lastDelta)) {
-          directionChanges++;
-        }
+        if (Math.sign(deltaX) !== Math.sign(lastDelta)) directionChanges++;
       }
       if (Math.abs(deltaX) > 0.2) lastDelta = deltaX;
     }
     
     const movementRange = maxRightPosition - maxLeftPosition;
-    
-    if (totalLateralMovement < 2 && movementRange < 1) {
-      return 0;
-    }
+    if (totalLateralMovement < 2 && movementRange < 1) return 0;
     
     const leftCorner = mouth[0];
     const rightCorner = mouth[6];
@@ -1018,43 +995,31 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     if (asymmetryRatio > 0.03) score += 15;
     if (asymmetryRatio > 0.08) score += 10;
-    
     if (totalLateralMovement > 2) score += 20;
     if (totalLateralMovement > 6) score += 15;
     if (totalLateralMovement > 12) score += 10;
-    
     if (movementRange > 1.5) score += 10;
     if (movementRange > 4) score += 5;
-    
     if (directionChanges >= 1) score += 15;
     if (directionChanges >= 2) score += 5;
     
     return score >= 70 ? Math.min(score, 100) : 0;
   }
 
-  /**
-   * VIBRACIÓN LINGUAL: Detecta boca abierta con lengua en paladar
-   */
   private detectTongueVibrate(landmarks: any): number {
     const mouth = landmarks.getMouth();
-    
     const innerHeight = Math.abs(mouth[19].y - mouth[13].y);
     const outerHeight = Math.abs(mouth[9].y - mouth[3].y);
     const mouthWidth = Math.abs(mouth[6].x - mouth[0].x);
-    
     const aspectRatio = outerHeight / mouthWidth;
     const innerToOuterRatio = innerHeight / outerHeight;
     
-    if (aspectRatio < 0.40) {
-      return 0;
-    }
+    if (aspectRatio < 0.40) return 0;
     
     let score = 0;
-    
     if (aspectRatio >= 0.40) score += 35;
     if (aspectRatio >= 0.55) score += 15;
     if (aspectRatio >= 0.70) score += 10;
-    
     if (innerToOuterRatio < 0.80) score += 20;
     if (innerToOuterRatio < 0.65) score += 15;
     if (innerToOuterRatio < 0.50) score += 10;
@@ -1078,116 +1043,71 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   private detectKiss(landmarks: any): number {
     const mouth = landmarks.getMouth();
     const jawOutline = landmarks.getJawOutline();
-    
     const mouthWidth = Math.abs(mouth[0].x - mouth[6].x);
     const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
     const faceWidth = Math.abs(jawOutline[3].x - jawOutline[13].x);
-    
     const mouthRatio = mouthHeight / mouthWidth;
     const mouthSizeRatio = mouthWidth / faceWidth;
     
     let score = 0;
-    
     if (mouthRatio > 0.35) {
       score += 35;
       if (mouthRatio > 0.50) score += 20;
       if (mouthRatio > 0.65) score += 10;
     }
-    
     if (mouthSizeRatio < 0.32) {
       score += 30;
       if (mouthSizeRatio < 0.28) score += 15;
       if (mouthSizeRatio < 0.24) score += 10;
     }
-    
     const ratioChange = mouthRatio - this.baselineMouthRatio;
     const sizeChange = this.baselineMouthSize - mouthSizeRatio;
-    
     if (ratioChange > 0.05) score += 10;
     if (sizeChange > 0.03) score += 10;
     
     return score >= 70 ? Math.min(score, 100) : 0;
   }
 
-  /**
-   * ABRIR LA BOCA: Detecta boca abierta ampliamente
-   * SIMPLIFICADO: Solo usa ratio absoluto, sin depender de baseline
-   */
   private detectOpenMouth(landmarks: any): number {
     const mouth = landmarks.getMouth();
     const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
     const mouthWidth = Math.abs(mouth[0].x - mouth[6].x);
     const mouthRatio = mouthHeight / mouthWidth;
     
-    // DEBUG: descomentar para ver valores
-    // console.log('OpenMouth - ratio:', mouthRatio.toFixed(3), 'height:', mouthHeight.toFixed(1), 'width:', mouthWidth.toFixed(1));
-    
-    // Boca cerrada normal: ratio ~0.10-0.25
-    // Boca abierta: ratio > 0.35
-    // Boca MUY abierta: ratio > 0.50
-    
-    // SIMPLE: Si el ratio es mayor a 0.35, la boca está abierta
     if (mouthRatio >= 0.35) {
-      // Escalar de 70 a 100 basado en qué tan abierta está
       const score = 70 + Math.min((mouthRatio - 0.35) * 100, 30);
       return Math.round(score);
     }
-    
     return 0;
   }
 
-  /**
-   * GUIÑO ALTERNADO: Detecta un ojo cerrado y otro abierto
-   * EXTREMADAMENTE PERMISIVO: face-api tiny no detecta bien ojos cerrados
-   */
   private detectWink(landmarks: any): number {
     const leftEye = landmarks.getLeftEye();
     const rightEye = landmarks.getRightEye();
     
-    // Calcular altura de cada ojo usando múltiples puntos
     const leftEyeHeight1 = Math.abs(leftEye[1].y - leftEye[5].y);
     const leftEyeHeight2 = Math.abs(leftEye[2].y - leftEye[4].y);
     const rightEyeHeight1 = Math.abs(rightEye[1].y - rightEye[5].y);
     const rightEyeHeight2 = Math.abs(rightEye[2].y - rightEye[4].y);
     
-    // Probar diferentes combinaciones
     const leftMin = Math.min(leftEyeHeight1, leftEyeHeight2);
     const rightMin = Math.min(rightEyeHeight1, rightEyeHeight2);
-    const leftMax = Math.max(leftEyeHeight1, leftEyeHeight2);
-    const rightMax = Math.max(rightEyeHeight1, rightEyeHeight2);
     const leftAvg = (leftEyeHeight1 + leftEyeHeight2) / 2;
     const rightAvg = (rightEyeHeight1 + rightEyeHeight2) / 2;
     
-    // Ancho de ojos
     const leftWidth = Math.abs(leftEye[3].x - leftEye[0].x);
     const rightWidth = Math.abs(rightEye[3].x - rightEye[0].x);
-    
-    // Calcular aspect ratio de cada ojo (altura/ancho)
     const leftAspect = leftAvg / leftWidth;
     const rightAspect = rightAvg / rightWidth;
     
-    // DEBUG: VER VALORES EN CONSOLA
-    console.log('Wink DEBUG:', {
-      leftH1: leftEyeHeight1.toFixed(2),
-      leftH2: leftEyeHeight2.toFixed(2),
-      rightH1: rightEyeHeight1.toFixed(2),
-      rightH2: rightEyeHeight2.toFixed(2),
-      leftAvg: leftAvg.toFixed(2),
-      rightAvg: rightAvg.toFixed(2),
-      leftAspect: leftAspect.toFixed(3),
-      rightAspect: rightAspect.toFixed(3)
-    });
-    
     let score = 0;
     
-    // MÉTODO 1: Diferencia de altura promedio
     const avgDiff = Math.abs(leftAvg - rightAvg);
     if (avgDiff > 0.3) score += 25;
     if (avgDiff > 0.6) score += 20;
     if (avgDiff > 1.0) score += 15;
     if (avgDiff > 1.5) score += 10;
     
-    // MÉTODO 2: Ratio de alturas (muy permisivo)
     const maxAvg = Math.max(leftAvg, rightAvg);
     const minAvg = Math.min(leftAvg, rightAvg);
     if (maxAvg > 0) {
@@ -1198,13 +1118,11 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
       if (heightRatio < 0.75) score += 10;
     }
     
-    // MÉTODO 3: Diferencia de aspect ratio
     const aspectDiff = Math.abs(leftAspect - rightAspect);
     if (aspectDiff > 0.01) score += 20;
     if (aspectDiff > 0.02) score += 15;
     if (aspectDiff > 0.04) score += 10;
     
-    // MÉTODO 4: Comparar mínimos (más sensible)
     const minDiff = Math.abs(leftMin - rightMin);
     if (minDiff > 0.2) score += 15;
     if (minDiff > 0.5) score += 10;
@@ -1214,16 +1132,10 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
 
   private detectCheeks(landmarks: any): number {
     const mouth = landmarks.getMouth();
-    
     const mouthWidth = Math.abs(mouth[0].x - mouth[6].x);
     const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
-    
     const mouthRatio = mouthHeight / mouthWidth;
-    
-    if (mouthRatio >= 0.60) {
-      return 0;
-    }
-    
+    if (mouthRatio >= 0.60) return 0;
     return 85;
   }
 
@@ -1248,57 +1160,46 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   private detectVibrateLips(landmarks: any): number {
     const mouth = landmarks.getMouth();
     const jawOutline = landmarks.getJawOutline();
-    
     const mouthWidth = Math.abs(mouth[0].x - mouth[6].x);
     const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
     const faceWidth = Math.abs(jawOutline[3].x - jawOutline[13].x);
-    
     const mouthRatio = mouthHeight / mouthWidth;
     const mouthSizeRatio = mouthWidth / faceWidth;
     
     let score = 0;
-    
     if (mouthRatio < 0.40) {
       score += 45;
       if (mouthRatio < 0.30) score += 15;
       if (mouthRatio < 0.20) score += 10;
     }
-    
     if (mouthSizeRatio < 0.45) {
       score += 30;
       if (mouthSizeRatio < 0.38) score += 10;
     }
-    
     return score >= 70 ? Math.min(score, 100) : 0;
   }
 
   private detectBlow(landmarks: any): number {
     const mouth = landmarks.getMouth();
     const jawOutline = landmarks.getJawOutline();
-    
     const mouthWidth = Math.abs(mouth[0].x - mouth[6].x);
     const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
     const faceWidth = Math.abs(jawOutline[3].x - jawOutline[13].x);
-    
     const mouthRatio = mouthHeight / mouthWidth;
     const mouthSizeRatio = mouthWidth / faceWidth;
     
     let score = 0;
-    
     if (mouthRatio > 0.35) {
       score += 35;
       if (mouthRatio > 0.50) score += 20;
       if (mouthRatio > 0.70) score += 10;
     }
-    
     if (mouthSizeRatio < 0.34) {
       score += 30;
       if (mouthSizeRatio < 0.28) score += 15;
     }
-    
     const ratioChange = mouthRatio - this.baselineMouthRatio;
     const sizeChange = this.baselineMouthSize - mouthSizeRatio;
-    
     if (ratioChange > 0.05) score += 10;
     if (sizeChange > 0.02) score += 10;
     
@@ -1308,16 +1209,13 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   private detectHoldPen(landmarks: any): number {
     const mouth = landmarks.getMouth();
     const jawOutline = landmarks.getJawOutline();
-    
     const mouthWidth = Math.abs(mouth[0].x - mouth[6].x);
     const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
     const faceWidth = Math.abs(jawOutline[3].x - jawOutline[13].x);
-    
     const mouthRatio = mouthHeight / mouthWidth;
     const mouthSizeRatio = mouthWidth / faceWidth;
     
     let score = 0;
-    
     if (mouthRatio < 0.30) {
       score += 50;
       if (mouthRatio < 0.20) score += 20;
@@ -1325,10 +1223,7 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     } else {
       return 0;
     }
-    
-    if (mouthSizeRatio < 0.45) {
-      score += 25;
-    }
+    if (mouthSizeRatio < 0.45) score += 25;
     
     return score >= 70 ? Math.min(score, 100) : 0;
   }
@@ -1336,53 +1231,38 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   private detectAirKisses(landmarks: any): number {
     const mouth = landmarks.getMouth();
     const jawOutline = landmarks.getJawOutline();
-    
     const mouthWidth = Math.abs(mouth[0].x - mouth[6].x);
     const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
     const faceWidth = Math.abs(jawOutline[3].x - jawOutline[13].x);
-    
     const mouthRatio = mouthHeight / mouthWidth;
     const mouthSizeRatio = mouthWidth / faceWidth;
     
     let score = 0;
-    
     if (mouthRatio > 0.20) {
       score += 40;
       if (mouthRatio > 0.35) score += 20;
       if (mouthRatio > 0.50) score += 10;
     }
-    
     if (mouthSizeRatio < 0.42) {
       score += 30;
       if (mouthSizeRatio < 0.35) score += 10;
     }
-    
     return score >= 70 ? Math.min(score, 100) : 0;
   }
 
   // ============================================
-  // DETECCIONES MANDIBULARES (MEJORADAS)
+  // DETECCIONES MANDIBULARES
   // ============================================
 
-  /**
-   * MASTICAR CHICLE: Detecta movimiento repetitivo de abrir/cerrar boca
-   * REQUIERE: Ciclos de apertura/cierre detectados en historial
-   */
   private detectChew(landmarks: any): number {
     const mouth = landmarks.getMouth();
-    
     const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
     const mouthWidth = Math.abs(mouth[0].x - mouth[6].x);
     const currentRatio = mouthHeight / mouthWidth;
     
-    // REQUIERE historial para detectar ciclos de masticación
-    if (this.mouthPositionHistory.length < 8) {
-      return 0;
-    }
+    if (this.mouthPositionHistory.length < 8) return 0;
     
     let score = 0;
-    
-    // Analizar historial para detectar ciclos de abrir/cerrar
     const recentHistory = this.mouthPositionHistory.slice(-15);
     
     let openCloseCount = 0;
@@ -1394,122 +1274,68 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     for (let i = 1; i < recentHistory.length; i++) {
       const prev = recentHistory[i - 1];
       const curr = recentHistory[i];
-      
-      // Calcular movimiento vertical
       const deltaY = Math.abs(curr.height - prev.height);
       totalVerticalMovement += deltaY;
       
-      // Trackear min/max ratio
       if (curr.mouthRatio > maxRatio) maxRatio = curr.mouthRatio;
       if (curr.mouthRatio < minRatio) minRatio = curr.mouthRatio;
       
-      // Detectar transiciones abrir/cerrar
       const ratioChange = curr.mouthRatio - this.baselineMouthRatio;
-      
       let currentState: 'open' | 'closed' | 'neutral' = 'neutral';
-      if (ratioChange > 0.08) {
-        currentState = 'open';
-      } else if (ratioChange < -0.02) {
-        currentState = 'closed';
-      }
+      if (ratioChange > 0.08) currentState = 'open';
+      else if (ratioChange < -0.02) currentState = 'closed';
       
-      // Contar transiciones
       if (currentState !== 'neutral' && lastState !== 'neutral' && currentState !== lastState) {
         openCloseCount++;
       }
-      
-      if (currentState !== 'neutral') {
-        lastState = currentState;
-      }
+      if (currentState !== 'neutral') lastState = currentState;
     }
     
-    // Rango de movimiento del ratio
     const ratioRange = maxRatio - minRatio;
+    if (totalVerticalMovement < 3 && openCloseCount < 1) return 0;
     
-    // VERIFICACIÓN: Debe haber movimiento vertical Y ciclos
-    if (totalVerticalMovement < 3 && openCloseCount < 1) {
-      return 0; // No hay movimiento de masticación
-    }
-    
-    // 1. Puntos por ciclos de abrir/cerrar detectados
     if (openCloseCount >= 1) score += 30;
     if (openCloseCount >= 2) score += 20;
     if (openCloseCount >= 3) score += 10;
-    
-    // 2. Puntos por movimiento vertical total
     if (totalVerticalMovement > 3) score += 20;
     if (totalVerticalMovement > 8) score += 15;
     if (totalVerticalMovement > 15) score += 10;
-    
-    // 3. Puntos por rango de ratio (indica amplitud del movimiento)
     if (ratioRange > 0.05) score += 15;
     if (ratioRange > 0.12) score += 10;
     if (ratioRange > 0.20) score += 5;
     
-    // 4. Verificar que no es solo boca abierta estática
     const currentRatioChange = Math.abs(currentRatio - this.baselineMouthRatio);
-    if (currentRatioChange < 0.25) {
-      // Si la boca está en rango normal de masticación, bonus
-      score += 10;
-    }
+    if (currentRatioChange < 0.25) score += 10;
     
     return score >= 70 ? Math.min(score, 100) : 0;
   }
 
-  /**
-   * MANDÍBULA LATERAL: Detecta movimiento lateral de la mandíbula
-   * REESCRITO: Mide desplazamiento relativo mandíbula-nariz, no movimiento absoluto
-   */
   private detectJawLateral(landmarks: any): number {
     const jawOutline = landmarks.getJawOutline();
     const nose = landmarks.getNose();
     const mouth = landmarks.getMouth();
     
-    // Puntos de referencia
-    const jawCenter = jawOutline[8]; // Centro inferior de mandíbula
-    const noseCenter = nose[3]; // Punta de la nariz
-    const noseBridge = nose[0]; // Puente de la nariz (más estable)
-    
-    // Calcular el desplazamiento HORIZONTAL de la mandíbula respecto a la nariz
-    // Si la mandíbula se mueve a la izquierda/derecha mientras la nariz está centrada,
-    // el offset será diferente de 0
+    const jawCenter = jawOutline[8];
+    const noseCenter = nose[3];
     const jawNoseOffset = jawCenter.x - noseCenter.x;
     
-    // También medir respecto al puente de la nariz (más estable)
-    const jawBridgeOffset = jawCenter.x - noseBridge.x;
-    
-    // Verificar que NO es un puchero/beso
     const mouthWidth = Math.abs(mouth[0].x - mouth[6].x);
     const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
     const mouthRatio = mouthHeight / mouthWidth;
     const faceWidth = Math.abs(jawOutline[3].x - jawOutline[13].x);
     const mouthSizeRatio = mouthWidth / faceWidth;
     
-    if (mouthRatio > 0.40 && mouthSizeRatio < 0.32) {
-      return 0; // Es puchero, no movimiento lateral
-    }
+    if (mouthRatio > 0.40 && mouthSizeRatio < 0.32) return 0;
+    if (this.mouthPositionHistory.length < 10) return 0;
     
-    // DEBUG: descomentar para ver valores
-    // console.log('JawLateral - offset:', jawNoseOffset.toFixed(2), 'bridgeOffset:', jawBridgeOffset.toFixed(2));
-    
-    // REQUIERE historial para detectar MOVIMIENTO lateral
-    if (this.mouthPositionHistory.length < 10) {
-      return 0;
-    }
-    
-    // Calcular el offset baseline (cuando la mandíbula está centrada)
-    // Usamos el promedio de los primeros frames como referencia
     const firstFrames = this.mouthPositionHistory.slice(0, 5);
     let baselineOffset = 0;
     for (const frame of firstFrames) {
-      // El offset baseline es la diferencia entre jaw y mouth center
       baselineOffset += frame.jawCenterX - frame.centerX;
     }
     baselineOffset /= firstFrames.length;
     
-    // Analizar historial para detectar cambios de offset (movimiento lateral real)
     const recentHistory = this.mouthPositionHistory.slice(-15);
-    
     let maxLeftDeviation = 0;
     let maxRightDeviation = 0;
     let significantMovements = 0;
@@ -1518,68 +1344,40 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     for (let i = 0; i < recentHistory.length; i++) {
       const frame = recentHistory[i];
-      // Desviación actual del jaw respecto a su posición esperada
       const currentOffset = frame.jawCenterX - frame.centerX;
       const deviation = currentOffset - baselineOffset;
       
       if (deviation < maxLeftDeviation) maxLeftDeviation = deviation;
       if (deviation > maxRightDeviation) maxRightDeviation = deviation;
+      if (Math.abs(deviation) > 2) significantMovements++;
       
-      // Contar movimientos significativos
-      if (Math.abs(deviation) > 2) {
-        significantMovements++;
-      }
-      
-      // Contar cambios de dirección
       if (i > 0) {
         if (Math.abs(lastDeviation) > 1 && Math.abs(deviation) > 1) {
-          if (Math.sign(deviation) !== Math.sign(lastDeviation)) {
-            directionChanges++;
-          }
+          if (Math.sign(deviation) !== Math.sign(lastDeviation)) directionChanges++;
         }
       }
       lastDeviation = deviation;
     }
     
-    // Rango total de desviación lateral
     const totalRange = maxRightDeviation - maxLeftDeviation;
-    
-    // REQUISITOS ESTRICTOS para evitar falsos positivos:
-    // 1. Debe haber rango de movimiento significativo (> 3 pixels)
-    // 2. Debe haber múltiples frames con movimiento
-    // 3. Idealmente debe haber cambios de dirección
-    
-    if (totalRange < 3 && significantMovements < 3) {
-      return 0; // No hay movimiento lateral real
-    }
+    if (totalRange < 3 && significantMovements < 3) return 0;
     
     let score = 0;
-    
-    // 1. Puntos por rango de movimiento
     if (totalRange > 3) score += 25;
     if (totalRange > 6) score += 20;
     if (totalRange > 10) score += 15;
-    
-    // 2. Puntos por frames con movimiento significativo
     if (significantMovements >= 3) score += 20;
     if (significantMovements >= 6) score += 15;
     if (significantMovements >= 10) score += 10;
-    
-    // 3. Puntos por cambios de dirección (movimiento alternado)
     if (directionChanges >= 1) score += 20;
     if (directionChanges >= 2) score += 10;
     
-    // 4. Desviación actual (está desviado ahora?)
     const currentDeviation = Math.abs(jawNoseOffset);
     if (currentDeviation > 3) score += 10;
     
     return score >= 70 ? Math.min(score, 100) : 0;
   }
 
-  /**
-   * BOSTEZO: Detecta apertura grande de boca + ojos entrecerrados
-   * SIMPLIFICADO: Más permisivo con boca abierta
-   */
   private detectYawn(landmarks: any): number {
     const mouth = landmarks.getMouth();
     const mouthHeight = Math.abs(mouth[3].y - mouth[9].y);
@@ -1588,31 +1386,16 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     const leftEye = landmarks.getLeftEye();
     const rightEye = landmarks.getRightEye();
-    
-    // Altura de ojos
     const leftEyeHeight = Math.abs(leftEye[1].y - leftEye[5].y);
     const rightEyeHeight = Math.abs(rightEye[1].y - rightEye[5].y);
     const avgEyeHeight = (leftEyeHeight + rightEyeHeight) / 2;
     
-    // DEBUG: descomentar para ver valores
-    // console.log('Yawn - mouthRatio:', mouthRatio.toFixed(3), 'eyeHeight:', avgEyeHeight.toFixed(2));
+    if (mouthRatio < 0.40) return 0;
     
-    // BOSTEZO: Boca muy abierta (ratio > 0.40)
-    // Bonus si ojos entrecerrados
-    
-    if (mouthRatio < 0.40) {
-      return 0; // Boca no suficientemente abierta
-    }
-    
-    let score = 70; // Base si boca está abierta
-    
-    // Bonus por boca más abierta
+    let score = 70;
     if (mouthRatio > 0.50) score += 10;
     if (mouthRatio > 0.60) score += 10;
     if (mouthRatio > 0.70) score += 5;
-    
-    // Bonus por ojos entrecerrados (típico de bostezo)
-    // Si la altura promedio de ojos es pequeña, están entrecerrados
     if (avgEyeHeight < 8) score += 10;
     if (avgEyeHeight < 5) score += 5;
     
@@ -1620,10 +1403,14 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
   }
 
   // ============================================
-  // FUNCIONES AUXILIARES
+  // FUNCIONES DE CONTROL
   // ============================================
 
   startSimpleTimer(): void {
+    if (this.salidaManual || !this.ejercicioActivo) {
+      return;
+    }
+    
     this.ejercicioIniciado = true;
     this.exerciseStartTime = Date.now();
     this.isCalibrated = true;
@@ -1631,6 +1418,11 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     this.ngZone.runOutsideAngular(() => {
       this.detectionInterval = setInterval(() => {
+        if (this.salidaManual || !this.ejercicioActivo) {
+          this.clearDetectionInterval();
+          return;
+        }
+        
         this.ngZone.run(() => {
           this.puntuacionActual = 50 + Math.random() * 30;
           this.contadorFramesTotales++;
@@ -1802,8 +1594,9 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     }
   }
 
+  // ✅ MÉTODO CORREGIDO: Contador con verificación de salida manual
   private iniciarContadorEjercicio(): void {
-    if (!this.ejercicioActivo) {
+    if (!this.ejercicioActivo || this.salidaManual) {
       return;
     }
     
@@ -1811,6 +1604,15 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     this.progresoEjercicio = 0;
     
     this.intervalTimer = setInterval(() => {
+      // ✅ Verificar en cada tick si debemos continuar
+      if (this.salidaManual || !this.ejercicioActivo) {
+        if (this.intervalTimer) {
+          clearInterval(this.intervalTimer);
+          this.intervalTimer = null;
+        }
+        return;
+      }
+      
       this.tiempoRestante--;
       this.progresoEjercicio = ((this.ejercicioActivo!.duracion - this.tiempoRestante) / this.ejercicioActivo!.duracion) * 100;
       
@@ -1821,14 +1623,19 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     }, 1000);
   }
 
+  // ✅ MÉTODO CORREGIDO: No mostrar resultados si salió manualmente
   private finalizarEjercicio(): void {
-    if (this.intervalTimer) {
-      clearInterval(this.intervalTimer);
+    // VERIFICACIÓN CRÍTICA: No finalizar si se salió manualmente
+    if (this.salidaManual) {
+      console.log('Finalización cancelada - salida manual detectada');
+      return;
     }
+    
+    // Limpiar timers PRIMERO
+    this.limpiarTodosLosTimers();
     
     this.ejercicioIniciado = false;
     this.isCompletingExercise = true;
-    this.clearDetectionInterval();
     
     if (this.ejercicioActivo) {
       const puntuacionCalculada = this.contadorFramesTotales > 0 
@@ -1869,11 +1676,16 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     
     this.stopCamera();
     
-    setTimeout(() => {
-      this.mostrarResultados = true;
-      this.vistaActual = 'resultados';
-      this.cdr.detectChanges();
-    }, 500);
+    // Verificar una vez más antes de mostrar resultados
+    if (!this.salidaManual) {
+      setTimeout(() => {
+        if (!this.salidaManual) {
+          this.mostrarResultados = true;
+          this.vistaActual = 'resultados';
+          this.cdr.detectChanges();
+        }
+      }, 500);
+    }
   }
 
   detenerEjercicio(): void {
@@ -1886,16 +1698,27 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     }
   }
 
+  // ✅ MÉTODO CORREGIDO: Salir del ejercicio sin mostrar resultados
   volverAlMenu(): void {
+    console.log('Volviendo al menú - marcando salida manual');
+    
+    // PRIMERO: Marcar salida manual para evitar que el timer muestre resultados
+    this.salidaManual = true;
+    this.ejercicioIniciado = false;
+    this.isCompletingExercise = false;
+    
+    // SEGUNDO: Limpiar TODOS los timers inmediatamente
+    this.limpiarTodosLosTimers();
+    
+    // TERCERO: Detener cámara
+    this.stopCamera();
+    
+    // CUARTO: Reset del estado visual
     this.ejercicioActivo = null;
     this.mostrarResultados = false;
     this.vistaActual = this.seccionActiva ? 'ejercicios' : 'secciones';
-    this.stopCamera();
     
-    if (this.feedbackTimeout) {
-      clearTimeout(this.feedbackTimeout);
-    }
-    
+    // Reset de variables de estado
     this.tiempoRestante = 0;
     this.puntuacionActual = 0;
     this.progresoEjercicio = 0;
@@ -1903,40 +1726,36 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     this.feedbackTipo = '';
     this.contadorFramesCorrectos = 0;
     this.contadorFramesTotales = 0;
-    this.ejercicioIniciado = false;
-    this.isCompletingExercise = false;
+    this.lastScores = [];
     this.mouthPositionHistory = [];
     
+    this.cdr.detectChanges();
     setTimeout(() => window.scrollTo(0, 0), 100);
   }
 
+  // ✅ MÉTODO CORREGIDO: Repetir ejercicio
   repetirEjercicio(): void {
-    this.stopCamera();
+    const ejercicioARepetir = this.ejercicioActivo;
     
-    if (this.feedbackTimeout) {
-      clearTimeout(this.feedbackTimeout);
+    if (!ejercicioARepetir) {
+      this.volverAlMenu();
+      return;
     }
     
+    // Limpiar estado
+    this.limpiarTodosLosTimers();
+    this.stopCamera();
+    
     this.mostrarResultados = false;
-    this.tiempoRestante = 0;
-    this.puntuacionActual = 0;
-    this.progresoEjercicio = 0;
-    this.mensajeFeedback = '';
-    this.feedbackTipo = '';
-    this.contadorFramesCorrectos = 0;
-    this.contadorFramesTotales = 0;
-    this.ejercicioIniciado = false;
-    this.isRecording = false;
-    this.lastScores = [];
-    this.isCompletingExercise = false;
-    this.mouthPositionHistory = [];
+    this.salidaManual = false;
+    this.resetEstadoEjercicio();
     
     this.vistaActual = 'activo';
+    this.ejercicioActivo = ejercicioARepetir;
     this.cdr.detectChanges();
     
     setTimeout(() => {
-      if (this.ejercicioActivo) {
-        this.resetCalibration();
+      if (this.ejercicioActivo && !this.salidaManual) {
         this.startCamera();
       }
     }, 500);
@@ -1964,16 +1783,13 @@ export class EjerciciosOrofacialesComponent implements OnInit, AfterViewInit, On
     }
     
     this.isRecording = false;
-    this.ejercicioIniciado = false;
     this.lastScores = [];
     this.mouthPositionHistory = [];
   }
 
   private mostrarFeedback(mensaje: string, tipo: 'success' | 'warning' | 'error'): void {
     const ahora = Date.now();
-    if (ahora - this.ultimoTiempoFeedback < 1000) {
-      return;
-    }
+    if (ahora - this.ultimoTiempoFeedback < 1000) return;
     
     this.ultimoTiempoFeedback = ahora;
     this.mensajeFeedback = mensaje;

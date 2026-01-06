@@ -1,81 +1,75 @@
 <!-- src/app/components/faq-modal/faq-modal.component.html -->
 
-<div class="faq-modal-overlay" 
-     *ngIf="isVisible" 
-     (click)="onClose()">
-  
-  <div class="faq-modal" 
-       (click)="$event.stopPropagation()">
+<div class="faq-modal-overlay" *ngIf="isVisible" (click)="onClose()">
+  <div class="faq-modal" (click)="$event.stopPropagation()">
     
-    <!-- Header del modal -->
+    <!-- Header -->
     <div class="faq-header">
       <div class="faq-header-content">
         <div class="faq-icon">❓</div>
         <div>
           <h2>Preguntas Frecuentes</h2>
-          <p>Selecciona una pregunta para enviarla al chat</p>
+          <p>Conoce todas las funciones de FonoKids</p>
         </div>
       </div>
-      <button class="faq-close-btn" (click)="onClose()">
-        <span>✕</span>
-      </button>
+      <button class="faq-close-btn" (click)="onClose()">✕</button>
     </div>
 
-    <!-- Contenido del modal -->
+    <!-- Contenido -->
     <div class="faq-content">
       
-      <!-- Categorías de preguntas -->
-      <div class="faq-categories">
-        <button 
-          *ngFor="let category of faqCategories; let i = index"
-          class="category-btn"
-          [class.active]="selectedCategoryIndex === i"
-          (click)="selectCategory(i)">
-          <span class="category-icon">{{ category.icon }}</span>
-          {{ category.name }}
-        </button>
+      <!-- Categorías -->
+      <div class="faq-categories-wrapper">
+        <div class="faq-categories">
+          <button 
+            *ngFor="let category of faqCategories; let i = index"
+            class="category-btn"
+            [class.active]="selectedCategoryIndex === i"
+            (click)="selectCategory(i)">
+            <span>{{ category.icon }}</span>
+            <span>{{ category.name }}</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Lista de preguntas -->
+      <!-- Preguntas -->
       <div class="faq-questions">
         <div 
-          *ngFor="let question of getSelectedQuestions()" 
+          *ngFor="let question of getSelectedQuestions(); let idx = index" 
           class="faq-question-item"
           [class.expanded]="question.isExpanded">
           
-          <!-- Pregunta clickeable -->
+          <!-- Header de pregunta -->
           <div class="question-header" (click)="selectQuestion(question)">
             <div class="question-content">
               <div class="question-text">{{ question.text }}</div>
               <div class="question-description">{{ question.description }}</div>
             </div>
-            
-            <div class="question-arrow" [class.rotated]="question.isExpanded">
-              <span>▼</span>
-            </div>
+            <div class="question-arrow" [class.rotated]="question.isExpanded">▼</div>
           </div>
 
-          <!-- Respuesta expandible -->
-          <div class="question-answer" *ngIf="question.isExpanded">
-            <div class="answer-content" [innerHTML]="question.answer"></div>
-            
-            <!-- Botón para enviar al chat -->
-            <button class="send-to-chat-btn" (click)="sendQuestionToChat(question)">
-              <span>💬</span>
-              Enviar esta pregunta al chat
+          <!-- ✅ RESPUESTA - USANDO [hidden] EN LUGAR DE *ngIf -->
+          <div class="question-answer" [hidden]="!question.isExpanded">
+            <div class="answer-box">
+              <p>{{ question.answer }}</p>
+            </div>
+            <button class="send-btn" (click)="sendQuestionToChat(question); $event.stopPropagation()">
+              💬 Preguntar más a FonoBot
             </button>
           </div>
+
         </div>
       </div>
 
-      <!-- Botón para chat libre -->
+      <!-- Footer -->
       <div class="faq-footer">
         <button class="chat-libre-btn" (click)="openFreeChat()">
-          <span class="chat-icon">🤖💻</span>
+          <span class="chat-icon">🤖</span>
           <div>
-            <div class="btn-title">¿TENES MAS DUDAS?</div>
-            <div class="btn-subtitle">Chatea libremente con la IA</div>
+            <div class="btn-title">¿TIENES MÁS DUDAS?</div>
+            <div class="btn-subtitle">Chatea libremente con FonoBot</div>
           </div>
+          <span>→</span>
         </button>
       </div>
     </div>
