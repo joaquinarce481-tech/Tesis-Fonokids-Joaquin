@@ -30,7 +30,7 @@
 }
 
 /* ========================================
-   HEADER DEL JUEGO (ESTILO SOPLO VIRTUAL)
+   HEADER DEL JUEGO
    ======================================== */
 
 .game-header {
@@ -79,10 +79,6 @@
   font-weight: bold;
 }
 
-.icon {
-  font-size: 1.2rem;
-}
-
 .btn-text {
   font-weight: 600;
 }
@@ -112,7 +108,7 @@
 }
 
 /* ========================================
-   PANTALLA DE INSTRUCCIONES (ESTILO SOPLO VIRTUAL)
+   PANTALLA DE INSTRUCCIONES
    ======================================== */
 
 .instructions-screen {
@@ -303,13 +299,38 @@
   color: white;
 }
 
+/* ========================================
+   SECCIÓN DE PROGRESO
+   ======================================== */
+
+.progress-section {
+  background: rgba(0, 0, 0, 0.15);
+  padding: 0.75rem 1.5rem 1rem;
+  text-align: center;
+}
+
+.progress-section .progress-bar-container {
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+.progress-section .palabras-restantes {
+  margin: 0.75rem 0 0 0;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+}
+
 /* Barra de progreso */
 .progress-bar-container {
   background: rgba(255, 255, 255, 0.2);
   height: 20px;
   border-radius: 10px;
   overflow: hidden;
-  margin: 1rem 1.5rem;
 }
 
 .progress-bar {
@@ -335,31 +356,7 @@
   100% { transform: translateX(100%); }
 }
 
-/* Título del nivel */
-.nivel-titulo {
-  text-align: center;
-  margin: 0 1.5rem 20px;
-}
-
-.nivel-titulo h2 {
-  color: white;
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.palabras-restantes {
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.1);
-  display: inline-block;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-}
-
-/* Contenido del juego - Layout mejorado */
+/* Contenido del juego */
 .game-content {
   flex: 1;
   display: flex;
@@ -368,7 +365,7 @@
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
-  padding: 0 1.5rem;
+  padding: 1.5rem;
 }
 
 .game-layout {
@@ -377,7 +374,7 @@
   gap: 30px;
   width: 100%;
   height: 100%;
-  max-height: calc(100vh - 280px);
+  max-height: calc(100vh - 220px);
 }
 
 /* Sección superior - Drop Zone */
@@ -506,7 +503,7 @@
 }
 
 /* ================================ */
-/* MODAL DE CELEBRACIÓN MEJORADO */
+/* MODAL DE CELEBRACIÓN */
 /* ================================ */
 .celebracion-overlay {
   position: fixed;
@@ -655,118 +652,8 @@
 }
 
 /* ================================ */
-/* PANTALLA DE NIVEL COMPLETADO - COMPACTA Y PROFESIONAL */
+/* PANTALLA DE JUEGO COMPLETADO */
 /* ================================ */
-.nivel-completed {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 70vh;
-  padding: 2rem;
-}
-
-.completion-card-compact {
-  background: white;
-  border-radius: 24px;
-  padding: 2.5rem 3rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  max-width: 450px;
-  animation: modal-appear 0.5s ease-out;
-  position: relative;
-  overflow: hidden;
-}
-
-@keyframes modal-appear {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.completion-card-compact::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: linear-gradient(90deg, #4caf50, #66bb6a, #81c784);
-}
-
-.completion-icon {
-  margin-bottom: 1.5rem;
-}
-
-.star-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto;
-  animation: starRotate 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  filter: drop-shadow(0 4px 12px rgba(255, 215, 0, 0.3));
-}
-
-@keyframes starRotate {
-  0% {
-    transform: scale(0) rotate(-180deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-.completion-card-compact h2 {
-  color: #333;
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 1rem 0;
-}
-
-.completion-card-compact .completion-message {
-  font-size: 1.1rem;
-  color: #666;
-  margin-bottom: 2rem;
-  line-height: 1.5;
-  font-weight: 500;
-}
-
-.btn-siguiente-nivel {
-  width: 100%;
-  background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 1rem 2rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.btn-siguiente-nivel:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(76, 175, 80, 0.4);
-}
-
-.arrow {
-  font-size: 1.5rem;
-  transition: transform 0.3s ease;
-}
-
-.btn-siguiente-nivel:hover .arrow {
-  transform: translateX(5px);
-}
-
-/* Pantalla de juego completado */
 .game-completed {
   display: flex;
   justify-content: center;
@@ -787,6 +674,17 @@
   overflow: hidden;
 }
 
+@keyframes modal-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .completion-card::before {
   content: '';
   position: absolute;
@@ -795,30 +693,6 @@
   right: 0;
   height: 8px;
   background: linear-gradient(90deg, #ffd700, #f5a623, #ffeb3b);
-}
-
-.trophy-icon {
-  margin-bottom: 2rem;
-}
-
-.trophy {
-  width: 100px;
-  height: 100px;
-  margin: 0 auto;
-  animation: trophyBounce 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  filter: drop-shadow(0 6px 15px rgba(255, 215, 0, 0.3));
-}
-
-@keyframes trophyBounce {
-  0% {
-    transform: scale(0) rotate(-15deg);
-  }
-  50% {
-    transform: scale(1.1) rotate(5deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
 }
 
 .completion-card h2 {
@@ -884,7 +758,10 @@
   box-shadow: 0 10px 28px rgba(66, 165, 245, 0.4);
 }
 
-/* Responsive */
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
@@ -914,12 +791,8 @@
     font-size: 1.6rem;
   }
 
-  .nivel-titulo h2 {
-    font-size: 1.6rem;
-  }
-
   .game-layout {
-    max-height: calc(100vh - 250px);
+    max-height: calc(100vh - 200px);
     gap: 20px;
   }
 
@@ -960,35 +833,15 @@
     font-size: 1.1rem;
   }
 
-  .completion-card-compact {
-    padding: 2rem 1.5rem;
-    max-width: 90%;
-  }
-
-  .star-icon {
-    width: 70px;
-    height: 70px;
-  }
-
-  .completion-card-compact h2 {
-    font-size: 1.8rem;
-  }
-
   .completion-card {
     padding: 2.5rem 2rem;
     max-width: 90%;
-  }
-
-  .trophy {
-    width: 80px;
-    height: 80px;
   }
 
   .completion-card h2 {
     font-size: 2rem;
   }
 
-  .btn-siguiente-nivel,
   .btn-reiniciar,
   .btn-menu {
     padding: 0.9rem 1.5rem;
@@ -1038,6 +891,10 @@
     text-align: center;
   }
 
+  .progress-section .palabras-restantes {
+    font-size: 1rem;
+  }
+
   .silabas-container {
     gap: 15px;
   }
@@ -1063,19 +920,6 @@
 
   .celebracion-message {
     font-size: 1rem;
-  }
-
-  .completion-card-compact {
-    padding: 1.5rem 1.2rem;
-  }
-
-  .star-icon {
-    width: 60px;
-    height: 60px;
-  }
-
-  .completion-card-compact h2 {
-    font-size: 1.5rem;
   }
 
   .completion-buttons {

@@ -79,7 +79,7 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
       },
       ojos: { 
         emoji: '○○', 
-        descripcion: 'Ojos muy abiertos',
+        descripcion: 'Ojos abiertos',
         imagen: 'assets/images/partes/ojos-abiertos.png'
       },
       boca: { 
@@ -99,8 +99,8 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
       },
       ojos: { 
         emoji: '◣◢', 
-        descripcion: 'Ojos entrecerrados',
-        imagen: 'assets/images/partes/ojos-entrecerrados.png'
+        descripcion: 'Ojos enojados',
+        imagen: 'assets/images/partes/ojos-enojados.png'
       },
       boca: { 
         emoji: '⌢', 
@@ -118,8 +118,8 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
         imagen: 'assets/images/partes/cejas-preocupadass.png'
       },
       ojos: { 
-        emoji: '◉◉', 
-        descripcion: 'Ojos muy abiertos',
+        emoji: '○○', 
+        descripcion: 'Ojos abiertos',
         imagen: 'assets/images/partes/ojos-abiertos.png'
       },
       boca: { 
@@ -140,7 +140,7 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
       ojos: { 
         emoji: '♥♥', 
         descripcion: 'Ojos de corazón',
-        imagen: 'assets/images/partes/ojos-corazon.png'
+        imagen: 'assets/images/partes/amoroso.png'
       },
       boca: { 
         emoji: '◡', 
@@ -163,9 +163,8 @@ export class ArmaCaraGameComponent implements OnInit, OnDestroy {
       { id: 'ojos1', emoji: '◡◡', nombre: 'Sonrientes', imagen: 'assets/images/partes/ojos-sonrientes.png' },
       { id: 'ojos2', emoji: '╥╥', nombre: 'Llorosos', imagen: 'assets/images/partes/ojos-llorosos.png' },
       { id: 'ojos3', emoji: '○○', nombre: 'Abiertos', imagen: 'assets/images/partes/ojos-abiertos.png' },
-      { id: 'ojos4', emoji: '◣◢', nombre: 'Entrecerrados', imagen: 'assets/images/partes/ojos-entrecerrados.png' },
-      { id: 'ojos5', emoji: '◉◉', nombre: 'Muy abiertos', imagen: 'assets/images/partes/ojos-abiertos.png' },
-      { id: 'ojos6', emoji: '♥♥', nombre: 'Corazones', imagen: 'assets/images/partes/amoroso.png' }
+      { id: 'ojos4', emoji: '◣◢', nombre: 'Enojados', imagen: 'assets/images/partes/ojos-enojados.png' },
+      { id: 'ojos5', emoji: '♥♥', nombre: 'Enamorado', imagen: 'assets/images/partes/amoroso.png' }
     ],
     boca: [
       { id: 'boca1', emoji: '‿', nombre: 'Sonrisa grande', imagen: 'assets/images/partes/boca-sonrisa.png' },

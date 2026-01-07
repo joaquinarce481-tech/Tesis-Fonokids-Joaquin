@@ -53,8 +53,8 @@
         <div class="step">
           <div class="step-number">4</div>
           <div class="step-text">
-            <strong>Completa todos los niveles</strong>
-            <p>Practica con todas las familias de sílabas: P, M, T, S y L</p>
+            <strong>Completa todas las palabras</strong>
+            <p>Practica con todas las sílabas disponibles</p>
           </div>
         </div>
       </div>
@@ -65,7 +65,6 @@
           <li>Piensa bien antes de arrastrar la sílaba</li>
           <li>Observa con atención el emoji para identificar la palabra</li>
           <li>Si te equivocas, no te preocupes, puedes intentar de nuevo</li>
-          <li>Completa todas las palabras para pasar al siguiente nivel</li>
         </ul>
       </div>
 
@@ -87,26 +86,23 @@
           <span class="btn-text">Volver</span>
         </button>
         <h1 class="game-title">Parejas de Sílabas</h1>
-        <!-- ✅ CORRECCIÓN: Ocultar cuando el juego está completado -->
-        <div class="progress-info" *ngIf="nivelActual && !juegoCompletado">
-          <span class="nivel-info">Nivel {{ nivelActualNumero }}/{{ totalNiveles }}</span>
+        <!-- Contador de progreso -->
+        <div class="progress-info" *ngIf="!juegoCompletado">
+          <span class="nivel-info">{{ palabrasCompletadas }}/{{ totalPalabras }}</span>
         </div>
       </div>
     </div>
 
-    <!-- Barra de progreso del nivel -->
-    <div class="progress-bar-container" *ngIf="nivelActual && !nivelCompletado">
-      <div class="progress-bar" [style.width.%]="progresoNivel"></div>
-    </div>
-
-    <!-- Título del nivel actual -->
-    <div class="nivel-titulo" *ngIf="nivelActual && !nivelCompletado && !juegoCompletado">
-      <h2>{{ nivelActual.titulo }}</h2>
+    <!-- Barra de progreso -->
+    <div class="progress-section" *ngIf="!juegoCompletado">
+      <div class="progress-bar-container">
+        <div class="progress-bar" [style.width.%]="progresoJuego"></div>
+      </div>
       <p class="palabras-restantes">{{ palabrasRestantes }} palabras más</p>
     </div>
 
-    <!-- Contenido del juego - Layout mejorado -->
-    <div class="game-content" *ngIf="!nivelCompletado && !juegoCompletado && palabraActual">
+    <!-- Contenido del juego -->
+    <div class="game-content" *ngIf="!juegoCompletado && palabraActual">
       
       <div class="game-layout">
         <!-- Zona superior: Drop Zone con el emoji -->
@@ -142,8 +138,8 @@
 
     </div>
 
-    <!-- Celebración mejorada entre palabras -->
-    <div class="celebracion-overlay" *ngIf="mostrarCelebracion && !nivelCompletado">
+    <!-- Celebración entre palabras -->
+    <div class="celebracion-overlay" *ngIf="mostrarCelebracion && !juegoCompletado">
       <div class="celebracion-card">
         <div class="success-icon">
           <svg viewBox="0 0 52 52" class="checkmark">
@@ -161,38 +157,12 @@
       </div>
     </div>
 
-    <!-- Pantalla de nivel completado - Mejorada -->
-    <div class="nivel-completed" *ngIf="nivelCompletado && !juegoCompletado">
-      <div class="completion-card-compact">
-        <div class="completion-icon">
-          <svg viewBox="0 0 100 100" class="star-icon">
-            <path d="M50 15 L61 38 L85 42 L68 58 L72 82 L50 70 L28 82 L32 58 L15 42 L39 38 Z" 
-                  fill="#ffd700" stroke="#f5a623" stroke-width="2"/>
-          </svg>
-        </div>
-        <h2>Nivel Completado</h2>
-        <p class="completion-message" *ngIf="nivelActual">
-          Dominaste la familia de la {{ nivelActual.consonante }}
-        </p>
-        <!-- ✅ CORRECCIÓN: Cambiar texto si es el último nivel -->
-        <button class="btn-siguiente-nivel" (click)="siguienteNivel()">
-          <ng-container *ngIf="esUltimoNivel">
-            Siguiente
-          </ng-container>
-          <ng-container *ngIf="!esUltimoNivel">
-            Siguiente nivel
-          </ng-container>
-          <span class="arrow">→</span>
-        </button>
-      </div>
-    </div>
-
     <!-- Pantalla de juego completado -->
     <div class="game-completed" *ngIf="juegoCompletado">
       <div class="completion-card">
         <h2>¡Felicitaciones!</h2>
         <p class="completion-message">
-          Completaste todas las familias de sílabas
+          Completaste todas las sílabas
         </p>
         <p class="completion-submessage">
           Eres un campeón de las sílabas

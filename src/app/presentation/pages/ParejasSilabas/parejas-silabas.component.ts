@@ -11,13 +11,6 @@ interface Palabra {
   audio: string;
 }
 
-interface Nivel {
-  id: number;
-  consonante: string;
-  titulo: string;
-  palabras: Palabra[];
-}
-
 @Component({
   selector: 'app-parejas-silabas',
   standalone: true,
@@ -28,83 +21,58 @@ interface Nivel {
 export class ParejasSilabasComponent implements OnInit, OnDestroy {
 
   // ========================================
-  // VISTA ACTUAL - AGREGADO PARA INSTRUCCIONES
+  // VISTA ACTUAL
   // ========================================
   vistaActual: 'instrucciones' | 'jugando' = 'instrucciones';
 
-  niveles: Nivel[] = [
-    {
-      id: 1,
-      consonante: 'P',
-      titulo: 'Familia de la P',
-      palabras: [
-        { id: 1, silaba: 'PA', nombre: 'Pato', imagen: '🦆', audio: 'pa' },
-        { id: 2, silaba: 'PE', nombre: 'Pelota', imagen: '⚽', audio: 'pe' },
-        { id: 3, silaba: 'PI', nombre: 'Pila', imagen: '🔋', audio: 'pi' },
-        { id: 4, silaba: 'PO', nombre: 'Pollo', imagen: '🐔', audio: 'po' },
-        { id: 5, silaba: 'PU', nombre: 'Puerta', imagen: '🚪', audio: 'pu' }
-      ]
-    },
-    {
-      id: 2,
-      consonante: 'M',
-      titulo: 'Familia de la M',
-      palabras: [
-        { id: 6, silaba: 'MA', nombre: 'Mano', imagen: '✋', audio: 'ma' },
-        { id: 7, silaba: 'ME', nombre: 'Mesa', imagen: '🪑', audio: 'me' },
-        { id: 8, silaba: 'MI', nombre: 'Miel', imagen: '🍯', audio: 'mi' },
-        { id: 9, silaba: 'MO', nombre: 'Mono', imagen: '🐵', audio: 'mo' },
-        { id: 10, silaba: 'MU', nombre: 'Muñeca', imagen: '🪆', audio: 'mu' }
-      ]
-    },
-    {
-      id: 3,
-      consonante: 'T',
-      titulo: 'Familia de la T',
-      palabras: [
-        { id: 11, silaba: 'TA', nombre: 'Taza', imagen: '☕', audio: 'ta' },
-        { id: 12, silaba: 'TE', nombre: 'Tele', imagen: '📺', audio: 'te' },
-        { id: 13, silaba: 'TI', nombre: 'Tijera', imagen: '✂️', audio: 'ti' },
-        { id: 14, silaba: 'TO', nombre: 'Tomate', imagen: '🍅', audio: 'to' },
-        { id: 15, silaba: 'TU', nombre: 'Tulipán', imagen: '🌷', audio: 'tu' }
-      ]
-    },
-    {
-      id: 4,
-      consonante: 'S',
-      titulo: 'Familia de la S',
-      palabras: [
-        { id: 16, silaba: 'SA', nombre: 'Sapo', imagen: '🐸', audio: 'sa' },
-        { id: 17, silaba: 'SE', nombre: 'Semáforo', imagen: '🚦', audio: 'se' },
-        { id: 18, silaba: 'SI', nombre: 'Silla', imagen: '🪑', audio: 'si' },
-        { id: 19, silaba: 'SO', nombre: 'Sol', imagen: '☀️', audio: 'so' },
-        { id: 20, silaba: 'SU', nombre: 'Suma', imagen: '➕', audio: 'su' }
-      ]
-    },
-    {
-      id: 5,
-      consonante: 'L',
-      titulo: 'Familia de la L',
-      palabras: [
-        { id: 21, silaba: 'LA', nombre: 'Lana', imagen: '🧶', audio: 'la' },
-        { id: 22, silaba: 'LE', nombre: 'León', imagen: '🦁', audio: 'le' },
-        { id: 23, silaba: 'LI', nombre: 'Libro', imagen: '📚', audio: 'li' },
-        { id: 24, silaba: 'LO', nombre: 'Loro', imagen: '🦜', audio: 'lo' },
-        { id: 25, silaba: 'LU', nombre: 'Luna', imagen: '🌙', audio: 'lu' }
-      ]
-    }
+  // ========================================
+  // TODAS LAS PALABRAS EN UN SOLO ARRAY (SIN NIVELES)
+  // ========================================
+  todasLasPalabras: Palabra[] = [
+    // Familia P
+    { id: 1, silaba: 'PA', nombre: 'Pato', imagen: '🦆', audio: 'pa' },
+    { id: 2, silaba: 'PE', nombre: 'Pelota', imagen: '⚽', audio: 'pe' },
+    { id: 3, silaba: 'PI', nombre: 'Pila', imagen: '🔋', audio: 'pi' },
+    { id: 4, silaba: 'PO', nombre: 'Pollo', imagen: '🐔', audio: 'po' },
+    { id: 5, silaba: 'PU', nombre: 'Puerta', imagen: '🚪', audio: 'pu' },
+    // Familia M
+    { id: 6, silaba: 'MA', nombre: 'Mano', imagen: '✋', audio: 'ma' },
+    { id: 7, silaba: 'ME', nombre: 'Medalla', imagen: '🏅', audio: 'me' },
+    { id: 8, silaba: 'MI', nombre: 'Miel', imagen: '🍯', audio: 'mi' },
+    { id: 9, silaba: 'MO', nombre: 'Mono', imagen: '🐵', audio: 'mo' },
+    { id: 10, silaba: 'MU', nombre: 'Murciélago', imagen: '🦇', audio: 'mu' },
+    // Familia T
+    { id: 11, silaba: 'TA', nombre: 'Taza', imagen: '☕', audio: 'ta' },
+    { id: 12, silaba: 'TE', nombre: 'Tele', imagen: '📺', audio: 'te' },
+    { id: 13, silaba: 'TI', nombre: 'Tijera', imagen: '✂️', audio: 'ti' },
+    { id: 14, silaba: 'TO', nombre: 'Tomate', imagen: '🍅', audio: 'to' },
+    { id: 15, silaba: 'TU', nombre: 'Tulipán', imagen: '🌷', audio: 'tu' },
+    // Familia S
+    { id: 16, silaba: 'SA', nombre: 'Sapo', imagen: '🐸', audio: 'sa' },
+    { id: 17, silaba: 'SE', nombre: 'Semáforo', imagen: '🚦', audio: 'se' },
+    { id: 18, silaba: 'SI', nombre: 'Silla', imagen: '🪑', audio: 'si' },
+    { id: 19, silaba: 'SO', nombre: 'Sol', imagen: '☀️', audio: 'so' },
+    { id: 20, silaba: 'SU', nombre: 'Suma', imagen: '➕', audio: 'su' },
+    // Familia L
+    { id: 21, silaba: 'LA', nombre: 'Lápiz', imagen: '✏️', audio: 'la' },
+    { id: 22, silaba: 'LE', nombre: 'León', imagen: '🦁', audio: 'le' },
+    { id: 23, silaba: 'LI', nombre: 'Libro', imagen: '📚', audio: 'li' },
+    { id: 24, silaba: 'LO', nombre: 'Loro', imagen: '🦜', audio: 'lo' },
+    { id: 25, silaba: 'LU', nombre: 'Luna', imagen: '🌙', audio: 'lu' }
   ];
 
-  nivelActual: Nivel | null = null;
-  indiceNivel: number = 0;
+  // ========================================
+  // POOL DE TODAS LAS SÍLABAS DISPONIBLES
+  // ========================================
+  todasLasSilabas: string[] = [];
+
   palabrasBarajadas: Palabra[] = [];
-  silabas: string[] = [];
+  silabas: string[] = []; // Siempre tendrá 5 sílabas mezcladas
   palabraActual: Palabra | null = null;
   indicePalabra: number = 0;
   
   silabaArrastrada: string | null = null;
   mostrarCelebracion: boolean = false;
-  nivelCompletado: boolean = false;
   juegoCompletado: boolean = false;
 
   constructor(
@@ -118,11 +86,58 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
     // 🔝 SCROLL AUTOMÁTICO AL INICIO
     window.scrollTo(0, 0);
     
-    // NO iniciar el juego hasta que el usuario presione "Comenzar"
+    // Construir pool de todas las sílabas
+    this.construirPoolGlobal();
   }
 
   ngOnDestroy(): void {
     // Cleanup si es necesario
+  }
+
+  // ========================================
+  // CONSTRUIR POOL GLOBAL DE SÍLABAS
+  // ========================================
+  construirPoolGlobal(): void {
+    this.todasLasSilabas = this.todasLasPalabras.map(p => p.silaba);
+    console.log('📦 Pool global construido:', this.todasLasSilabas.length, 'sílabas');
+  }
+
+  // ========================================
+  // GENERAR 5 SÍLABAS MEZCLADAS (1 correcta + 4 distractores)
+  // ========================================
+  generarSilabasMezcladas(): void {
+    if (!this.palabraActual) return;
+    
+    const silabaCorrecta = this.palabraActual.silaba;
+    
+    // Filtrar sílabas que NO son la correcta
+    const silabasDistractoras = this.todasLasSilabas.filter(s => s !== silabaCorrecta);
+    
+    // Barajar las distractoras
+    const distractorasBarajadas = this.barajarArray([...silabasDistractoras]);
+    
+    // Tomar 4 distractoras
+    const cuatroDistractoras = distractorasBarajadas.slice(0, 4);
+    
+    // Combinar: 1 correcta + 4 distractoras
+    const cincoSilabas = [silabaCorrecta, ...cuatroDistractoras];
+    
+    // Barajar el resultado final para que la correcta no esté siempre primera
+    this.silabas = this.barajarArray(cincoSilabas);
+    
+    console.log('🎲 Sílabas generadas:', this.silabas, '| Correcta:', silabaCorrecta);
+  }
+
+  // ========================================
+  // UTILIDAD: BARAJAR ARRAY
+  // ========================================
+  barajarArray<T>(array: T[]): T[] {
+    const resultado = [...array];
+    for (let i = resultado.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [resultado[i], resultado[j]] = [resultado[j], resultado[i]];
+    }
+    return resultado;
   }
 
   // ========================================
@@ -137,27 +152,24 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
       window.scrollTo(0, 0);
     }, 100);
     
-    this.iniciarNivel();
+    this.iniciarJuego();
   }
 
-  iniciarNivel(): void {
-    if (this.indiceNivel < this.niveles.length) {
-      this.nivelActual = this.niveles[this.indiceNivel];
-      this.palabrasBarajadas = [...this.nivelActual.palabras].sort(() => Math.random() - 0.5);
-      this.silabas = this.nivelActual.palabras.map(p => p.silaba).sort(() => Math.random() - 0.5);
-      this.indicePalabra = 0;
-      this.nivelCompletado = false;
-      this.mostrarPalabra();
-    } else {
-      this.completarJuego();
-    }
+  iniciarJuego(): void {
+    // Barajar TODAS las palabras
+    this.palabrasBarajadas = this.barajarArray([...this.todasLasPalabras]);
+    this.indicePalabra = 0;
+    this.juegoCompletado = false;
+    this.mostrarPalabra();
   }
 
   mostrarPalabra(): void {
     if (this.indicePalabra < this.palabrasBarajadas.length) {
       this.palabraActual = this.palabrasBarajadas[this.indicePalabra];
+      // Generar nuevas 5 sílabas mezcladas para cada palabra
+      this.generarSilabasMezcladas();
     } else {
-      this.completarNivel();
+      this.completarJuego();
     }
   }
 
@@ -198,13 +210,6 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         this.mostrarCelebracion = false;
         this.indicePalabra++;
-        
-        // Remover la sílaba usada
-        const index = this.silabas.indexOf(this.palabraActual!.silaba);
-        if (index > -1) {
-          this.silabas.splice(index, 1);
-        }
-        
         this.mostrarPalabra();
       }, 2000);
     }
@@ -222,24 +227,6 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
     }
   }
 
-  completarNivel(): void {
-    this.nivelCompletado = true;
-    if (this.nivelActual) {
-      this.hablar(`¡Excelente! ¡Completaste la familia de la ${this.nivelActual.consonante}!`);
-    }
-  }
-
-  siguienteNivel(): void {
-    this.indiceNivel++;
-    
-    // 🔝 SCROLL AL INICIO
-    setTimeout(() => {
-      window.scrollTo(0, 0);
-    }, 100);
-    
-    this.iniciarNivel();
-  }
-
   completarJuego(): void {
     this.juegoCompletado = true;
     
@@ -249,15 +236,12 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
       error: (error: any) => console.error('❌ Error registrando juego:', error)
     });
     
-    this.hablar('¡Felicitaciones! ¡Completaste todas las familias de sílabas!');
+    this.hablar('¡Felicitaciones! ¡Completaste todas las sílabas!');
   }
 
   reiniciarJuego(): void {
-    this.indiceNivel = 0;
     this.indicePalabra = 0;
-    this.nivelActual = null;
     this.palabraActual = null;
-    this.nivelCompletado = false;
     this.juegoCompletado = false;
     this.mostrarCelebracion = false;
     this.vistaActual = 'jugando';
@@ -267,7 +251,7 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
       window.scrollTo(0, 0);
     }, 100);
     
-    this.iniciarNivel();
+    this.iniciarJuego();
   }
 
   volverAlMenu(): void {
@@ -285,7 +269,10 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
     }
   }
 
-  get progresoNivel(): number {
+  // ========================================
+  // GETTERS PARA EL TEMPLATE
+  // ========================================
+  get progresoJuego(): number {
     if (!this.palabrasBarajadas.length) return 0;
     return (this.indicePalabra / this.palabrasBarajadas.length) * 100;
   }
@@ -294,15 +281,11 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
     return this.palabrasBarajadas.length - this.indicePalabra;
   }
 
-  get nivelActualNumero(): number {
-    return this.indiceNivel + 1;
+  get totalPalabras(): number {
+    return this.todasLasPalabras.length;
   }
 
-  get totalNiveles(): number {
-    return this.niveles.length;
-  }
-
-  get esUltimoNivel(): boolean {
-    return this.indiceNivel === this.niveles.length - 1;
+  get palabrasCompletadas(): number {
+    return this.indicePalabra;
   }
 }
