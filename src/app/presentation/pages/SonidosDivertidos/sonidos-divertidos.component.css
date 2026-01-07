@@ -414,6 +414,21 @@
   box-shadow: 0 12px 35px rgba(251, 191, 36, 0.4);
 }
 
+/* Estado de reproducción del botón escuchar */
+.btn-listen.playing {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  animation: playing-pulse 1s ease-in-out infinite;
+}
+
+@keyframes playing-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  50% { 
+    box-shadow: 0 0 0 12px rgba(34, 197, 94, 0);
+  }
+}
+
 .btn-speak {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
@@ -487,6 +502,70 @@
   font-size: 1.2rem;
   font-weight: 600;
   color: #fca5a5;
+}
+
+/* ========================================
+   INDICADOR DE REPRODUCCIÓN DE AUDIO
+   ======================================== */
+
+.playing-indicator {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.sound-waves {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 40px;
+}
+
+.sound-waves span {
+  width: 6px;
+  height: 10px;
+  background: #22c55e;
+  border-radius: 3px;
+  animation: sound-wave 0.8s ease-in-out infinite;
+}
+
+.sound-waves span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.sound-waves span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.sound-waves span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.sound-waves span:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+.sound-waves span:nth-child(5) {
+  animation-delay: 0.4s;
+}
+
+@keyframes sound-wave {
+  0%, 100% {
+    height: 10px;
+  }
+  50% {
+    height: 35px;
+  }
+}
+
+.playing-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #86efac;
 }
 
 /* Transcripción */

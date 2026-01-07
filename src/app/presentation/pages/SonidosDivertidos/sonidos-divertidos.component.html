@@ -117,16 +117,16 @@
         
         <!-- Botones de acción -->
         <div class="action-buttons">
-          <button class="btn-listen" (click)="reproducirSonido()" [disabled]="escuchandoAhora">
+          <button class="btn-listen" [class.playing]="reproduciendo" (click)="reproducirSonido()" [disabled]="escuchandoAhora || reproduciendo">
             <span class="btn-icon">🔊</span>
-            <span class="btn-text">Escuchar</span>
+            <span class="btn-text">{{ reproduciendo ? 'Reproduciendo...' : 'Escuchar' }}</span>
           </button>
           
           <button 
             class="btn-speak" 
             [class.recording]="escuchandoAhora"
             (click)="iniciarDeteccion()" 
-            [disabled]="!reconocimientoDisponible">
+            [disabled]="!reconocimientoDisponible || reproduciendo">
             <span class="btn-icon">🎤</span>
             <span class="btn-text">{{ escuchandoAhora ? 'Escuchando...' : 'Hablar' }}</span>
           </button>
@@ -136,6 +136,18 @@
         <div class="recording-indicator" *ngIf="escuchandoAhora">
           <div class="pulse-circle"></div>
           <span class="recording-text">Di el sonido ahora...</span>
+        </div>
+
+        <!-- Indicador de reproducción -->
+        <div class="playing-indicator" *ngIf="reproduciendo">
+          <div class="sound-waves">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="playing-text">Escucha el sonido...</span>
         </div>
 
         <!-- Mostrar lo que escuchó -->

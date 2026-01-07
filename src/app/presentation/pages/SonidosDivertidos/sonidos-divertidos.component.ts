@@ -18,6 +18,7 @@ interface Sonido {
   sonidoTTS: string;
   imagen: string;
   audio: string;
+  archivoAudio: string; // Ruta al archivo de audio real
   filtro: string;
   palabrasClave: string[];
 }
@@ -36,6 +37,9 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
   // ========================================
   vistaActual: 'instrucciones' | 'jugando' = 'instrucciones';
 
+  // Audio player para sonidos reales
+  audioPlayer: HTMLAudioElement | null = null;
+
   sonidos: Sonido[] = [
     {
       id: 1,
@@ -44,6 +48,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       sonidoTTS: 'guau, guau',
       imagen: '🐕',
       audio: 'guau',
+      archivoAudio: 'assets/sounds/perro.mp3',
       filtro: 'perro',
       palabrasClave: ['guau', 'wau', 'wow', 'gua', 'guaú', 'wauf', 'gau', 'gua gua', 'agua', 'aua', 'guaú guaú']
     },
@@ -54,6 +59,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       sonidoTTS: 'miau, miau',
       imagen: '🐱',
       audio: 'miau',
+      archivoAudio: 'assets/sounds/gato.mp3',
       filtro: 'gato',
       palabrasClave: ['miau', 'mia', 'meow', 'miaú', 'mia mia', 'mia u', 'ya', 'miau miau']
     },
@@ -64,6 +70,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       sonidoTTS: 'mu, muuu',
       imagen: '🐄',
       audio: 'muuu',
+      archivoAudio: 'assets/sounds/vaca.mp3',
       filtro: 'vaca',
       palabrasClave: ['mu', 'muu', 'muuu', 'moo', 'muuuu', 'muy', 'mu mu', 'más', 'mú', 'hum', 'um', 'mus', 'muñ', 'mur', 'bus', 'mm', 'mmm', 'mmmm', 'boom', 'bum', 'bu', 'mo', 'mou', 'move', 'moon']
     },
@@ -74,6 +81,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       sonidoTTS: 'be, beee',
       imagen: '🐑',
       audio: 'beee',
+      archivoAudio: 'assets/sounds/oveja.mp3',
       filtro: 'oveja',
       palabrasClave: ['be', 'bee', 'beee', 'baa', 'beeee', 've', 'de', 'vez', 'ved', 'ven', 'vi', 'me', 'mee', 'bien', 'ver']
     },
@@ -84,6 +92,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       sonidoTTS: 'cuac, cuac',
       imagen: '🦆',
       audio: 'cuac',
+      archivoAudio: 'assets/sounds/pato.mp3',
       filtro: 'pato',
       palabrasClave: ['cuac', 'cuak', 'quack', 'cua', 'cuac cuac', 'cuá', 'crack', 'guac', 'cuan', 'cual', 'ca', 'cac', 'pack', 'quac']
     },
@@ -94,6 +103,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       sonidoTTS: 'oinc, oinc',
       imagen: '🐷',
       audio: 'oinc',
+      archivoAudio: 'assets/sounds/cerdo.mp3',
       filtro: 'cerdo',
       palabrasClave: ['oinc', 'oink', 'oin', 'oinc oinc', 'oing', 'oí', 'oing oing', 'oink oink', 'oing', 'coin', 'join', 'going']
     },
@@ -104,6 +114,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       sonidoTTS: 'roar, rugido',
       imagen: '🦁',
       audio: 'roar',
+      archivoAudio: 'assets/sounds/leon.mp3',
       filtro: 'leon',
       palabrasClave: ['roar', 'roaar', 'rugido', 'grrr', 'rawr', 'ruar', 'grr', 'grrr', 'rrr', 'roa', 'ra', 'rar', 'ar', 'arr', 'raw', 'road']
     },
@@ -114,6 +125,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       sonidoTTS: 'din, don',
       imagen: '🔔',
       audio: 'ding',
+      archivoAudio: 'assets/sounds/campana.mp3',
       filtro: 'campana',
       palabrasClave: ['ding', 'dong', 'din', 'tan', 'ding dong', 'din don', 'rin', 'tin', 'ring', 'din din', 'don', 'dan', 'ten']
     },
@@ -124,6 +136,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       sonidoTTS: 'bip, bip',
       imagen: '🚗',
       audio: 'bip',
+      archivoAudio: 'assets/sounds/auto.mp3',
       filtro: 'auto',
       palabrasClave: ['bip', 'beep', 'pip', 'bip bip', 'pi pi', 'bis', 'pis', 'pi', 'bib', 'bib bib', 'vip', 'bit', 'big']
     },
@@ -134,6 +147,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       sonidoTTS: 'tic, tac',
       imagen: '⏰',
       audio: 'tic',
+      archivoAudio: 'assets/sounds/reloj.mp3',
       filtro: 'reloj',
       palabrasClave: ['tic', 'tac', 'tick', 'tock', 'tic tac', 'ti ta', 'tictac', 'di', 'ti', 'tic tic', 'tac tac', 'dic', 'tak']
     },
@@ -144,6 +158,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       sonidoTTS: 'clap, clap',
       imagen: '👏',
       audio: 'clap',
+      archivoAudio: 'assets/sounds/aplausos.mp3',
       filtro: 'aplausos',
       palabrasClave: ['clap', 'aplausos', 'palm', 'aplauso', 'clap clap', 'clac', 'plap', 'clac clac', 'plap plap', 'cap', 'plaf']
     }
@@ -171,6 +186,9 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
   feedbackTipo: 'correcto' | 'incorrecto' | '' = '';
   feedbackMensaje: string = '';
 
+  // Estado del audio
+  reproduciendo: boolean = false;
+
   constructor(
     private router: Router,
     private cdr: ChangeDetectorRef,
@@ -189,6 +207,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     console.log('🔚 Componente destruyéndose');
     this.detenerReconocimientoVoz();
+    this.detenerAudio();
     if (this.timeoutEscucha) {
       clearTimeout(this.timeoutEscucha);
     }
@@ -228,17 +247,76 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       console.log('✅ Mostrando sonido:', this.sonidoActual.nombre, '(ID:', this.sonidoActual.id + ')');
       console.log('🎨 Emoji:', this.sonidoActual.imagen);
       console.log('🔊 Onomatopeya:', this.sonidoActual.onomatopeya);
+      console.log('🎵 Archivo de audio:', this.sonidoActual.archivoAudio);
     } else {
       console.log('🏁 Todos los sonidos completados!');
       this.completarJuego();
     }
   }
 
+  // ========================================
+  // REPRODUCIR SONIDO REAL DEL ANIMAL
+  // ========================================
   reproducirSonido(): void {
-    if (this.sonidoActual) {
-      console.log('🔊 Reproduciendo sonido:', this.sonidoActual.sonidoTTS);
-      this.hablar(this.sonidoActual.sonidoTTS);
+    if (!this.sonidoActual) return;
+    
+    if (this.reproduciendo) {
+      console.log('⚠️ Ya se está reproduciendo un sonido');
+      return;
     }
+
+    console.log('🔊 Reproduciendo sonido real:', this.sonidoActual.archivoAudio);
+    
+    // Detener cualquier audio anterior
+    this.detenerAudio();
+    
+    // Crear nuevo reproductor de audio
+    this.audioPlayer = new Audio(this.sonidoActual.archivoAudio);
+    this.reproduciendo = true;
+    
+    this.audioPlayer.onplay = () => {
+      console.log('▶️ Audio iniciado');
+      this.ngZone.run(() => {
+        this.reproduciendo = true;
+        this.cdr.detectChanges();
+      });
+    };
+    
+    this.audioPlayer.onended = () => {
+      console.log('⏹️ Audio finalizado');
+      this.ngZone.run(() => {
+        this.reproduciendo = false;
+        this.cdr.detectChanges();
+      });
+    };
+    
+    this.audioPlayer.onerror = (error) => {
+      console.error('❌ Error al reproducir audio:', error);
+      console.log('🔄 Intentando con TTS como fallback...');
+      this.ngZone.run(() => {
+        this.reproduciendo = false;
+        // Fallback a TTS si el archivo no existe
+        this.hablar(this.sonidoActual?.sonidoTTS || '');
+        this.cdr.detectChanges();
+      });
+    };
+    
+    // Reproducir el audio
+    this.audioPlayer.play().catch(error => {
+      console.error('❌ Error en play():', error);
+      this.reproduciendo = false;
+      // Fallback a TTS
+      this.hablar(this.sonidoActual?.sonidoTTS || '');
+    });
+  }
+
+  detenerAudio(): void {
+    if (this.audioPlayer) {
+      this.audioPlayer.pause();
+      this.audioPlayer.currentTime = 0;
+      this.audioPlayer = null;
+    }
+    this.reproduciendo = false;
   }
 
   iniciarDeteccion(): void {
@@ -262,6 +340,9 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       console.log('⚠️ Ya hay un reconocimiento en proceso');
       return;
     }
+    
+    // Detener audio si está reproduciendo
+    this.detenerAudio();
     
     this.reconocimientoEnProceso = true;
     this.yaVerificado = false;
@@ -489,6 +570,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
 
   saltarSonido(): void {
     this.detenerEscucha();
+    this.detenerAudio();
     this.mostrarFeedback = false;
     this.indiceActual++;
     this.mostrarSonido();
@@ -524,6 +606,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
 
   volverAlMenu(): void {
     this.detenerReconocimientoVoz();
+    this.detenerAudio();
     this.router.navigate(['/juegos-terapeuticos']);
   }
 
