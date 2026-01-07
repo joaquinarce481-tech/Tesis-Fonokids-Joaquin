@@ -383,52 +383,13 @@
   height: 100%;
 }
 
-.elementos-fijos {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.ojos-base {
-  position: absolute;
-  top: 43%;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 60px;
-  font-size: 1.8rem;
-  color: #1f2937;
-  opacity: 0.12;
-}
-
-.ojo-base {
-  animation: parpadeo 5s infinite;
-}
-
-@keyframes parpadeo {
-  0%, 92%, 100% { opacity: 0.12; }
-  96% { opacity: 0.04; }
-}
-
-.nariz-base {
-  position: absolute;
-  top: 56%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1.5rem;
-  color: #d97706;
-  opacity: 0.5;
-}
-
 /* ========== DROP ZONES - MÁS COMPACTAS ========== */
 .drop-zone {
   --accent-color: #667eea;
   position: absolute;
   transform: translate(-50%, -50%);
-  min-width: 140px;
-  min-height: 55px;
+  width: 140px;
+  height: 55px;
   border: 3px dashed #cbd5e1;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.6);
@@ -438,6 +399,7 @@
   transition: all 0.25s ease;
   z-index: 10;
   cursor: pointer;
+  overflow: hidden;
 }
 
 .drop-zone:hover {
@@ -462,9 +424,10 @@
 }
 
 .parte-colocada-img {
-  max-width: 110px;
-  max-height: 65px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  object-position: center;
   filter: drop-shadow(2px 3px 4px rgba(0, 0, 0, 0.2));
   animation: dropIn 0.3s ease-out;
 }
@@ -901,13 +864,13 @@
   }
   
   .drop-zone {
-    min-width: 120px;
-    min-height: 45px;
+    width: 120px;
+    height: 45px;
   }
   
   .parte-colocada-img {
-    max-width: 90px;
-    max-height: 55px;
+    width: 100%;
+    height: 100%;
   }
   
   .parte-img-wrapper {
@@ -977,8 +940,8 @@
   }
   
   .drop-zone {
-    min-width: 100px;
-    min-height: 40px;
+    width: 100px;
+    height: 40px;
   }
   
   .drop-zone-label {
@@ -986,8 +949,8 @@
   }
   
   .parte-colocada-img {
-    max-width: 80px;
-    max-height: 45px;
+    width: 100%;
+    height: 100%;
   }
   
   .partes-grid {
