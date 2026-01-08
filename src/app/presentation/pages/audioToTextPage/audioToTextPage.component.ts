@@ -21,8 +21,8 @@ export default class AudioToTextPageComponent {
   public openAiService = inject(OpenAiService);
   public isRecording = signal(false);
   public recordingTime = signal(0);
-  
-  private ngZone = inject(NgZone); // 👈 AGREGADO
+
+  private ngZone = inject(NgZone);
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
   private recordingInterval: any;
@@ -37,12 +37,12 @@ export default class AudioToTextPageComponent {
 
   async startRecording() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
           sampleRate: 44100
-        } 
+        }
       });
 
       const options = {
@@ -71,16 +71,16 @@ export default class AudioToTextPageComponent {
 
       this.mediaRecorder.start();
       this.isRecording.set(true);
-      
+
       this.messages.set([
         ...this.messages(),
-        { 
+        {
           id: this.generateId(),
-          text: '🎤 Grabando... Habla claramente y alto', 
-          isGpt: false 
+          text: '🎤 Grabando... Habla claramente y alto',
+          isGpt: false
         }
       ]);
-      
+
     } catch (error) {
       console.error('Error al acceder al micrófono:', error);
       alert('No se pudo acceder al micrófono. Verifica los permisos.');
@@ -99,17 +99,17 @@ export default class AudioToTextPageComponent {
   private sendAudioToBackend(audioBlob: Blob) {
     const audioFile = new File([audioBlob], 'audio.webm', { type: 'audio/webm' });
 
-    // 👇 Usar NgZone para asegurar que Angular detecte el cambio
+
     this.ngZone.run(() => {
       this.messages.set([
         ...this.messages(),
-        { 
+        {
           id: this.generateId(),
-          text: '⏳ Procesando tu audio y evaluando pronunciación...', 
-          isGpt: false 
+          text: '⏳ Procesando tu audio y evaluando pronunciación...',
+          isGpt: false
         }
       ]);
-      
+
       this.isLoading.set(true);
     });
 
@@ -117,31 +117,31 @@ export default class AudioToTextPageComponent {
       .subscribe({
         next: (resp) => {
           console.log('✅ Respuesta recibida:', resp);
-          
-          // 👇 IMPORTANTE: Ejecutar dentro de NgZone
+
+
           this.ngZone.run(() => {
             this.isLoading.set(false);
 
             let newMessage: Message;
 
-            if (resp.transcription.length < 3 || 
-                resp.transcription.includes('Amara.org') || 
-                resp.transcription.includes('Subtítulos')) {
-              
+            if (resp.transcription.length < 3 ||
+              resp.transcription.includes('Amara.org') ||
+              resp.transcription.includes('Subtítulos')) {
+
               newMessage = {
                 id: this.generateId(),
                 isGpt: true,
                 text: '⚠️ **No pude escuchar bien tu audio.**\n\nPor favor, intenta de nuevo:\n- Habla más alto y claro\n- Acércate más al micrófono\n- Asegúrate de estar en un lugar sin ruido'
               };
-              
+
             } else {
-              
+
               newMessage = {
                 id: this.generateId(),
                 isGpt: true,
                 text: `**📝 Escuché:**\n"${resp.transcription}"\n\n${resp.evaluation}`
               };
-              
+
             }
 
             const currentMessages = this.messages();
@@ -153,11 +153,11 @@ export default class AudioToTextPageComponent {
         },
         error: (error) => {
           console.error('❌ Error:', error);
-          
-          // 👇 Ejecutar dentro de NgZone
+
+
           this.ngZone.run(() => {
             this.isLoading.set(false);
-            
+
             this.messages.set([
               ...this.messages(),
               {

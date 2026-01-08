@@ -24,8 +24,7 @@ export default class AssistantPageComponent {
   public openAiService = inject(OpenAiService);
 
   handleMessage(prompt: string) {
-    
-    // Agregar mensaje del usuario
+
     this.messages.update((prev) => [
       ...prev,
       {
@@ -34,16 +33,16 @@ export default class AssistantPageComponent {
       }
     ]);
 
-    // Mostrar loader
-    this.isLoading.set(true);
     
-    // Llamar al servicio del asistente
+    this.isLoading.set(true);
+
+    
     this.openAiService.assistantPage(prompt)
       .subscribe({
         next: (resp) => {
           this.isLoading.set(false);
-          
-          // Agregar respuesta del asistente
+
+         
           this.messages.update(prev => [
             ...prev,
             {
@@ -55,8 +54,8 @@ export default class AssistantPageComponent {
         error: (error) => {
           this.isLoading.set(false);
           console.error('Error en assistant page:', error);
+
           
-          // Mostrar mensaje de error
           this.messages.update(prev => [
             ...prev,
             {

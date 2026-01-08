@@ -10,8 +10,8 @@ describe('EjerciciosOrofacialesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [EjerciciosOrofacialesComponent]
     })
-    .compileComponents();
-    
+      .compileComponents();
+
     fixture = TestBed.createComponent(EjerciciosOrofacialesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -1,6 +1,3 @@
-/* atrapa-lengua-game.component.css */
-
-/* ===== CONTENEDOR PRINCIPAL ===== */
 .game-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -9,7 +6,7 @@
   position: relative;
 }
 
-/* ===== HEADER DEL JUEGO ===== */
+
 .game-header {
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
@@ -113,7 +110,6 @@
   filter: grayscale(100%);
 }
 
-/* ===== PANTALLA DE INSTRUCCIONES ===== */
 .instructions-screen {
   min-height: 100vh;
   display: flex;
@@ -290,7 +286,6 @@
   box-shadow: 0 12px 35px rgba(239, 68, 68, 0.4);
 }
 
-/* ===== PANTALLA DE PREPARACIÓN ===== */
 .preparing-screen {
   min-height: 100vh;
   display: flex;
@@ -347,7 +342,6 @@
   color: #ef4444;
 }
 
-/* ===== ÁREA PRINCIPAL DEL JUEGO ===== */
 .game-main {
   padding-top: 5rem;
   min-height: 100vh;
@@ -393,7 +387,6 @@
   transition: width 0.3s ease;
 }
 
-/* ===== ÁREA DE JUEGO ===== */
 .game-area {
   position: absolute;
   top: 7rem;
@@ -404,7 +397,6 @@
   cursor: crosshair;
 }
 
-/* ===== LENGUAS OBJETIVO ===== */
 .lengua-target {
   position: absolute;
   width: 60px;
@@ -478,8 +470,6 @@
     transform: scale(1.1);
   }
 }
-
-/* Tipos de lenguas */
 .lengua-target.tipo-normal .lengua-emoji {
   filter: hue-rotate(0deg);
 }
@@ -504,7 +494,6 @@
   50% { transform: scale(1.2) rotate(-10deg); filter: hue-rotate(120deg) brightness(1.6) drop-shadow(0 0 15px #10b981); }
 }
 
-/* Timer visual */
 .lengua-timer {
   position: absolute;
   bottom: -5px;
@@ -521,7 +510,6 @@
   100% { width: 0%; }
 }
 
-/* ===== EFECTOS VISUALES ===== */
 .efecto-captura {
   position: absolute;
   pointer-events: none;
@@ -567,7 +555,6 @@
   font-size: 2rem;
 }
 
-/* ===== PANEL DE INFORMACIÓN ===== */
 .game-info-panel {
   position: fixed;
   bottom: 1rem;
@@ -614,7 +601,6 @@
   font-size: 0.9rem;
 }
 
-/* ===== MODAL DE COMPLETADO ===== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -787,7 +773,6 @@
   transform: translateY(-2px);
 }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;

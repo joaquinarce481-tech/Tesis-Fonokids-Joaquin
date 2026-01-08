@@ -3,8 +3,7 @@
     <div class="grid gap-y-2">
 
       <!-- Mensaje de bienvenida -->
-      <app-chat-message
-        text="**¡Hola! Vamos a evaluar tu pronunciación.**
+      <app-chat-message text="**¡Hola! Vamos a evaluar tu pronunciación.**
 
 **Consejos para grabar:**
 - Habla alto y claro
@@ -12,21 +11,20 @@
 - Di una palabra o frase completa
 - Evita lugares con ruido
 
-Presiona el botón cuando estés listo."
-      />
+Presiona el botón cuando estés listo." />
 
-      <!-- Mensajes del chat CON trackBy -->
+    
       @for (message of messages(); track trackByMessageId($index, message)) {
-        @if( message.isGpt ) {
-          <app-chat-message [text]="message.text"/>
-        } @else {
-          <app-my-message [text]="message.text"/>
-        }
+      @if( message.isGpt ) {
+      <app-chat-message [text]="message.text" />
+      } @else {
+      <app-my-message [text]="message.text" />
+      }
       }
 
       <!-- Loader -->
       @if (isLoading()) {
-        <app-typing-loader />
+      <app-typing-loader />
       }
 
     </div>
@@ -34,39 +32,36 @@ Presiona el botón cuando estés listo."
 
   <!-- Botón de grabación -->
   <div class="p-4 flex flex-col items-center gap-3">
-    
+
     <!-- Indicador de tiempo de grabación -->
     @if (isRecording()) {
-      <div class="text-black text-lg font-bold animate-pulse">
-        🔴 Grabando... {{ recordingTime() }}s
-      </div>
+    <div class="text-black text-lg font-bold animate-pulse">
+      🔴 Grabando... {{ recordingTime() }}s
+    </div>
     }
 
     <!-- Botones -->
     @if (!isRecording()) {
-      <button 
-        (click)="startRecording()"
-        [disabled]="isLoading()"
-        class="bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-8 rounded-full shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
-        🎤 Grabar Audio
-      </button>
+    <button (click)="startRecording()" [disabled]="isLoading()"
+      class="bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-8 rounded-full shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+      🎤 Grabar Audio
+    </button>
     } @else {
-      <button 
-        (click)="stopRecording()"
-        class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-4 px-8 rounded-full shadow-lg">
-        ⏹️ Detener Grabación
-      </button>
+    <button (click)="stopRecording()"
+      class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-4 px-8 rounded-full shadow-lg">
+      ⏹️ Detener Grabación
+    </button>
     }
-    
+
     <p class="text-gray-400 text-sm">
       @if (!isRecording() && !isLoading()) {
-        Presiona el botón y habla claramente
+      Presiona el botón y habla claramente
       }
       @if (isRecording()) {
-        Habla ahora, luego presiona "Detener"
+      Habla ahora, luego presiona "Detener"
       }
       @if (isLoading()) {
-        Evaluando tu pronunciación...
+      Evaluando tu pronunciación...
       }
     </p>
   </div>

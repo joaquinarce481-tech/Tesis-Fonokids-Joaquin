@@ -4,8 +4,7 @@
     <div class="grid gap-y-2">
 
       <!-- Mensaje de bienvenida -->
-      <app-chat-message
-        text=" **¡Hola! Soy FonoBot, tu asistente especializado en fonoaudiología.**
+      <app-chat-message text=" **¡Hola! Soy FonoBot, tu asistente especializado en fonoaudiología.**
 
 Estoy aquí para responder todas tus dudas sobre terapia del lenguaje, ejercicios orofaciales, pronunciación y más.
 
@@ -19,28 +18,24 @@ Estoy aquí para responder todas tus dudas sobre terapia del lenguaje, ejercicio
 
 Nota: Solo puedo responder temas relacionados con fonoaudiología. Si preguntas otra cosa, te pediré que reformules tu consulta.
 
-¡Pregúntame lo que necesites! "
-      />
+¡Pregúntame lo que necesites! " />
 
       @for (message of messages(); track $index) {
-        @if( message.isGpt ) {
-          <app-chat-message [text]="message.text"/>
-        } @else {
-          <app-my-message [text]="message.text"/>
-        }
+      @if( message.isGpt ) {
+      <app-chat-message [text]="message.text" />
+      } @else {
+      <app-my-message [text]="message.text" />
+      }
       }
 
       @if (isLoading()) {
-        <app-typing-loader />
+      <app-typing-loader />
       }
 
     </div>
   </div>
 
   <!-- MessageBox -->
-  <app-text-message-box
-    placeholder="Pregúntame sobre fonoaudiología..."
-    (onMessage)="handleMessage($event)"
-  />
+  <app-text-message-box placeholder="Pregúntame sobre fonoaudiología..." (onMessage)="handleMessage($event)" />
 
 </div>

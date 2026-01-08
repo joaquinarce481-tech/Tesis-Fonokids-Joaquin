@@ -1,15 +1,9 @@
-/* ============================================
-   CONTENEDOR PRINCIPAL
-   ============================================ */
 .ejercicios-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ============================================
-   VISTA DE SECCIONES
-   ============================================ */
 .secciones-menu {
   max-width: 1400px;
   margin: 0 auto;
@@ -152,9 +146,6 @@
   transform: scale(1.05);
 }
 
-/* ============================================
-   VISTA DE EJERCICIOS
-   ============================================ */
 .ejercicios-seccion-menu {
   max-width: 1400px;
   margin: 0 auto;
@@ -235,9 +226,6 @@
   gap: 25px;
 }
 
-/* ============================================
-   TARJETA DE EJERCICIO - CENTRADA
-   ============================================ */
 .ejercicio-card {
   background: white;
   border-radius: 16px;
@@ -334,9 +322,6 @@
   transform: scale(1.05);
 }
 
-/* ============================================
-   EJERCICIO ACTIVO - VIDEO GRANDE
-   ============================================ */
 .ejercicio-activo-pro {
   min-height: 100vh;
   display: flex;
@@ -401,7 +386,7 @@
   width: 100px;
 }
 
-/* Contenedor principal con video grande */
+
 .contenedor-principal-pro {
   flex: 1;
   display: grid;
@@ -412,7 +397,7 @@
   width: 100%;
 }
 
-/* Sección de video - GRANDE */
+
 .video-section-pro {
   display: flex;
   flex-direction: column;
@@ -489,7 +474,7 @@
   margin: 0;
 }
 
-/* Feedback sobre video */
+
 .feedback-overlay-pro {
   position: absolute;
   top: 20px;
@@ -528,7 +513,7 @@
   }
 }
 
-/* Timer sobre video */
+
 .timer-overlay-pro {
   position: absolute;
   bottom: 20px;
@@ -573,7 +558,7 @@
   text-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
-/* Barra de progreso */
+
 .progress-bar-pro {
   height: 8px;
   background: rgba(255,255,255,0.2);
@@ -587,7 +572,7 @@
   transition: width 0.3s ease;
 }
 
-/* Panel lateral */
+
 .panel-lateral-pro {
   display: flex;
   flex-direction: column;
@@ -729,9 +714,7 @@
   transform: translateY(-2px);
 }
 
-/* ============================================
-   MODAL DE RESULTADOS
-   ============================================ */
+
 .modal-overlay-pro {
   position: fixed;
   inset: 0;
@@ -863,9 +846,7 @@
   background: #e0e0e0;
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+
 @media (max-width: 1024px) {
   .contenedor-principal-pro {
     grid-template-columns: 1fr;

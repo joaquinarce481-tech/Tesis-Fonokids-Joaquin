@@ -1,38 +1,35 @@
 <div class="ejercicios-container">
-  
+
   <!-- VISTA 1: SECCIONES PRINCIPALES -->
   <div class="secciones-menu" *ngIf="vistaActual === 'secciones'">
-    
+
     <button class="btn-volver-dashboard" (click)="volverAlDashboard()">
       <span class="icono-flecha">←</span>
       <span class="texto-btn">Volver al Menú Principal</span>
     </button>
-    
+
     <div class="header-secciones">
       <h2>Ejercicios de Fonoaudiología</h2>
       <p class="subtitulo">Selecciona el área que quieres trabajar</p>
     </div>
-    
+
     <div class="secciones-grid">
-      <div 
-        class="seccion-card" 
-        *ngFor="let seccion of secciones"
-        (click)="seleccionarSeccion(seccion)"
+      <div class="seccion-card" *ngFor="let seccion of secciones" (click)="seleccionarSeccion(seccion)"
         [style.border-color]="seccion.color">
-        
+
         <div class="seccion-imagen" [style.background-image]="'url(' + seccion.imagen + ')'"></div>
-        
+
         <div class="seccion-contenido">
           <h3>{{seccion.nombre}}</h3>
           <p class="seccion-descripcion">{{seccion.descripcion}}</p>
-          
+
           <div class="seccion-ejercicios-count">
             <div class="count-badge" [style.background-color]="seccion.color">
               <span class="count-numero">{{seccion.ejercicios.length}}</span>
               <span class="count-texto">ejercicios</span>
             </div>
           </div>
-          
+
           <div class="btn-entrar" [style.background-color]="seccion.color">
             <span>Entrar</span>
           </div>
@@ -47,9 +44,8 @@
       <button class="btn-back-nuevo" (click)="volverASecciones()">
         ← Volver a Secciones
       </button>
-      
-      <div class="header-background" 
-           [style.background-image]="'url(' + seccionActiva.imagen + ')'">
+
+      <div class="header-background" [style.background-image]="'url(' + seccionActiva.imagen + ')'">
         <div class="header-overlay"></div>
         <div class="header-content">
           <h2 class="seccion-titulo-nuevo">{{seccionActiva.nombre}}</h2>
@@ -59,32 +55,31 @@
     </div>
 
     <div class="ejercicios-grid">
-      <div 
-        class="ejercicio-card" 
-        *ngFor="let ejercicio of seccionActiva.ejercicios"
-        (click)="iniciarEjercicio(ejercicio)"
-        [style.border-color]="ejercicio.color">
-        
+      <div class="ejercicio-card" *ngFor="let ejercicio of seccionActiva.ejercicios"
+        (click)="iniciarEjercicio(ejercicio)" [style.border-color]="ejercicio.color">
+
         <div class="ejercicio-imagen-container">
-          <img [src]="ejercicio.imagen" [alt]="ejercicio.nombre" class="ejercicio-imagen" [style.border-color]="ejercicio.color">
+          <img [src]="ejercicio.imagen" [alt]="ejercicio.nombre" class="ejercicio-imagen"
+            [style.border-color]="ejercicio.color">
         </div>
-        
+
         <h3>{{ejercicio.nombre}}</h3>
         <p>{{ejercicio.descripcion}}</p>
-        
+
         <div class="ejercicio-duracion">
           <span>{{ejercicio.duracion}}s</span>
         </div>
-        
+
         <div class="repeticiones-badge" *ngIf="getRepeticionesHoy(ejercicio.id) > 0">
           <span class="rep-numero">{{getRepeticionesHoy(ejercicio.id)}}/3</span>
         </div>
-        
+
         <div class="ejercicio-completado-hoy" *ngIf="isEjercicioCompletadoHoy(ejercicio.id)">
           <span class="texto-completado">Completado hoy</span>
         </div>
-        
-        <div class="btn-iniciar" [style.background]="'linear-gradient(135deg, ' + ejercicio.color + ', ' + ejercicio.color + 'dd)'">
+
+        <div class="btn-iniciar"
+          [style.background]="'linear-gradient(135deg, ' + ejercicio.color + ', ' + ejercicio.color + 'dd)'">
           <span *ngIf="!isEjercicioCompletadoHoy(ejercicio.id)">Comenzar</span>
           <span *ngIf="isEjercicioCompletadoHoy(ejercicio.id)">Practicar más</span>
         </div>
@@ -94,33 +89,33 @@
 
   <!-- VISTA 3: EJERCICIO ACTIVO - VIDEO GRANDE -->
   <div class="ejercicio-activo-pro" *ngIf="vistaActual === 'activo' && ejercicioActivo">
-    
+
     <!-- HEADER COMPACTO -->
     <div class="header-ejercicio-pro">
       <button class="btn-volver-pro" (click)="volverAlMenu()">
         <span>←</span>
         <span>Volver</span>
       </button>
-      
+
       <div class="titulo-centro">
         <h1>{{ejercicioActivo.nombre}}</h1>
         <span class="badge-repeticion" *ngIf="getRepeticionesHoy(ejercicioActivo.id) > 0">
           Repetición {{getRepeticionesHoy(ejercicioActivo.id) + 1}}/3
         </span>
       </div>
-      
+
       <div class="spacer"></div>
     </div>
 
     <!-- CONTENEDOR PRINCIPAL - VIDEO GRANDE -->
     <div class="contenedor-principal-pro">
-      
+
       <!-- VIDEO COMO PROTAGONISTA -->
       <div class="video-section-pro">
         <div class="video-container-pro">
           <video #videoElement class="video-feed-pro" playsinline autoplay muted></video>
           <canvas #canvasElement class="canvas-overlay-pro"></canvas>
-          
+
           <!-- Overlay de calibración -->
           <div class="calibration-overlay-pro" *ngIf="isRecording && !isCalibrated">
             <div class="calibration-box">
@@ -129,14 +124,15 @@
               <p class="calibration-sub">Mantén la cara en reposo</p>
             </div>
           </div>
-          
+
           <!-- Feedback sobre video -->
           <div class="feedback-overlay-pro" *ngIf="isRecording && isCalibrated && mensajeFeedback">
-            <div class="feedback-pill" [class.success]="feedbackTipo === 'success'" [class.warning]="feedbackTipo === 'warning'">
+            <div class="feedback-pill" [class.success]="feedbackTipo === 'success'"
+              [class.warning]="feedbackTipo === 'warning'">
               {{mensajeFeedback}}
             </div>
           </div>
-          
+
           <!-- Timer grande sobre video -->
           <div class="timer-overlay-pro" *ngIf="isRecording && isCalibrated">
             <div class="timer-circle-pro">
@@ -151,25 +147,24 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Barra de progreso debajo del video -->
         <div class="progress-bar-pro" *ngIf="isRecording && isCalibrated">
-          <div class="progress-fill-pro" 
-               [style.width.%]="progresoEjercicio"
-               [style.background]="ejercicioActivo?.color">
+          <div class="progress-fill-pro" [style.width.%]="progresoEjercicio"
+            [style.background]="ejercicioActivo?.color">
           </div>
         </div>
       </div>
 
       <!-- PANEL LATERAL COMPACTO -->
       <div class="panel-lateral-pro">
-        
+
         <!-- Instrucciones -->
         <div class="instrucciones-box-pro">
           <h3>Instrucciones</h3>
           <p>{{ejercicioActivo.instrucciones}}</p>
         </div>
-        
+
         <!-- Precisión -->
         <div class="precision-box-pro" *ngIf="isRecording && isCalibrated">
           <div class="precision-header">
@@ -179,34 +174,33 @@
             </span>
           </div>
           <div class="precision-bar">
-            <div class="precision-fill" 
-                 [style.width.%]="puntuacionActual"
-                 [style.background]="puntuacionActual > 60 ? '#4CAF50' : '#F44336'">
+            <div class="precision-fill" [style.width.%]="puntuacionActual"
+              [style.background]="puntuacionActual > 60 ? '#4CAF50' : '#F44336'">
             </div>
           </div>
         </div>
-        
+
         <!-- Estado de carga -->
         <div class="loading-box-pro" *ngIf="!isRecording">
           <div class="loading-spinner"></div>
           <p>Iniciando cámara...</p>
         </div>
-        
+
         <!-- Botones de control -->
         <div class="botones-pro" *ngIf="isRecording">
           <button class="btn-landmarks-pro" (click)="toggleLandmarks()" [class.active]="mostrarLandmarks">
             {{mostrarLandmarks ? 'Ocultar guía' : 'Mostrar guía'}}
           </button>
-          
+
           <button class="btn-reiniciar-pro" (click)="reiniciarEjercicio()">
             Reiniciar
           </button>
-          
+
           <button class="btn-detener-pro" (click)="detenerEjercicio()">
             Detener
           </button>
         </div>
-        
+
       </div>
     </div>
   </div>
@@ -214,39 +208,42 @@
   <!-- MODAL DE RESULTADOS -->
   <div class="modal-overlay-pro" *ngIf="vistaActual === 'resultados' || mostrarResultados" (click)="cerrarModal()">
     <div class="modal-content-pro" (click)="$event.stopPropagation()">
-      
+
       <div class="modal-header-pro">
         <h2>Ejercicio Completado</h2>
       </div>
-      
+
       <div class="modal-body-pro">
-        <div class="resultado-icon" 
-             [class.excelente]="ultimoResultado && ultimoResultado.puntuacion >= 70"
-             [class.regular]="ultimoResultado && ultimoResultado.puntuacion >= 40 && ultimoResultado.puntuacion < 70"
-             [class.bajo]="ultimoResultado && ultimoResultado.puntuacion < 40">
+        <div class="resultado-icon" [class.excelente]="ultimoResultado && ultimoResultado.puntuacion >= 70"
+          [class.regular]="ultimoResultado && ultimoResultado.puntuacion >= 40 && ultimoResultado.puntuacion < 70"
+          [class.bajo]="ultimoResultado && ultimoResultado.puntuacion < 40">
           <svg viewBox="0 0 24 24" fill="currentColor" *ngIf="ultimoResultado && ultimoResultado.puntuacion >= 70">
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
           </svg>
           <svg viewBox="0 0 24 24" fill="currentColor" *ngIf="ultimoResultado && ultimoResultado.puntuacion < 70">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
           </svg>
         </div>
-        
+
         <h3 class="resultado-titulo" *ngIf="ultimoResultado && ultimoResultado.puntuacion >= 70">Excelente trabajo</h3>
-        <h3 class="resultado-titulo" *ngIf="ultimoResultado && ultimoResultado.puntuacion >= 40 && ultimoResultado.puntuacion < 70">Buen intento</h3>
+        <h3 class="resultado-titulo"
+          *ngIf="ultimoResultado && ultimoResultado.puntuacion >= 40 && ultimoResultado.puntuacion < 70">Buen intento
+        </h3>
         <h3 class="resultado-titulo" *ngIf="ultimoResultado && ultimoResultado.puntuacion < 40">Sigue practicando</h3>
-        
+
         <p class="resultado-mensaje" *ngIf="ultimoResultado && ultimoResultado.puntuacion >= 70">
           Has realizado el ejercicio correctamente. Continúa practicando para mejores resultados.
         </p>
-        <p class="resultado-mensaje" *ngIf="ultimoResultado && ultimoResultado.puntuacion >= 40 && ultimoResultado.puntuacion < 70">
+        <p class="resultado-mensaje"
+          *ngIf="ultimoResultado && ultimoResultado.puntuacion >= 40 && ultimoResultado.puntuacion < 70">
           Vas por buen camino. Intenta mantener la posición por más tiempo.
         </p>
         <p class="resultado-mensaje" *ngIf="ultimoResultado && ultimoResultado.puntuacion < 40">
           Asegúrate de estar bien iluminado y realizar el movimiento claramente.
         </p>
       </div>
-      
+
       <div class="modal-actions-pro">
         <button class="btn-action-pro btn-primary-pro" (click)="repetirEjercicio()">
           Repetir ejercicio
@@ -255,8 +252,8 @@
           Volver al menú
         </button>
       </div>
-      
+
     </div>
   </div>
-  
+
 </div>

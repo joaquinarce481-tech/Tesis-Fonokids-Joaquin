@@ -2,7 +2,7 @@
 
   <!-- ========== PANTALLA DE INSTRUCCIONES ========== -->
   <div *ngIf="pantalla === 'inicio'" class="instructions-screen">
-    
+
     <!-- Header del juego -->
     <div class="game-header">
       <div class="header-content">
@@ -78,7 +78,7 @@
 
   <!-- ========== PANTALLA DE JUEGO ========== -->
   <div *ngIf="pantalla === 'juego' && emocionActual" class="pantalla-juego">
-    
+
     <!-- Header del juego -->
     <div class="game-header">
       <div class="header-content">
@@ -104,65 +104,55 @@
 
     <!-- Área del juego -->
     <div class="juego-contenido">
-      
+
       <!-- Columna de la Cara -->
       <div class="cara-panel">
         <h3 class="panel-titulo">Zona de Construcción</h3>
-        
+
         <div class="cara-container">
           <!-- SVG de la cara rediseñada -->
           <svg class="face-svg" viewBox="0 0 300 380" preserveAspectRatio="xMidYMid meet">
             <defs>
               <!-- Gradiente principal de la piel -->
               <linearGradient id="skinGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:#FFE4C4;stop-opacity:1"/>
-                <stop offset="50%" style="stop-color:#FFDAB9;stop-opacity:1"/>
-                <stop offset="100%" style="stop-color:#F5C89A;stop-opacity:1"/>
+                <stop offset="0%" style="stop-color:#FFE4C4;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#FFDAB9;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#F5C89A;stop-opacity:1" />
               </linearGradient>
-              
+
               <!-- Gradiente para las orejas -->
               <linearGradient id="earGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style="stop-color:#F5C89A;stop-opacity:1"/>
-                <stop offset="100%" style="stop-color:#FFDAB9;stop-opacity:1"/>
+                <stop offset="0%" style="stop-color:#F5C89A;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#FFDAB9;stop-opacity:1" />
               </linearGradient>
-              
+
               <!-- Gradiente para el cabello -->
               <linearGradient id="hairGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:#8B5A2B;stop-opacity:1"/>
-                <stop offset="100%" style="stop-color:#6B4423;stop-opacity:1"/>
+                <stop offset="0%" style="stop-color:#8B5A2B;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#6B4423;stop-opacity:1" />
               </linearGradient>
-              
+
               <!-- Sombra suave -->
               <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.15"/>
+                <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.15" />
               </filter>
-              
+
               <!-- Sombra para orejas -->
               <filter id="earShadow" x="-50%" y="-50%" width="200%" height="200%">
-                <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.1"/>
+                <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.1" />
               </filter>
             </defs>
-            
+
             <!-- Oreja izquierda -->
-            <ellipse cx="42" cy="185" rx="18" ry="28" 
-                     fill="url(#earGradient)" 
-                     stroke="#E8B88A" 
-                     stroke-width="2"
-                     filter="url(#earShadow)"/>
-            <ellipse cx="44" cy="185" rx="8" ry="14" 
-                     fill="#F0C9A0" 
-                     opacity="0.6"/>
-            
+            <ellipse cx="42" cy="185" rx="18" ry="28" fill="url(#earGradient)" stroke="#E8B88A" stroke-width="2"
+              filter="url(#earShadow)" />
+            <ellipse cx="44" cy="185" rx="8" ry="14" fill="#F0C9A0" opacity="0.6" />
+
             <!-- Oreja derecha -->
-            <ellipse cx="258" cy="185" rx="18" ry="28" 
-                     fill="url(#earGradient)" 
-                     stroke="#E8B88A" 
-                     stroke-width="2"
-                     filter="url(#earShadow)"/>
-            <ellipse cx="256" cy="185" rx="8" ry="14" 
-                     fill="#F0C9A0" 
-                     opacity="0.6"/>
-            
+            <ellipse cx="258" cy="185" rx="18" ry="28" fill="url(#earGradient)" stroke="#E8B88A" stroke-width="2"
+              filter="url(#earShadow)" />
+            <ellipse cx="256" cy="185" rx="8" ry="14" fill="#F0C9A0" opacity="0.6" />
+
             <!-- Cara principal -->
             <path d="M150 65 
                      C 220 65, 255 110, 255 165
@@ -170,12 +160,9 @@
                      C 193 345, 172 358, 150 358
                      C 128 358, 107 345, 88 320
                      C 62 285, 45 235, 45 165
-                     C 45 110, 80 65, 150 65 Z" 
-                  fill="url(#skinGradient)" 
-                  stroke="#E8B88A" 
-                  stroke-width="3"
-                  filter="url(#softShadow)"/>
-            
+                     C 45 110, 80 65, 150 65 Z" fill="url(#skinGradient)" stroke="#E8B88A" stroke-width="3"
+              filter="url(#softShadow)" />
+
             <!-- Cabello - flequillo simple y limpio -->
             <path d="M55 130
                      C 55 85, 95 65, 150 65
@@ -183,74 +170,54 @@
                      L 245 115
                      C 245 115, 200 110, 150 110
                      C 100 110, 55 115, 55 115
-                     Z" 
-                  fill="url(#hairGradient)"/>
-            
+                     Z" fill="url(#hairGradient)" />
+
             <!-- Brillo del cabello -->
-            <path d="M100 82 Q 150 75, 200 82" stroke="#9B6B3D" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.4"/>
-            
+            <path d="M100 82 Q 150 75, 200 82" stroke="#9B6B3D" stroke-width="3" fill="none" stroke-linecap="round"
+              opacity="0.4" />
+
             <!-- Mejillas (rubor sutil) -->
-            <ellipse cx="95" cy="235" rx="22" ry="14" fill="#FFB6A3" opacity="0.25"/>
-            <ellipse cx="205" cy="235" rx="22" ry="14" fill="#FFB6A3" opacity="0.25"/>
-            
+            <ellipse cx="95" cy="235" rx="22" ry="14" fill="#FFB6A3" opacity="0.25" />
+            <ellipse cx="205" cy="235" rx="22" ry="14" fill="#FFB6A3" opacity="0.25" />
+
             <!-- Nariz -->
             <path d="M150 220 
                      L 144 248 
                      Q 147 255, 150 255 
                      Q 153 255, 156 248 
-                     L 150 220 Z" 
-                  fill="#E8C4A0" 
-                  opacity="0.5"/>
+                     L 150 220 Z" fill="#E8C4A0" opacity="0.5" />
           </svg>
 
           <!-- Zona de Cejas -->
-          <div 
-            class="drop-zone"
-            [class.drop-zone-filled]="partesColocadas.cejas"
-            [style.--accent-color]="emociones[emocionActual!].color"
-            style="top: 36%; left: 50%;"
-            (dragover)="handleDragOver($event)"
-            (drop)="handleDrop('cejas')">
-            
-            <img *ngIf="partesColocadas.cejas" 
-                 [src]="partesColocadas.cejas.imagen" 
-                 [alt]="partesColocadas.cejas.nombre"
-                 class="parte-colocada-img">
-            
+          <div class="drop-zone" [class.drop-zone-filled]="partesColocadas.cejas"
+            [style.--accent-color]="emociones[emocionActual!].color" style="top: 36%; left: 50%;"
+            (dragover)="handleDragOver($event)" (drop)="handleDrop('cejas')">
+
+            <img *ngIf="partesColocadas.cejas" [src]="partesColocadas.cejas.imagen" [alt]="partesColocadas.cejas.nombre"
+              class="parte-colocada-img">
+
             <span *ngIf="!partesColocadas.cejas" class="drop-zone-label">Cejas</span>
           </div>
 
           <!-- Zona de Ojos -->
-          <div 
-            class="drop-zone"
-            [class.drop-zone-filled]="partesColocadas.ojos"
-            [style.--accent-color]="emociones[emocionActual!].color"
-            style="top: 50%; left: 50%;"
-            (dragover)="handleDragOver($event)"
-            (drop)="handleDrop('ojos')">
-            
-            <img *ngIf="partesColocadas.ojos" 
-                 [src]="partesColocadas.ojos.imagen" 
-                 [alt]="partesColocadas.ojos.nombre"
-                 class="parte-colocada-img">
-            
+          <div class="drop-zone" [class.drop-zone-filled]="partesColocadas.ojos"
+            [style.--accent-color]="emociones[emocionActual!].color" style="top: 50%; left: 50%;"
+            (dragover)="handleDragOver($event)" (drop)="handleDrop('ojos')">
+
+            <img *ngIf="partesColocadas.ojos" [src]="partesColocadas.ojos.imagen" [alt]="partesColocadas.ojos.nombre"
+              class="parte-colocada-img">
+
             <span *ngIf="!partesColocadas.ojos" class="drop-zone-label">Ojos</span>
           </div>
 
           <!-- Zona de Boca -->
-          <div 
-            class="drop-zone"
-            [class.drop-zone-filled]="partesColocadas.boca"
-            [style.--accent-color]="emociones[emocionActual!].color"
-            style="top: 76%; left: 50%;"
-            (dragover)="handleDragOver($event)"
-            (drop)="handleDrop('boca')">>>
-            
-            <img *ngIf="partesColocadas.boca" 
-                 [src]="partesColocadas.boca.imagen" 
-                 [alt]="partesColocadas.boca.nombre"
-                 class="parte-colocada-img">
-            
+          <div class="drop-zone" [class.drop-zone-filled]="partesColocadas.boca"
+            [style.--accent-color]="emociones[emocionActual!].color" style="top: 76%; left: 50%;"
+            (dragover)="handleDragOver($event)" (drop)="handleDrop('boca')">>>
+
+            <img *ngIf="partesColocadas.boca" [src]="partesColocadas.boca.imagen" [alt]="partesColocadas.boca.nombre"
+              class="parte-colocada-img">
+
             <span *ngIf="!partesColocadas.boca" class="drop-zone-label">Boca</span>
           </div>
         </div>
@@ -258,9 +225,7 @@
         <!-- Barra de progreso -->
         <div class="progreso-section">
           <div class="progreso-bar">
-            <div 
-              class="progreso-fill" 
-              [style.width.%]="(getPartesColocadasCount() / 3) * 100"
+            <div class="progreso-fill" [style.width.%]="(getPartesColocadasCount() / 3) * 100"
               [style.background]="emociones[emocionActual!].color">
             </div>
           </div>
@@ -268,10 +233,7 @@
         </div>
 
         <!-- Botón Verificar -->
-        <button 
-          *ngIf="juegoCompletado()"
-          class="btn-verificar"
-          [style.background]="emociones[emocionActual!].color"
+        <button *ngIf="juegoCompletado()" class="btn-verificar" [style.background]="emociones[emocionActual!].color"
           (click)="verificarRespuesta()">
           Verificar Respuesta
         </button>
@@ -280,18 +242,15 @@
       <!-- Columna de Partes -->
       <div class="partes-panel">
         <h3 class="panel-titulo">Partes Disponibles</h3>
-        
+
         <!-- Sección Cejas -->
         <div class="partes-seccion">
           <h4 class="seccion-label">Cejas</h4>
           <div class="partes-grid">
-            <div
-              *ngFor="let parte of partesDisponibles.cejas"
-              class="parte-item"
+            <div *ngFor="let parte of partesDisponibles.cejas" class="parte-item"
               [class.parte-usada]="partesColocadas.cejas?.id === parte.id"
-              [attr.draggable]="partesColocadas.cejas?.id !== parte.id"
-              (dragstart)="handleDragStart('cejas', parte)">
-              
+              [attr.draggable]="partesColocadas.cejas?.id !== parte.id" (dragstart)="handleDragStart('cejas', parte)">
+
               <div class="parte-img-wrapper">
                 <img [src]="parte.imagen" [alt]="parte.nombre" class="parte-img">
               </div>
@@ -305,13 +264,10 @@
         <div class="partes-seccion">
           <h4 class="seccion-label">Ojos</h4>
           <div class="partes-grid">
-            <div
-              *ngFor="let parte of partesDisponibles.ojos"
-              class="parte-item"
+            <div *ngFor="let parte of partesDisponibles.ojos" class="parte-item"
               [class.parte-usada]="partesColocadas.ojos?.id === parte.id"
-              [attr.draggable]="partesColocadas.ojos?.id !== parte.id"
-              (dragstart)="handleDragStart('ojos', parte)">
-              
+              [attr.draggable]="partesColocadas.ojos?.id !== parte.id" (dragstart)="handleDragStart('ojos', parte)">
+
               <div class="parte-img-wrapper">
                 <img [src]="parte.imagen" [alt]="parte.nombre" class="parte-img">
               </div>
@@ -325,13 +281,10 @@
         <div class="partes-seccion">
           <h4 class="seccion-label">Boca</h4>
           <div class="partes-grid">
-            <div
-              *ngFor="let parte of partesDisponibles.boca"
-              class="parte-item"
+            <div *ngFor="let parte of partesDisponibles.boca" class="parte-item"
               [class.parte-usada]="partesColocadas.boca?.id === parte.id"
-              [attr.draggable]="partesColocadas.boca?.id !== parte.id"
-              (dragstart)="handleDragStart('boca', parte)">
-              
+              [attr.draggable]="partesColocadas.boca?.id !== parte.id" (dragstart)="handleDragStart('boca', parte)">
+
               <div class="parte-img-wrapper">
                 <img [src]="parte.imagen" [alt]="parte.nombre" class="parte-img">
               </div>
@@ -349,14 +302,14 @@
   <!-- ========== PANTALLA DE COMPLETADO ========== -->
   <div *ngIf="pantalla === 'completado'" class="pantalla-completado">
     <div class="completado-card">
-      
+
       <div class="completado-icon">
         <svg viewBox="0 0 100 100" class="star-icon">
-          <path d="M50 15 L61 38 L85 42 L68 58 L72 82 L50 70 L28 82 L32 58 L15 42 L39 38 Z" 
-                fill="#ffd700" stroke="#f5a623" stroke-width="2"/>
+          <path d="M50 15 L61 38 L85 42 L68 58 L72 82 L50 70 L28 82 L32 58 L15 42 L39 38 Z" fill="#ffd700"
+            stroke="#f5a623" stroke-width="2" />
         </svg>
       </div>
-      
+
       <h2 class="completado-titulo">¡Excelente!</h2>
       <p class="completado-mensaje">Has completado la emoción correctamente</p>
 
@@ -378,21 +331,21 @@
   <!-- ========== MODAL DE ERROR ========== -->
   <div *ngIf="mostrarModalError" class="modal-overlay" (click)="cerrarModalError()">
     <div class="modal-content" (click)="$event.stopPropagation()">
-      
+
       <div class="modal-icon">
         <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M12 8v4M12 16h.01"/>
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 8v4M12 16h.01" />
         </svg>
       </div>
-      
+
       <h2 class="modal-titulo">¡Casi lo tienes!</h2>
       <p class="modal-mensaje">Revisa las partes de la cara e intenta nuevamente.</p>
-      
+
       <button class="btn-modal" (click)="cerrarModalError()">
         Intentar de Nuevo
       </button>
-      
+
     </div>
   </div>
 
