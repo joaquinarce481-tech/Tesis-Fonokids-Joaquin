@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
 
 interface Actividad {
@@ -20,17 +21,25 @@ interface ResumenDiario {
   actividades: Actividad[];
 }
 
+interface Paciente {
+  id_paciente: number;
+  nombre_completo: string;
+  username: string;
+  email: string;
+}
+
 @Component({
   selector: 'app-panel-profesional',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './panel-profesional.html',
   styleUrls: ['./panel-profesional.css']
 })
 export class PanelProfesionalComponent implements OnInit {
   
-  // Datos del paciente
-  nombrePaciente: string = 'Paciente';
+  // Lista de pacientes
+  pacientes: Paciente[] = [];
+  pacienteSeleccionado: Paciente | null = null;
   
   // Estadísticas generales
   totalEjercicios: number = 0;
@@ -45,6 +54,7 @@ export class PanelProfesionalComponent implements OnInit {
   vistaActual: 'resumen' | 'historial' | 'detalle' = 'resumen';
   diaSeleccionado: ResumenDiario | null = null;
   cargando: boolean = true;
+  cargandoHistorial: boolean = false;
   error: string = '';
   
   constructor(
@@ -53,61 +63,72 @@ export class PanelProfesionalComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.cargarDatosPaciente();
-    this.cargarHistorialDesdeBackend();
+    this.cargarPacientes();
   }
 
   /**
-   * Carga el nombre del paciente desde localStorage
+   * Carga la lista de pacientes desde el backend
    */
-  private cargarDatosPaciente(): void {
-    const userData = localStorage.getItem('fonokids_user');
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        this.nombrePaciente = user.name || user.username || 'Paciente';
-      } catch (e) {
-        this.nombrePaciente = 'Paciente';
-      }
-    }
-  }
-
-  /**
-   * Carga el historial de actividades desde el backend
-   */
-  private cargarHistorialDesdeBackend(): void {
+  private cargarPacientes(): void {
     this.cargando = true;
     this.error = '';
 
-    const userData = localStorage.getItem('fonokids_user');
-    if (!userData) {
-      this.error = 'No se encontró información del usuario';
-      this.cargando = false;
-      return;
-    }
+    console.log('👥 Cargando lista de pacientes...');
+    
+    this.http.get<any[]>(`${environment.backendLogin}/api/pacientes`)
+      .subscribe({
+        next: (pacientes) => {
+          console.log('✅ Pacientes cargados:', pacientes.length);
+          this.pacientes = pacientes;
+          this.cargando = false;
+        },
+        error: (error) => {
+          console.error('❌ Error cargando pacientes:', error);
+          this.error = 'No se pudo cargar la lista de pacientes';
+          this.cargando = false;
+        }
+      });
+  }
 
-    const user = JSON.parse(userData);
-    const idPaciente = user.id_paciente || user.id;
+  /**
+   * Selecciona un paciente y carga su historial
+   */
+  seleccionarPaciente(paciente: Paciente): void {
+    this.pacienteSeleccionado = paciente;
+    this.vistaActual = 'resumen';
+    this.cargarHistorialPaciente(paciente.id_paciente);
+  }
 
-    if (!idPaciente) {
-      this.error = 'No se pudo identificar al paciente';
-      this.cargando = false;
-      return;
-    }
+  /**
+   * Vuelve a la lista de pacientes
+   */
+  volverALista(): void {
+    this.pacienteSeleccionado = null;
+    this.resumenPorDia = [];
+    this.totalEjercicios = 0;
+    this.totalJuegos = 0;
+    this.totalActividades = 0;
+    this.diasActivos = 0;
+  }
 
-    console.log('🔍 Panel Profesional: Cargando historial del paciente:', idPaciente);
+  /**
+   * Carga el historial de un paciente específico
+   */
+  private cargarHistorialPaciente(idPaciente: number): void {
+    this.cargandoHistorial = true;
+
+    console.log('📊 Cargando historial del paciente:', idPaciente);
     
     this.http.get<any>(`${environment.backendLogin}/api/historial-actividades/paciente/${idPaciente}`)
       .subscribe({
         next: (response) => {
-          console.log('✅ Actividades cargadas:', response);
+          console.log('✅ Historial cargado:', response);
           this.procesarActividades(response.data || []);
-          this.cargando = false;
+          this.cargandoHistorial = false;
         },
         error: (error) => {
-          console.error('❌ Error al cargar actividades:', error);
-          this.error = 'No se pudo cargar el historial';
-          this.cargando = false;
+          console.error('❌ Error cargando historial:', error);
+          this.cargandoHistorial = false;
         }
       });
   }
