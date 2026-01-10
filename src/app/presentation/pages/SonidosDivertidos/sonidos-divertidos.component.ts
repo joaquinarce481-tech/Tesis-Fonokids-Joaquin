@@ -158,7 +158,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       sonidoTTS: 'clap, clap',
       imagen: '👏',
       audio: 'clap',
-      archivoAudio: 'assets/sounds/aplausos.mp3',
+      archivoAudio: 'assets/sounds/aplauso.mp3',
       filtro: 'aplausos',
       palabrasClave: ['clap', 'aplausos', 'palm', 'aplauso', 'clap clap', 'clac', 'plap', 'clac clac', 'plap plap', 'cap', 'plaf']
     }

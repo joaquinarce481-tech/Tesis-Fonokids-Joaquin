@@ -135,12 +135,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     {
       id: 'practicas',
-      title: 'Preguntas con la IA',
+      title: 'Habla con FonoBot',
       subtitle: 'Practica con la IA para mejorar',
       color: 'from-green-400 to-green-600',
       hoverColor: 'from-green-500 to-green-700',
       emoji: '🤖💻',
-      description: 'Charla con la Inteligencia Artificial'
+      description: 'Charla con tu Asistente'
     },
     {
       id: 'guia-tutores',
