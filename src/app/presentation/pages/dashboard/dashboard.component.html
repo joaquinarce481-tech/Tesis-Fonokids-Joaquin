@@ -1,4 +1,4 @@
-<!-- dashboard.component.html - VERSIÓN FINAL CON CAROUSEL Y SECCIÓN ABOUT -->
+<!-- dashboard.component.html - VERSIÓN CON SISTEMA DE NOTIFICACIONES -->
 
 <div class="dashboard-container" [class.dark-mode]="isDarkMode">
   <!-- Header con información del usuario -->
@@ -52,12 +52,78 @@
         </div>
       </div>
       
-      <!-- Botón de modo oscuro -->
-      <div class="stat-item">
-        <button class="theme-toggle" (click)="toggleDarkMode()" [title]="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
-          <span class="theme-icon">{{ isDarkMode ? '☀️' : '🌙' }}</span>
-        </button>
-        <p>Tema</p>
+      <!-- ========== 🔔 SISTEMA DE NOTIFICACIONES ========== -->
+      <div class="header-actions">
+        <!-- Botón de Notificaciones -->
+        <div class="header-action-item">
+          <div class="notification-container">
+            <button class="notification-bell" 
+                    (click)="toggleNotifications()"
+                    [class.has-notifications]="unreadCount > 0"
+                    [class.active]="showNotifications">
+              <span class="bell-icon">🔔</span>
+              <span class="notification-badge" *ngIf="unreadCount > 0">
+                {{ unreadCount > 9 ? '9+' : unreadCount }}
+              </span>
+              <span class="bell-ring" *ngIf="unreadCount > 0"></span>
+            </button>
+            
+            <!-- Panel de Notificaciones -->
+            <div class="notifications-panel" [class.show]="showNotifications">
+              <div class="notifications-header">
+                <h3>Notificaciones</h3>
+                <button class="mark-all-read" 
+                        *ngIf="unreadCount > 0"
+                        (click)="markAllAsRead()">
+                  Marcar leídas
+                </button>
+              </div>
+              
+              <div class="notifications-list" *ngIf="notifications.length > 0">
+                <div class="notification-item" 
+                     *ngFor="let notif of notifications; let i = index"
+                     [class.unread]="!notif.read"
+                     [class.read]="notif.read"
+                     (click)="handleNotificationClick(notif, i)">
+                  <div class="notification-icon" [ngClass]="'type-' + notif.type">
+                    {{ notif.icon }}
+                  </div>
+                  <div class="notification-content">
+                    <h4>{{ notif.title }}</h4>
+                    <p>{{ notif.message }}</p>
+                    <span class="notification-time">{{ notif.time }}</span>
+                  </div>
+                  <button class="notification-dismiss" 
+                          (click)="dismissNotification(i, $event)"
+                          title="Descartar">
+                    ✕
+                  </button>
+                </div>
+              </div>
+              
+              <div class="notifications-empty" *ngIf="notifications.length === 0">
+                <span class="empty-icon">✓</span>
+                <p>No tienes notificaciones</p>
+                <span class="empty-subtitle">Todo está al día</span>
+              </div>
+            </div>
+            
+            <!-- Overlay para cerrar -->
+            <div class="notification-overlay" 
+                 *ngIf="showNotifications" 
+                 (click)="closeNotifications()">
+            </div>
+          </div>
+          <p class="action-label">Avisos</p>
+        </div>
+        
+        <!-- Botón de modo oscuro -->
+        <div class="header-action-item">
+          <button class="theme-toggle" (click)="toggleDarkMode()" [title]="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+            <span class="theme-icon">{{ isDarkMode ? '☀️' : '🌙' }}</span>
+          </button>
+          <p class="action-label">Tema</p>
+        </div>
       </div>
     </div>
   </header>

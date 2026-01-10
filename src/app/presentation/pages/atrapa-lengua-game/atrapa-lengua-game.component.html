@@ -8,12 +8,12 @@
         <span class="back-icon">←</span>
         <span>Volver</span>
       </button>
-      
+
       <div class="game-info">
         <h1>👅 Atrapa la Lengua</h1>
         <p>Haz clic rápido cuando aparezcan las lenguas en pantalla</p>
       </div>
-      
+
       <div class="game-stats" *ngIf="faseJuego === 'jugando'">
         <div class="stat">
           <span class="stat-label">Nivel</span>
@@ -22,9 +22,7 @@
         <div class="stat">
           <span class="stat-label">Vidas</span>
           <span class="stat-value">
-            <span *ngFor="let vida of [1,2,3]; let i = index" 
-                  class="vida-icon"
-                  [class.perdida]="i >= vidas">❤️</span>
+            <span *ngFor="let vida of [1,2,3]; let i = index" class="vida-icon" [class.perdida]="i >= vidas">❤️</span>
           </span>
         </div>
         <div class="stat">
@@ -51,7 +49,7 @@
           <h2>👅 Cómo Jugar</h2>
           <div class="difficulty-badge">Reacción</div>
         </div>
-        
+
         <div class="instructions-content">
           <div class="step">
             <div class="step-number">1</div>
@@ -60,7 +58,7 @@
               <p>Las lenguas aparecerán en diferentes posiciones de la pantalla</p>
             </div>
           </div>
-          
+
           <div class="step">
             <div class="step-number">2</div>
             <div class="step-text">
@@ -68,7 +66,7 @@
               <p>Cuando veas una lengua, haz clic encima lo más rápido posible</p>
             </div>
           </div>
-          
+
           <div class="step">
             <div class="step-number">3</div>
             <div class="step-text">
@@ -77,7 +75,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="types-section">
           <h3>👅 Tipos de Lenguas</h3>
           <div class="types-grid">
@@ -98,7 +96,7 @@
             </div>
           </div>
         </div>
-        
+
         <button class="btn-start" (click)="saltarInstrucciones()">
           ⚡ ¡Empezar a Jugar!
         </button>
@@ -134,32 +132,22 @@
     <!-- Área de juego donde aparecen las lenguas -->
     <div class="game-area">
       <!-- Lenguas generadas dinámicamente -->
-      <div *ngFor="let lengua of lenguas" 
-           class="lengua-target"
-           [class.visible]="lengua.visible"
-           [class.capturada]="lengua.capturada"
-           [ngClass]="'tipo-' + lengua.tipo"
-           [style.left.px]="lengua.x"
-           [style.top.px]="lengua.y"
-           (click)="capturarLengua(lengua, $event)">
-        
-        <div class="lengua-emoji" 
-             [class.pulsando]="lengua.visible && !lengua.capturada">
+      <div *ngFor="let lengua of lenguas" class="lengua-target" [class.visible]="lengua.visible"
+        [class.capturada]="lengua.capturada" [ngClass]="'tipo-' + lengua.tipo" [style.left.px]="lengua.x"
+        [style.top.px]="lengua.y" (click)="capturarLengua(lengua, $event)">
+
+        <div class="lengua-emoji" [class.pulsando]="lengua.visible && !lengua.capturada">
           👅
         </div>
-        
+
         <!-- Indicador de tiempo restante -->
-        <div class="lengua-timer" 
-             [style.animation-duration.ms]="lengua.tiempoVida">
+        <div class="lengua-timer" [style.animation-duration.ms]="lengua.tiempoVida">
         </div>
       </div>
 
       <!-- Efectos visuales de captura -->
-      <div *ngFor="let efecto of efectosVisuales" 
-           class="efecto-captura"
-           [style.left.px]="efecto.x"
-           [style.top.px]="efecto.y"
-           [ngClass]="'efecto-' + efecto.tipo">
+      <div *ngFor="let efecto of efectosVisuales" class="efecto-captura" [style.left.px]="efecto.x"
+        [style.top.px]="efecto.y" [ngClass]="'efecto-' + efecto.tipo">
         <div class="efecto-puntos">+{{ efecto.puntos }}</div>
         <div class="efecto-particulas">✨</div>
       </div>
@@ -171,12 +159,12 @@
         <span class="info-icon">🎯</span>
         <span class="info-text">{{ lenguasCapturadas }}/{{ objetivoLenguas }}</span>
       </div>
-      
+
       <div class="info-item combo-display" *ngIf="combo > 1">
         <span class="info-icon">🔥</span>
         <span class="info-text">Combo x{{ combo }}</span>
       </div>
-      
+
       <div class="info-item tiempo-display">
         <span class="info-icon">⏱️</span>
         <span class="info-text">{{ formatearTiempo(getTiempoRestante()) }}</span>
@@ -192,19 +180,19 @@
         <h2>¡Reflejos increíbles!</h2>
         <p>Has completado todos los niveles de Atrapa la Lengua</p>
       </div>
-      
+
       <div class="celebration" *ngIf="vidas > 0 && nivelActual < maxNiveles">
         <div class="celebration-emoji">⚡</div>
         <h2>¡Nivel superado!</h2>
         <p>Excelentes reflejos. Continuemos al siguiente nivel.</p>
       </div>
-      
+
       <div class="celebration" *ngIf="vidas <= 0">
         <div class="celebration-emoji">💪</div>
         <h2>¡Buen intento!</h2>
         <p>Llegaste al nivel {{ nivelActual }}. ¡Sigue practicando tus reflejos!</p>
       </div>
-      
+
       <div class="final-stats">
         <div class="stat-final">
           <span class="stat-icon">🎯</span>
@@ -231,24 +219,22 @@
           <span class="stat-text">Puntaje: {{ puntaje }}</span>
         </div>
       </div>
-      
+
       <div class="stars-rating" *ngIf="vidas > 0">
-        <span *ngFor="let star of [1,2,3]; let i = index" 
-              class="star"
-              [class.filled]="i < getEstrellas()">
+        <span *ngFor="let star of [1,2,3]; let i = index" class="star" [class.filled]="i < getEstrellas()">
           ⭐
         </span>
       </div>
-      
+
       <div class="modal-actions">
         <button class="btn-secondary" (click)="reiniciarJuego()">
           🔄 Jugar de Nuevo
         </button>
-        
+
         <button class="btn-primary" (click)="siguienteJuego()">
           ➡️ Siguiente Juego
         </button>
-        
+
         <button class="btn-outline" (click)="volverAJuegos()">
           🏠 Volver a Juegos
         </button>

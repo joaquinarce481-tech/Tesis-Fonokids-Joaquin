@@ -63,6 +63,19 @@ export const routes: Routes = [
     }
   },
   
+  // ========== PANEL PROFESIONAL PARA FONOAUDIÓLOGAS ==========
+  {
+    path: 'panel-profesional',
+    loadComponent: () => 
+      import('./presentation/pages/panel-profesional/panel-profesional').then(m => m.PanelProfesionalComponent),
+    canActivate: [AuthGuard],
+    data: {
+      icon: 'fa-solid fa-user-doctor',
+      title: 'Panel Profesional',
+      description: 'Seguimiento del paciente para fonoaudiólogas'
+    }
+  },
+  
   // RUTAS CON DASHBOARDLAYOUT (CHATBOT FONOKIDS) - PROTEGIDAS
   {
     path: 'chat',
@@ -322,7 +335,7 @@ export const routes: Routes = [
     }
   },
 
-  // ========== ✅ NUEVA RUTA DE GUÍA PARA TUTORES ==========
+  // ========== ✅ RUTA DE GUÍA PARA TUTORES ==========
   {
     path: 'guia-tutores',
     loadComponent: () => import('./presentation/pages/guia-tutores/guia-tutores').then(m => m.GuiaTutoresComponent),
@@ -333,18 +346,6 @@ export const routes: Routes = [
       description: 'Información y recursos para apoyar la terapia en casa'
     }
   },
-
-  // ========== ✅ RUTA PARA CATEGORÍAS INDIVIDUALES ==========
- {
-  path: 'guia-tutores',
-  loadComponent: () => import('./presentation/pages/guia-tutores/guia-tutores').then(m => m.GuiaTutoresComponent),
-  canActivate: [AuthGuard],
-  data: {
-    icon: 'fa-solid fa-users',
-    title: 'Guía para Padres',
-    description: 'Información y recursos para apoyar la terapia en casa'
-  }
-},
 
   // WILDCARD ROUTE - DEBE SER SIEMPRE LA ÚLTIMA RUTA
   {

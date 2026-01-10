@@ -1,0 +1,185 @@
+<div class="panel-container">
+  <!-- Header del Panel -->
+  <header class="panel-header">
+    <div class="header-left">
+      <button class="btn-volver" (click)="volverAlDashboard()">
+        ← Volver
+      </button>
+      <div class="header-titulo">
+        <h1>Panel Profesional</h1>
+        <p>Seguimiento del paciente</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="paciente-info">
+        <span class="paciente-icono">👤</span>
+        <span class="paciente-nombre">{{ nombrePaciente }}</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegación de vistas -->
+  <nav class="panel-nav">
+    <button 
+      class="nav-btn" 
+      [class.active]="vistaActual === 'resumen'"
+      (click)="cambiarVista('resumen')">
+      Resumen
+    </button>
+    <button 
+      class="nav-btn" 
+      [class.active]="vistaActual === 'historial'"
+      (click)="cambiarVista('historial')">
+      Historial
+    </button>
+  </nav>
+
+  <!-- Contenido Principal -->
+  <main class="panel-content">
+    
+    <!-- VISTA RESUMEN -->
+    <section class="vista-resumen" *ngIf="vistaActual === 'resumen'">
+      
+      <!-- Tarjetas de estadísticas -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icono ejercicios">📋</div>
+          <div class="stat-info">
+            <span class="stat-numero">{{ totalEjercicios }}</span>
+            <span class="stat-label">Ejercicios realizados</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icono juegos">🎮</div>
+          <div class="stat-info">
+            <span class="stat-numero">{{ totalJuegos }}</span>
+            <span class="stat-label">Juegos completados</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icono total">📊</div>
+          <div class="stat-info">
+            <span class="stat-numero">{{ totalActividades }}</span>
+            <span class="stat-label">Total actividades</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icono dias">📅</div>
+          <div class="stat-info">
+            <span class="stat-numero">{{ diasActivos }}</span>
+            <span class="stat-label">Días activos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info adicional -->
+      <div class="info-adicional">
+        <div class="info-item">
+          <span class="info-label">Promedio por día:</span>
+          <span class="info-valor">{{ promedioPorDia }} actividades</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Última actividad:</span>
+          <span class="info-valor">{{ ultimaActividad }}</span>
+        </div>
+      </div>
+
+      <!-- Actividad reciente -->
+      <div class="seccion-reciente">
+        <h2>Actividad Reciente</h2>
+        
+        <div class="lista-dias" *ngIf="resumenPorDia.length > 0">
+          <div 
+            class="dia-card" 
+            *ngFor="let dia of resumenPorDia.slice(0, 5)"
+            (click)="verDetalleDia(dia)">
+            <div class="dia-fecha">{{ dia.fechaFormateada }}</div>
+            <div class="dia-stats">
+              <span class="dia-stat">
+                <span class="stat-icon">📋</span> {{ dia.ejercicios }}
+              </span>
+              <span class="dia-stat">
+                <span class="stat-icon">🎮</span> {{ dia.juegos }}
+              </span>
+              <span class="dia-total">Total: {{ dia.total }}</span>
+            </div>
+            <span class="dia-flecha">→</span>
+          </div>
+        </div>
+        
+        <div class="sin-datos" *ngIf="resumenPorDia.length === 0">
+          <span class="sin-datos-icono">📭</span>
+          <p>No hay actividades registradas</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISTA HISTORIAL -->
+    <section class="vista-historial" *ngIf="vistaActual === 'historial'">
+      <h2>Historial Completo</h2>
+      
+      <div class="historial-lista" *ngIf="resumenPorDia.length > 0">
+        <div 
+          class="historial-dia" 
+          *ngFor="let dia of resumenPorDia"
+          (click)="verDetalleDia(dia)">
+          <div class="historial-fecha">
+            <span class="fecha-texto">{{ dia.fechaFormateada }}</span>
+            <span class="fecha-iso">{{ dia.fecha }}</span>
+          </div>
+          <div class="historial-resumen">
+            <div class="resumen-item">
+              <span class="resumen-num">{{ dia.ejercicios }}</span>
+              <span class="resumen-label">ejercicios</span>
+            </div>
+            <div class="resumen-item">
+              <span class="resumen-num">{{ dia.juegos }}</span>
+              <span class="resumen-label">juegos</span>
+            </div>
+            <div class="resumen-item total">
+              <span class="resumen-num">{{ dia.total }}</span>
+              <span class="resumen-label">total</span>
+            </div>
+          </div>
+          <span class="historial-flecha">→</span>
+        </div>
+      </div>
+      
+      <div class="sin-datos" *ngIf="resumenPorDia.length === 0">
+        <span class="sin-datos-icono">📭</span>
+        <p>No hay historial disponible</p>
+      </div>
+    </section>
+
+    <!-- VISTA DETALLE DÍA -->
+    <section class="vista-detalle" *ngIf="vistaActual === 'detalle' && diaSeleccionado">
+      <div class="detalle-header">
+        <button class="btn-atras" (click)="cambiarVista('historial')">← Atrás</button>
+        <h2>{{ diaSeleccionado.fechaFormateada }}</h2>
+        <span class="detalle-fecha">{{ diaSeleccionado.fecha }}</span>
+      </div>
+
+      <div class="detalle-resumen">
+        <span class="detalle-stat">📋 {{ diaSeleccionado.ejercicios }} ejercicios</span>
+        <span class="detalle-stat">🎮 {{ diaSeleccionado.juegos }} juegos</span>
+      </div>
+
+      <div class="detalle-lista">
+        <h3>Actividades del día</h3>
+        <div class="actividad-item" *ngFor="let act of diaSeleccionado.actividades">
+          <span class="actividad-icono">{{ getIconoCategoria(act.categoria) }}</span>
+          <div class="actividad-info">
+            <span class="actividad-nombre">{{ act.nombre }}</span>
+            <span class="actividad-categoria">{{ act.categoria }}</span>
+          </div>
+          <span class="actividad-tipo" [class.juego]="act.tipo === 'juego'">
+            {{ act.tipo === 'juego' ? 'Juego' : 'Ejercicio' }}
+          </span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
