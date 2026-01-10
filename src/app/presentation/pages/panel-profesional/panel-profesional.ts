@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
-interface ActividadRegistro {
+interface Actividad {
+  id_actividad: number;
   fecha: string;
-  tipo: string;
-  nombre: string;
-  categoria: string;
-  completado: boolean;
-  timestamp: string;
+  tipo_actividad: string;
+  nombre_actividad: string;
 }
 
 interface ResumenDiario {
@@ -17,7 +17,7 @@ interface ResumenDiario {
   ejercicios: number;
   juegos: number;
   total: number;
-  actividades: ActividadRegistro[];
+  actividades: Actividad[];
 }
 
 @Component({
@@ -40,18 +40,21 @@ export class PanelProfesionalComponent implements OnInit {
   
   // Historial
   resumenPorDia: ResumenDiario[] = [];
-  actividadesRecientes: ActividadRegistro[] = [];
   
   // UI
   vistaActual: 'resumen' | 'historial' | 'detalle' = 'resumen';
   diaSeleccionado: ResumenDiario | null = null;
+  cargando: boolean = true;
+  error: string = '';
   
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
     this.cargarDatosPaciente();
-    this.cargarHistorial();
-    this.calcularEstadisticas();
+    this.cargarHistorialDesdeBackend();
   }
 
   /**
@@ -70,104 +73,97 @@ export class PanelProfesionalComponent implements OnInit {
   }
 
   /**
-   * Carga el historial de actividades desde localStorage
+   * Carga el historial de actividades desde el backend
    */
-  private cargarHistorial(): void {
-    try {
-      const historial = localStorage.getItem('activityHistory');
-      
-      if (historial) {
-        const actividades: any[] = JSON.parse(historial);
-        
-        // Convertir a formato uniforme
-        this.actividadesRecientes = actividades.map(act => ({
-          fecha: this.extraerFecha(act.date || act.timestamp),
-          tipo: this.determinarTipo(act),
-          nombre: act.name || act.ejercicio || act.activity || 'Actividad',
-          categoria: act.category || act.categoria || 'general',
-          completado: act.completed !== false,
-          timestamp: act.date || act.timestamp || new Date().toISOString()
-        })).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-        
-        // Agrupar por día
-        this.agruparPorDia();
-      }
-    } catch (error) {
-      console.error('Error cargando historial:', error);
-    }
-  }
+  private cargarHistorialDesdeBackend(): void {
+    this.cargando = true;
+    this.error = '';
 
-  /**
-   * Extrae la fecha en formato YYYY-MM-DD
-   */
-  private extraerFecha(dateString: string): string {
-    try {
-      return new Date(dateString).toISOString().split('T')[0];
-    } catch {
-      return new Date().toISOString().split('T')[0];
+    const userData = localStorage.getItem('fonokids_user');
+    if (!userData) {
+      this.error = 'No se encontró información del usuario';
+      this.cargando = false;
+      return;
     }
-  }
 
-  /**
-   * Determina si es ejercicio o juego
-   */
-  private determinarTipo(actividad: any): string {
-    const tipo = (actividad.type || actividad.tipo || actividad.category || '').toLowerCase();
-    const nombre = (actividad.name || actividad.ejercicio || '').toLowerCase();
+    const user = JSON.parse(userData);
+    const idPaciente = user.id_paciente || user.id;
+
+    if (!idPaciente) {
+      this.error = 'No se pudo identificar al paciente';
+      this.cargando = false;
+      return;
+    }
+
+    console.log('🔍 Panel Profesional: Cargando historial del paciente:', idPaciente);
     
-    if (tipo.includes('juego') || tipo.includes('game') || 
-        nombre.includes('carrera') || nombre.includes('puzzle') || 
-        nombre.includes('memoria') || nombre.includes('ruleta') ||
-        nombre.includes('sonido') || nombre.includes('parejas') ||
-        nombre.includes('atrapa') || nombre.includes('arma')) {
-      return 'juego';
-    }
-    return 'ejercicio';
+    this.http.get<any>(`${environment.backendLogin}/api/historial-actividades/paciente/${idPaciente}`)
+      .subscribe({
+        next: (response) => {
+          console.log('✅ Actividades cargadas:', response);
+          this.procesarActividades(response.data || []);
+          this.cargando = false;
+        },
+        error: (error) => {
+          console.error('❌ Error al cargar actividades:', error);
+          this.error = 'No se pudo cargar el historial';
+          this.cargando = false;
+        }
+      });
   }
 
   /**
-   * Agrupa las actividades por día
+   * Procesa las actividades y las agrupa por día
    */
-  private agruparPorDia(): void {
-    const grupos: { [key: string]: ActividadRegistro[] } = {};
+  private procesarActividades(actividades: Actividad[]): void {
+    const grupos: { [key: string]: Actividad[] } = {};
     
-    this.actividadesRecientes.forEach(act => {
-      if (!grupos[act.fecha]) {
-        grupos[act.fecha] = [];
+    actividades.forEach(act => {
+      const fecha = act.fecha;
+      if (!grupos[fecha]) {
+        grupos[fecha] = [];
       }
-      grupos[act.fecha].push(act);
+      grupos[fecha].push(act);
     });
     
     this.resumenPorDia = Object.keys(grupos)
       .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
       .map(fecha => {
-        const actividades = grupos[fecha];
-        const ejercicios = actividades.filter(a => a.tipo === 'ejercicio').length;
-        const juegos = actividades.filter(a => a.tipo === 'juego').length;
+        const acts = grupos[fecha];
+        const juegos = acts.filter(a => a.tipo_actividad === 'juego_terapeutico').length;
+        const ejercicios = acts.filter(a => a.tipo_actividad !== 'juego_terapeutico').length;
         
         return {
           fecha: fecha,
           fechaFormateada: this.formatearFecha(fecha),
           ejercicios: ejercicios,
           juegos: juegos,
-          total: actividades.length,
-          actividades: actividades
+          total: acts.length,
+          actividades: acts
         };
       });
+    
+    this.calcularEstadisticas();
   }
 
   /**
    * Formatea la fecha para mostrar
    */
   private formatearFecha(fechaStr: string): string {
-    const fecha = new Date(fechaStr + 'T12:00:00');
+    const [year, month, day] = fechaStr.split('-');
+    const fecha = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    
     const hoy = new Date();
     const ayer = new Date(hoy);
     ayer.setDate(ayer.getDate() - 1);
     
-    if (fecha.toDateString() === hoy.toDateString()) {
+    hoy.setHours(0, 0, 0, 0);
+    ayer.setHours(0, 0, 0, 0);
+    fecha.setHours(0, 0, 0, 0);
+    
+    if (fecha.getTime() === hoy.getTime()) {
       return 'Hoy';
-    } else if (fecha.toDateString() === ayer.toDateString()) {
+    } else if (fecha.getTime() === ayer.getTime()) {
       return 'Ayer';
     } else {
       return fecha.toLocaleDateString('es-ES', {
@@ -182,9 +178,9 @@ export class PanelProfesionalComponent implements OnInit {
    * Calcula las estadísticas generales
    */
   private calcularEstadisticas(): void {
-    this.totalEjercicios = this.actividadesRecientes.filter(a => a.tipo === 'ejercicio').length;
-    this.totalJuegos = this.actividadesRecientes.filter(a => a.tipo === 'juego').length;
-    this.totalActividades = this.actividadesRecientes.length;
+    this.totalEjercicios = this.resumenPorDia.reduce((sum, dia) => sum + dia.ejercicios, 0);
+    this.totalJuegos = this.resumenPorDia.reduce((sum, dia) => sum + dia.juegos, 0);
+    this.totalActividades = this.totalEjercicios + this.totalJuegos;
     this.diasActivos = this.resumenPorDia.length;
   }
 
@@ -207,15 +203,17 @@ export class PanelProfesionalComponent implements OnInit {
   }
 
   /**
-   * Obtiene el ícono según la categoría
+   * Obtiene el ícono según el tipo de actividad
    */
-  getIconoCategoria(categoria: string): string {
-    const cat = categoria.toLowerCase();
-    if (cat.includes('lingual')) return '👅';
-    if (cat.includes('labial')) return '👄';
-    if (cat.includes('mandibular')) return '🦷';
-    if (cat.includes('juego') || cat.includes('game')) return '🎮';
-    return '📋';
+  getIconoActividad(tipo: string): string {
+    return tipo === 'juego_terapeutico' ? '🎮' : '🎥';
+  }
+
+  /**
+   * Obtiene el nombre del tipo de actividad
+   */
+  getTipoNombre(tipo: string): string {
+    return tipo === 'juego_terapeutico' ? 'Juego' : 'Ejercicio';
   }
 
   /**

@@ -34,8 +34,20 @@
     </button>
   </nav>
 
+  <!-- Estado de carga -->
+  <div class="loading-state" *ngIf="cargando">
+    <div class="spinner"></div>
+    <p>Cargando historial...</p>
+  </div>
+
+  <!-- Estado de error -->
+  <div class="error-state" *ngIf="error && !cargando">
+    <span class="error-icon">⚠️</span>
+    <p>{{ error }}</p>
+  </div>
+
   <!-- Contenido Principal -->
-  <main class="panel-content">
+  <main class="panel-content" *ngIf="!cargando && !error">
     
     <!-- VISTA RESUMEN -->
     <section class="vista-resumen" *ngIf="vistaActual === 'resumen'">
@@ -170,13 +182,13 @@
       <div class="detalle-lista">
         <h3>Actividades del día</h3>
         <div class="actividad-item" *ngFor="let act of diaSeleccionado.actividades">
-          <span class="actividad-icono">{{ getIconoCategoria(act.categoria) }}</span>
+          <span class="actividad-icono">{{ getIconoActividad(act.tipo_actividad) }}</span>
           <div class="actividad-info">
-            <span class="actividad-nombre">{{ act.nombre }}</span>
-            <span class="actividad-categoria">{{ act.categoria }}</span>
+            <span class="actividad-nombre">{{ act.nombre_actividad }}</span>
+            <span class="actividad-categoria">{{ act.tipo_actividad === 'juego_terapeutico' ? 'Juego Terapéutico' : 'Análisis de Prácticas' }}</span>
           </div>
-          <span class="actividad-tipo" [class.juego]="act.tipo === 'juego'">
-            {{ act.tipo === 'juego' ? 'Juego' : 'Ejercicio' }}
+          <span class="actividad-tipo" [class.juego]="act.tipo_actividad === 'juego_terapeutico'">
+            {{ getTipoNombre(act.tipo_actividad) }}
           </span>
         </div>
       </div>
