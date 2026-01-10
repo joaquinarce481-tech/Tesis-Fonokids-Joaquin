@@ -41,7 +41,7 @@ export class PanelProfesionalComponent implements OnInit {
   pacientes: Paciente[] = [];
   pacienteSeleccionado: Paciente | null = null;
   
-  // Estadísticas generales
+  // Estadísticas generalessgi
   totalEjercicios: number = 0;
   totalJuegos: number = 0;
   totalActividades: number = 0;
