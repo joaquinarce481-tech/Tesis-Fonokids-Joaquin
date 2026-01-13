@@ -9,6 +9,7 @@ import { VerifyCodeComponent } from './presentation/pages/verify-code/verify-cod
 import { ResetPasswordComponent } from './presentation/pages/reset-password/reset-password.component';
 // IMPORTS DE GUARDS
 import { AuthGuard, PublicGuard } from './presentation/guards/auth.guard';
+import { ProfesionalGuard } from './presentation/guards/profesional.guard';
 // IMPORT DEL NUEVO COMPONENTE DE JUEGOS
 import { JuegosTerapeuticosComponent } from './presentation/pages/juegos-terapeuticos/juegos-terapeuticos.component';
 import { ArmaCaraGameComponent } from './presentation/pages/arma-cara-game.component/arma-cara-game.component';
@@ -32,6 +33,13 @@ export const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
+    canActivate: [PublicGuard]
+  },
+  // ========== LOGIN PARA PROFESIONALES ==========
+  {
+    path: 'login-profesional',
+    loadComponent: () => 
+      import('./presentation/pages/login-profesional/login-profesional').then(m => m.LoginProfesionalComponent),
     canActivate: [PublicGuard]
   },
   {
@@ -63,12 +71,12 @@ export const routes: Routes = [
     }
   },
   
-  // ========== PANEL PROFESIONAL PARA FONOAUDIÓLOGAS ==========
+  // ========== PANEL PROFESIONAL PARA FONOAUDIÓLOGAS (PROTEGIDO CON ProfesionalGuard) ==========
   {
     path: 'panel-profesional',
     loadComponent: () => 
       import('./presentation/pages/panel-profesional/panel-profesional').then(m => m.PanelProfesionalComponent),
-    canActivate: [AuthGuard],
+    canActivate: [ProfesionalGuard],
     data: {
       icon: 'fa-solid fa-user-doctor',
       title: 'Panel Profesional',
