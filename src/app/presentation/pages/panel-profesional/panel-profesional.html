@@ -2,19 +2,23 @@
   <!-- Header del Panel -->
   <header class="panel-header">
     <div class="header-left">
-      <button class="btn-volver" (click)="volverAlDashboard()">
-        ← Volver
-      </button>
       <div class="header-titulo">
         <h1>Panel Profesional</h1>
         <p>Seguimiento de pacientes</p>
       </div>
     </div>
-    <div class="header-right" *ngIf="pacienteSeleccionado">
-      <div class="paciente-info">
-        <span class="paciente-icono">👤</span>
-        <span class="paciente-nombre">{{ pacienteSeleccionado.nombre_completo }}</span>
+    <div class="header-right">
+      <!-- Info del profesional logueado -->
+      <div class="profesional-info" *ngIf="profesional">
+        <span class="profesional-icono">🩺</span>
+        <div class="profesional-datos">
+          <span class="profesional-nombre">{{ profesional.nombre }}</span>
+          <span class="profesional-especialidad">{{ profesional.especialidad }}</span>
+        </div>
       </div>
+      <button class="btn-logout" (click)="cerrarSesion()">
+        Cerrar sesión
+      </button>
     </div>
   </header>
 
@@ -67,6 +71,10 @@
       <button class="btn-volver-lista" (click)="volverALista()">
         ← Cambiar paciente
       </button>
+      <div class="paciente-seleccionado-info">
+        <span class="paciente-icono">👤</span>
+        <span class="paciente-nombre">{{ pacienteSeleccionado.nombre_completo }}</span>
+      </div>
       <div class="nav-tabs">
         <button 
           class="nav-btn" 

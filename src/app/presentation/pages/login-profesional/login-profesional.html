@@ -1,0 +1,95 @@
+<div class="login-container">
+  <!-- Fondo decorativo -->
+  <div class="login-background">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    <div class="circle circle-3"></div>
+  </div>
+
+  <!-- Card de login -->
+  <div class="login-card">
+    <!-- Header -->
+    <div class="login-header">
+      <div class="logo-icon">🩺</div>
+      <h1>Panel Profesional</h1>
+      <p>Acceso exclusivo para fonoaudiólogos</p>
+    </div>
+
+    <!-- Formulario -->
+    <form class="login-form" (ngSubmit)="login()">
+      <!-- Campo Usuario -->
+      <div class="form-group">
+        <label for="username">
+          <span class="label-icon">👤</span>
+          Usuario o Email
+        </label>
+        <input 
+          type="text" 
+          id="username"
+          [(ngModel)]="username"
+          name="username"
+          placeholder="Ingresa tu usuario"
+          [disabled]="cargando"
+          autocomplete="username"
+        />
+      </div>
+
+      <!-- Campo Contraseña -->
+      <div class="form-group">
+        <label for="password">
+          <span class="label-icon">🔒</span>
+          Contraseña
+        </label>
+        <div class="password-wrapper">
+          <input 
+            [type]="mostrarPassword ? 'text' : 'password'" 
+            id="password"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="Ingresa tu contraseña"
+            [disabled]="cargando"
+            autocomplete="current-password"
+          />
+          <button 
+            type="button" 
+            class="toggle-password"
+            (click)="togglePassword()"
+            [disabled]="cargando">
+            {{ mostrarPassword ? '👁️' : '👁️‍🗨️' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div class="error-message" *ngIf="error">
+        <span class="error-icon">⚠️</span>
+        {{ error }}
+      </div>
+
+      <!-- Botón de login -->
+      <button 
+        type="submit" 
+        class="btn-login"
+        [disabled]="cargando">
+        <span *ngIf="!cargando">Ingresar al Panel</span>
+        <span *ngIf="cargando" class="loading">
+          <span class="spinner"></span>
+          Verificando...
+        </span>
+      </button>
+    </form>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <p>¿Sos paciente?</p>
+      <button class="btn-link" (click)="irALoginPacientes()">
+        Ir al login de pacientes →
+      </button>
+    </div>
+  </div>
+
+  <!-- Info adicional -->
+  <div class="login-info">
+    <p>🔐 Acceso seguro para profesionales de la salud</p>
+  </div>
+</div>

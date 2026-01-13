@@ -64,15 +64,16 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
       palabrasClave: ['miau', 'mia', 'meow', 'miaú', 'mia mia', 'mia u', 'ya', 'miau miau']
     },
     {
+      // 🔥 CAMBIADO: Vaca -> Pollito (más fácil de detectar)
       id: 3,
-      nombre: 'Vaca',
-      onomatopeya: '¡MUUU!',
-      sonidoTTS: 'mu, muuu',
-      imagen: '🐄',
-      audio: 'muuu',
-      archivoAudio: 'assets/sounds/vaca.mp3',
-      filtro: 'vaca',
-      palabrasClave: ['mu', 'muu', 'muuu', 'moo', 'muuuu', 'muy', 'mu mu', 'más', 'mú', 'hum', 'um', 'mus', 'muñ', 'mur', 'bus', 'mm', 'mmm', 'mmmm', 'boom', 'bum', 'bu', 'mo', 'mou', 'move', 'moon']
+      nombre: 'Pollito',
+      onomatopeya: '¡PÍO PÍO!',
+      sonidoTTS: 'pío, pío',
+      imagen: '🐥',
+      audio: 'pio',
+      archivoAudio: 'assets/sounds/pollito.mp3',
+      filtro: 'pollito',
+      palabrasClave: ['pio', 'pío', 'pío pío', 'pio pio', 'pipi', 'pi pi', 'piu', 'piu piu', 'pi', 'piopio', 'pí', 'pí pí', 'píu', 'peep', 'pip', 'pip pip', 'vi', 'vio', 'bio', 'ti', 'tio']
     },
     {
       id: 4,
@@ -436,7 +437,7 @@ export class SonidosDivertidosComponent implements OnInit, OnDestroy {
     console.log('🎤 Texto detectado:', textoDetectado);
     console.log('🧹 Texto limpio:', textoLimpio);
     console.log('🔍 Buscando en palabras clave:', this.sonidoActual.palabrasClave);
-    console.log('🐮 Sonido actual:', this.sonidoActual.nombre);
+    console.log('🐥 Sonido actual:', this.sonidoActual.nombre);
 
     const coincide = this.sonidoActual.palabrasClave.some(palabra => {
       const palabraLimpia = palabra.toLowerCase();

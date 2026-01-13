@@ -231,7 +231,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     private router: Router,
     private historialService: HistorialActividadesService,
     private cdr: ChangeDetectorRef,
-    private ngZone: NgZone // 🔥 AGREGADO: NgZone para manejar cambios fuera de Angular
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -373,6 +373,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     return aperturaBoca > 0.045;
   }
 
+  // 🔥 CORREGIDO: Umbrales más flexibles para detección de lengua arriba
   detectarLenguaArriba(landmarks: any[]): boolean {
     const labioSuperior = landmarks[13];
     const puntaNariz = landmarks[1];
@@ -381,7 +382,10 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
     const distanciaNariz = Math.abs(labioSuperior.y - puntaNariz.y);
     
-    return aperturaBoca > 0.04 && distanciaNariz < 0.08;
+    // Umbrales ajustados para mayor flexibilidad:
+    // - aperturaBoca: reducido de 0.04 a 0.03 (permite boca menos abierta)
+    // - distanciaNariz: aumentado de 0.08 a 0.12 (más tolerante con la distancia)
+    return aperturaBoca > 0.03 && distanciaNariz < 0.12;
   }
 
   detectarSonrisa(landmarks: any[]): boolean {
@@ -656,7 +660,6 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     this.faseJuego = 'verificando';
     this.intentos++;
 
-    // 🔥 CORRECCIÓN: Usar NgZone.run() para asegurar detección de cambios
     setTimeout(() => {
       this.ngZone.run(() => {
         const esCorrecta = this.verificarOrdenCorrecto();
@@ -677,12 +680,10 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     });
   }
 
-  // 🔥 MÉTODO CORREGIDO COMPLETAMENTE
   manejarSecuenciaCorrecta(): void {
     this.secuenciasCorrectas++;
 
     if (this.nivelActual < this.maxNiveles) {
-      // ✅ CASO 1: AÚN HAY MÁS NIVELES
       this.mostrarModalPersonalizado(
         '¡Excelente!',
         `¡Muy bien! Has completado la secuencia correctamente.`,
@@ -702,24 +703,22 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
       }, 2000);
       
     } else {
-      // ✅ CASO 2: COMPLETÓ TODOS LOS NIVELES - ¡SOLUCIÓN DEFINITIVA!
-      
-      // 1️⃣ Detener temporizador PRIMERO
+      // Detener temporizador PRIMERO
       this.detenerTemporizador();
       
-      // 2️⃣ Cerrar cualquier modal abierto
+      // Cerrar cualquier modal abierto
       this.mostrarModal = false;
       
-      // 3️⃣ Cambiar fase a completado INMEDIATAMENTE
+      // Cambiar fase a completado INMEDIATAMENTE
       this.faseJuego = 'completado';
       
-      // 4️⃣ Forzar detección de cambios
+      // Forzar detección de cambios
       this.cdr.detectChanges();
       
-      // 5️⃣ Guardar estadísticas
+      // Guardar estadísticas
       this.guardarEstadisticas();
       
-      // 6️⃣ Registrar en historial
+      // Registrar en historial
       this.historialService.registrarJuego('Puzzle de Movimientos').subscribe({
         next: () => {},
         error: () => {}
@@ -751,11 +750,10 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
   // ==================== TEMPORIZADOR ====================
 
   iniciarTemporizador(): void {
-    this.detenerTemporizador(); // Limpiar cualquier temporizador existente
+    this.detenerTemporizador();
     this.tiempoInicio = Date.now();
     
     this.intervalTemporizador = setInterval(() => {
-      // 🔥 CORRECCIÓN: Solo ejecutar si estamos jugando
       if (this.faseJuego !== 'jugando' && this.faseJuego !== 'verificando') {
         this.detenerTemporizador();
         return;
@@ -852,7 +850,7 @@ export class PuzzleMovimientosGameComponent implements OnInit, OnDestroy {
     this.secuenciasCorrectas = 0;
     this.faseJuego = 'instrucciones';
     
-    const emojisOriginales = ['👅', '🔔', '😁', '😘', '⬇️', '⬆️', '😮', '😐'];
+    const emojisOriginales = ['👅', '👃🏼', '😁', '😘', '⬇️', '⬆️', '😮', '😐'];
     this.todosLosMovimientos.forEach((mov, index) => {
       mov.foto = null;
       mov.emoji = emojisOriginales[index];

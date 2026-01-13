@@ -293,6 +293,7 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     return aperturaBoca > 0.045;
   }
 
+  // 🔥 CORREGIDO: Umbrales más flexibles para detección de lengua arriba
   detectarLenguaArriba(landmarks: any[]): boolean {
     const labioSuperior = landmarks[13];
     const puntaNariz = landmarks[1];
@@ -301,7 +302,10 @@ export class MemoriaGestosGameComponent implements OnInit, OnDestroy {
     const aperturaBoca = Math.abs(labioInferior.y - labioSuperior.y);
     const distanciaNariz = Math.abs(labioSuperior.y - puntaNariz.y);
     
-    return aperturaBoca > 0.04 && distanciaNariz < 0.08;
+    // Umbrales ajustados para mayor flexibilidad:
+    // - aperturaBoca: reducido de 0.04 a 0.03 (permite boca menos abierta)
+    // - distanciaNariz: aumentado de 0.08 a 0.12 (más tolerante con la distancia)
+    return aperturaBoca > 0.03 && distanciaNariz < 0.12;
   }
 
   detectarSonrisa(landmarks: any[]): boolean {

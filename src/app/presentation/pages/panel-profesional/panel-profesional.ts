@@ -26,6 +26,17 @@ interface Paciente {
   nombre_completo: string;
   username: string;
   email: string;
+  edad?: number;
+  fecha_registro?: string;
+}
+
+interface Profesional {
+  id: number;
+  username: string;
+  email: string;
+  nombre: string;
+  especialidad: string;
+  matricula: string;
 }
 
 @Component({
@@ -37,11 +48,14 @@ interface Paciente {
 })
 export class PanelProfesionalComponent implements OnInit {
   
+  // Datos del profesional logueado
+  profesional: Profesional | null = null;
+  
   // Lista de pacientes
   pacientes: Paciente[] = [];
   pacienteSeleccionado: Paciente | null = null;
   
-  // Estadísticas generalessgi
+  // Estadísticas generales
   totalEjercicios: number = 0;
   totalJuegos: number = 0;
   totalActividades: number = 0;
@@ -63,7 +77,23 @@ export class PanelProfesionalComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.cargarDatosProfesional();
     this.cargarPacientes();
+  }
+
+  /**
+   * Carga los datos del profesional logueado
+   */
+  private cargarDatosProfesional(): void {
+    const profesionalData = localStorage.getItem('fonokids_profesional');
+    if (profesionalData) {
+      try {
+        this.profesional = JSON.parse(profesionalData);
+        console.log('🩺 Profesional:', this.profesional?.nombre);
+      } catch (e) {
+        console.error('Error cargando datos del profesional:', e);
+      }
+    }
   }
 
   /**
@@ -75,17 +105,28 @@ export class PanelProfesionalComponent implements OnInit {
 
     console.log('👥 Cargando lista de pacientes...');
     
-    this.http.get<any[]>(`${environment.backendLogin}/api/pacientes`)
+    // Usar el nuevo endpoint para profesionales
+    this.http.get<any>(`${environment.backendLogin}/api/profesional/pacientes`)
       .subscribe({
-        next: (pacientes) => {
-          console.log('✅ Pacientes cargados:', pacientes.length);
-          this.pacientes = pacientes;
+        next: (response) => {
+          console.log('✅ Pacientes cargados:', response.data?.length || 0);
+          this.pacientes = response.data || [];
           this.cargando = false;
         },
         error: (error) => {
           console.error('❌ Error cargando pacientes:', error);
-          this.error = 'No se pudo cargar la lista de pacientes';
-          this.cargando = false;
+          // Fallback al endpoint anterior
+          this.http.get<any[]>(`${environment.backendLogin}/api/pacientes`)
+            .subscribe({
+              next: (pacientes) => {
+                this.pacientes = pacientes;
+                this.cargando = false;
+              },
+              error: () => {
+                this.error = 'No se pudo cargar la lista de pacientes';
+                this.cargando = false;
+              }
+            });
         }
       });
   }
@@ -238,10 +279,13 @@ export class PanelProfesionalComponent implements OnInit {
   }
 
   /**
-   * Volver al dashboard
+   * Cerrar sesión del profesional
    */
-  volverAlDashboard(): void {
-    this.router.navigate(['/dashboard']);
+  cerrarSesion(): void {
+    console.log('🚪 Cerrando sesión del profesional');
+    localStorage.removeItem('fonokids_profesional');
+    localStorage.removeItem('fonokids_profesional_token');
+    this.router.navigate(['/login-profesional']);
   }
 
   /**
