@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
 
@@ -97,16 +97,28 @@ export class PanelProfesionalComponent implements OnInit {
   }
 
   /**
-   * Carga la lista de pacientes desde el backend
+   * Carga la lista de pacientes asignados al profesional
    */
   private cargarPacientes(): void {
     this.cargando = true;
     this.error = '';
 
-    console.log('👥 Cargando lista de pacientes...');
+    // Obtener el token del profesional
+    const token = localStorage.getItem('fonokids_profesional_token');
     
-    // Usar el nuevo endpoint para profesionales
-    this.http.get<any>(`${environment.backendLogin}/api/profesional/pacientes`)
+    if (!token) {
+      this.error = 'No hay sesión activa';
+      this.cargando = false;
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    console.log('👥 Cargando pacientes asignados...');
+    
+    this.http.get<any>(`${environment.backendLogin}/api/profesional/pacientes`, { headers })
       .subscribe({
         next: (response) => {
           console.log('✅ Pacientes cargados:', response.data?.length || 0);
@@ -115,18 +127,8 @@ export class PanelProfesionalComponent implements OnInit {
         },
         error: (error) => {
           console.error('❌ Error cargando pacientes:', error);
-          // Fallback al endpoint anterior
-          this.http.get<any[]>(`${environment.backendLogin}/api/pacientes`)
-            .subscribe({
-              next: (pacientes) => {
-                this.pacientes = pacientes;
-                this.cargando = false;
-              },
-              error: () => {
-                this.error = 'No se pudo cargar la lista de pacientes';
-                this.cargando = false;
-              }
-            });
+          this.error = 'No se pudo cargar la lista de pacientes';
+          this.cargando = false;
         }
       });
   }
