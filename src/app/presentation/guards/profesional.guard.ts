@@ -13,12 +13,12 @@ export class ProfesionalGuard implements CanActivate {
     const token = localStorage.getItem('fonokids_profesional_token');
 
     if (profesional && token) {
-      // Profesional logueado, permitir acceso
+      
       return true;
     }
 
-    // No está logueado, redirigir al login de profesionales
-    console.log('🚫 Acceso denegado: Profesional no autenticado');
+   
+    console.log('Acceso denegado: Profesional no autenticado');
     this.router.navigate(['/login-profesional']);
     return false;
   }

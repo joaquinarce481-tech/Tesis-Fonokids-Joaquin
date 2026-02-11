@@ -1,41 +1,38 @@
-<div class="col-start-1 col-end-9 p-3 rounded-lg">   
-  <div class="flex flex-row items-start">       
-    <!-- 👇 SOLO SE MODIFICÓ ESTA PARTE -->
-    <div class="flex items-center justify-center h-10 w-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600">
-      <img 
-        src="assets/images/avatars/ChatbotsitoAvatar.png" 
-        alt="FonoBot"
-        class="w-full h-full object-cover"
-      />
-    </div>
-    <!-- 👆 FIN DE LA MODIFICACIÓN -->
+<div class="col-start-1 col-end-9 p-3 rounded-lg">
+  <div class="flex flex-row items-start">
     
-    <div class="relative ml-3 text-sm bg-black bg-opacity-25 pt-3 pb-2 px-4 shadow rounded-xl">       
-      <!-- <h3 class="text-3xl">Puntaje: {{ userScore }}</h3> -->        
+    <div
+      class="flex items-center justify-center h-10 w-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600">
+      <img src="assets/images/avatars/ChatbotsitoAvatar.png" alt="FonoBot" class="w-full h-full object-cover" />
+    </div>
+  
+
+    <div class="relative ml-3 text-sm bg-black bg-opacity-25 pt-3 pb-2 px-4 shadow rounded-xl">
       
+
       @if( (errors || []).length === 0 ) {
-        <h3>¡EXCELENTE TRABAJO! Tu ortografía está de 10 ⭐</h3>
-        <p>{{ text }}</p>
+      <h3>¡EXCELENTE TRABAJO! Tu ortografía está de 10 ⭐</h3>
+      <p>{{ text }}</p>
       } @else {
-        <h3>¡CASI, CASI! Solo falta pulir estas cositas ✨</h3>
+      <h3>¡CASI, CASI! Solo falta pulir estas cositas ✨</h3>
       }
-      
+
       @if( (errors || []).length > 0 ) {
-        <h3 class="text-2xl">Errores encontrados</h3>
-      }        
-      <ul>         
-        @for (error of errors; track $index; let first = $first ) {          
-          <li>           
-            <span class="text-red-500 font-semibold">{{ error.palabra }}</span>           
-            →           
-            <span class="text-green-500 font-semibold">{{ error.sugerencia }}</span>           
-            <br>           
-            <span class="text-gray-400 text-sm">{{ error.motivo }}</span>         
-          </li>          
-        } @empty {         
-          <li> ¡SIGUE PRACTICANDO! 🌟</li>         
-        }       
-      </ul>        
-    </div>     
-  </div> 
+      <h3 class="text-2xl">Errores encontrados</h3>
+      }
+      <ul>
+        @for (error of errors; track $index; let first = $first ) {
+        <li>
+          <span class="text-red-500 font-semibold">{{ error.palabra }}</span>
+          →
+          <span class="text-green-500 font-semibold">{{ error.sugerencia }}</span>
+          <br>
+          <span class="text-gray-400 text-sm">{{ error.motivo }}</span>
+        </li>
+        } @empty {
+        <li> ¡SIGUE PRACTICANDO! 🌟</li>
+        }
+      </ul>
+    </div>
+  </div>
 </div>

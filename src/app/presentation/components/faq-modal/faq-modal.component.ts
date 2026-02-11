@@ -1,4 +1,3 @@
-// src/app/components/faq-modal/faq-modal.component.ts
 import { Component, Input, Output, EventEmitter, HostListener, OnInit, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';

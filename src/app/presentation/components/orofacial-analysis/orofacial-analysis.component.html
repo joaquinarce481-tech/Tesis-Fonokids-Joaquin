@@ -1,5 +1,4 @@
 <div class="orofacial-container">
-  <!-- Ejercicio actual -->
   <div class="exercise-card">
     <div class="exercise-header">
       <h2>{{ currentExercise.name }}</h2>
@@ -9,37 +8,35 @@
         <button (click)="nextExercise()" class="btn-nav">→</button>
       </div>
     </div>
-    
+
     <p class="exercise-instruction">{{ currentExercise.instruction }}</p>
-    
-    <!-- BARRA DE PROGRESO ESTABLE - Referencias directas al DOM -->
+
     <div class="progress-container">
-      <!-- Esta barra se actualiza directamente sin Angular -->
+
       <div #progressBarElement class="progress-bar detecting">
         <div class="progress-fill"></div>
       </div>
-      
-      <!-- Estado también actualizado directamente -->
+
+
       <div #progressStatusElement class="progress-status">
         <span class="status-searching">🔍 Buscando rostro...</span>
       </div>
     </div>
   </div>
 
-  <!-- Video y Canvas -->
+
   <div class="video-container">
     <video #videoElement class="input-video" playsinline autoplay muted></video>
     <canvas #canvasElement class="output-canvas" width="640" height="480"></canvas>
-    
-    <!-- Overlay cuando no está grabando -->
+
+
     <div class="video-overlay" *ngIf="!isRecording">
       <div class="overlay-content">
         <p>Presiona "Iniciar Análisis" para comenzar</p>
       </div>
     </div>
   </div>
-  
-  <!-- Controles -->
+
   <div class="controls">
     <button (click)="toggleCamera()" [class.active]="isRecording" class="btn-primary">
       <span *ngIf="!isRecording">🎥 Iniciar Análisis</span>
@@ -47,7 +44,6 @@
     </button>
   </div>
 
-  <!-- Métricas simplificadas - Solo mostrar cuando está grabando -->
   <div class="metrics-simple" *ngIf="isRecording">
     <div class="metric-badge" [class.active]="currentExercise.targetMetric === 'lipAperture'">
       <span class="metric-icon">👄</span>

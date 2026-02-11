@@ -1,53 +1,51 @@
 <div class="col-start-1 col-end-9 p-3 rounded-lg">
   <div class="flex flex-row items-start">
 
-    <!-- Avatar del bot -->
-    <div class="flex items-center justify-center h-10 w-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600">
-      <img 
-        src="assets/images/avatars/ChatbotsitoAvatar.png" 
-        alt="FonoBot"
-        class="w-full h-full object-cover"
-      />
+    
+    <div
+      class="flex items-center justify-center h-10 w-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600">
+      <img src="assets/images/avatars/ChatbotsitoAvatar.png" alt="FonoBot" class="w-full h-full object-cover" />
     </div>
 
-    <!-- Mensaje normal (sin audio) -->
+    
     @if (!audioUrl) {
-      <div class="relative ml-3 text-sm bg-black bg-opacity-25 pt-3 pb-2 px-4 shadow rounded-xl max-w-xl">
-        <markdown>{{ text }}</markdown>
-      </div>
+    <div class="relative ml-3 text-sm bg-black bg-opacity-25 pt-3 pb-2 px-4 shadow rounded-xl max-w-xl">
+      <markdown>{{ text }}</markdown>
+    </div>
     }
 
-    <!-- Tarjeta especial para audio -->
+    
     @if (audioUrl) {
-      <div class="ml-3 bg-white rounded-2xl p-6 min-w-[320px] max-w-[400px] shadow-lg">
-        
-        <!-- Header -->
-        <div class="flex items-center justify-center gap-2 mb-5">
-          <span class="text-xl">🔊</span>
-          <span class="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-            Escucha y repite
-          </span>
-        </div>
+    <div class="ml-3 bg-white rounded-2xl p-6 min-w-[320px] max-w-[400px] shadow-lg">
 
-        <!-- Palabra destacada -->
-        <div class="text-center text-4xl font-bold text-gray-800 mb-6 break-words">
-          {{ getCleanText() }}
-        </div>
-
-        <!-- Reproductor de audio -->
-        <div class="mb-5">
-          <audio controls [src]="audioUrl" class="w-full h-10 rounded-full">
-            Tu navegador no soporta el elemento de audio.
-          </audio>
-        </div>
-
-        <!-- CTA -->
-        <div class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-xl py-3 px-5">
-          <span class="text-lg">🎤</span>
-          <span class="text-white font-semibold">¡Ahora es tu turno!</span>
-        </div>
-
+      
+      <div class="flex items-center justify-center gap-2 mb-5">
+        <span class="text-xl">🔊</span>
+        <span class="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+          Escucha y repite
+        </span>
       </div>
+
+     
+      <div class="text-center text-4xl font-bold text-gray-800 mb-6 break-words">
+        {{ getCleanText() }}
+      </div>
+
+    
+      <div class="mb-5">
+        <audio controls [src]="audioUrl" class="w-full h-10 rounded-full">
+          Tu navegador no soporta el elemento de audio.
+        </audio>
+      </div>
+
+    
+      <div
+        class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-xl py-3 px-5">
+        <span class="text-lg">🎤</span>
+        <span class="text-white font-semibold">¡Ahora es tu turno!</span>
+      </div>
+
+    </div>
     }
 
   </div>

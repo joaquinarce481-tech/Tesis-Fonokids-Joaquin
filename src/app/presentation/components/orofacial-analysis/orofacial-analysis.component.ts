@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FaceMesh } from '@mediapipe/face_mesh';
 import { Camera } from '@mediapipe/camera_utils';
 
-// Interfaz para ejercicios
 interface Exercise {
   id: string;
   name: string;
@@ -31,31 +30,29 @@ export class OrofacialAnalysisComponent implements OnInit, AfterViewInit, OnDest
   private canvasCtx!: CanvasRenderingContext2D;
   private mediaPipeReady = false;
   
-  // Sistema de estabilización mejorado
   private detectionHistory: boolean[] = [];
   private readonly HISTORY_SIZE = 10;
   private frameCounter = 0;
   private lastUpdateFrame = 0;
-  private readonly UPDATE_INTERVAL = 3; // Actualizar cada 3 frames
+  private readonly UPDATE_INTERVAL = 3; 
   
-  // Variables para la barra sin parpadeo
   private progressBarWidth = 0;
   private targetProgressWidth = 0;
   private progressAnimationId: number | null = null;
   private lastDetectionTime = Date.now();
-  private readonly DETECTION_TIMEOUT = 500; // ms antes de considerar perdida la detección
+  private readonly DETECTION_TIMEOUT = 500; 
   
   isRecording = false;
   mediaRecorder: MediaRecorder | null = null;
   recordedChunks: Blob[] = [];
   
-  // Estados públicos para el template
+  
   detectionState: 'searching' | 'detected' | 'lost' = 'searching';
   exerciseProgress = 0;
   isExerciseCorrect = false;
   statusMessage = '🔍 Buscando rostro...';
   
-  // Ejercicio actual
+  
   currentExercise: Exercise = {
     id: 'open-mouth',
     name: '😮 Abrir la Boca',
@@ -65,7 +62,7 @@ export class OrofacialAnalysisComponent implements OnInit, AfterViewInit, OnDest
     tolerance: 20
   };
   
-  // Lista de ejercicios
+  
   exercises: Exercise[] = [
     {
       id: 'open-mouth',
@@ -99,7 +96,7 @@ export class OrofacialAnalysisComponent implements OnInit, AfterViewInit, OnDest
     facialSymmetry: 0
   };
 
-  // Conexiones para la malla facial COMPLETAS
+  
   private readonly FACE_OVAL = [
     [10, 338], [338, 297], [297, 332], [332, 284], [284, 251], [251, 389], [389, 356], [356, 454],
     [454, 323], [323, 361], [361, 288], [288, 397], [397, 365], [365, 379], [379, 378], [378, 400],
@@ -167,7 +164,7 @@ export class OrofacialAnalysisComponent implements OnInit, AfterViewInit, OnDest
         minTrackingConfidence: 0.3
       });
 
-      // CRÍTICO: Procesar resultados fuera de Angular Zone para evitar parpadeo
+     
       this.faceMesh.onResults((results) => {
         this.ngZone.runOutsideAngular(() => {
           this.onResults(results);
@@ -177,7 +174,7 @@ export class OrofacialAnalysisComponent implements OnInit, AfterViewInit, OnDest
       this.mediaPipeReady = true;
       console.log('✅ MediaPipe inicializado');
       
-      // Iniciar animación de la barra de progreso
+      
       this.startProgressAnimation();
       
     } catch (error) {
@@ -198,20 +195,19 @@ export class OrofacialAnalysisComponent implements OnInit, AfterViewInit, OnDest
 
     const faceDetected = results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0;
     
-    // Actualizar historial de detecciones
+    
     this.detectionHistory.push(faceDetected);
     if (this.detectionHistory.length > this.HISTORY_SIZE) {
       this.detectionHistory.shift();
     }
     
-    // Calcular estabilidad de detección
     const detectionRate = this.detectionHistory.filter(d => d).length / this.detectionHistory.length;
-    const isStableDetection = detectionRate > 0.6; // 60% de frames con detección
+    const isStableDetection = detectionRate > 0.6; 
     
     if (faceDetected && results.multiFaceLandmarks[0]) {
       this.lastDetectionTime = Date.now();
       
-      // Solo actualizar métricas cada N frames para reducir carga
+      
       if (this.frameCounter - this.lastUpdateFrame >= this.UPDATE_INTERVAL) {
         this.lastUpdateFrame = this.frameCounter;
         this.drawCompleteFaceMesh(results.multiFaceLandmarks[0]);
@@ -220,7 +216,7 @@ export class OrofacialAnalysisComponent implements OnInit, AfterViewInit, OnDest
       }
     }
     
-    // Actualizar estado basado en estabilidad
+    
     const timeSinceLastDetection = Date.now() - this.lastDetectionTime;
     
     if (isStableDetection && timeSinceLastDetection < this.DETECTION_TIMEOUT) {
@@ -238,19 +234,19 @@ export class OrofacialAnalysisComponent implements OnInit, AfterViewInit, OnDest
     if (this.detectionState !== state) {
       this.detectionState = state;
       
-      // Actualizar mensaje de estado directamente en el DOM
+      
       if (this.progressStatusElement?.nativeElement) {
         const statusEl = this.progressStatusElement.nativeElement;
         
         switch(state) {
           case 'searching':
-            statusEl.innerHTML = '<span class="status-searching">🔍 Buscando rostro...</span>';
+            statusEl.innerHTML = '<span class="status-searching">Buscando rostro...</span>';
             break;
           case 'detected':
-            statusEl.innerHTML = `<span class="status-detected">👀 ¡Sigue así! ${Math.round(this.progressBarWidth)}%</span>`;
+            statusEl.innerHTML = `<span class="status-detected">¡Sigue así! ${Math.round(this.progressBarWidth)}%</span>`;
             break;
           case 'lost':
-            statusEl.innerHTML = '<span class="status-lost">⚠️ Acércate más a la cámara</span>';
+            statusEl.innerHTML = '<span class="status-lost">Acércate más a la cámara</span>';
             break;
         }
       }

@@ -1,9 +1,7 @@
-<!-- src/app/components/faq-modal/faq-modal.component.html -->
-
 <div class="faq-modal-overlay" *ngIf="isVisible" (click)="onClose()">
   <div class="faq-modal" (click)="$event.stopPropagation()">
-    
-    <!-- Header -->
+
+
     <div class="faq-header">
       <div class="faq-header-content">
         <div class="faq-icon">❓</div>
@@ -15,31 +13,23 @@
       <button class="faq-close-btn" (click)="onClose()">✕</button>
     </div>
 
-    <!-- Contenido -->
+
     <div class="faq-content">
-      
-      <!-- Categorías -->
+
       <div class="faq-categories-wrapper">
         <div class="faq-categories">
-          <button 
-            *ngFor="let category of faqCategories; let i = index"
-            class="category-btn"
-            [class.active]="selectedCategoryIndex === i"
-            (click)="selectCategory(i)">
+          <button *ngFor="let category of faqCategories; let i = index" class="category-btn"
+            [class.active]="selectedCategoryIndex === i" (click)="selectCategory(i)">
             <span>{{ category.icon }}</span>
             <span>{{ category.name }}</span>
           </button>
         </div>
       </div>
 
-      <!-- Preguntas -->
       <div class="faq-questions">
-        <div 
-          *ngFor="let question of getSelectedQuestions(); let idx = index" 
-          class="faq-question-item"
+        <div *ngFor="let question of getSelectedQuestions(); let idx = index" class="faq-question-item"
           [class.expanded]="question.isExpanded">
-          
-          <!-- Header de pregunta -->
+
           <div class="question-header" (click)="selectQuestion(question)">
             <div class="question-content">
               <div class="question-text">{{ question.text }}</div>
@@ -48,7 +38,7 @@
             <div class="question-arrow" [class.rotated]="question.isExpanded">▼</div>
           </div>
 
-          <!-- ✅ RESPUESTA - USANDO [hidden] EN LUGAR DE *ngIf -->
+
           <div class="question-answer" [hidden]="!question.isExpanded">
             <div class="answer-box">
               <p>{{ question.answer }}</p>
@@ -61,7 +51,7 @@
         </div>
       </div>
 
-      <!-- Footer -->
+
       <div class="faq-footer">
         <button class="chat-libre-btn" (click)="openFreeChat()">
           <span class="chat-icon">🤖</span>

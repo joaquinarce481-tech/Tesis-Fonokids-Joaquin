@@ -24,18 +24,16 @@ export class LoginProfesionalComponent {
     private router: Router,
     private http: HttpClient
   ) {
-    // Si ya está logueado como profesional, redirigir al panel
+    
     const profesional = localStorage.getItem('fonokids_profesional');
     if (profesional) {
       this.router.navigate(['/panel-profesional']);
     }
   }
 
-  /**
-   * Intenta hacer login como profesional
-   */
+  
   login(): void {
-    // Validaciones
+    
     if (!this.username.trim()) {
       this.error = 'Ingresa tu usuario';
       return;
@@ -57,13 +55,12 @@ export class LoginProfesionalComponent {
       next: (response) => {
         console.log('✅ Login profesional exitoso');
         
-        // Guardar datos del profesional
+        
         localStorage.setItem('fonokids_profesional_token', response.token);
         localStorage.setItem('fonokids_profesional', JSON.stringify(response.profesional));
         
         this.cargando = false;
         
-        // Navegar al panel profesional
         this.router.navigate(['/panel-profesional']);
       },
       error: (error) => {
@@ -81,16 +78,12 @@ export class LoginProfesionalComponent {
     });
   }
 
-  /**
-   * Alternar visibilidad de contraseña
-   */
+  
   togglePassword(): void {
     this.mostrarPassword = !this.mostrarPassword;
   }
 
-  /**
-   * Volver al login de pacientes
-   */
+  
   irALoginPacientes(): void {
     this.router.navigate(['/login']);
   }

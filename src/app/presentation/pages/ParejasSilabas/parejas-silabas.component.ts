@@ -20,14 +20,10 @@ interface Palabra {
 })
 export class ParejasSilabasComponent implements OnInit, OnDestroy {
 
-  // ========================================
-  // VISTA ACTUAL
-  // ========================================
+  
   vistaActual: 'instrucciones' | 'jugando' = 'instrucciones';
 
-  // ========================================
-  // TODAS LAS PALABRAS EN UN SOLO ARRAY (SIN NIVELES)
-  // ========================================
+  
   todasLasPalabras: Palabra[] = [
     // Familia P
     { id: 1, silaba: 'PA', nombre: 'Pato', imagen: '🦆', audio: 'pa' },
@@ -61,13 +57,11 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
     { id: 25, silaba: 'LU', nombre: 'Luna', imagen: '🌙', audio: 'lu' }
   ];
 
-  // ========================================
-  // POOL DE TODAS LAS SÍLABAS DISPONIBLES
-  // ========================================
+  
   todasLasSilabas: string[] = [];
 
   palabrasBarajadas: Palabra[] = [];
-  silabas: string[] = []; // Siempre tendrá 5 sílabas mezcladas
+  silabas: string[] = []; 
   palabraActual: Palabra | null = null;
   indicePalabra: number = 0;
   
@@ -81,56 +75,50 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('🎮 Parejas de Sílabas iniciado');
+    console.log('Parejas de Sílabas iniciado');
     
-    // 🔝 SCROLL AUTOMÁTICO AL INICIO
+    
     window.scrollTo(0, 0);
     
-    // Construir pool de todas las sílabas
+   
     this.construirPoolGlobal();
   }
 
   ngOnDestroy(): void {
-    // Cleanup si es necesario
+    
   }
 
-  // ========================================
-  // CONSTRUIR POOL GLOBAL DE SÍLABAS
-  // ========================================
+ 
   construirPoolGlobal(): void {
     this.todasLasSilabas = this.todasLasPalabras.map(p => p.silaba);
-    console.log('📦 Pool global construido:', this.todasLasSilabas.length, 'sílabas');
+    console.log(' Pool global construido:', this.todasLasSilabas.length, 'sílabas');
   }
 
-  // ========================================
-  // GENERAR 5 SÍLABAS MEZCLADAS (1 correcta + 4 distractores)
-  // ========================================
+  
   generarSilabasMezcladas(): void {
     if (!this.palabraActual) return;
     
     const silabaCorrecta = this.palabraActual.silaba;
     
-    // Filtrar sílabas que NO son la correcta
+   
     const silabasDistractoras = this.todasLasSilabas.filter(s => s !== silabaCorrecta);
     
-    // Barajar las distractoras
+    
     const distractorasBarajadas = this.barajarArray([...silabasDistractoras]);
     
-    // Tomar 4 distractoras
+    
     const cuatroDistractoras = distractorasBarajadas.slice(0, 4);
     
-    // Combinar: 1 correcta + 4 distractoras
+    
     const cincoSilabas = [silabaCorrecta, ...cuatroDistractoras];
     
-    // Barajar el resultado final para que la correcta no esté siempre primera
+   
     this.silabas = this.barajarArray(cincoSilabas);
     
     console.log('🎲 Sílabas generadas:', this.silabas, '| Correcta:', silabaCorrecta);
   }
 
-  // ========================================
-  // UTILIDAD: BARAJAR ARRAY
-  // ========================================
+  
   barajarArray<T>(array: T[]): T[] {
     const resultado = [...array];
     for (let i = resultado.length - 1; i > 0; i--) {
@@ -140,14 +128,11 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
     return resultado;
   }
 
-  // ========================================
-  // MÉTODO PARA INICIAR EL JUEGO
-  // ========================================
+ 
   comenzarJuego(): void {
     console.log('🎮 Comenzando juego...');
     this.vistaActual = 'jugando';
     
-    // 🔝 SCROLL AL INICIO
     setTimeout(() => {
       window.scrollTo(0, 0);
     }, 100);
@@ -156,7 +141,7 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
   }
 
   iniciarJuego(): void {
-    // Barajar TODAS las palabras
+   
     this.palabrasBarajadas = this.barajarArray([...this.todasLasPalabras]);
     this.indicePalabra = 0;
     this.juegoCompletado = false;
@@ -166,7 +151,7 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
   mostrarPalabra(): void {
     if (this.indicePalabra < this.palabrasBarajadas.length) {
       this.palabraActual = this.palabrasBarajadas[this.indicePalabra];
-      // Generar nuevas 5 sílabas mezcladas para cada palabra
+      
       this.generarSilabasMezcladas();
     } else {
       this.completarJuego();
@@ -217,7 +202,7 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
 
   respuestaIncorrecta(): void {
     this.hablar('¡Intenta de nuevo!');
-    // Efecto visual de error
+    
     const dropZone = document.querySelector('.drop-zone');
     if (dropZone) {
       dropZone.classList.add('shake');
@@ -230,10 +215,10 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
   completarJuego(): void {
     this.juegoCompletado = true;
     
-    // 🎯 REGISTRAR JUEGO EN HISTORIAL
+   
     this.historialService.registrarJuego('Parejas de Sílabas').subscribe({
-      next: () => console.log('✅ Parejas de Sílabas registrado en historial'),
-      error: (error: any) => console.error('❌ Error registrando juego:', error)
+      next: () => console.log(' Parejas de Sílabas registrado en historial'),
+      error: (error: any) => console.error(' Error registrando juego:', error)
     });
     
     this.hablar('¡Felicitaciones! ¡Completaste todas las sílabas!');
@@ -246,7 +231,6 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
     this.mostrarCelebracion = false;
     this.vistaActual = 'jugando';
     
-    // 🔝 SCROLL AL INICIO
     setTimeout(() => {
       window.scrollTo(0, 0);
     }, 100);
@@ -269,9 +253,6 @@ export class ParejasSilabasComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ========================================
-  // GETTERS PARA EL TEMPLATE
-  // ========================================
   get progresoJuego(): number {
     if (!this.palabrasBarajadas.length) return 0;
     return (this.indicePalabra / this.palabrasBarajadas.length) * 100;

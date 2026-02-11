@@ -35,17 +35,17 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 
   private checkAuth(url: string): Observable<boolean> {
-    console.log('🛡️ AuthGuard: Verificando acceso a:', url);
+    console.log(' AuthGuard: Verificando acceso a:', url);
     
     return this.authService.isAuthenticated$.pipe(
       tap(isAuthenticated => {
         if (!isAuthenticated) {
-          console.log('❌ Usuario no autenticado, redirigiendo al login');
+          console.log(' Usuario no autenticado, redirigiendo al login');
           this.router.navigate(['/login'], { 
             queryParams: { returnUrl: url } 
           });
         } else {
-          console.log('✅ Usuario autenticado, permitiendo acceso');
+          console.log('Usuario autenticado, permitiendo acceso');
         }
       }),
       map(isAuthenticated => isAuthenticated)
@@ -53,7 +53,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 }
 
-// 🔓 GUARD PARA RUTAS PÚBLICAS (login, registro, etc.)
+
 @Injectable({
   providedIn: 'root'
 })
@@ -65,15 +65,15 @@ export class PublicGuard implements CanActivate {
   ) {}
 
   canActivate(): Observable<boolean> {
-    console.log('🔓 PublicGuard: Verificando si usuario está deslogueado');
+    console.log('PublicGuard: Verificando si usuario está deslogueado');
     
     return this.authService.isAuthenticated$.pipe(
       tap(isAuthenticated => {
         if (isAuthenticated) {
-          console.log('✅ Usuario ya autenticado, redirigiendo al dashboard');
+          console.log('Usuario ya autenticado, redirigiendo al dashboard');
           this.router.navigate(['/dashboard']);
         } else {
-          console.log('👍 Usuario no autenticado, permitiendo acceso a página pública');
+          console.log(' Usuario no autenticado, permitiendo acceso a página pública');
         }
       }),
       map(isAuthenticated => !isAuthenticated)

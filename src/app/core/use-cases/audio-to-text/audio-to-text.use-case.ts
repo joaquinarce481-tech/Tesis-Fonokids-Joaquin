@@ -1,36 +1,35 @@
 import { environment } from 'environments/environment';
 
 export const audioToTextUseCase = async (audioFile: File) => {
-  console.log('🚀 USE CASE EJECUTADO - Enviando con FormData');
+  console.log(' USE CASE EJECUTADO - Enviando con FormData');
   
   try {
     const formData = new FormData();
     formData.append('file', audioFile);
 
-    console.log('📤 Enviando archivo:', audioFile.name, audioFile.size, 'bytes');
-    console.log('📦 FormData creado correctamente');
+    console.log(' Enviando archivo:', audioFile.name, audioFile.size, 'bytes');
+    console.log(' FormData creado correctamente');
 
-    // ✅ USAR ENVIRONMENT EN LUGAR DE LOCALHOST
     const resp = await fetch(`${environment.backendApi}/gpt/audio-to-text`, {
       method: 'POST',
       body: formData,
     });
 
-    console.log('📡 Respuesta recibida - Status:', resp.status);
+    console.log(' Respuesta recibida - Status:', resp.status);
 
     if (!resp.ok) {
       const errorText = await resp.text();
-      console.error('❌ Error del servidor:', resp.status, errorText);
+      console.error(' Error del servidor:', resp.status, errorText);
       throw new Error(`Error del servidor: ${resp.status}`);
     }
 
     const data = await resp.json();
-    console.log('✅ Datos recibidos:', data);
+    console.log(' Datos recibidos:', data);
     
     return data;
 
   } catch (error) {
-    console.error('❌ Error en audioToTextUseCase:', error);
+    console.error('Error en audioToTextUseCase:', error);
     throw error;
   }
 };
