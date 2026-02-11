@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;600;700&family=Fredoka:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;600;700&family=Fredoka:wght@300;400;500;600;700&display=swap');
 
 /* 🌈 Variables actualizadas con colores del logo */
 :root {
@@ -22,6 +22,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Fredoka', 'Comfortaa', sans-serif;
 }
 
 body {
@@ -43,6 +44,7 @@ body {
   background-size: 400% 400%, 350% 350%, 500% 500%, 450% 450%, 400% 400%, 300% 300%;
   animation: logo-gradient-flow 15s ease infinite;
   position: relative;
+  font-family: 'Fredoka', 'Comfortaa', sans-serif;
 }
 
 @keyframes logo-gradient-flow {
@@ -119,19 +121,6 @@ body {
   50% {
     transform: translateY(-8px);
   }
-}
-
-/* 🌊 Wrapper del login - Diseño horizontal */
-.login-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  padding: 0 5%;
-  gap: 60px;
-  position: relative;
-  overflow: hidden;
 }
 
 /* ✨ Elementos decorativos flotantes */
@@ -359,7 +348,7 @@ form input {
   background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(15px);
   font-size: 1.1rem;
-  font-family: 'Comfortaa', sans-serif;
+  font-family: 'Fredoka', 'Comfortaa', sans-serif;
   color: #2c5282;
   font-weight: 500;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -373,6 +362,7 @@ form input {
 form input::placeholder {
   color: rgba(44, 82, 130, 0.7);
   font-weight: 400;
+  font-family: 'Fredoka', 'Comfortaa', sans-serif;
 }
 
 form input:focus {
@@ -416,7 +406,7 @@ form button, .login-button {
   color: white;
   font-weight: 700;
   font-size: 1.2rem;
-  font-family: 'Fredoka', cursive;
+  font-family: 'Fredoka', 'Comfortaa', sans-serif;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 
@@ -475,7 +465,7 @@ form button:active, .login-button:active {
   color: #2c5282;
   font-weight: 600;
   font-size: 1rem;
-  font-family: 'Comfortaa', sans-serif;
+  font-family: 'Fredoka', 'Comfortaa', sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
@@ -507,7 +497,7 @@ form button:active, .login-button:active {
 .error-message, .success-message {
   padding: 1rem;
   border-radius: 15px;
-  font-family: 'Comfortaa', sans-serif;
+  font-family: 'Fredoka', 'Comfortaa', sans-serif;
   font-weight: 600;
   text-align: center;
   margin: 1rem 0;
@@ -555,7 +545,7 @@ form button:active, .login-button:active {
   border-radius: 15px;
   border: 2px solid rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(10px);
-  font-family: 'Comfortaa', sans-serif;
+  font-family: 'Fredoka', 'Comfortaa', sans-serif;
 }
 
 /* 🎭 Efectos hover mejorados */
