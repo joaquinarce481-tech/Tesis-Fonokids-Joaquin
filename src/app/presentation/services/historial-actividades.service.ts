@@ -13,15 +13,15 @@ export interface RegistrarActividadDto {
   providedIn: 'root'
 })
 export class HistorialActividadesService {
-  // ✅ USAR backendLogin (donde está el server.js con historial-actividades)
+  // USAR backendLogin (donde está el server.js con historial-actividades)
   private apiUrl = `${environment.backendLogin}/api/historial-actividades`;
 
   constructor(private http: HttpClient) {
-    console.log('🔧 HistorialActividadesService configurado:', this.apiUrl);
+    console.log(' HistorialActividadesService configurado:', this.apiUrl);
   }
 
   registrarActividad(actividad: RegistrarActividadDto): Observable<any> {
-    console.log('📝 Registrando actividad:', actividad);
+    console.log(' Registrando actividad:', actividad);
     return this.http.post(`${this.apiUrl}`, actividad);
   }
 

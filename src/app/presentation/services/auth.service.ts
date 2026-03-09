@@ -29,7 +29,7 @@ export interface ApiResponse {
 export class AuthService {
   private readonly apiUrl = `${environment.backendLogin}/api/auth`;
   
-  // 🔐 Estado de autenticación
+  //  Estado de autenticación
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
   
@@ -43,7 +43,7 @@ export class AuthService {
     this.loadStoredAuth();
   }
 
-  // 🔄 Cargar autenticación guardada
+  //  Cargar autenticación guardada
   private loadStoredAuth(): void {
     const token = localStorage.getItem('fonokids_token');
     const user = localStorage.getItem('fonokids_user');
@@ -60,9 +60,9 @@ export class AuthService {
     }
   }
 
-  // 🔑 LOGIN
+  //  LOGIN
   login(username: string, password: string): Observable<AuthResponse> {
-    console.log('🔐 AuthService: Intentando login...', username);
+    console.log(' AuthService: Intentando login...', username);
     
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, {
       username,
@@ -70,7 +70,7 @@ export class AuthService {
     }).pipe(
       tap(response => {
         if (response.token && response.user) {
-          console.log('✅ Login exitoso:', response.user.username);
+          console.log(' Login exitoso:', response.user.username);
           
           // Guardar en localStorage
           localStorage.setItem('fonokids_token', response.token);
@@ -82,13 +82,13 @@ export class AuthService {
         }
       }),
       catchError(error => {
-        console.error('❌ Error en login:', error);
+        console.error(' Error en login:', error);
         return throwError(() => error);
       })
     );
   }
 
-  // 🚪 LOGOUT
+  //  LOGOUT
   logout(): void {
     console.log(' Cerrando sesión...');
     
@@ -104,7 +104,7 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  // 📧 FORGOT PASSWORD - Solicitar código
+  //  FORGOT PASSWORD - Solicitar código
   forgotPassword(email: string): Observable<ApiResponse> {
     console.log('📧 Solicitando código de recuperación para:', email);
     
@@ -112,10 +112,10 @@ export class AuthService {
       email
     }).pipe(
       tap(response => {
-        console.log('✅ Código de recuperación enviado');
+        console.log(' Código de recuperación enviado');
       }),
       catchError(error => {
-        console.error('❌ Error solicitando código:', error);
+        console.error(' Error solicitando código:', error);
         return throwError(() => error);
       })
     );
@@ -123,17 +123,17 @@ export class AuthService {
 
   // 🔍 VERIFY CODE - Verificar código de recuperación
   verifyResetCode(email: string, code: string): Observable<ApiResponse> {
-    console.log('🔍 Verificando código para:', email);
+    console.log(' Verificando código para:', email);
     
     return this.http.post<ApiResponse>(`${this.apiUrl}/verify-reset-code`, {
       email,
       code
     }).pipe(
       tap(response => {
-        console.log('✅ Código verificado correctamente');
+        console.log(' Código verificado correctamente');
       }),
       catchError(error => {
-        console.error('❌ Error verificando código:', error);
+        console.error(' Error verificando código:', error);
         return throwError(() => error);
       })
     );
@@ -141,7 +141,7 @@ export class AuthService {
 
   // 🔄 RESET PASSWORD - Cambiar contraseña
   resetPassword(email: string, code: string, newPassword: string): Observable<ApiResponse> {
-    console.log('🔄 Restableciendo contraseña para:', email);
+    console.log(' Restableciendo contraseña para:', email);
     
     return this.http.post<ApiResponse>(`${this.apiUrl}/reset-password`, {
       email,
@@ -149,10 +149,10 @@ export class AuthService {
       newPassword
     }).pipe(
       tap(response => {
-        console.log('✅ Contraseña actualizada exitosamente');
+        console.log(' Contraseña actualizada exitosamente');
       }),
       catchError(error => {
-        console.error('❌ Error actualizando contraseña:', error);
+        console.error(' Error actualizando contraseña:', error);
         return throwError(() => error);
       })
     );
@@ -169,10 +169,10 @@ export class AuthService {
     
     return this.http.post<ApiResponse>(`${this.apiUrl}/create-user`, userData).pipe(
       tap(response => {
-        console.log('✅ Usuario creado exitosamente');
+        console.log('Usuario creado exitosamente');
       }),
       catchError(error => {
-        console.error('❌ Error creando usuario:', error);
+        console.error('Error creando usuario:', error);
         return throwError(() => error);
       })
     );
@@ -184,10 +184,10 @@ export class AuthService {
     
     return this.http.get<{ user: User }>(`${this.apiUrl}/profile`, { headers }).pipe(
       tap(response => {
-        console.log('✅ Perfil obtenido:', response.user);
+        console.log(' Perfil obtenido:', response.user);
       }),
       catchError(error => {
-        console.error('❌ Error obteniendo perfil:', error);
+        console.error(' Error obteniendo perfil:', error);
         if (error.status === 401 || error.status === 403) {
           this.logout(); // Token inválido
         }
@@ -196,7 +196,7 @@ export class AuthService {
     );
   }
 
-  // 🔗 Obtener headers de autenticación
+  //  Obtener headers de autenticación
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('fonokids_token');
     return new HttpHeaders({
@@ -205,7 +205,7 @@ export class AuthService {
     });
   }
 
-  // 🎯 GETTERS DE ESTADO
+  //  GETTERS DE ESTADO
   get currentUser(): User | null {
     return this.currentUserSubject.value;
   }

@@ -26,7 +26,7 @@ export class JuegosTerapeuticosComponent implements OnInit {
   juegos: JuegoInfo[] = [
     {
       id: 'ruleta-praxias-ia',
-      nombre: 'Ruleta con IA',
+      nombre: 'Ruleta de Praxias',
       descripcion: 'Gira la ruleta y demuestra con tu cámara que puedes hacer el ejercicio',
       dificultad: 'medio',
       tipo: 'ia-ruleta',

@@ -21,7 +21,7 @@ export class OpenAiService {
     return from(prosConsUseCase(prompt));
   }
 
-  // 👇 ESTE ES EL MÉTODO CORRECTO PARA EL STREAM
+  
   prosConsDiscusserStream(prompt: string, abortSignal: AbortSignal) {
     return prosConsStreamUseCase(prompt, abortSignal);
   }
